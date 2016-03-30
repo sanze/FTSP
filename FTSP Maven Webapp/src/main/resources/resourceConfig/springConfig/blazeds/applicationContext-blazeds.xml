@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:flex="http://www.springframework.org/schema/flex"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/flex
+			http://www.springframework.org/schema/flex/spring-flex-1.5.xsd">
+
+	 <!--配置 messagebroker  -->
+	<flex:message-broker id="_messageBroker">
+		<flex:message-service default-channels="my-streaming-amf"/>
+	</flex:message-broker>
+	<!-- 配置消息信道，相当于之前 messaging-config.xml文件中信道配置-->
+	<flex:message-destination id="market-data-feed" allow-subtopics="true"
+		subtopic-separator="."  message-time-to-live="120000" />
+	
+	<flex:message-destination id="ems-connection-status" allow-subtopics="true"
+		subtopic-separator="."  message-time-to-live="120000" />
+<!-- 
+    <bean id="Receiver" class="com.fujitsu.test.meikai.ReceiveAlmMsg">
+        <flex:remoting-destination />
+    </bean>
+ -->    
+    <!-- MessageTemplate makes it easy to publish messages -->
+    <bean id="defaultMessageTemplate" class="org.springframework.flex.messaging.MessageTemplate" />
+<!--         
+	 <bean id="alarmFeedStarter" class="com.fujitsu.test.meikai.AlarmFeed">
+         <constructor-arg ref="defaultMessageTemplate" />
+         <constructor-arg value="/WEB-INF/alarmlist.xml" />  
+        <flex:remoting-destination />
+    </bean>
+ -->	
+</beans>

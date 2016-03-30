@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ResourceSystemCorrelationMapper">
+    <!-- 获取资源关联任务列表 -->
+    <select id="getResourceCorrelationTaskList" resultType="hashmap">
+        select * from t_resource_correlation_task
+    </select>
+    
+    <!-- 获取特定资源关联任务信息 -->
+    <select id="getResourceCorrelationTaskInfo" resultType="hashmap">
+        select * from t_resource_correlation_task
+        where RC_TASK_ID = #{taskId}
+	limit 0,1
+    </select>
+    
+    <!-- 更新资源关联任务状态 -->
+    <update id="updateResourceCorrelationTaskStatus" parameterType="hashmap">
+        update t_resource_correlation_task
+        <set>
+	        <if test="map.LATEST_EXECUTE_TIME!=null">
+	            LATEST_EXECUTE_TIME = #{map.LATEST_EXECUTE_TIME},
+	        </if>
+	        <if test="map.LATEST_EXECUTE_RESULT!=null">
+	             LATEST_EXECUTE_RESULT = #{map.LATEST_EXECUTE_RESULT},
+	        </if>
+	        <if test="map.TASK_STATUS!=null">
+	            TASK_STATUS = #{map.TASK_STATUS},
+	        </if>
+	        <if test="map.PERIOD!=null">
+	            PERIOD = #{map.PERIOD},
+	        </if>
+	        <if test="map.NEXT_EXECUTE_TIME!=null">
+	            NEXT_EXECUTE_TIME = #{map.NEXT_EXECUTE_TIME},
+	        </if>
+        </set>
+        where RC_TASK_ID = #{map.RC_TASK_ID}
+    </update>
+    
+    <!-- 获取kettle job运行日志 -->
+    <select id="getKettleJobLog" resultType="hashmap">
+        select * from t_spoon_job_log
+        where JOBNAME = #{jobName} and LOGDATE > date_format(now(), '%Y-%m-%d 00:00:00')
+        order by LOGDATE DESC
+        limit 0,1
+    </select>
+
+</mapper>

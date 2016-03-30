@@ -1,0 +1,5517 @@
+﻿<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.CircuitManagerMapper">
+
+	<!-- 定义circuit_info表的字段 -->
+	<sql id="circuitInfo">
+		CIR_CIRCUIT_INFO_ID,A_END_CTP,A_END_RATE,A_END_PORT_VALUE,
+		A_END_USER_NAME,Z_END_CTP,Z_END_RATE,Z_END_PORT_VALUE,
+		Z_END_USER_NAME,CIR_NO,SOURCE_NO,
+		CIR_NAME,CLIENT_NAME,USED_FOR,CIR_COUNT
+	</sql>
+
+	<!-- 定义circuit表的字段 -->
+	<sql id="circuit">
+		CIR_CIRCUIT_ID,A_END_CTP,Z_END_CTP,DIRECTION,CIR_TYPE,
+		PARENT_CIR,SUB_CIR,SVC_TYPE,IS_MAIN_CIR,IS_DEL,
+		CREATE_TIME,UPDATE_TIME
+	</sql>
+
+	<!-- 定义ctp表的字段 -->
+	<sql id="ctp">
+		BASE_SDH_CTP_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,
+		BASE_PTP_ID,NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,
+		OWNER,CONNECTION_STATE,TP_MAPPING_MODE,DIRECTION,
+		TP_PROTECTION_ASSOCIATION,EDGE_POINT,TOP_CTP,
+		CTP_VALUE,CTP_64C,CTP_16C,CTP_8C,CTP_4C,CTP_J_ORIGINAL,
+		CTP_J,CTP_K,CTP_L,CTP_M,CONNECTION_TYPE,CONNECT_RATE,
+		IS_SEPARATE,IS_DEL,CREATE_TIME,UPDATE_TIME,IS_ETH
+	</sql>
+	
+	<!-- 定义circuit_route表的字段 -->
+	<sql id="circuitRoute">
+		CIR_CIRCUIT_ROUTE_ID,CIR_CIRCUIT_ID,CHAIN_ID,CHAIN_TYPE,
+		AHEAD_CRS_ID,NEXT_CHAIN_ID,SEQUENCE,IS_COMPLETE
+	</sql>
+
+
+	<!--wangjian-->
+	<!-- 查询电路生成的任务页面  @@@分权分域到网元@@@--> 
+	<select id="getAllEMSTask" resultType="hashmap"
+		>
+		select 	tt.RESULT,
+				tt.SYS_TASK_ID,
+				(select tg.GROUP_NAME from t_base_ems_group tg where tc.BASE_EMS_GROUP_ID = tg.BASE_EMS_GROUP_ID) as GROUP_NAME,
+				tc.DISPLAY_NAME,
+				tt.TASK_STATUS,
+				CAST(tt.END_TIME AS char) as END_TIME ,	
+				CAST(tt.NEXT_TIME AS char) as NEXT_TIME ,
+				tt.PERIOD_TYPE,
+				tt.PERIOD,
+				ti.SYS_TASK_INFO_ID
+		FROM 	t_sys_task tt,
+				t_sys_task_info ti,
+				(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION" />) as tc
+		where 	tt.SYS_TASK_ID= ti.SYS_TASK_ID 
+		and		ti.TARGET_ID = tc.BASE_EMS_CONNECTION_ID
+		and		tt.task_type = 7	
+		and  	tc.BASE_EMS_CONNECTION_ID in
+		<foreach collection="listEmsId" index="index" item="list"
+					open="(" close=")" separator=",">
+					${list}
+		</foreach>
+		
+		limit  #{start},#{limit}
+	</select>
+	<!-- 根据端口id查询板卡id--> 
+	<select id="selectUnitId" resultType="hashmap"
+		>
+		select 	BASE_UNIT_ID
+		FROM 	t_base_ptp 
+		where 	base_ptp_id in
+		<foreach collection="listptp" index="index" item="list"
+					open="(" close=")" separator=",">
+					${list}
+		</foreach>		
+	</select>
+	
+	<!-- 获取网管分组 --> 
+	<select id="getAllGroup" resultType="hashmap">
+		select * from T_BASE_EMS_GROUP where IS_DEL = 0
+	</select>
+
+	<select id="getTaskIdFromEmsId" resultType="java.lang.Integer">
+		<![CDATA[SELECT 
+		    task.SYS_TASK_ID
+		FROM
+		    t_sys_task_info task,
+		    t_sys_task t
+		WHERE
+		    task.SYS_TASK_ID = t.SYS_TASK_ID
+		        and task.TARGET_TYPE = #{targetType}
+		        and task.TARGET_ID = #{emsId}
+				and t.TASK_TYPE=#{taskType};
+		]]>
+	</select>
+
+	<!-- 根据a端时隙查询电路(可能有多条，降序排列，去第一条) -->
+	<select id="getCircuitByCtp" resultType="hashmap"
+		parameterType="Integer">
+		select * from t_cir_circuit where A_END_CTP = #{a_ctp_id} Order
+		by CIR_CIRCUIT_ID limit 0,1
+	</select>
+
+	<!--  查询ptp -->
+	<select id="getPtp" resultType="hashmap" parameterType="hashmap">
+		select * from t_base_ptp
+		<where>
+			<if test="map.BASE_PTP_ID != null">
+				BASE_PTP_ID = #{map.BASE_PTP_ID}
+			</if>
+		</where>
+	</select>
+
+	<!-- 取得当前的最大电路编号 -->
+	<select id="getMaxCircuitNo" resultType="hashmap">
+		select max(CIR_NO) as CIR_NO from t_cir_circuit_info
+	</select>
+
+	<!-- 取得当前的otn最大电路编号 -->
+	<select id="getMaxOtnCircuitNo" resultType="hashmap">
+		select max(CIR_NO) as CIR_NO from t_cir_otn_circuit_info
+	</select>
+
+	<!-- 取得当前的ptn最大电路编号 -->
+	<select id="getMaxPtnCircuitNo" resultType="hashmap">
+		select max(CIR_NO) as CIR_NO from t_cir_ptn_circuit_info
+	</select>
+	
+	<!-- 根据组合条件查询ctp -->
+	<select id="getCtp" resultType="hashmap" parameterType="hashmap">
+		select * from t_base_sdh_ctp
+		<where>
+			<if test="map.BASE_SDH_CTP_ID != null">
+				BASE_SDH_CTP_ID = #{map.BASE_SDH_CTP_ID}
+			</if>
+			<if test="map.BASE_PTP_ID != null">
+				AND BASE_PTP_ID = #{map.BASE_PTP_ID}
+			</if>
+			<if test="map.CTP_64C != null">
+				AND CTP_64C = #{map.CTP_64C}
+			</if>
+			<if test="map.CTP_16C != null">
+				AND CTP_16C = #{map.CTP_16C}
+			</if>
+			<if test="map.CTP_8C != null">
+				AND CTP_8C = #{map.CTP_8C}
+			</if>
+			<if test="map.CTP_4C != null">
+				AND CTP_4C = #{map.CTP_4C}
+			</if>
+			<if test="map.CTP_J != null">AND CTP_J = #{map.CTP_J}</if>
+			<if test="map.CTP_K != null">AND CTP_K = #{map.CTP_K}</if>
+			<if test="map.CTP_L != null">AND CTP_L = #{map.CTP_L}</if>
+			<if test="map.CTP_M != null">AND CTP_M = #{map.CTP_M}</if>
+		</where>
+	</select>
+
+	<!--  查询电路 -->
+	<select id="getCircuit" resultType="hashmap"
+		parameterType="hashmap">
+		select * from t_cir_circuit
+		<where>
+			<if test="map.CIR_TYPE != null">
+				CIR_TYPE = #{map.CIR_TYPE}
+			</if>
+		</where>
+	</select>
+
+	<!-- 从路由表中查出交叉连接（两表关联查询） -->
+	<select id="getCrsFromRoute" resultType="hashmap"
+		parameterType="Integer">
+		select tc.*
+		  from t_cir_circuit_route tr, t_base_sdh_crs tc
+		 where tc.BASE_SDH_CRS_ID = tr.CHAIN_ID 
+		 AND tr.CIR_CIRCUIT_ID =#{cirId} 
+		 AND tr.CHAIN_TYPE =#{isCrs}
+		 AND tr.IS_COMPLETE = 1
+	</select>
+
+	<!-- 交叉连接表查询 -->
+	<select id="getCrossConnect" resultType="hashmap"
+		parameterType="hashmap">
+		select * from t_base_sdh_crs
+		<where>
+				IS_DEL = 0
+				and IS_AUTO_CRS = 0
+			<if test="map.BASE_SDH_CRS_ID != null">
+				AND	BASE_SDH_CRS_ID = #{map.BASE_SDH_CRS_ID}
+			</if>
+			<if test="map.A_END_CTP != null">
+				AND A_END_CTP = #{map.A_END_CTP}
+			</if>
+			<if test="map.Z_END_CTP != null">
+				AND Z_END_CTP = #{map.Z_END_CTP}
+			</if>
+			<if test="map.IS_IN_CIRCUIT != null">
+				AND IS_IN_CIRCUIT = #{map.IS_IN_CIRCUIT}
+			</if>
+			<if test="map.CIRCUIT_COUNT != null">
+				AND CIRCUIT_COUNT = #{map.CIRCUIT_COUNT}
+			</if>
+		</where>
+	</select>
+	
+		<!--  查询需要合并的虚拟交叉 -->
+	<select id="selectDoubleACtp" resultType="hashmap"
+		parameterType="hashmap">
+		select * from 
+		(select count(a_end_ctp) as NUM ,A_END_CTP 
+				from t_base_otn_crs 
+				where IS_VIRTUAL = 1 
+				group by A_END_CTP) t 
+		where t.NUM=2
+	</select>
+
+	<!-- 从路由表中查出link（两表关联查询） -->
+	<select id="getLinkFromRoute" resultType="hashmap"
+		parameterType="Integer">
+		select tl.* 
+		from t_cir_circuit_route tr, 
+		t_base_link tl 
+		where	tr.CHAIN_ID = tl.BASE_LINK_ID 
+		AND 	tr.CIR_CIRCUIT_ID =#{cirId}
+		AND 	tr.CHAIN_TYPE =#{isLink}
+		And 	tr.IS_COMPLETE = 1
+	</select>
+
+	<!-- link查询 -->
+	<select id="getLink" resultType="hashmap" parameterType="hashmap">
+		select * from t_base_link
+		<where>
+				IS_DEL = 0
+			<if test="map.A_END_PTP != null">
+				AND	A_END_PTP = #{map.A_END_PTP}
+			</if>
+			<if test="map.Z_END_PTP != null">
+				AND Z_END_PTP = #{map.Z_END_PTP}
+			</if>
+		</where>
+	</select>
+
+	<!-- 路由查询 -->
+	<select id="getRoute" resultType="hashmap"
+		parameterType="hashmap">
+		select * from t_cir_circuit_route
+		<where>
+			 1=1
+			<if test="map.IS_COMPLETE != null">
+				AND IS_COMPLETE = #{map.IS_COMPLETE}
+			</if>
+			<if test="map.CIR_CIRCUIT_ROUTE_ID != null">
+				AND	CIR_CIRCUIT_ROUTE_ID = #{map.CIR_CIRCUIT_ROUTE_ID}
+			</if>
+		</where>
+	</select>
+
+	<!-- 将某条电路，某个路由之前的记录全部查询出来 -->
+	<select id="getRouteBefore" resultType="hashmap">
+		select * from t_cir_circuit_route
+		<where>
+			<if test="cirId != null ">CIR_CIRCUIT_ID = #{cirId}</if>
+			<if test="routeId != null">
+				AND CIR_CIRCUIT_ROUTE_ID
+				<![CDATA[<]]>
+				#{routeId}
+			</if>
+		</where>
+	</select>
+
+		<!-- 查询出最近一次插入的记录 -->
+	<select id="getLatestRecord" resultType="hashmap">
+		select * from ${map.NAME}
+		<where>
+			<if test = "map.ID != null">
+				${map.ID} = (select max(${map.ID}) from ${map.NAME}
+							<where>
+							<if test = "map.IN_VALUE != null">
+								${map.IN_NAME} = #{map.IN_VALUE}
+							</if>
+							</where>
+				)
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询a端起，为以太网的电路 -->
+	<select id="getEthFromInfoA" resultType="hashmap">
+		select 	ti.* 
+		from 	t_cir_circuit_info ti,
+				t_base_binding_path tp,
+				t_base_eth_svc ts,
+				t_base_ne tn
+		where   ti.a_end_ctp = tp.base_sdh_ctp_id
+		and 	ti.CIR_COUNT>=1
+		and		ti.SVC_TYPE = 1
+		and		ti.SELECT_TYPE = 1
+		and		tp.BASE_PTP_ID = ts.Z_END_POINT
+		and		ts.BASE_NE_ID = tn.BASE_NE_ID
+		and		tn.FACTORY = 1
+		and		ts.Z_END_POINT_TYPE = 'MP'
+		and		ts.IS_DEL = 0
+		and		tp.TYPE = 0
+	</select>
+	
+	<!-- 查询z端起，为以太网的电路 -->
+	<select id="getEthFromInfoZ" resultType="hashmap">
+		select 	ti.* 
+		from 	t_cir_circuit_info ti,
+				t_base_binding_path tp,
+				t_base_eth_svc ts,
+				t_base_ne tn
+		where   ti.z_end_ctp = tp.base_sdh_ctp_id
+		and 	ti.CIR_COUNT>=1
+		and		ti.SVC_TYPE = 1
+		and		ti.SELECT_TYPE = 1
+		and		tp.BASE_PTP_ID = ts.A_END_POINT
+		and		ts.BASE_NE_ID = tn.BASE_NE_ID
+		and		tn.FACTORY = 1
+		and		ts.A_END_POINT_TYPE = 'MP'
+		and		ts.IS_DEL = 0
+		and		tp.TYPE = 0
+	</select>
+	
+	<select id="getHwEthFromInfo" resultType="hashmap">
+		select * from (
+			select 	ti.* 
+			from 	t_cir_circuit_info ti,
+					t_base_binding_path tp,
+					t_base_eth_svc ts,
+					t_base_ne tn
+			where   ti.a_end_ctp = tp.base_sdh_ctp_id
+			and 	ti.CIR_COUNT>=1
+			and		ti.SVC_TYPE = 2
+			and		ti.SELECT_TYPE = 2
+			and		tp.BASE_PTP_ID = ts.Z_END_POINT
+			and		ts.BASE_NE_ID = tn.BASE_NE_ID
+			and		tn.FACTORY = 1
+			and		ts.Z_END_POINT_TYPE = 'MP'
+			and		ts.IS_DEL = 0
+			and		tp.TYPE = 0
+			union 
+			select 	ti.* 
+			from 	t_cir_circuit_info ti,
+					t_base_binding_path tp,
+					t_base_eth_svc ts,
+					t_base_ne tn
+			where   ti.z_end_ctp = tp.base_sdh_ctp_id
+			and 	ti.CIR_COUNT>=1
+			and		ti.SVC_TYPE = 2
+			and		ti.SELECT_TYPE = 2
+			and		tp.BASE_PTP_ID = ts.A_END_POINT
+			and		ts.BASE_NE_ID = tn.BASE_NE_ID
+			and		tn.FACTORY = 1
+			and		ts.A_END_POINT_TYPE = 'MP'
+			and		ts.IS_DEL = 0
+			and		tp.TYPE = 0
+		) t limit #{start},#{limit}
+	</select>
+	
+	
+		<select id="getHwEthFromInfoCount" resultType="java.lang.Integer">
+		select count(1) as total from (
+			select 	ti.* 
+			from 	t_cir_circuit_info ti,
+					t_base_binding_path tp,
+					t_base_eth_svc ts,
+					t_base_ne tn
+			where   ti.a_end_ctp = tp.base_sdh_ctp_id
+			and 	ti.CIR_COUNT>=1
+			and		ti.SVC_TYPE = 2
+			and		ti.SELECT_TYPE = 2
+			and		tp.BASE_PTP_ID = ts.Z_END_POINT
+			and		ts.BASE_NE_ID = tn.BASE_NE_ID
+			and		tn.FACTORY = 1
+			and		ts.Z_END_POINT_TYPE = 'MP'
+			and		ts.IS_DEL = 0
+			and		tp.TYPE = 0
+			union 
+			select 	ti.* 
+			from 	t_cir_circuit_info ti,
+					t_base_binding_path tp,
+					t_base_eth_svc ts,
+					t_base_ne tn
+			where   ti.z_end_ctp = tp.base_sdh_ctp_id
+			and 	ti.CIR_COUNT>=1
+			and		ti.SVC_TYPE = 2
+			and		ti.SELECT_TYPE = 2
+			and		tp.BASE_PTP_ID = ts.A_END_POINT
+			and		ts.BASE_NE_ID = tn.BASE_NE_ID
+			and		tn.FACTORY = 1
+			and		ts.A_END_POINT_TYPE = 'MP'
+			and		ts.IS_DEL = 0
+			and		tp.TYPE = 0
+		) t
+	</select>
+	
+	<!-- 查询电路信息表-->
+	<select id="getCircuitInfo" resultType="hashmap"
+		parameterType="hashmap">
+		select * from t_cir_circuit_info
+		<where>
+			<if test="map.A_END_CTP != null ">
+				A_END_CTP = #{map.A_END_CTP}
+			</if>
+			<if test="map.A_END_PTP != null ">
+				A_END_PTP = #{map.A_END_PTP}
+			</if>
+			<if test="map.Z_END_CTP != null">
+				AND Z_END_CTP = #{map.Z_END_CTP}
+			</if>
+			<if test="map.Z_END_PTP != null">
+				AND Z_END_PTP = #{map.Z_END_PTP}
+			</if>
+			<if test="map.IS_COMPLETE_CIR != null">
+				AND IS_COMPLETE_CIR = #{map.IS_COMPLETE_CIR}
+			</if>
+		</where>
+	</select>
+
+	<!-- 查询电路（显示用）（多表关联查询）-->
+	<select id="selectCircuit" resultType="hashmap"
+		parameterType="hashmap">
+		select ti.CIR_CIRCUIT_INFO_ID,
+		       ti.SVC_TYPE,
+		       ti.IS_COMPLETE_CIR,
+		       ti.A_END_CTP,
+		       ti.Z_END_CTP,
+		       ti.SOURCE_NO,
+		       ti.CIR_NO,
+		       ti.CLIENT_NAME,
+		       ti.CIR_NAME,
+		       ti.USED_FOR,
+		       ti.Z_END_USER_NAME,
+		       ti.A_END_USER_NAME,
+		       ti.A_END_RATE as RATE,
+		       (select tn.DISPLAY_NAME
+		          from T_BASE_NE tn
+		         where tn.BASE_NE_ID = tpa.BASE_NE_ID) as A_NE,
+		       (select tbe.DISPLAY_NAME
+		          from t_base_ems_connection tbe
+		         where tbe.BASE_EMS_CONNECTION_ID = tpa.BASE_EMS_CONNECTION_ID) as A_EMS,
+		       tpa.PORT_DESC as A_PORT,
+		       (select DISPLAY_NAME
+		          from t_base_sdh_ctp tca
+		         where tca.BASE_SDH_CTP_ID = ti.A_END_CTP) as A_CTP,
+		       (select tbg.GROUP_NAME
+		          from t_base_ems_connection tbe,
+		               t_base_ems_group      tbg
+		         where tbe.BASE_EMS_CONNECTION_ID = tpa.BASE_EMS_CONNECTION_ID
+		           and tbg.BASE_EMS_GROUP_ID = tbe.BASE_EMS_GROUP_ID) as A_EMS_GROUP,
+		       (select tn.DISPLAY_NAME
+		          from T_BASE_NE tn,
+				t_base_ptp tp
+		         where tn.BASE_NE_ID = tp.BASE_NE_ID
+			   and tp.base_ptp_id = ti.Z_END_PTP ) as Z_NE,
+		       (select tbe.DISPLAY_NAME
+		          from t_base_ems_connection tbe,
+				t_base_ptp tp
+		         where tbe.BASE_EMS_CONNECTION_ID = tp.BASE_EMS_CONNECTION_ID and tp.base_ptp_id = ti.Z_END_PTP) as Z_EMS,
+		       (select tp.PORT_DESC from t_base_ptp tp where tp.base_ptp_id = ti.Z_END_PTP ) as Z_PORT,
+		       (select DISPLAY_NAME
+		          from t_base_sdh_ctp tcz
+		         where tcz.BASE_SDH_CTP_ID = ti.Z_END_CTP) as Z_CTP,
+		       (select tbg.GROUP_NAME
+		          from t_base_ems_connection tbe,
+		               t_base_ems_group      tbg,
+				t_base_ptp tp
+		         where tbe.BASE_EMS_CONNECTION_ID = tp.BASE_EMS_CONNECTION_ID
+		           and tbg.BASE_EMS_GROUP_ID = tbe.BASE_EMS_GROUP_ID and tp.base_ptp_id = ti.Z_END_PTP) as Z_EMS_GROUP
+		  from t_cir_circuit_info ti,
+		       t_base_ptp tpa
+		 where ti.A_END_PTP = tpa.BASE_PTP_ID
+		   and ti.IS_LATEST_CREATE = 1	
+		   <if test="map.SELECT_TYPE != null " >
+				AND ti.SELECT_TYPE = #{map.SELECT_TYPE}
+			</if>
+			<if test="map.SVC_TYPE != null " >
+				AND ti.SVC_TYPE = #{map.SVC_TYPE}
+			</if>
+		limit #{map.start},#{map.limit}
+	</select>
+	
+	<!-- 查询电路的总数（显示用）（多表关联查询）-->
+	<select id="selectCircuitTotal" resultType="hashmap"
+		parameterType="hashmap">
+		select count(1) as total from t_cir_circuit_info		
+			where	IS_LATEST_CREATE = 1
+			<if test="map.SELECT_TYPE != null " >
+				AND SELECT_TYPE = #{map.SELECT_TYPE}
+			</if>
+			<if test="map.SVC_TYPE != null " >
+				AND SVC_TYPE = #{map.SVC_TYPE}
+			</if>
+			
+			
+	</select>
+	
+	<!--查询最新生成的otn电路  -->
+	<select id="selectOtnCircuit" resultType="hashmap"
+		parameterType="hashmap">
+		select ti.CIR_OTN_CIRCUIT_INFO_ID as CIR_CIRCUIT_INFO_ID,
+		       ti.SVC_TYPE,
+		       ti.IS_COMPLETE_CIR,
+		       ti.A_END_CTP,
+		       ti.Z_END_CTP,
+		       ti.SOURCE_NO,
+		       ti.CIR_NO,
+		       ti.CLIENT_NAME,
+		       ti.CIR_NAME,
+		       ti.USED_FOR,
+		       ti.Z_END_USER_NAME,
+		       ti.A_END_USER_NAME,
+		       (select tn.DISPLAY_NAME
+		          from T_BASE_NE tn
+		         where tn.BASE_NE_ID = tpa.BASE_NE_ID) as A_NE,
+		       (select tbe.DISPLAY_NAME
+		          from t_base_ems_connection tbe
+		         where tbe.BASE_EMS_CONNECTION_ID = tpa.BASE_EMS_CONNECTION_ID) as A_EMS,
+		       tpa.PORT_DESC as A_PORT,
+		       (select DISPLAY_NAME
+		          from t_base_otn_ctp tca
+		         where tca.BASE_otn_CTP_ID = ti.A_END_CTP) as A_CTP,
+		       (select tbg.GROUP_NAME
+		          from t_base_ems_connection tbe,
+		               t_base_ems_group      tbg
+		         where tbe.BASE_EMS_CONNECTION_ID = tpa.BASE_EMS_CONNECTION_ID
+		           and tbg.BASE_EMS_GROUP_ID = tbe.BASE_EMS_GROUP_ID) as A_EMS_GROUP,
+		       (select tn.DISPLAY_NAME
+		          from T_BASE_NE tn,
+				t_base_ptp tp
+		         where tn.BASE_NE_ID = tp.BASE_NE_ID
+			   and tp.base_ptp_id = ti.Z_END_PTP ) as Z_NE,
+		       (select tbe.DISPLAY_NAME
+		          from t_base_ems_connection tbe,
+				t_base_ptp tp
+		         where tbe.BASE_EMS_CONNECTION_ID = tp.BASE_EMS_CONNECTION_ID and tp.base_ptp_id = ti.Z_END_PTP) as Z_EMS,
+		       (select tp.PORT_DESC from t_base_ptp tp where tp.base_ptp_id = ti.Z_END_PTP ) as Z_PORT,
+		       (select DISPLAY_NAME
+		          from t_base_otn_ctp tcz
+		         where tcz.BASE_OTN_CTP_ID = ti.Z_END_CTP) as Z_CTP,
+		       (select tbg.GROUP_NAME
+		          from t_base_ems_connection tbe,
+		               t_base_ems_group      tbg,
+				t_base_ptp tp
+		         where tbe.BASE_EMS_CONNECTION_ID = tp.BASE_EMS_CONNECTION_ID
+		           and tbg.BASE_EMS_GROUP_ID = tbe.BASE_EMS_GROUP_ID and tp.base_ptp_id = ti.Z_END_PTP) as Z_EMS_GROUP
+		  from t_cir_otn_circuit_info ti,
+		       t_base_ptp tpa
+		 where ti.A_END_PTP = tpa.BASE_PTP_ID
+		   and ti.IS_LATEST_CREATE = 1	
+		   <if test="map.SELECT_TYPE != null " >
+				AND ti.SELECT_TYPE = #{map.SELECT_TYPE}
+			</if>
+			<if test="map.SVC_TYPE != null " >
+				AND ti.SVC_TYPE = #{map.SVC_TYPE}
+			</if>
+		limit #{map.start},#{map.limit}
+	</select>
+	
+	<!-- 查询最新生成的otn电路的总数 -->
+	<select id="selectOtnCircuitTotal" resultType="hashmap"
+		parameterType="hashmap">
+		select count(1) as total from t_cir_otn_circuit_info		
+			where	IS_LATEST_CREATE = 1
+			<if test="map.SELECT_TYPE != null " >
+				AND SELECT_TYPE = #{map.SELECT_TYPE}
+			</if>
+			<if test="map.SVC_TYPE != null " >
+				AND SVC_TYPE = #{map.SVC_TYPE}
+			</if>
+			
+			
+	</select>
+
+	<!-- 万能查询-->
+	<select id="getByParameter" resultType="hashmap"
+		parameterType="hashmap">
+		select ${map.VALUE} from  ${map.NAME}
+		<where>
+			<if test="map.ID_NAME != null ">
+				${map.ID_NAME} = #{map.ID_VALUE}
+			</if>
+			<if test="map.ID_NAME_2 != null " >
+				AND ${map.ID_NAME_2} = #{map.ID_VALUE_2}
+			</if>
+			<if test="map.ID_NAME_3 != null">
+				AND ${map.ID_NAME_3}=#{map.ID_VALUE_3}
+			</if>
+			<if test="map.ID_NAME_4 != null">
+				AND ${map.ID_NAME_4}=#{map.ID_VALUE_4}
+			</if>
+			<if test="map.ID_NAME_5 != null">
+				AND ${map.ID_NAME_5}=#{map.ID_VALUE_5}
+			</if>
+			<if test="map.ID_NAME_6 != null">
+				AND ${map.ID_NAME_6}=#{map.ID_VALUE_6}
+			</if>
+			<if test="map.ID_NAME_7 != null">
+				AND ${map.ID_NAME_7}=#{map.ID_VALUE_7}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 往电路信息表中插入数据 -->
+	<insert id="insertCircuitInfo" parameterType="hashmap" keyProperty="map.CIR_CIRCUIT_INFO_ID">
+		insert into t_cir_circuit_info(
+		CIR_CIRCUIT_INFO_ID,A_END_CTP,A_END_PTP,Z_END_CTP,Z_END_PTP,CIR_COUNT,IS_LATEST_CREATE,CIR_NO,SVC_TYPE
+		,SELECT_TYPE,IS_COMPLETE_CIR,A_END_RATE
+		) values (
+		<choose>
+			<when test="map.CIR_CIRCUIT_INFO_ID != null">
+				#{map.CIR_CIRCUIT_INFO_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_CTP != null">#{map.A_END_CTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_PTP != null">#{map.A_END_PTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.Z_END_CTP != null">
+				#{map.Z_END_CTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.Z_END_PTP != null">
+				#{map.Z_END_PTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_COUNT != null">#{map.CIR_COUNT}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_LATEST_CREATE != null">#{map.IS_LATEST_CREATE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_NO != null">#{map.CIR_NO}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.SVC_TYPE != null">#{map.SVC_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.SELECT_TYPE != null">#{map.SELECT_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE_CIR != null">#{map.IS_COMPLETE_CIR}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_RATE != null">#{map.A_END_RATE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+
+	<!-- insertCircuit -->
+	<insert id="insertCircuit" parameterType="hashmap" keyProperty="map.CIR_CIRCUIT_ID">
+		insert into t_cir_circuit(
+		CIR_CIRCUIT_ID,
+		A_END_CTP,
+		Z_END_CTP,
+		DIRECTION,
+		CIR_TYPE,
+		A_END_PTP,
+		Z_END_PTP,
+		IS_MAIN_CIR,
+		CREATE_TIME,
+		CIR_CIRCUIT_INFO_ID
+		) values(
+		<choose>
+			<when test="map.CIR_CIRCUIT_ID != null">
+				#{map.CIR_CIRCUIT_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_CTP != null">#{map.A_END_CTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.Z_END_CTP != null">#{map.Z_END_CTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.DIRECTION != null">#{map.DIRECTION}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_TYPE != null">#{map.CIR_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_PTP != null">#{map.A_END_PTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.Z_END_PTP != null">#{map.Z_END_PTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_MAIN_CIR != null">
+				#{map.IS_MAIN_CIR}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CREATE_TIME != null">
+				#{map.CREATE_TIME}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_CIRCUIT_INFO_ID != null">
+				#{map.CIR_CIRCUIT_INFO_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+	</insert>
+
+	<!-- insertTemp -->
+	<insert id="insertTemp" parameterType="hashmap" keyProperty="map.BASE_TEMP_ID">
+		insert into t_cir_temp(
+		BASE_TEMP_ID,
+		BASE_PTP_ID,
+		BASE_CTP_ID
+		) values(
+		<choose>
+			<when test="map.BASE_TEMP_ID != null">
+				#{map.BASE_TEMP_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.BASE_MAC_ID != null">#{map.BASE_MAC_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.BASE_CTP_ID != null">#{map.BASE_CTP_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)ON DUPLICATE KEY UPDATE
+		<!--  <if test="map.BASE_PTP_ID != null">
+			BASE_PTP_ID= #{map.BASE_PTP_ID},
+		</if>
+		<if test="map.SRC_IN_LABEL != null">
+			SRC_IN_LABEL= #{map.SRC_IN_LABEL},
+		</if>
+		<if test="map.SRC_OUT_LABEL != null">
+			SRC_OUT_LABEL= #{map.SRC_OUT_LABEL},
+		</if>-->
+		BASE_CTP_ID = #{map.BASE_CTP_ID}
+	</insert>
+	
+	<!--  路由信息插入 -->
+	<insert id="insertRoute" parameterType="hashmap">
+		insert into t_cir_circuit_route (
+		<include refid="circuitRoute" />
+		) values(
+		<choose>
+			<when test="map.CIR_CIRCUIT_ROUTE_ID != null">
+				#{map.CIR_CIRCUIT_ROUTE_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_CIRCUIT_ID != null">
+				#{map.CIR_CIRCUIT_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_ID != null">#{map.CHAIN_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_TYPE != null">#{map.CHAIN_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.AHEAD_CRS_ID != null">
+				#{map.AHEAD_CRS_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.NEXT_CHAIN_ID != null">
+				#{map.NEXT_CHAIN_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.SEQUENCE != null">#{map.SEQUENCE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE != null">
+				#{map.IS_COMPLETE}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+	</insert>  
+
+	<!-- 插入时隙 -->
+	<insert id="insertCtp" parameterType="hashmap" keyProperty="map.BASE_SDH_CTP_ID">
+		insert into t_base_sdh_ctp(
+		BASE_SDH_CTP_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,
+		BASE_PTP_ID,IS_ETH,CTP_64C,CTP_16C,CTP_8C,CTP_4C,
+		CTP_J_ORIGINAL,CTP_J,CTP_K,CTP_L,CTP_M		
+		) values(
+		<choose>
+			<when test="map.BASE_SDH_CTP_ID != null">
+				#{map.BASE_SDH_CTP_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.BASE_EMS_CONNECTION_ID != null">
+				#{map.BASE_EMS_CONNECTION_ID}
+			</when>
+			<otherwise>0</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.BASE_NE_ID != null">#{map.BASE_NE_ID}</when>
+			<otherwise>0</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.BASE_PTP_ID != null">#{map.BASE_PTP_ID}</when>
+			<otherwise>0</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_ETH != null">
+				#{map.IS_ETH}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,-1,-1,-1,-1,-1,-1,-1,-1,-1
+		)
+	</insert>
+	
+	<!-- 更新电路表 -->
+	<update id="updateCircuit" parameterType="hashmap">
+		update t_cir_circuit
+		<set>
+			<if test="map.A_END_CTP != null">
+				A_END_CTP = #{map.A_END_CTP},
+			</if>
+			<if test="map.Z_END_CTP != null">
+				Z_END_CTP = #{map.Z_END_CTP},
+			</if>
+			<if test="map.A_END_PTP != null">
+				A_END_PTP = #{map.A_END_PTP},
+			</if>
+			<if test="map.Z_END_PTP != null">
+				Z_END_PTP = #{map.Z_END_PTP},
+			</if>
+			<if test="map.DIRECTION != null">
+				DIRECTION = #{map.DIRECTION},
+			</if>
+			<if test="map.CIR_TYPE != null">
+				CIR_TYPE = #{map.CIR_TYPE},
+			</if>
+			<if test="map.IS_COMPLETE_CIR != null">
+				IS_COMPLETE_CIR = #{map.IS_COMPLETE_CIR},
+			</if>
+			<if test="map.IS_MAIN_CIR != null">
+				IS_MAIN_CIR = #{map.IS_MAIN_CIR},
+			</if>
+			<if test="map.CIR_CIRCUIT_INFO_ID != null">
+				CIR_CIRCUIT_INFO_ID = #{map.CIR_CIRCUIT_INFO_ID},
+			</if>
+			<if test="map.IS_DEL != null">IS_DEL = #{map.IS_DEL},</if>
+			<if test="map.CREATE_TIME != null">
+				CREATE_TIME = #{map.CREATE_TIME},
+			</if>
+			<if test="map.UPDATE_TIME != null">
+				UPDATE_TIME = #{map.UPDATE_TIME},
+			</if>
+			
+		</set>
+		where CIR_CIRCUIT_ID = #{map.CIR_CIRCUIT_ID}
+	</update>
+
+	<!-- 更新交叉连接表 -->
+	<update id="updateCrs" parameterType="hashmap">
+		update t_base_sdh_crs
+		<set>
+			<if test="map.IS_IN_CIRCUIT != null">
+				IS_IN_CIRCUIT = #{map.IS_IN_CIRCUIT},
+			</if>
+			<if test="map.CIRCUIT_COUNT != null">
+				CIRCUIT_COUNT = #{map.CIRCUIT_COUNT}
+			</if>
+				
+		</set>
+		where BASE_SDH_CRS_ID = #{map.BASE_SDH_CRS_ID}
+	</update>
+
+	<!-- 更新电路信息表 -->
+	<update id="updateCircuitInfo" parameterType="hashmap">
+		update 
+
+		<choose>
+			<when test="map.tableName != null and map.tableName!=''">
+				${map.tableName}
+			</when>
+			<otherwise>
+				t_cir_circuit_info
+		  	</otherwise>
+		 </choose>
+		<set>
+			<if test="map.SOURCE_NO != null and map.SOURCE_NO!=''">
+				SOURCE_NO = #{map.SOURCE_NO},
+			</if>
+			<if test="map.CIR_NAME != null and map.CIR_NAME!=''">
+				CIR_NAME = #{map.CIR_NAME},
+			</if>
+			<if test="map.CLIENT_NAME != null and map.CLIENT_NAME!=''">
+				CLIENT_NAME = #{map.CLIENT_NAME},
+			</if>
+			<if test="map.USED_FOR != null and map.USED_FOR!=''">
+				USED_FOR = #{map.USED_FOR},
+			</if>
+			<if test="map.A_END_USER_NAME != null and map.A_END_USER_NAME!=''">
+				A_END_USER_NAME = #{map.A_END_USER_NAME},
+			</if>
+			<if test="map.Z_END_USER_NAME != null and map.Z_END_USER_NAME!=''">
+				Z_END_USER_NAME = #{map.Z_END_USER_NAME},
+			</if>
+			<if test="map.DIRECTION != null and map.DIRECTION!=''">
+				DIRECTION = #{map.DIRECTION},
+			</if>
+			<if test="map.CIR_COUNT != null and map.CIR_COUNT!=''">
+				CIR_COUNT = #{map.CIR_COUNT},
+			</if>
+			<if test="map.IS_LATEST_CREATE != null and map.IS_LATEST_CREATE!=''">
+				IS_LATEST_CREATE = #{map.IS_LATEST_CREATE},
+			</if>
+			<if test="map.PARENT_CIR != null and map.PARENT_CIR!=''">
+				PARENT_CIR = #{map.PARENT_CIR},
+			</if>
+			<if test="map.SVC_TYPE != null and map.SVC_TYPE!=''">
+				SVC_TYPE = #{map.SVC_TYPE},
+			</if>
+			<if test="map.SELECT_TYPE != null">
+				SELECT_TYPE = #{map.SELECT_TYPE},
+			</if>
+			<if test="map.USER_TYPE != null">
+				USER_TYPE = #{map.USER_TYPE},
+			</if>
+			<if test="map.BUSINESS_TYPE != null">
+				BUSINESS_TYPE = #{map.BUSINESS_TYPE},
+			</if>
+			<if test="map.PROTECT_METHOD != null">
+				PROTECT_METHOD = #{map.PROTECT_METHOD},
+			</if>
+			<if test="map.SERVICE_LEVEL != null">
+				SERVICE_LEVEL = #{map.SERVICE_LEVEL},
+			</if>
+			<if test="map.MAINTENANCE_LEVEL != null">
+				MAINTENANCE_LEVEL = #{map.MAINTENANCE_LEVEL},
+			</if>
+			<if test="map.BUSINESS_LEVEL != null">
+				BUSINESS_LEVEL = #{map.BUSINESS_LEVEL},
+			</if>
+			<if test="map.NETWORK_LEVEL != null">
+				NETWORK_LEVEL = #{map.NETWORK_LEVEL},
+			</if>
+			<if test="map.NETWORK_LEVEL2 != null">
+				NETWORK_LEVEL2 = #{map.NETWORK_LEVEL2},
+			</if>
+			<if test="map.A_ROOM != null">
+				A_ROOM = #{map.A_ROOM},
+			</if>
+			<if test="map.Z_ROOM != null">
+				Z_ROOM = #{map.Z_ROOM},
+			</if>
+			<if test="map.A_PHONE != null">
+				A_PHONE = #{map.A_PHONE},
+			</if>
+			<if test="map.Z_PHONE != null">
+				Z_PHONE = #{map.Z_PHONE},
+			</if>
+			<if test="map.A_ADDRESS != null">
+				A_ADDRESS = #{map.A_ADDRESS},
+			</if>
+			<if test="map.Z_ADDRESS != null">
+				Z_ADDRESS = #{map.Z_ADDRESS},
+			</if>
+			<if test="map.A_PEOPLE != null">
+				A_PEOPLE = #{map.A_PEOPLE},
+			</if>
+			<if test="map.Z_PEOPLE != null">
+				Z_PEOPLE = #{map.Z_PEOPLE},
+			</if>
+			<if test="map.tableName == null or map.tableName==''">
+				<if test="map.Z_END_CTP != null">
+					Z_END_CTP = #{map.Z_END_CTP},
+				</if>
+				<if test="map.Z_END_PTP != null">
+				Z_END_PTP = #{map.Z_END_PTP},
+				</if>
+			</if>
+			
+		</set>
+		<where>
+			1=1 
+			<if test="map.A_END_CTP != null and map.A_END_CTP != ''">
+				AND	A_END_CTP = #{map.A_END_CTP}
+			</if>
+			<if test="map.tableName != null and map.tableName!=''">
+				<if test="map.Z_END_CTP != null and map.Z_END_CTP != ''">
+				AND	Z_END_CTP = #{map.Z_END_CTP}
+				</if>
+			</if>
+			<if test="map.CIR_CIRCUIT_INFO_ID != null and map.CIR_CIRCUIT_INFO_ID != ''">
+				AND CIR_CIRCUIT_INFO_ID = #{map.CIR_CIRCUIT_INFO_ID}
+			</if>
+			<if test="map.SVC_TYPE != null and map.SVC_TYPE==4">
+				<if test="map.PTN_INFO != null">
+					AND CIR_CIRCUIT_INFO_ID = #{map.PTN_INFO}
+				</if>
+			</if>
+			
+		</where>
+	</update>
+	<!-- 删除路由信息 -->
+	<delete id="deleteRoute" parameterType="Integer">
+		delete from t_cir_circuit_route 
+		where CIR_CIRCUIT_ROUTE_ID =#{routeId};
+	</delete>
+
+	<!-- 更新交叉连接表查找状态 -->
+	<update id="updateCrsState" parameterType="Integer">
+		update t_base_sdh_crs
+		<set>IS_IN_CIRCUIT = #{state}</set>
+		where IS_IN_CIRCUIT = 1
+	</update>
+
+	<!-- 更新电路表查找状态 --> 
+	<update id="updateCirState" parameterType="Integer">
+		update t_cir_circuit_info
+		<set>IS_LATEST_CREATE = #{state}</set>
+	</update>
+
+	<!-- 更新任务表状态 --> 
+	<update id="updateTask" parameterType="hashMap">
+		update t_sys_task
+		<set>
+		<if test="map.TASK_STATUS != null">
+			TASK_STATUS = #{map.TASK_STATUS},
+		</if> 
+		<if test="map.NEXT_TIME != null">
+			NEXT_TIME = #{map.NEXT_TIME},
+		</if>
+		<if test="map.PERIOD_TYPE != null">
+			PERIOD_TYPE = #{map.PERIOD_TYPE},
+		</if>
+		<if test="map.PERIOD != null">
+			PERIOD = #{map.PERIOD},
+		</if> 
+		<if test="map.TASK_DESCRIPTION != null">
+			TASK_DESCRIPTION = #{map.TASK_DESCRIPTION},
+		</if>
+		<if test="map.RESULT != null">
+			RESULT = #{map.RESULT},
+		</if>
+		</set>
+		where  SYS_TASK_ID = #{map.SYS_TASK_ID}
+		
+	</update>
+	
+	<!-- 动态查询，根据传入的表名，字段名，组织查询语句 -->
+	<select id="selectTable" resultType="hashmap"
+		parameterType="java.util.Map" statementType="STATEMENT">
+		select * from ${map.tableName} where ${map.select_id} in
+		<foreach collection="map.ids" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+
+	</select>
+	
+	<!-- 查询中兴以太网表 -->
+	<select id="selectZTETemp" resultType="hashmap" >
+		SELECT 
+		  * 
+		FROM
+		  t_cir_temp tm,
+		  t_base_ptp tp 
+		WHERE tm.BASE_PTP_ID = tp.BASE_PTP_ID 
+		  AND is_select = 0 
+		  AND is_use = 0
+		  <if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tp.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if> 
+		LIMIT #{startNum},#{size}
+	</select>
+	
+	<!-- 查询中兴以太网表 -->
+	<select id="selectZTETempCount" resultType="hashmap" >
+		SELECT 
+		  COUNT(1) AS total 
+		FROM
+		  t_cir_temp tm,
+		  t_base_ptp tp 
+		WHERE tm.BASE_PTP_ID = tp.BASE_PTP_ID 
+		  AND is_select = 0 
+		  AND is_use = 0 
+		  <if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tp.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+	</select>
+
+	<!-- 查询能生成电路的交叉连接的数目 @@@分权分域到网元@@@ -->
+	<select id="getTotal" resultType="hashmap"
+		>
+		<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select count(1) as total 
+				from t_base_sdh_crs tbc , 
+				v_base_ptp tp ,
+				t_base_ne tn
+			where 	 tbc.A_END_PTP = tp.BASE_PTP_ID 
+			and		tbc.base_ne_id = tn.base_ne_id
+			and 	tp.PORT_TYPE = 1 
+			and 	tbc.IS_AUTO_CRS = 0
+			and		tbc.CIRCUIT_COUNT = 0
+			<!-- and		tbc.BASE_SDH_CRS_ID = 317  -->
+			and 	tbc.is_del = 0
+			<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tn.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+		</when>
+		<otherwise>
+			select 	count(1) as total 
+			 from 	t_base_sdh_crs tbc , 
+			  		v_base_ptp tp,
+			  		 <include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" /> as tn 
+			 where 	tbc.A_END_PTP = tp.BASE_PTP_ID 
+			 and 	tp.PORT_TYPE = 1 
+			 and 	tbc.CIRCUIT_COUNT = 0
+			 and 	tbc.IS_AUTO_CRS = 0
+			 and 	tbc.is_del = 0
+			 and	tbc.BASE_NE_ID = tn.BASE_NE_ID
+		</otherwise>
+		</choose>
+	</select>
+
+	<!-- 查询能生成电路的交叉连接  @@@分权分域到网元@@@-->
+	<select id="getPartCrossId" resultType="hashmap"
+		>
+		<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select 	tbc.* 
+			 from 	t_base_sdh_crs tbc , 
+			  		v_base_ptp tp ,
+			  		t_base_ne tn
+			 where 	tbc.A_END_PTP = tp.BASE_PTP_ID 
+			 and	tbc.base_ne_id = tn.base_ne_id
+			 and 	tp.PORT_TYPE = 1 
+			 and 	tbc.IS_AUTO_CRS = 0
+			 and 	tbc.CIRCUIT_COUNT = 0
+			 <!-- and		tbc.BASE_SDH_CRS_ID = 50991 --> 
+			 and 	tbc.is_del = 0
+			 <if test="map.NAME != null and !map.NAME.isEmpty()" >
+			 and	tn.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+			limit ${startNum},${size}
+		</when>
+		<otherwise>
+			select 	tbc.* 
+			 from 	t_base_sdh_crs tbc , 
+			  		v_base_ptp tp,
+			  		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+			 where 	tbc.A_END_PTP = tp.BASE_PTP_ID 
+			 and 	tp.PORT_TYPE = 1 
+			 and 	tbc.CIRCUIT_COUNT = 0
+			 and 	tbc.IS_AUTO_CRS = 0
+			 and 	tbc.is_del = 0
+			 and	tbc.BASE_NE_ID = tn.BASE_NE_ID
+			 <!-- and		tbc.BASE_SDH_CRS_ID = 50991  -->
+			limit ${startNum},${size}
+		</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 获取要被删除的电路id -->
+	<select id="getDeleteCir" resultType="hashMap" parameterType="hashMap">
+		select 	distinct tcc.* 
+		  from 	t_cir_circuit_route tr ,
+		  		t_cir_circuit tcc
+		  <where>
+		  		tr.CIR_CIRCUIT_ID = tcc.CIR_CIRCUIT_ID
+		  <if test="map.CHAIN_ID != null">
+					AND	tr.CHAIN_ID = #{map.CHAIN_ID}
+				</if>
+				<if test="map.CHAIN_TYPE != null">
+					AND tr.CHAIN_TYPE = #{map.CHAIN_TYPE}
+				</if>
+		</where>
+	</select>
+	
+	<!-- 获取要被删除的otn电路id -->
+	<select id="getDeleteOtnCir" resultType="hashMap" parameterType="hashMap">
+		select 	distinct tcc.* 
+		  from 	t_cir_otn_circuit_route tr ,
+		  		t_cir_otn_circuit tcc
+		  <where>
+		  		tr.CIR_OTN_CIRCUIT_ID = tcc.CIR_OTN_CIRCUIT_ID
+		  <if test="map.CHAIN_ID != null">
+					AND	tr.CHAIN_ID = #{map.CHAIN_ID}
+				</if>
+				<if test="map.CHAIN_TYPE != null">
+					AND tr.CHAIN_TYPE = #{map.CHAIN_TYPE}
+				</if>
+		</where>
+	</select>
+	
+	<!-- 万能删除法 -->
+	<delete id="deleteByParameter"  parameterType="hashMap"> 
+		  delete from ${map.NAME}
+		  <where>
+		  <if test="map.ID_NAME != null">
+					${map.ID_NAME} = #{map.ID_VALUE}
+				</if>
+				<if test="map.ID_NAME_2 != null">
+					AND ${map.ID_NAME_2} = #{map.ID_VALUE_2}
+				</if>
+				<if test="map.ID_NAME_3 != null">
+					AND ${map.ID_NAME_3} = #{map.ID_VALUE_3}
+				</if>
+		</where>
+	</delete>
+	
+	<!-- 根据端口查询相关电路 -->
+	<select id="getCirByPort"  parameterType="hashMap" resultType="hashMap" > 
+		select 	distinct tcc.*
+		from 	t_cir_circuit tcc,
+				t_cir_circuit_route tcr,
+				t_base_sdh_crs tsc
+		where 	tcc.CIR_CIRCUIT_ID = tcr.CIR_CIRCUIT_ID
+		and     tcr.CHAIN_ID = tsc.BASE_SDH_CRS_ID
+		and		tcr.CHAIN_TYPE = 1
+		<!-- and		tcc.IS_COMPLETE_CIR = 0 -->
+		<if test = "map.A_END_PTP>0">
+		and		tsc.A_END_PTP = #{map.A_END_PTP}
+		</if>
+		<if test = "map.Z_END_PTP>0">
+		and		tsc.Z_END_PTP = #{map.Z_END_PTP}
+		</if>
+	</select>
+	
+	<!-- 根据端口查询相关电路 -->
+	<select id="selectETHPort"  parameterType="hashMap" resultType="hashMap" > 
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+		select 	tp.*
+		from 	t_base_ptp tp,
+				t_base_ne tn,
+				t_base_ems_connection te
+		where 	tp.base_ne_id = tn.base_ne_id
+		and		te.BASE_EMS_CONNECTION_ID =tp.BASE_EMS_CONNECTION_ID
+		and		tp.PTP_FTP = 0
+		and		tp.DOMAIN =3
+		and		tn.FACTORY = 2
+		and		te.TYPE= 21
+		and 	tn.BASE_EMS_CONNECTION_ID in 
+		(select tpp.BASE_EMS_CONNECTION_ID from t_base_ne tpp where 1=1
+		<if test="map.NAME != null and !map.NAME.isEmpty()" >
+		and 	tpp.${map.NAME} in
+		<foreach collection="map.ID" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		</if>
+		)
+		limit #{startNum},#{size}
+		</when>
+		<otherwise>
+			select 	tp.*
+			from 	t_base_ptp tp,
+					(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn ,
+					t_base_ems_connection te
+			where 	tp.base_ne_id = tn.base_ne_id
+			and		te.BASE_EMS_CONNECTION_ID =tp.BASE_EMS_CONNECTION_ID
+			and		tp.PTP_FTP = 0
+			and		tp.DOMAIN =3
+			and		tn.FACTORY = 2
+			and		te.TYPE= 21
+			limit #{startNum},#{size}
+		</otherwise>
+	</choose>	  
+	</select>
+	
+	<!-- 根据端口查询相关电路 总数-->
+	<select id="selectETHPortCount"  parameterType="hashMap" resultType="hashMap" > 
+		
+		<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+		select 	count(1) as total
+		from 	t_base_ptp tp,
+				t_base_ne tn,
+				t_base_ems_connection te
+		where 	tp.base_ne_id = tn.base_ne_id
+		and		te.BASE_EMS_CONNECTION_ID =tp.BASE_EMS_CONNECTION_ID
+		and		tp.PTP_FTP = 0
+		and		tp.DOMAIN =3
+		and		tn.FACTORY = 2
+		and		te.TYPE= 21
+		and 	tn.BASE_EMS_CONNECTION_ID in 
+		(select tpp.BASE_EMS_CONNECTION_ID from t_base_ne tpp where 1=1
+		<if test="map.NAME != null and !map.NAME.isEmpty()" >
+		and 	tpp.${map.NAME} in
+		<foreach collection="map.ID" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		</if>
+		)
+		
+		</when>
+		<otherwise>
+			select 	count(1) as total
+			from 	t_base_ptp tp,
+					(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn ,
+					t_base_ems_connection te
+			where 	tp.base_ne_id = tn.base_ne_id
+			and		te.BASE_EMS_CONNECTION_ID =tp.BASE_EMS_CONNECTION_ID
+			and		tp.PTP_FTP = 0
+			and		tp.DOMAIN =3
+			and		tn.FACTORY = 2
+			and		te.TYPE= 21
+		</otherwise>
+		</choose>	
+	<!-- 	select 	count(1) as total
+		from 	t_base_ptp tp,
+				t_base_ne tn,
+				t_base_ems_connection te
+		where 	tp.base_ne_id = tn.base_ne_id
+		and		te.BASE_EMS_CONNECTION_ID =tp.BASE_EMS_CONNECTION_ID
+		and		tp.PTP_FTP = 0
+		and		tp.DOMAIN =3
+		and		tn.FACTORY = 2
+		and		te.TYPE= 21 -->
+	</select>
+	
+	<select id="selectHwPort"  parameterType="hashMap" resultType="hashMap" > 
+		select 	tp.*
+		from 	t_base_ptp tp,
+				t_base_ne tn
+		where 	tp.base_ne_id = tn.base_ne_id
+		and		tn.FACTORY = 1
+		and 	(tp.BASE_PTP_ID = 0
+		<if test="map.A_END_PTP != null">
+			or tp.BASE_PTP_ID = #{map.A_END_PTP}
+		</if>
+		<if test="map.Z_END_PTP != null">
+			or tp.BASE_PTP_ID = #{map.Z_END_PTP}
+		</if>
+		)
+	</select>
+	
+	
+	<!-- 新增交叉根据端口查询相关电路 -->
+	<select id="getCirByPortCrs"  parameterType="hashMap" resultType="hashMap" > 
+		select 	distinct tcc.*
+		from 	t_cir_circuit tcc,
+				t_cir_circuit_route tcr,
+				t_base_link tsc
+		where 	tcc.CIR_CIRCUIT_ID = tcr.CIR_CIRCUIT_ID
+		and     tcr.CHAIN_ID = tsc.BASE_LINK_ID
+		and		tcr.CHAIN_TYPE = 4
+		and		tcc.IS_COMPLETE_CIR = 0
+		<if test = "map.A_END_PTP>0">
+		and		tsc.A_END_PTP = #{map.A_END_PTP}
+		</if>
+		<if test = "map.Z_END_PTP>0">
+		and		tsc.Z_END_PTP = #{map.Z_END_PTP}
+		</if>
+	</select>
+	
+	<!-- 根据端口查询相关电路 -->
+	<select id="getOtnCirByPort"  parameterType="hashMap" resultType="hashMap" > 
+		select 	distinct tcc.*
+		from 	t_cir_otn_circuit tcc,
+				t_cir_otn_circuit_route tcr,
+				t_base_otn_crs tsc
+		where 	tcc.CIR_OTN_CIRCUIT_ID = tcr.CIR_OTN_CIRCUIT_ID
+		and     tcr.CHAIN_ID = tsc.BASE_OTN_CRS_ID
+		and		tcr.CHAIN_TYPE = 2
+		and		tcc.IS_COMPLETE_CIR = 0
+		<if test = "map.A_END_PTP>0">
+		and		tsc.A_END_PTP = #{map.A_END_PTP}
+		</if>
+		<if test = "map.Z_END_PTP>0">
+		and		tsc.Z_END_PTP = #{map.Z_END_PTP}
+		</if>
+	</select>
+	
+	<!-- 根据端口查询相关交叉 -->
+	<select id="getOtnVirByPort"  parameterType="hashMap" resultType="hashMap" > 
+		select 	distinct tcr.*
+		from 	
+				t_base_otn_crs_relation tcr,
+				t_base_otn_crs tsc			
+		where 	tsc.BASE_OTN_CRS_ID = tcr.CHAIN_ID
+		and		tcr.CHAIN_TYPE = 2
+		<if test = "map.A_END_PTP>0">
+		and		tsc.A_END_PTP = #{map.A_END_PTP}
+		</if>
+		<if test = "map.Z_END_PTP>0">
+		and		tsc.Z_END_PTP = #{map.Z_END_PTP}
+		</if>
+	</select>
+	
+	<!-- 根据交叉连接查询相关电路 -->
+	<select id="getCirByCrs"  parameterType="hashMap" resultType="hashMap" > 
+		select 	distinct tcc.*
+		from 	t_cir_circuit_route tcr,
+				t_cir_circuit tcc
+		where 	tcc.CIR_CIRCUIT_ID = tcr.CIR_CIRCUIT_ID
+		<if test = "map.CHAIN_TYPE>0">
+		and		tcr.CHAIN_TYPE = #{map.CHAIN_TYPE}
+		</if>
+		<if test = "map.CHAIN_ID>0">
+		and		tcr.CHAIN_ID = #{map.CHAIN_ID}
+		</if>
+	</select>
+	
+	<!-- 根据交叉连接查询otn相关电路 -->
+	<select id="getOtnCirByCrs"  parameterType="hashMap" resultType="hashMap" > 
+		select 	distinct tcc.*
+		from 	t_cir_otn_circuit_route tcr,
+				t_cir_otn_circuit tcc
+		where 	tcc.CIR_OTN_CIRCUIT_ID = tcr.CIR_OTN_CIRCUIT_ID
+		<if test = "map.CHAIN_TYPE>0">
+		and		tcr.CHAIN_TYPE = #{map.CHAIN_TYPE}
+		</if>
+		<if test = "map.CHAIN_ID>0">
+		and		tcr.CHAIN_ID = #{map.CHAIN_ID}
+		</if>
+	</select>
+	
+	<!-- 万能更新法 -->
+	<update id="updateByParameter"  parameterType="hashMap" >
+	  	update  ${map.NAME}
+		  <set>			
+			<if test="map.ID_NAME_2 != null">
+			 ${map.ID_NAME_2} = #{map.ID_VALUE_2},
+			</if>
+			<if test="map.ID_NAME_3 != null">
+			 ${map.ID_NAME_3} = #{map.ID_VALUE_3},
+			</if>
+			<if test="map.ID_NAME_4 != null">
+			 ${map.ID_NAME_4} = #{map.ID_VALUE_4},
+			</if>
+			<if test="map.ID_NAME_5 != null">
+			 ${map.ID_NAME_5} = #{map.ID_VALUE_5},
+			</if>
+			<if test="map.ID_NAME_6 != null">
+			 ${map.ID_NAME_6} = #{map.ID_VALUE_6},
+			</if>
+			<if test="map.ID_NAME_7 != null">
+			 ${map.ID_NAME_7} = #{map.ID_VALUE_7},
+			</if>
+			<if test="map.ID_NAME_8 != null">
+			 ${map.ID_NAME_8} = #{map.ID_VALUE_8},
+			</if>
+		</set>
+		<where>
+			<if test="map.ID_NAME != null">
+			 ${map.ID_NAME} = #{map.ID_VALUE}
+			 </if>
+			 <if test="map.ID_NAME_ != null">
+			 AND ${map.ID_NAME_} = #{map.ID_VALUE_}
+			 </if>
+		</where>
+	</update>
+	
+	<!-- 根据交叉连接查询相关电路  @@@分权分域到网元@@@-->
+	<select id="getOtnCrs"   resultType="hashMap" > 
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select 	tbc.*
+			from 	t_base_otn_crs tbc,
+					t_base_ptp tbp,
+					t_base_ne tn
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and		tbp.base_ne_id = tn.base_ne_id
+			and 	tn.factory = 1
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.CIRCUIT_COUNT = 0
+			<!-- and		tbc.BASE_OTN_CRS_ID= 31347 -->
+			<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tbc.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+		</when>
+		<otherwise>
+			select 	tbc.*
+			 from 	t_base_otn_crs tbc , 
+			  		t_base_ptp tbp,
+			  		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.CIRCUIT_COUNT = 0
+			<!--  and		tbc.BASE_OTN_CRS_ID= 31347-->
+			and		tbc.BASE_NE_ID = tn.BASE_NE_ID
+			and 	tn.FACTORY = 1
+		</otherwise>
+		</choose>
+		limit   #{start},#{limit}
+	</select>
+	
+	<!-- 根据交叉连接查询相关电路  @@@分权分域到网元@@@-->
+	<select id="getOtnCrsTotal"   resultType="hashMap" > 
+		<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select 	count(1) as total
+			from 	t_base_otn_crs tbc,
+					t_base_ptp tbp,
+					t_base_ne tn
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and		tbp.base_ne_id = tn.base_ne_id
+			and 	tn.factory = 1
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.CIRCUIT_COUNT = 0
+			<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tbc.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+		</when>
+		<otherwise>
+			select 	count(1) as total 
+			 from 	t_base_otn_crs tbc , 
+			  		t_base_ptp tbp,
+			  		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.CIRCUIT_COUNT = 0
+			and		tbc.BASE_NE_ID = tn.BASE_NE_ID
+			and 	tn.FACTORY = 1
+		</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 根据交叉连接查询相关电路 -->
+	<select id="getOtnCirCrs"   resultType="hashMap" > 
+		select 	tbc.*
+		from 	t_base_otn_crs tbc,
+				t_base_ptp tbp
+		where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+		and     tbp.PTP_FTP = 0
+		and 	tbp.PORT_TYPE =1
+		and 	tbc.IS_VIRTUAL = 1
+		and 	tbc.CIRCUIT_COUNT = 0
+		and 	tbc.IS_IN_CIRCUIT = 0
+		<if test="map.NAME != null and !map.NAME.isEmpty()" >
+		and 	tbc.${map.NAME} in
+		<foreach collection="map.ID" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		</if>
+		limit   #{start},#{limit}
+	</select>	
+	
+	<!-- 查询符合otn电路生成的虚拟交叉数 -->
+	<select id="getOtnCrsCirTotal"   resultType="hashMap" > 
+		select 	count(1) as total
+		from 	t_base_otn_crs tbc,
+				t_base_ptp tbp
+		where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+		and     tbp.PTP_FTP = 0
+		and 	tbp.PORT_TYPE =1
+		and 	tbc.IS_VIRTUAL = 1
+		
+		<if test="map.NAME != null and !map.NAME.isEmpty()" >
+		and 	tbc.${map.NAME} in
+		<foreach collection="map.ID" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		</if>
+		
+	</select>
+	
+	<!-- 查询符合otn电路生成的虚拟交叉 -->
+	<select id="getOtnCrsCir"   resultType="hashMap" > 
+		select 	tbc.*
+		from 	t_base_otn_crs tbc,
+				t_base_ptp tbp
+		where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+		and     tbp.PTP_FTP = 0
+		and 	tbp.PORT_TYPE =1
+		and 	tbc.IS_VIRTUAL = 1
+		and 	tbc.IS_IN_CIRCUIT = 0
+		<!--  and 	tbc.BASE_OTN_CRS_ID = 20860-->
+		<if test="map.NAME != null and !map.NAME.isEmpty()" >
+		and 	tbc.${map.NAME} in
+		<foreach collection="map.ID" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		</if>
+		limit   #{start},#{limit}
+	</select>
+	
+	<!-- 查询otn的虚拟交叉的下一跳 -->
+	<select id="getNextOtnCrs" parameterType="hashMap" resultType="hashMap">
+		select	toc.* 
+		from 	t_base_otn_crs toc,
+				t_base_otn_ctp top,
+				t_base_ptp 	   tbp
+		where	toc.A_END_CTP = top.BASE_OTN_CTP_ID
+		and		toc.A_END_PTP = tbp.BASE_PTP_ID
+		<if test = "map.A_END_PTP != null">
+			and		toc.A_END_PTP = #{map.A_END_PTP}
+		</if>
+		<if test = "map.IS_CTP != null">
+			and		top.IS_CTP = #{map.IS_CTP}
+		</if>
+		<if test = "map.PTP_FTP != null">
+			and		tbp.PTP_FTP = #{map.PTP_FTP}
+		</if>
+	</select>
+	
+	<!-- 查询虚拟交叉子表，虚拟id相同，自增id小于等于当前id的记录 -->
+	<select id="getOtnBefore" parameterType="hashMap" resultType="hashMap">
+		select * from 	t_cir_otn_circuit_route
+				 where	CIR_OTN_CIRCUIT_ID = #{map.CIR_OTN_CIRCUIT_ID}
+				 and 	CIR_OTN_CIRCUIT_ROUTE_ID <![CDATA[<=]]> #{map.CIR_OTN_CIRCUIT_ROUTE_ID} 
+				 order by CIR_OTN_CIRCUIT_ROUTE_ID asc
+	</select>
+	
+	<!-- 新增ton 关系表 -->
+	<insert id="insertOtnRelation" parameterType="hashmap">
+		insert into t_base_otn_crs_relation(
+			BASE_OTN_CRS_RELATION_ID,VIR_CRS_ID,REL_CRS_ID,IS_COMPLETE		
+		) values (
+		null,
+		<choose>
+			<when test="map.VIR_CRS_ID != null">
+				#{map.VIR_CRS_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.REL_CRS_ID != null">#{map.REL_CRS_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE != null">#{map.IS_COMPLETE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+	<!-- 插入虚拟交叉 -->
+	<insert id="insertOtnCrs" parameterType="hashmap" keyProperty="map.BASE_OTN_CRS_ID">
+		insert into t_base_otn_crs(
+			BASE_OTN_CRS_ID,
+			BASE_EMS_CONNECTION_ID,
+			BASE_NE_ID,
+			A_END_CTP,
+			A_END_PTP,
+			A_OS,
+			A_OTS,
+			A_OMS,
+			A_OCH,
+			A_ODU0,
+			A_ODU1,
+			A_ODU2,
+			A_ODU3,
+			A_OTU0,
+			A_OTU1,
+			A_OTU2,
+			A_OTU3,
+			A_DSR,
+			A_OAC_TYPE,
+			A_OAC_VALUE,
+			IS_VIRTUAL,
+			CHANGE_STATE,
+			CIRCUIT_COUNT,
+			A_TYPE
+		) values (
+		null,
+		<choose>
+			<when test="map.BASE_EMS_CONNECTION_ID != null">
+				#{map.BASE_EMS_CONNECTION_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.BASE_NE_ID != null">#{map.BASE_NE_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_CTP != null">#{map.A_END_CTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_PTP != null">#{map.A_END_PTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OS != null">#{map.A_OS}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OTS != null">#{map.A_OTS}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OMS != null">#{map.A_OMS}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OCH != null">#{map.A_OCH}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_ODU0 != null">#{map.A_ODU0}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_ODU1 != null">#{map.A_ODU1}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_ODU2 != null">#{map.A_ODU2}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_ODU3 != null">#{map.A_ODU3}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OTU0 != null">#{map.A_OTU0}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OTU1 != null">#{map.A_OTU1}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OTU2 != null">#{map.A_OTU2}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OTU3 != null">#{map.A_OTU3}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_DSR != null">#{map.A_DSR}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OAC_TYPE != null">#{map.A_OAC_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_OAC_VALUE != null">#{map.A_OAC_VALUE}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.IS_VIRTUAL != null">#{map.IS_VIRTUAL}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHANGE_STATE != null">#{map.CHANGE_STATE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIRCUIT_COUNT != null">#{map.CIRCUIT_COUNT}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_TYPE != null">#{map.A_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+	<!-- 更新otn 交叉连接表 -->
+	<update id="updateOtnCrs" parameterType="hashmap">
+		update t_base_otn_crs
+		<set>
+			<if test="map.Z_END_CTP != null">
+				Z_END_CTP = #{map.Z_END_CTP},
+			</if>
+			<if test="map.Z_END_PTP != null">
+				Z_END_PTP = #{map.Z_END_PTP},
+			</if>
+			<if test="map.Z_OS != null">
+				Z_OS = #{map.Z_OS},
+			</if>
+			<if test="map.Z_OTS != null">
+				Z_OTS = #{map.Z_OTS},
+			</if>
+			<if test="map.Z_OMS != null">
+				Z_OMS = #{map.Z_OMS},
+			</if>
+			<if test="map.Z_OCH != null">
+				Z_OCH = #{map.Z_OCH},
+			</if>
+			<if test="map.Z_ODU0 != null">
+				Z_ODU0 = #{map.Z_ODU0},
+			</if>
+			<if test="map.Z_ODU1 != null">
+				Z_ODU1 = #{map.Z_ODU1},
+			</if>
+			<if test="map.Z_ODU2 != null">
+				Z_ODU2 = #{map.Z_ODU2},
+			</if>
+			<if test="map.Z_ODU3 != null">
+				Z_ODU3 = #{map.Z_ODU3},
+			</if>
+			<if test="map.Z_OTU0 != null">
+				Z_OTU0 = #{map.Z_OTU0},
+			</if>
+			<if test="map.Z_OTU1 != null">
+				Z_OTU1 = #{map.Z_OTU1},
+			</if>
+			<if test="map.Z_OTU2 != null">
+				Z_OTU2 = #{map.Z_OTU2},
+			</if>
+			<if test="map.Z_OTU3 != null">
+				Z_OTU3 = #{map.Z_OTU3},
+			</if>
+			<if test="map.Z_DSR != null">
+				Z_DSR = #{map.Z_DSR},
+			</if>
+			<if test="map.Z_OAC_TYPE != null">
+				Z_OAC_TYPE = #{map.Z_OAC_TYPE},
+			</if>
+			<if test="map.Z_TYPE != null">
+				Z_TYPE = #{map.Z_TYPE},
+			</if>
+			<if test="map.Z_OAC_VALUE != null">
+				Z_OAC_VALUE = #{map.Z_OAC_VALUE},
+			</if>
+			<if test="map.IS_VIRTUAL != null">
+				IS_VIRTUAL = #{map.IS_VIRTUAL},
+			</if>
+		</set>
+		where BASE_OTN_CRS_ID = #{map.BASE_OTN_CRS_ID}
+	</update>
+	<!-- 插入电路信息表 -->
+	<insert id="insertOtnInfo" parameterType="hashmap" keyProperty="map.CIR_OTN_CIRCUIT_INFO_ID">
+		insert into t_cir_otn_circuit_info(
+			CIR_OTN_CIRCUIT_INFO_ID,
+			A_END_CTP,
+			A_END_PTP,
+			CIR_COUNT,
+			IS_COMPLETE_CIR,
+			CIR_NO
+		) values (
+		null,
+		<choose>
+			<when test="map.A_END_CTP != null">
+				#{map.A_END_CTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_PTP != null">
+				#{map.A_END_PTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_COUNT != null">
+				#{map.CIR_COUNT}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE_CIR != null">
+				#{map.IS_COMPLETE_CIR}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_NO != null">
+				#{map.CIR_NO}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+	<!-- 插入otn电路 -->
+	<insert id="insertOtnCir" parameterType="hashmap" keyProperty="map.CIR_OTN_CIRCUIT_ID">
+		insert into t_cir_otn_circuit(
+			CIR_OTN_CIRCUIT_ID,
+			A_END_CTP,
+			A_END_PTP,
+			IS_MAIN_CIR,
+			CIR_OTN_CIRCUIT_INFO_ID
+		) values (
+		null,
+		<choose>
+			<when test="map.A_END_CTP != null">
+				#{map.A_END_CTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_PTP != null">
+				#{map.A_END_PTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_MAIN_CIR != null">
+				#{map.IS_MAIN_CIR}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_OTN_CIRCUIT_INFO_ID != null">
+				#{map.CIR_OTN_CIRCUIT_INFO_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+		<!-- 插入otn路由信息-->
+	<insert id="insertOtnRoute" parameterType="hashmap">
+		insert into t_cir_otn_circuit_route(
+			CIR_OTN_CIRCUIT_ROUTE_ID,
+			CIR_OTN_CIRCUIT_ID,
+			CHAIN_ID,
+			CHAIN_TYPE,
+			AHEAD_CRS_ID,
+			IS_COMPLETE
+		) values (
+		null,
+		<choose>
+			<when test="map.CIR_OTN_CIRCUIT_ID != null">
+				#{map.CIR_OTN_CIRCUIT_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_ID != null">
+				#{map.CHAIN_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_TYPE != null">
+				#{map.CHAIN_TYPE}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.AHEAD_CRS_ID != null">
+				#{map.AHEAD_CRS_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE != null">
+				#{map.IS_COMPLETE}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+	
+	<!-- 更新otn电路信息表 -->
+	<update id="updateOtnInfo" parameterType="hashmap">
+		update t_cir_otn_circuit_info
+		<set>
+			<if test="map.Z_END_CTP != null">
+				Z_END_CTP = #{map.Z_END_CTP},
+			</if>
+			<if test="map.Z_END_PTP != null">
+				Z_END_PTP = #{map.Z_END_PTP},
+			</if>
+			<if test="map.IS_COMPLETE_CIR != null">
+				IS_COMPLETE_CIR = #{map.IS_COMPLETE_CIR},
+			</if>
+			<if test="map.IS_LATEST_CREATE != null">
+				IS_LATEST_CREATE = #{map.IS_LATEST_CREATE},
+			</if>
+		</set>
+		where CIR_OTN_CIRCUIT_INFO_ID = #{map.CIR_OTN_CIRCUIT_INFO_ID}
+	</update>
+	
+	<!-- 更新otn电路表 -->
+	<update id="updateOtnCir" parameterType="hashmap">
+		update t_cir_otn_circuit
+		<set>
+			<if test="map.Z_END_CTP != null">
+				Z_END_CTP = #{map.Z_END_CTP},
+			</if>
+			<if test="map.Z_END_PTP != null">
+				Z_END_PTP = #{map.Z_END_PTP},
+			</if>
+			<if test="map.DIRECTION != null">
+				DIRECTION = #{map.DIRECTION},
+			</if>
+			<if test="map.IS_COMPLETE_CIR != null">
+				IS_COMPLETE_CIR = #{map.IS_COMPLETE_CIR},
+			</if>
+			<if test="map.IS_MAIN_CIR != null">
+				IS_MAIN_CIR = #{map.IS_MAIN_CIR},
+			</if>
+			<if test="map.CIR_OTN_CIRCUIT_INFO_ID != null">
+				CIR_OTN_CIRCUIT_INFO_ID = #{map.CIR_OTN_CIRCUIT_INFO_ID},
+			</if>
+		</set>
+		where CIR_OTN_CIRCUIT_ID = #{map.CIR_OTN_CIRCUIT_ID}
+	</update>
+	
+	<!-- 查询otn交叉根据ctp -->
+	<select id="getOtnCrsByCtp" parameterType="hashMap" resultType="hashMap">
+		select * from 	t_base_otn_crs
+			<where>
+				<if test="map.A_END_PTP != null">
+					A_END_PTP = #{map.A_END_PTP}
+				</if>
+				<if test="map.A_OS != null">
+					AND A_OS = #{map.A_OS}
+				</if>
+				<if test="map.IS_VIRTUAL != null">
+					AND IS_VIRTUAL = #{map.IS_VIRTUAL}
+				</if>
+				<if test="map.A_OTS != null">
+					AND A_OTS = #{map.A_OTS}
+				</if>
+				<if test="map.A_OMS != null">
+					AND A_OMS = #{map.A_OMS}
+				</if>
+				<if test="map.A_OCH != null">
+					AND A_OCH = #{map.A_OCH}
+				</if>
+				<if test="map.A_ODU0 != null">
+					AND A_ODU0 = #{map.A_ODU0}
+				</if>
+				<if test="map.A_ODU1 != null">
+					AND A_ODU1 = #{map.A_ODU1}
+				</if>
+				<if test="map.A_ODU2 != null">
+					AND A_ODU2 = #{map.A_ODU2}
+				</if>
+				<if test="map.A_ODU3 != null">
+					AND A_ODU3 = #{map.A_ODU3}
+				</if>
+				<if test="map.A_DSR != null">
+					AND A_DSR = #{map.A_DSR}
+				</if>
+				<if test="map.Z_OS != null">
+					AND Z_OS = #{map.Z_OS}
+				</if>
+				<if test="map.Z_OTS != null">
+					AND Z_OTS = #{map.Z_OTS}
+				</if>
+				<if test="map.Z_OMS != null">
+					AND Z_OMS = #{map.Z_OMS}
+				</if>
+				<if test="map.Z_OCH != null">
+					AND Z_OCH = #{map.Z_OCH}
+				</if>
+				<if test="map.Z_ODU0 != null">
+					AND Z_ODU0 = #{map.Z_ODU0}
+				</if>
+				<if test="map.Z_ODU1 != null">
+					AND Z_ODU1 = #{map.Z_ODU1}
+				</if>
+				<if test="map.Z_ODU2 != null">
+					AND Z_ODU2 = #{map.Z_ODU2}
+				</if>
+				<if test="map.Z_ODU3 != null">
+					AND Z_ODU3 = #{map.Z_ODU3}
+				</if>
+				<if test="map.Z_DSR != null">
+					AND Z_DSR = #{map.Z_DSR}
+				</if>
+			</where>
+	</select>
+	
+		<!-- 查询下一跳交叉连接向上进位 -->
+	<select id="getOtnCrsUp" parameterType="hashMap" resultType="hashMap">
+		select * from 	t_base_otn_crs
+			<where>
+				<if test="map.A_END_PTP != null">
+					A_END_PTP = #{map.A_END_PTP}
+				</if>
+				<if test="map.IS_VIRTUAL != null">
+					AND IS_VIRTUAL = #{map.IS_VIRTUAL}
+				</if>
+				<if test="map.A_OS != null">
+					AND A_OS = #{map.A_OS}
+				</if>
+				<if test="map.A_OTS != null">
+					AND A_OTS = #{map.A_OTS}
+				</if>
+				<if test="map.A_OMS != null">
+					AND A_OMS = #{map.A_OMS}
+				</if>
+				<if test="map.A_OCH != null">
+					AND A_OCH = #{map.A_OCH}
+				</if>
+				<if test="map.A_ODU0 != null">
+					AND A_ODU0 = #{map.A_ODU0}
+				</if>
+				<if test="map.A_ODU1 != null">
+					AND A_ODU1 = #{map.A_ODU1}
+				</if>
+				<if test="map.A_ODU2 != null">
+					AND A_ODU2 = #{map.A_ODU2}
+				</if>
+				<if test="map.A_ODU3 != null">
+					AND A_ODU3 = #{map.A_ODU3}
+				</if>
+				<if test="map.A_DSR != null">
+					AND A_DSR = #{map.A_DSR}
+				</if>
+				
+				<if test="map.Z_OS != null">
+					AND Z_OS = #{map.Z_OS}
+				</if>
+				<if test="map.Z_OTS != null">
+					AND Z_OTS = #{map.Z_OTS}
+				</if>
+				<if test="map.Z_OMS != null">
+					AND Z_OMS = #{map.Z_OMS}
+				</if>
+				<if test="map.Z_OCH != null">
+					AND Z_OCH = #{map.Z_OCH}
+				</if>
+				<if test="map.Z_ODU0 != null">
+					AND Z_ODU0 = #{map.Z_ODU0}
+				</if>
+				<if test="map.Z_ODU1 != null">
+					AND Z_ODU1 = #{map.Z_ODU1}
+				</if>
+				<if test="map.Z_ODU2 != null">
+					AND Z_ODU2 = #{map.Z_ODU2}
+				</if>
+				<if test="map.Z_ODU3 != null">
+					AND Z_ODU3 = #{map.Z_ODU3}
+				</if>
+				<if test="map.Z_DSR != null">
+					AND Z_DSR = #{map.Z_DSR}
+				</if>
+				
+			</where>
+	</select>
+	
+	<select id="getCirInfoById" parameterType="hashMap" resultType="hashMap">
+	<include refid="circuitInfoStruct2" />
+	<if test="map.service!=3">
+			,a_end_rate as rate
+		</if>
+  	<include refid="joinTable"/>
+  		where cir.${map.cir_id}=#{map.vCircuit}
+	</select>
+	
+		<!-- 向任务表中插入数据 -->
+	<insert id="insertTask" parameterType="hashmap"  keyProperty="map.SYS_TASK_ID">
+		insert into t_sys_task(
+		SYS_TASK_ID,
+		TASK_TYPE,
+		PERIOD_TYPE,
+		PERIOD,
+		TASK_STATUS,
+		NEXT_TIME
+		) values(
+		null
+		,
+		<choose>
+			<when test="map.TASK_TYPE != null">#{map.TASK_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.PERIOD_TYPE != null">#{map.PERIOD_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.PERIOD!= null">#{map.PERIOD}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.TASK_STATUS != null">#{map.TASK_STATUS}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.NEXT_TIME != null">#{map.NEXT_TIME}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+	</insert>
+	
+	
+	<!-- 向任务详细表中插入数据 -->
+	<insert id="insertTaskInfo" parameterType="hashmap">
+		insert into t_sys_task_info(
+		SYS_TASK_INFO_ID,
+		SYS_TASK_ID,
+		TARGET_TYPE,
+		TARGET_ID
+		) values(
+		null
+		,
+		<choose>
+			<when test="map.SYS_TASK_ID != null">#{map.SYS_TASK_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.TARGET_TYPE!= null">#{map.TARGET_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.TARGET_ID!= null">#{map.TARGET_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+	</insert>
+	
+	<!-- 往虚拟交叉路由表中插入信息 -->
+	<insert id="insertOtnCrsVir" parameterType="hashmap">
+		insert into t_base_otn_crs_relation(
+		BASE_OTN_CRS_RELATION_ID,
+		VIR_CRS_ID,
+		CHAIN_ID,
+		CHAIN_TYPE,
+		IS_COMPLETE,
+		IS_OUT_LINK
+		) values(
+		null
+		,
+		<choose>
+			<when test="map.VIR_CRS_ID != null">#{map.VIR_CRS_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_ID!= null">#{map.CHAIN_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_TYPE!= null">#{map.CHAIN_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE!= null">#{map.IS_COMPLETE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_OUT_LINK!= null">#{map.IS_OUT_LINK}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+	</insert>
+	
+	<!--daihuijun -->
+	<!-- 交叉连接查询结果显示（多表查询） -->
+	<select id="selectCrossConnect" resultType="hashmap"
+		parameterType="hashmap">
+		select n.DISPLAY_NAME as NE_DISPLAY_NAME,
+		       e.DISPLAY_NAME AS DISPLAY_NAME,
+		       T.RATE AS CONNECT_RATE,
+		       CIRCUIT_COUNT,
+		       CHANGE_STATE,
+		       <choose>
+					<when test="map.needSelectIsFix">t.IS_FIX as IS_FIX,</when>
+					<otherwise>'-' as IS_FIX,</otherwise>
+				</choose>
+				t.BASE_NE_ID,
+		       ${map.A_END_CTP_VALUE} AS A_END_CTP,
+		       ${map.Z_END_CTP_VALUE} AS Z_END_CTP,
+		       p1.port_desc as A_END_PORT,
+		       p2.port_desc as Z_END_PORT
+		  from ${map.crs_table} AS t
+		  left join t_base_ems_connection AS e on t.base_EMS_CONNECTION_ID =
+		                                          e.base_EMS_CONNECTION_ID
+		  left join t_base_ne as n on t.base_NE_ID = n.base_NE_ID
+		  LEFT JOIN ${map.ctp_table} AS c1 ON T.A_END_CTP = c1.${map.CTP_ID}
+		  LEFT JOIN ${map.ctp_table} AS c2 ON T.Z_END_CTP = c2.${map.CTP_ID}
+		  LEFT JOIN T_base_PTP AS P1 ON c1.base_ptp_id = p1.base_ptp_id
+		  LEFT JOIN T_base_PTP AS P2 ON c2.base_ptp_id = p2.base_ptp_id
+		<where>
+			t.BASE_NE_ID=#{map.ID}
+			<if test="!map.connectRate.isEmpty()">
+				and t.RATE=#{map.connectRate}
+			</if>
+			<if test="map.circuitState!=0">
+				<if test="map.circuitState==1">
+					and t.circuit_count=0
+				</if>
+				<if test="map.circuitState==2">
+					and t.CIRCUIT_COUNT>0
+				</if>
+			</if>
+			<if test="map.crossChange!=0">
+				<if test="map.crossChange==1||map.crossChange==2">
+					and t.CHANGE_STATE=#{map.crossChange}
+				</if>
+				<if test="map.crossChange==3">
+					and  (t.change_state is null or t.change_state>2)
+				</if>
+			</if>
+			<if test="map.needSelectIsFix">
+				<if test="map.isFix==0||map.isFix==1">
+					and t.IS_FIX=#{map.isFix}
+				</if>
+			</if>
+			and t.IS_DEL=0
+		</where>
+		limit #{map.start},#{map.limit}
+	</select>
+
+	<!-- 交叉连接查询总数（多表查询） -->
+	<select id="crossConnectTotel" resultType="hashmap"
+		parameterType="hashmap">
+		select count(*) from ${map.crs_table} AS t 
+			 
+		<where>
+			t.BASE_NE_ID=#{map.ID}
+			<if test="!map.connectRate.isEmpty()">
+				and t.RATE=#{map.connectRate}
+			</if>
+			<if test="map.circuitState!=0">
+				<if test="map.circuitState==1">
+					and t.circuit_count=0
+				</if>
+				<if test="map.circuitState==2">
+					and t.CIRCUIT_COUNT>0
+				</if>
+			</if>
+			<if test="map.crossChange!=0">
+				<if test="map.crossChange==1||map.crossChange==2">
+					and t.CHANGE_STATE=#{map.crossChange}
+				</if>
+				<if test="map.crossChange==3">
+					and  (t.change_state is null or t.change_state>2)
+				</if>
+			</if>
+			<if test="map.needSelectIsFix">
+				<if test="map.isFix==0||map.isFix==1">
+					and t.IS_FIX=#{map.isFix}
+				</if>
+			</if>
+			and t.IS_DEL=0
+		</where>
+	</select>
+	<!-- 定义电路查询返回那些字段信息 -->
+	<sql id="circuitInfoStruct">
+	<![CDATA[
+		   select cir.${map.cir_id},cir_info.${map.cir_info_id} as CIR_CIRCUIT_INFO_ID,
+	       cir_info.A_END_CTP AS A_CTP_ID,
+	       cir_info.Z_END_CTP AS Z_CTP_ID,
+	       cir_info.cir_no,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	       ${map.A_END_CTP_VALUE} AS a_end_ctp,
+	       ${map.Z_END_CTP_VALUE} AS z_end_ctp,
+	       p1.port_desc as a_end_port,
+	       p2.port_desc as z_end_port,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name,
+	       ne1.display_name as a_end_ne,
+	       ems1.display_name as a_end_ems,
+	       group1.group_name as a_end_ems_group,
+	       ne2.display_name as z_end_ne,
+	       ems2.display_name as z_end_ems,
+	       group2.group_name as Z_end_ems_group,
+	       cir_info.USER_TYPE,
+	       cir_info.BUSINESS_TYPE,
+	       cir_info.PROTECT_METHOD,
+	       cir_info.SERVICE_LEVEL,
+	       cir_info.MAINTENANCE_LEVEL,
+	       cir_info.BUSINESS_LEVEL,
+	       cir_info.NETWORK_LEVEL,
+	       cir_info.NETWORK_LEVEL2,
+	       cir_info.A_ROOM,
+	       cir_info.Z_ROOM,
+	       cir_info.A_PHONE,
+	       cir_info.Z_PHONE,
+	       cir_info.A_ADDRESS,
+	       cir_info.Z_ADDRESS,
+	       cir_info.A_PEOPLE,
+	       cir_info.Z_PEOPLE
+	]]>
+	</sql>
+	<sql id="circuitInfoStruct2">
+	<![CDATA[
+		   select cir.${map.cir_id},cir_info.${map.cir_info_id} as CIR_CIRCUIT_INFO_ID,
+	       cir_info.A_END_CTP AS A_CTP_ID,
+	       cir_info.Z_END_CTP AS Z_CTP_ID,
+	       cir_info.cir_no,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	       ${map.A_END_CTP_VALUE} AS a_end_ctp,
+	       ${map.Z_END_CTP_VALUE} AS z_end_ctp,
+	       concat(ne1.display_name,'-',p1.port_desc) as a_end_port,
+	       p1.base_ptp_id as a_ptp_id,
+	       concat(ne2.display_name,'-',p2.port_desc) as z_end_port,
+	       p2.base_ptp_id as z_ptp_id,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name,
+	       ne1.display_name as a_end_ne,
+	       ne1.base_ne_id as a_ne_id,
+	       ems1.display_name as a_end_ems,
+	       group1.group_name as a_end_ems_group,
+	       ne2.display_name as z_end_ne,
+	       ne2.base_ne_id as z_ne_id,
+	       ems2.display_name as z_end_ems,
+	       group2.group_name as Z_end_ems_group
+	]]>
+	</sql>
+	<!--查询电路详细信息时的多表关联方法  -->
+	<sql id="joinTable">
+	<![CDATA[
+		  from ${map.cir_info_table} as cir_info
+	  	  left join ${map.cir_table} as cir on cir_info.${map.cir_info_id} =
+	                                              cir.${map.cir_info_id}
+		  left join t_base_ptp as p1 on cir_info.A_END_PTP = p1.BASE_PTP_ID
+		  left join t_base_ptp as p2 on cir_info.Z_END_PTP = p2.BASE_PTP_ID
+		
+		  left join ${map.ctp_table} as ctp1 on cir_info.a_end_ctp = ctp1.${map.CTP_ID}
+		  left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+		                                             p1.Base_ems_connection_id
+		  left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+		  left join t_base_ems_group as group1 on group1.base_ems_group_id =
+		                                          ems1.base_ems_group_id
+		  left join ${map.ctp_table} as ctp2 on cir_info.Z_end_ctp = ctp2.${map.CTP_ID}
+		  left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+		                                             p2.Base_ems_connection_id
+		  left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+		  left join t_base_ems_group as group2 on group2.base_ems_group_id =
+		                                          ems2.base_ems_group_id
+		  left join t_resource_room as room1 on room1.RESOURCE_ROOM_ID =
+		                                        ne1.RESOURCE_ROOM_ID
+		  left join t_resource_station as station1 on station1.RESOURCE_STATION_ID =
+		                                              room1.RESOURCE_STATION_ID
+		  left join t_resource_room as room2 on room2.RESOURCE_ROOM_ID =
+		                                        ne2.RESOURCE_ROOM_ID
+		  left join t_resource_station as station2 on station2.RESOURCE_STATION_ID =
+		                                              room2.RESOURCE_STATION_ID
+	]]>
+	</sql>
+	<sql id="ptpQueryInfo">
+	<![CDATA[
+		  select cir_info.cir_no,cir_info.${map.cir_info_id},
+	       cir_info.A_END_CTP AS A_CTP_ID,
+	       cir_info.Z_END_CTP AS Z_CTP_ID,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	       ${map.A_END_CTP_VALUE} AS a_end_ctp,
+	       ${map.Z_END_CTP_VALUE} AS z_end_ctp,
+	       p1.port_desc as a_end_port,
+	       p2.port_desc as z_end_port,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name,
+	       ne1.display_name as a_end_ne,
+	       ems1.display_name as a_end_ems,
+	       group1.group_name as a_end_ems_group,
+	       ne2.display_name as z_end_ne,
+	       ems2.display_name as z_end_ems,
+	       group2.group_name as Z_end_ems_group,
+	       cir_info.USER_TYPE,
+	       cir_info.BUSINESS_TYPE,
+	       cir_info.PROTECT_METHOD,
+	       cir_info.SERVICE_LEVEL,
+	       cir_info.MAINTENANCE_LEVEL,
+	       cir_info.BUSINESS_LEVEL,
+	       cir_info.NETWORK_LEVEL,
+	       cir_info.NETWORK_LEVEL2,
+	       cir_info.A_ROOM,
+	       cir_info.Z_ROOM,
+	       cir_info.A_PHONE,
+	       cir_info.Z_PHONE,
+	       cir_info.A_ADDRESS,
+	       cir_info.Z_ADDRESS,
+	       cir_info.A_PEOPLE,
+	       cir_info.Z_PEOPLE
+	]]>
+	</sql>
+	<sql id="ptpQueryJoinedTable">
+	<![CDATA[
+		  from ${map.cir_info_table} as cir_info
+		  left join t_base_ptp as p1 on cir_info.A_END_PTP = p1.BASE_PTP_ID
+		  left join t_base_ptp as p2 on cir_info.Z_END_PTP = p2.BASE_PTP_ID
+		  left join ${map.ctp_table} as ctp1 on cir_info.a_end_ctp = ctp1.${map.CTP_ID}
+		  left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+		                                             p1.Base_ems_connection_id
+		  left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+		  left join t_base_ems_group as group1 on group1.base_ems_group_id =
+		                                          ems1.base_ems_group_id
+		  left join ${map.ctp_table} as ctp2 on cir_info.Z_end_ctp = ctp2.${map.CTP_ID}
+		  left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+		                                             p2.Base_ems_connection_id
+		  left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+		  left join t_base_ems_group as group2 on group2.base_ems_group_id =
+		                                          ems2.base_ems_group_id
+		  left join t_resource_room as room1 on room1.RESOURCE_ROOM_ID =
+		                                        ne1.RESOURCE_ROOM_ID
+		  left join t_resource_station as station1 on station1.RESOURCE_STATION_ID =
+		                                              room1.RESOURCE_STATION_ID
+		  left join t_resource_room as room2 on room2.RESOURCE_ROOM_ID =
+		                                        ne2.RESOURCE_ROOM_ID
+		  left join t_resource_station as station2 on station2.RESOURCE_STATION_ID =
+		                                              room2.RESOURCE_STATION_ID
+	]]>
+	</sql>
+	<!-- 端到端电路查询 -->
+	<select id="getCircuitInfoByCtp" resultType="hashMap" parameterType="hashMap">
+		<include refid="ptpQueryInfo" />
+				<if test="map.serviceType!=3">
+					<if test = "map.serviceType==1">
+					,a_end_rate as rate
+					</if>
+					<if test = "map.serviceType ==2">
+					,concat((select count(1) from t_cir_circuit_info tc where tc.parent_cir =cir_info.CIR_CIRCUIT_INFO_ID),'*',cir_info.A_END_RATE) AS rate
+					</if>
+				</if>
+		<include refid="ptpQueryJoinedTable"/>
+		<where>
+			<if test="map.aNodeId!=null and map.aNodeId!=''">
+		 		p1.${map.aNodeName}=#{map.aNodeId}
+		 	</if>
+		 	<if test="map.zNodeId!=null and map.zNodeId!=''">
+		 		and p2.${map.zNodeName}=#{map.zNodeId}
+		 	</if>
+		 	<if test="map.serviceType!=null and map.serviceType!=''">
+		 		and cir_info.SVC_TYPE=#{map.serviceType}
+		 	</if>
+		 	<if test="map.aLocationId!=null and map.aLocationId!=''">
+		 		<if test="map.aLocationLevel==11">
+		 			and station1.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 		<if test="map.aLocationLevel==12">
+		 			and room1.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 	</if>
+		 	<if test="map.zLocationId!=null and map.zLocationId!=''">
+		 		<if test="map.zLocationLevel==11">
+		 			and station2.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 		<if test="map.zLocationLevel==12">
+		 			and room2.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 	</if>
+		 		and cir_info.CIR_COUNT>0 and cir_info.SELECT_TYPE=1
+		 	 union
+		</where>
+		<include refid="ptpQueryInfo" />
+				<if test="map.serviceType!=3">
+					<if test = "map.serviceType==1">
+					,a_end_rate as rate
+					</if>
+					<if test = "map.serviceType ==2">
+					,concat((select count(1) from t_cir_circuit_info tc where tc.parent_cir =cir_info.CIR_CIRCUIT_INFO_ID),'*',cir_info.A_END_RATE) AS rate
+					</if>
+				</if>
+		<include refid="ptpQueryJoinedTable"/>
+		<where>
+			<if test="map.aNodeId!=null and map.aNodeId!=''">
+		 		p2.${map.aNodeName}=#{map.aNodeId}
+		 	</if>
+		 	<if test="map.zNodeId!=null and map.zNodeId!=''">
+		 		and p1.${map.zNodeName}=#{map.zNodeId}
+		 	</if>
+		 	<if test="map.serviceType!=null and map.serviceType!=''">
+		 		and cir_info.SVC_TYPE=#{map.serviceType}
+		 	</if>
+		 	<if test="map.aLocationId!=null and map.aLocationId!=''">
+		 		<if test="map.aLocationLevel==11">
+		 			and station2.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 		<if test="map.aLocationLevel==12">
+		 			and room2.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 	</if>
+		 	<if test="map.zLocationId!=null and map.zLocationId!=''">
+		 		<if test="map.zLocationLevel==11">
+		 			and station1.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 		<if test="map.zLocationLevel==12">
+		 			and room1.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 	</if>
+		 		and cir_info.CIR_COUNT>0 and cir_info.SELECT_TYPE=1 
+		</where>
+		limit #{map.start},#{map.limit}
+	</select>
+  
+	<!--   计算端到端查询的中电路条数 -->
+ 	 <select id="getptpCircuitTotal" resultType="hashMap" parameterType="hashMap">
+	     select count(distinct(cir_no)) as total from(
+			<include refid="ptpQueryInfo" />
+				<if test="map.serviceType!=3">
+					,a_end_rate as rate
+				</if>
+		<include refid="ptpQueryJoinedTable"/>
+		<where>
+			<if test="map.aNodeId!=null and map.aNodeId!=''">
+		 		p1.${map.aNodeName}=#{map.aNodeId}
+		 	</if>
+		 	<if test="map.zNodeId!=null and map.zNodeId!=''">
+		 		and p2.${map.zNodeName}=#{map.zNodeId}
+		 	</if>
+		 	<if test="map.serviceType!=null and map.serviceType!=''">
+		 		and cir_info.SVC_TYPE=#{map.serviceType}
+		 	</if>
+		 	<if test="map.aLocationId!=null and map.aLocationId!=''">
+		 		<if test="map.aLocationLevel==11">
+		 			and station1.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 		<if test="map.aLocationLevel==12">
+		 			and room1.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 	</if>
+		 	<if test="map.zLocationId!=null and map.zLocationId!=''">
+		 		<if test="map.zLocationLevel==11">
+		 			and station2.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 		<if test="map.zLocationLevel==12">
+		 			and room2.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 	</if>
+		 		and cir_info.CIR_COUNT>0 and cir_info.SELECT_TYPE=1
+		 	 union
+		</where>
+		<include refid="ptpQueryInfo" />
+				<if test="map.serviceType!=3">
+					,a_end_rate as rate
+				</if>
+		<include refid="ptpQueryJoinedTable"/>
+		<where>
+			<if test="map.aNodeId!=null and map.aNodeId!=''">
+		 		p2.${map.aNodeName}=#{map.aNodeId}
+		 	</if>
+		 	<if test="map.zNodeId!=null and map.zNodeId!=''">
+		 		and p1.${map.zNodeName}=#{map.zNodeId}
+		 	</if>
+		 	<if test="map.serviceType!=null and map.serviceType!=''">
+		 		and cir_info.SVC_TYPE=#{map.serviceType}
+		 	</if>
+		 	<if test="map.aLocationId!=null and map.aLocationId!=''">
+		 		<if test="map.aLocationLevel==11">
+		 			and station2.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 		<if test="map.aLocationLevel==12">
+		 			and room2.${map.aLocationName}=#{map.aLocationId}
+		 		</if>
+		 	</if>
+		 	<if test="map.zLocationId!=null and map.zLocationId!=''">
+		 		<if test="map.zLocationLevel==11">
+		 			and station1.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 		<if test="map.zLocationLevel==12">
+		 			and room1.${map.zLocationName}=#{map.zLocationId}
+		 		</if>
+		 	</if>
+		 		and cir_info.CIR_COUNT>0 and cir_info.SELECT_TYPE=1 
+		</where>
+			)as table1 
+	</select>
+
+	<!-- 根据网元id获取所有ctp -->
+	<select id="getCtpByNe" resultType="hashMap" parameterType="int">
+		select base_sdh_ctp_id from t_base_sdh_ctp where base_ne_id=#{nodeId}
+	</select>
+	
+	<!--根据端口id获取所有ctp -->
+	<select id="getCtpByPort" resultType="hashMap" parameterType="int">
+		select base_sdh_ctp_id from t_base_sdh_ctp where base_ptp_id=#{nodeId}
+	</select>
+	
+	<!--查询所有ctp  -->
+	<select id="getCtpByNull" resultType="hashMap">
+		select base_sdh_ctp_id from t_base_sdh_ctp
+	</select>
+	
+	<!--根据电路id号查询指定sdh类型电路的详细路由信息  -->
+	<select id="getCircuitRoute" resultType="hashMap" parameterType="int">
+		SELECT ne.DISPLAY_NAME AS NE_NAME,
+		       ems.DISPLAY_NAME AS EMS_NAME,
+		       concat(ctp1.CTP_J_ORIGINAL,
+		              '-',
+		              ctp1.CTP_K,
+		              '-',
+		              ctp1.CTP_L,
+		              '-',
+		              ctp1.CTP_M) AS A_END_CTP,
+		       concat(ctp2.CTP_J_ORIGINAL,
+		              '-',
+		              ctp2.CTP_K,
+		              '-',
+		              ctp2.CTP_L,
+		              '-',
+		              ctp2.CTP_M) AS Z_END_CTP,
+		       p1.port_desc as A_END_PORT,
+		       p2.port_desc as Z_END_PORT,
+		       link.DISPLAY_NAME AS LINK_NAME,
+		       link.CIR_NO AS LINK_NO ,
+		       ne.base_ne_id
+		  FROM t_cir_circuit_route route
+		  left join t_base_sdh_crs crs on (route.CHAIN_TYPE = 1
+		                              and route.CHAIN_ID = crs.BASE_SDH_CRS_ID)
+		  left join t_base_link link on (route.CHAIN_TYPE = 4
+		                            and route.CHAIN_ID = link.BASE_LINK_ID)
+		  left join t_base_ne ne on ne.BASE_NE_ID = crs.BASE_NE_ID
+		  left join t_base_ems_connection ems on crs.BASE_EMS_CONNECTION_ID =
+		                                         ems.BASE_EMS_CONNECTION_ID
+		  left join t_base_sdh_ctp as ctp1 on crs.a_end_ctp = ctp1.base_sdh_ctp_id
+		  left join t_base_sdh_ctp as ctp2 on crs.z_end_ctp = ctp2.base_sdh_ctp_id
+		  left join t_base_ptp AS P1 ON ctp1.BASE_ptp_id = p1.BASE_ptp_id
+		  left join T_base_PTP AS P2 ON ctp2.BASE_ptp_id = p2.BASE_ptp_id
+		 where CIR_CIRCUIT_ID = #{circuitId}
+		 order by route.CIR_CIRCUIT_ROUTE_ID
+	</select>
+	
+	<!--根据电路id号查询指定sdh类型电路的详细路由topo图信息  -->
+	<select id="getCircuitRouteTopo" resultType="hashMap" parameterType="int">
+		SELECT ne.DISPLAY_NAME AS NE_NAME,ne.base_ne_id,ne.PRODUCT_NAME,
+		       link.DISPLAY_NAME AS LINK_NAME,link.A_END_PTP  ,link.Z_END_PTP ,link.BASE_LINK_ID,
+		       p1.BASE_EMS_CONNECTION_ID,p1.base_ptp_id as PTP1,p2.base_ptp_id as PTP2
+		  FROM t_cir_circuit_route route
+		  left join t_base_sdh_crs crs on (route.CHAIN_TYPE = 1
+		                              and route.CHAIN_ID = crs.BASE_SDH_CRS_ID)
+		  left join t_base_link link on (route.CHAIN_TYPE = 4
+		                            and route.CHAIN_ID = link.BASE_LINK_ID)
+		  left join t_base_ne ne on ne.BASE_NE_ID = crs.BASE_NE_ID
+		  left join t_base_sdh_ctp as ctp1 on crs.a_end_ctp = ctp1.base_sdh_ctp_id
+		  left join t_base_sdh_ctp as ctp2 on crs.z_end_ctp = ctp2.base_sdh_ctp_id
+		  left join t_base_ptp AS P1 ON ctp1.BASE_ptp_id = p1.BASE_ptp_id
+		  left join T_base_PTP AS P2 ON ctp2.BASE_ptp_id = p2.BASE_ptp_id
+		 where CIR_CIRCUIT_ID = #{circuitId}
+		 order by route.CIR_CIRCUIT_ROUTE_ID
+	</select>
+	<!--根据电路id号查询指定otn类型电路的详细路由topo图信息  -->
+	<select id="getOtnCircuitRouteTopo" resultType="hashMap" parameterType="int">
+		SELECT  route.CIR_OTN_CIRCUIT_ROUTE_ID,ne.PRODUCT_NAME,route.CHAIN_TYPE,ne.DISPLAY_NAME AS NE_NAME,ne.base_ne_id,link2.DISPLAY_NAME as LINK_NAME,
+		       link.DISPLAY_NAME AS LINK_NAME,link.A_END_PTP  ,link.Z_END_PTP ,link.BASE_LINK_ID,
+		       p1.BASE_EMS_CONNECTION_ID,p1.base_ptp_id as PTP1,p2.base_ptp_id as PTP2
+		  FROM t_cir_otn_circuit_route route
+		  left join t_base_otn_crs crs on (route.CHAIN_TYPE = 2
+		                              and route.CHAIN_ID = crs.BASE_OTN_CRS_ID)
+		  left join t_base_link link on (route.CHAIN_TYPE = 4
+		                            and route.CHAIN_ID = link.BASE_LINK_ID)
+          left join t_base_link link2 on (route.CHAIN_TYPE = 3
+		                            and route.CHAIN_ID = link2.BASE_LINK_ID)
+		  left join t_base_ne ne on ne.BASE_NE_ID = crs.BASE_NE_ID
+		  left join t_base_otn_ctp as ctp1 on crs.a_end_ctp = ctp1.base_otn_ctp_id
+		  left join t_base_otn_ctp as ctp2 on crs.z_end_ctp = ctp2.base_otn_ctp_id
+		  left join t_base_ptp AS P1 ON ctp1.BASE_ptp_id = p1.BASE_ptp_id
+		  left join T_base_PTP AS P2 ON ctp2.BASE_ptp_id = p2.BASE_ptp_id
+		 where CIR_OTN_CIRCUIT_ID = #{circuitId} and route.CHAIN_TYPE !=3 
+		 order by route.CIR_OTN_CIRCUIT_ROUTE_ID;
+	</select>
+	<!-- 获取端口的相关信息 -->
+	<select id="getPortInfo" resultType="hashMap" parameterType="int">
+		select BASE_PTP_ID	as EndPTP,BASE_NE_ID as NeId,PORT_NO as PortNo,SHELF_NO AS ShelfNo,
+		SLOT_NO	AS SlotNo ,PORT_NO AS PortNo,RACK_NO as RackNo,Domain from t_base_ptp 
+		where BASE_PTP_ID=#{portId};
+	</select>
+	
+	<!--查询以太网电路的子电路  -->
+	<select id="getSubCircuit" resultType="hashMap" parameterType="hashmap">
+		<include refid="ptpQueryInfo" />
+		<if test="map.serviceType!=3">
+			,a_end_rate as rate
+		</if>
+  		<include refid="ptpQueryJoinedTable"/>
+  		<where>
+  			cir_info.PARENT_CIR=#{map.parentCir} and cir_info.CIR_COUNT>0 
+  			and cir_info.SVC_TYPE=2 and cir_info.SELECT_TYPE=2
+  		</where>
+	</select>
+	
+	<!-- 获取设备网元名称  -->
+	<select id="getNeName" resultType="hashMap" parameterType="hashmap">
+		select NE.DISPLAY_NAME as neName from T_BASE_NE AS NE,${map.tableName} AS T WHERE T.${map.field}=#{map.nodeId} AND T.BASE_NE_ID=NE.BASE_NE_ID;
+	</select>
+	
+	<!-- 获取设备网元、板卡名称  -->
+	<select id="getUnitName" resultType="hashMap" parameterType="hashmap">
+		select 	n.DISPLAY_NAME as neName, u.display_name as unitName
+ 		 from 	t_base_unit as u, t_base_ne as n, ${map.tableName} as s
+		 where 	s.${map.field} = #{map.nodeId}
+		   and 	s.base_unit_id = u.BASE_UNIT_ID
+		   and	u.BASE_NE_ID = n.BASE_NE_ID
+	</select>
+	
+	<!-- 获取设备网元、板卡、端口信息  -->
+	<select id="getPortName" resultType="hashMap" parameterType="hashmap">
+		select n.DISPLAY_NAME as neName,
+		       u.display_name as unitName,
+		       p.DISPLAY_NAME as portName
+		from t_base_ptp as p, t_base_ne as n, t_base_unit as u
+		 where p.BASE_PTP_ID = #{map.nodeId}
+		   and p.BASE_NE_ID = n.BASE_NE_ID
+		   and p.BASE_UNIT_ID = u.BASE_UNIT_ID
+	</select>
+	
+	<sql id="aboutCondition">
+		<![CDATA[
+		from ${map.route} as route 
+				left join ${map.crs} as crs on route.chain_id=crs.${map.crs_id} 
+				left join t_base_ptp as ptp3 on ptp3.base_ptp_id=a_end_ptp
+				left join t_base_ptp as ptp4 on ptp4.base_ptp_id=z_end_ptp
+				left join t_base_ne as ne on ne.base_ne_id=ptp3.base_ne_id
+				left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID 
+																= ne.BASE_EMS_CONNECTION_ID
+				left join t_resource_room as room on room.RESOURCE_ROOM_ID =
+					                                        ne.RESOURCE_ROOM_ID
+				left join t_resource_station as station on station.RESOURCE_STATION_ID =
+					                                        room.RESOURCE_STATION_ID
+				left join ${map.cir_table} as cir on route.${map.cir_id}=cir.${map.cir_id}
+				left join ${map.cir_info_table} as cir_info1 on cir.${map.cir_info_id}=cir_info1.${map.cir_info_id}
+				left join t_cir_circuit_info cir_info on cir_info.${map.cir_info_id}=cir_info1.parent_cir
+				left join t_base_ptp as p1 on cir_info.A_END_PTP = p1.BASE_PTP_ID
+			    left join t_base_ptp as p2 on cir_info.Z_END_PTP = p2.BASE_PTP_ID
+			    left join ${map.ctp_table} as ctp1 on cir.a_end_ctp = ctp1.${map.CTP_ID}
+			    left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+			                                             p1.Base_ems_connection_id
+			    left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+			    left join t_base_ems_group as group1 on group1.base_ems_group_id =
+			                                          ems1.base_ems_group_id
+			    left join ${map.ctp_table} as ctp2 on cir.Z_end_ctp = ctp2.${map.CTP_ID}
+			    left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+			                                             p2.Base_ems_connection_id
+			    left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+			    left join t_base_ems_group as group2 on group2.base_ems_group_id =
+			                                          ems2.base_ems_group_id
+		
+		]]>
+	</sql>
+	<sql id="aboutSdhOTnCondition">
+		<![CDATA[
+		from ${map.route} as route 
+				left join ${map.crs} as crs on route.chain_id=crs.${map.crs_id} 
+				left join t_base_ptp as ptp3 on ptp3.base_ptp_id=a_end_ptp
+				left join t_base_ptp as ptp4 on ptp4.base_ptp_id=z_end_ptp
+				left join t_base_ne as ne on ne.base_ne_id=ptp3.base_ne_id
+				left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID 
+																= ne.BASE_EMS_CONNECTION_ID
+				left join t_resource_room as room on room.RESOURCE_ROOM_ID =
+					                                        ne.RESOURCE_ROOM_ID
+				left join t_resource_station as station on station.RESOURCE_STATION_ID =
+					                                        room.RESOURCE_STATION_ID
+				left join ${map.cir_table} as cir on route.${map.cir_id}=cir.${map.cir_id}
+				left join ${map.cir_info_table} as cir_info on cir.${map.cir_info_id}=cir_info.${map.cir_info_id}
+				left join t_base_ptp as p1 on cir_info.A_END_PTP = p1.BASE_PTP_ID
+			    left join t_base_ptp as p2 on cir_info.Z_END_PTP = p2.BASE_PTP_ID
+			    left join ${map.ctp_table} as ctp1 on cir.a_end_ctp = ctp1.${map.CTP_ID}
+			    left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+			                                             p1.Base_ems_connection_id
+			    left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+			    left join t_base_ems_group as group1 on group1.base_ems_group_id =
+			                                          ems1.base_ems_group_id
+			    left join ${map.ctp_table} as ctp2 on cir.Z_end_ctp = ctp2.${map.CTP_ID}
+			    left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+			                                             p2.Base_ems_connection_id
+			    left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+			    left join t_base_ems_group as group2 on group2.base_ems_group_id =
+			                                          ems2.base_ems_group_id
+		
+		]]>
+	</sql>
+	<!-- 相关性查询 --><!-- 还需要进一步测试 -->
+	<select id="selectCircuitAbout" resultType="hashMap" parameterType="hashMap">
+  		<include refid="circuitInfoStruct" /> 
+  		<if test="map.serviceType==2">
+  		,concat((select count(1) from t_cir_circuit_info tc where tc.parent_cir =cir_info.CIR_CIRCUIT_INFO_ID),'*',cir_info1.A_END_RATE) AS rate
+  		<include refid="aboutCondition"/>
+  		</if>
+		<if test="map.serviceType!=2">
+		<if test="map.serviceType == 1">
+		,cir_info.A_END_RATE AS rate
+		</if>
+		<include refid="aboutSdhOTnCondition"/>
+		</if>
+		<where><if test="map.linkId!=null and map.linkId!=''">
+				and chain_id=${map.linkId} and chain_type=4
+		</if>
+				<if test="map.linkId==null || map.linkId==''">
+		<if test="map.serviceType==3">
+				and chain_TYPE=2
+  		</if>
+  		<if test="map.serviceType!=3">
+  				and chain_Type=1
+  		</if>
+		</if>
+				<if test="map.nodeList!=null and map.tag==2">
+				and (ptp3.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					or ptp4.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					)
+				</if>
+				<if test="map.nodeList!=null and map.tag==1">
+				and ${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+				</if>
+				<!--  <if test="map.aLocationLevel==5">
+					and station.RESOURCE_STATION_ID =${map.aLocationId}
+				</if>-->
+				<if test="map.aLocationLevel==12">
+					and room.RESOURCE_ROOM_ID IN 
+					  <foreach collection="map.roomList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					
+				</if>
+				<if test="map.circuitNo!=null and map.circuitNo!=''">
+				    and cir_info.CIR_NO like CONCAT('%',${map.circuitNo},'%' )
+				</if>
+				<if test="map.clientName!=null and map.clientName!=''">
+					and cir_info.CLIENT_NAME like '%${map.clientName}%'
+				</if>
+				<if test="map.circuitName!=null and map.circuitName!=''">
+					and cir_info.cir_name like '%${map.circuitName}%'
+				</if>
+				<if test="map.systemSourceNo!=null and map.systemSourceNo!=''">
+					and cir_info.SOURCE_NO like '%${map.systemSourceNo}%'
+				</if>
+				<if test="map.useFor!=null and map.useFor!=''">
+					and cir_info.USED_FOR like '%${map.useFor}%'
+				</if>
+				<if test="map.serviceType!=null and map.serviceType!=''">
+					and cir_info.SVC_TYPE=#{map.serviceType}
+				</if>
+				<if test="map.connectRate!=null and map.connectRate!='' and map.serviceType!=3">
+					and cir_info.A_END_RATE= #{map.connectRate}
+				</if>
+				<if test="map.circuitState!=null and map.circuitState!=''">
+					and cir_info.IS_COMPLETE_CIR= ${map.circuitState}
+				</if>
+				<if test = "map.circuitId!=null and map.circuitId!=''">
+					and cir.${map.cir_id} = ${map.circuitId}
+				</if>
+				<if test="map.advancedCon!=null and map.advancedCon!=''">
+					and (cir_info.CLIENT_NAME like '%${map.advancedCon}%' 
+						or cir_info.SOURCE_NO like '%${map.advancedCon}%'
+						or cir_info.USED_FOR like '%${map.advancedCon}%'
+						or cir_info.cir_name like '%${map.advancedCon}%')
+				</if>
+					<!-- and cir.IS_MAIN_CIR=1 --> and cir_info.SELECT_TYPE=1 group by cir_no
+				</where>
+			limit #{map.start},#{map.limit}	
+	</select>
+	
+	<!-- 获得相关性查询总数 -->
+	<select id="circuitAboutTotal" resultType="hashMap" parameterType="hashMap">
+		select count(distinct(cir_info.cir_no)) as total
+  		<if test="map.serviceType==2">
+  		<include refid="aboutCondition"/>
+  		</if>
+		<if test="map.serviceType!=2">
+		<include refid="aboutSdhOTnCondition"/>
+		</if>
+  		<where>
+  		<if test="map.linkId!=null and map.linkId!=''">
+				and chain_id=${map.linkId} and chain_type=4
+		</if>
+		<if test="map.linkId==null || map.linkId==''">
+		<if test="map.serviceType==3">
+				and chain_TYPE=2
+  		</if>
+  		<if test="map.serviceType!=3">
+  				and chain_Type=1
+  		</if>
+		</if>
+  		
+				<if test="map.nodeList!=null and map.tag==2">
+				and (ptp3.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					or ptp4.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					)
+				</if>
+				<if test="map.nodeList!=null and map.tag==1">
+				and ${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+				</if>
+				<!--  <if test="map.aLocationLevel==5">
+					and station.RESOURCE_STATION_ID =${map.aLocationId}
+				</if>-->
+				<if test="map.aLocationLevel==12">
+					and room.RESOURCE_ROOM_ID IN 
+						<foreach collection="map.roomList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+				</if>
+				<if test="map.circuitNo!=null and map.circuitNo!=''">
+				    and cir_info.CIR_NO like CONCAT('%',${map.circuitNo},'%' )
+				</if>
+				<if test="map.clientName!=null and map.clientName!=''">
+					and cir_info.CLIENT_NAME like '%${map.clientName}%'
+				</if>
+				<if test="map.circuitName!=null and map.circuitName!=''">
+					and cir_info.cir_name like '%${map.circuitName}%'
+				</if>
+				<if test="map.systemSourceNo!=null and map.systemSourceNo!=''">
+					and cir_info.SOURCE_NO like '%${map.systemSourceNo}%'
+				</if>
+				<if test="map.useFor!=null and map.useFor!=''">
+					and cir_info.USED_FOR like '%${map.useFor}%'
+				</if>
+				<if test="map.serviceType!=null and map.serviceType!=''">
+					and cir_info.SVC_TYPE=#{map.serviceType}
+				</if>
+				<if test="map.connectRate!=null and map.connectRate!='' and map.serviceType!=3">
+					and cir_info.A_END_RATE= #{map.connectRate}
+				</if>
+				<if test="map.circuitState!=null and map.circuitState!=''">
+					and cir_info.IS_COMPLETE_CIR= ${map.circuitState}
+				</if>
+				<if test = "map.circuitId!=null and map.circuitId!=''">
+					and cir.${map.cir_id} = ${map.circuitId}
+				</if>
+				<if test="map.advancedCon!=null and map.advancedCon!=''">
+					and (cir_info.CLIENT_NAME like '%${map.advancedCon}%' 
+						or cir_info.SOURCE_NO like '%${map.advancedCon}%'
+						or cir_info.USED_FOR like '%${map.advancedCon}%'
+						or cir_info.cir_name like '%${map.advancedCon}%')
+				</if>
+					<!-- and cir.IS_MAIN_CIR=1 --> and cir_info.SELECT_TYPE=1
+				</where>
+	</select>
+	
+	<!-- 链路查询，用于导出 -->
+	<select id="getExportLinks" resultType="hashMap" parameterType="hashMap">                                                          
+				select link.DISPLAY_NAME as LINK_NAME,
+				link.NATIVE_EMS_NAME as NATIVE_EMS_NAME,
+				  link.USER_LABEL as USER_LABEL,
+			       ems1.DISPLAY_NAME as A_EMS_NAME,
+			       ne1.DISPLAY_NAME as A_NE_NAME,
+			       ptp1.RACK_NO as A_RACK_NO,
+					ptp1.SHELF_NO as A_SHELF_NO,
+					ptp1.SLOT_NO as A_SLOT_NO,
+			       ptp1.PORT_NO as A_PORT_NO,
+			       ems2.DISPLAY_NAME as Z_EMS_NAME,
+			       ne2.DISPLAY_NAME as Z_NE_NAME,
+			       ptp2.RACK_NO as Z_RACK_NO,
+					ptp2.SHELF_NO as Z_SHELF_NO,
+					ptp2.SLOT_NO as Z_SLOT_NO,
+			       ptp2.PORT_NO as Z_PORT_NO,
+			       link.DIRECTION,
+			       link.LINK_TYPE,
+			       link.IS_MANUAL
+				  from t_base_link as link
+				  left join t_base_ptp as ptp1 on link.A_END_PTP = ptp1.BASE_PTP_ID
+				  left join t_base_ptp as ptp2 on ptp2.BASE_PTP_ID = link.Z_END_PTP
+				  left join t_base_ne as ne1 on ptp1.BASE_NE_ID = ne1.BASE_NE_ID
+				  left join t_base_ne as ne2 on ptp2.BASE_NE_ID = ne2.BASE_NE_ID
+				  left join t_base_ems_connection as ems1 on ptp1.BASE_EMS_CONNECTION_ID =
+				                                             ems1.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_connection as ems2 on ptp2.BASE_EMS_CONNECTION_ID =
+				                                             ems2.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_group as group1 on group1.BASE_EMS_GROUP_ID=ems1.BASE_EMS_GROUP_ID
+				  left join t_base_ems_group as group2 on group2.BASE_EMS_GROUP_ID=ems2.BASE_EMS_GROUP_ID
+			  <where>
+			  	<if test="map.linkId!=0">
+			  		link.BASE_LINK_ID=#{map.linkId}
+			  	</if>
+			  	<if test="map.aNodeId!=-1">
+  				<if test="map.aNodeLevel==2">
+  					and (ems1.BASE_EMS_CONNECTION_ID=#{map.aNodeId}
+  						or
+  					ems2.BASE_EMS_CONNECTION_ID=#{map.aNodeId}) 
+  				</if>
+  				<if test="map.aNodeLevel==4">
+  					and (ne1.BASE_NE_ID=#{map.aNodeId}
+						or
+  					ne2.BASE_NE_ID=#{map.aNodeId}) 
+  				</if>
+  				<if test="map.aNodeLevel==8">
+  					and (link.A_END_PTP=#{map.aNodeId}
+  						or
+  					link.Z_END_PTP=#{map.aNodeId}) 
+  				</if>
+  				<if test="map.aNodeLevel==-99">
+  					and group1.BASE_EMS_GROUP_ID=-99
+  				</if>
+  				<if test="map.aNodeLevel==1">
+  					and ((group1.BASE_EMS_GROUP_ID=#{map.aNodeId} and ems1.BASE_EMS_CONNECTION_ID in
+  						<foreach collection="map.emsList" index="index" item="item" open="("
+		      				separator="," close=")">
+		     				 ${item}
+						</foreach>)
+  						or
+  						(group2.BASE_EMS_GROUP_ID=#{map.aNodeId} and ems2.BASE_EMS_CONNECTION_ID in
+  						<foreach collection="map.emsList" index="index" item="item" open="("
+		      				separator="," close=")">
+		     				 ${item}
+						</foreach>))
+  				</if>
+  			</if>
+		  	and link.IS_DEL=0 and link.IS_MAIN=1 and link.LINK_TYPE=#{map.linkType}
+			  </where>  
+			  limit #{map.start},#{map.limit}                                        
+	</select>
+	
+	<!--链路查询，在页面显示-->
+	<select id="selectLinks" resultType="hashMap" parameterType="hashMap">                                                          
+				select link.BASE_LINK_ID,
+				  	   link.NATIVE_EMS_NAME as NATIVE_EMS_NAME,
+				       link.USER_LABEL as USER_LABEL,
+				       link.IS_LOCKED as IS_LOCKED,
+				       ems1.DISPLAY_NAME as A_EMS_NAME,
+				       ne1.DISPLAY_NAME as A_NE_NAME,
+				       ne1.RESOURCE_STATION_ID as A_STATION_ID,
+				       ptp1.port_desc as A_END_PORT,
+			           link.A_END_PTP as aEndPtp,
+				       ems2.DISPLAY_NAME as Z_EMS_NAME,
+				       ne2.DISPLAY_NAME as Z_NE_NAME,
+				       ne2.RESOURCE_STATION_ID as Z_STATION_ID,
+				       ptp2.port_desc AS Z_END_PORT,
+			           link.Z_END_PTP as zEndPtp,
+				       link.DIRECTION,
+				       link.LINK_TYPE,
+				       link.IS_MANUAL,
+				       tc.IS_CONFLICT,
+				       tc.TARGET_LINK_ID, 
+				       fiber.RESOURCE_FIBER_ID as fiberId,
+				       fiber.RESOURCE_CABLE_ID as cableId,
+				       (CASE WHEN fiber.FIBER_NAME !='' THEN (CONCAT(fiber.FIBER_NO,'(',fiber.FIBER_NAME,')')) ELSE fiber.FIBER_NO END) AS fiber,
+				       (CASE WHEN cable.CABLE_NAME !='' THEN (CONCAT(cable.CABLE_NAME,'(',cable.CABLE_NO,')')) ELSE cable.CABLE_NAME END) AS cableSection,
+				       (CASE WHEN cables.DISPLAY_NAME !='' THEN (CONCAT(cables.DISPLAY_NAME,'(',cables.CABLES_NO,')')) ELSE cables.DISPLAY_NAME END) AS cables
+				  from t_base_link as link
+				  left join  
+					(select BASE_LINK_CONFLICT_ID,TARGET_LINK_ID as link_id,TARGET_LINK_ID ,1 as IS_CONFLICT
+					from t_base_link_conflict
+					union all 
+					select BASE_LINK_CONFLICT_ID,SOURCE_LINK_ID as link_id ,TARGET_LINK_ID  ,2 as IS_CONFLICT
+					from t_base_link_conflict) as  tc  
+					on link.BASE_LINK_ID = tc.link_id
+				  left join t_base_ptp as ptp1 on link.A_END_PTP = ptp1.BASE_PTP_ID
+				  left join t_base_ptp as ptp2 on ptp2.BASE_PTP_ID = link.Z_END_PTP
+				  left join t_base_ne as ne1 on ptp1.BASE_NE_ID = ne1.BASE_NE_ID
+				  left join t_base_ne as ne2 on ptp2.BASE_NE_ID = ne2.BASE_NE_ID
+				  left join t_base_ems_connection as ems1 on ptp1.BASE_EMS_CONNECTION_ID =
+				                                             ems1.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_connection as ems2 on ptp2.BASE_EMS_CONNECTION_ID =
+				                                             ems2.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_group as group1 on group1.BASE_EMS_GROUP_ID=ems1.BASE_EMS_GROUP_ID
+				  left join t_base_ems_group as group2 on group2.BASE_EMS_GROUP_ID=ems2.BASE_EMS_GROUP_ID
+				  LEFT JOIN t_resource_fiber fiber ON link.RESOURCE_FIBER_ID = fiber.RESOURCE_FIBER_ID
+				  LEFT JOIN t_resource_cable cable ON fiber.RESOURCE_CABLE_ID = cable.RESOURCE_CABLE_ID
+				  LEFT JOIN t_resource_cables cables ON cable.RESOURCE_CABLES_ID = cables.RESOURCE_CABLES_ID
+			  <where>
+			  1=1
+			  	<if test="map.linkId==-1">
+			  		and link.BASE_LINK_ID=-1
+			  	</if>
+			  	<if test="map.linkId!=0">
+			  		and link.BASE_LINK_ID=#{map.linkId}
+			  	</if>
+			  	<if test="map.aNodeId!=-1">
+	  				<if test="map.aNodeLevel==2">
+	  					and (ems1.BASE_EMS_CONNECTION_ID=#{map.aNodeId}
+	  						or
+	  					ems2.BASE_EMS_CONNECTION_ID=#{map.aNodeId}) 
+	  				</if>
+	  				<if test="map.aNodeLevel==4">
+	  					and (ne1.BASE_NE_ID=#{map.aNodeId}
+							or
+	  					ne2.BASE_NE_ID=#{map.aNodeId}) 
+	  				</if>
+	  				<if test="map.aNodeLevel==8">
+	  					and (link.A_END_PTP=#{map.aNodeId}
+	  						or
+	  					link.Z_END_PTP=#{map.aNodeId}) 
+	  				</if>
+	  				<if test="map.aNodeLevel==-99">
+	  					and group1.BASE_EMS_GROUP_ID=-99
+	  				</if>
+	  				<if test="map.aNodeLevel==1">
+	  					and ((group1.BASE_EMS_GROUP_ID=#{map.aNodeId} and ems1.BASE_EMS_CONNECTION_ID in
+	  						<foreach collection="map.emsList" index="index" item="item" open="("
+			      				separator="," close=")">
+			     				 ${item}
+							</foreach>)
+	  						or
+	  						(group2.BASE_EMS_GROUP_ID=#{map.aNodeId} and ems2.BASE_EMS_CONNECTION_ID in
+	  						<foreach collection="map.emsList" index="index" item="item" open="("
+			      				separator="," close=")">
+			     				 ${item}
+							</foreach>))
+	  				</if>
+  				</if>
+				<if test="map.cableId!=null and map.cableId>0">
+			  		and cable.RESOURCE_CABLE_ID=#{map.cableId}
+			  	</if>
+  				<if test="map.fiberId!=null and map.fiberId>0">
+			  		and fiber.RESOURCE_FIBER_ID=#{map.fiberId}
+			  	</if> 
+		  	and link.IS_DEL=0 and link.IS_MAIN=1 and link.LINK_TYPE=#{map.linkType}
+		  	order by tc.TARGET_LINK_ID desc
+			  </where>  
+			  limit #{map.start},#{map.limit}                                        
+
+	</select>
+	
+	<!-- 查询链路总数（用于页面显示） -->
+	<select id="linksTotal" resultType="hashMap" parameterType="hashMap">
+		select count(*)  
+	  from t_base_link as link
+				  left join  
+					(select BASE_LINK_CONFLICT_ID,TARGET_LINK_ID as link_id,TARGET_LINK_ID ,1 as IS_CONFLICT
+					from t_base_link_conflict
+					union all 
+					select BASE_LINK_CONFLICT_ID,SOURCE_LINK_ID as link_id ,TARGET_LINK_ID  ,2 as IS_CONFLICT
+					from t_base_link_conflict) as  tc  
+					on link.BASE_LINK_ID = tc.link_id
+				  left join t_base_ptp as ptp1 on link.A_END_PTP = ptp1.BASE_PTP_ID
+				  left join t_base_ptp as ptp2 on ptp2.BASE_PTP_ID = link.Z_END_PTP
+				  left join t_base_ne as ne1 on ptp1.BASE_NE_ID = ne1.BASE_NE_ID
+				  left join t_base_ne as ne2 on ptp2.BASE_NE_ID = ne2.BASE_NE_ID
+				  left join t_base_ems_connection as ems1 on ptp1.BASE_EMS_CONNECTION_ID =
+				                                             ems1.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_connection as ems2 on ptp2.BASE_EMS_CONNECTION_ID =
+				                                             ems2.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_group as group1 on group1.BASE_EMS_GROUP_ID=ems1.BASE_EMS_GROUP_ID
+				  left join t_base_ems_group as group2 on group2.BASE_EMS_GROUP_ID=ems2.BASE_EMS_GROUP_ID
+				  LEFT JOIN t_resource_fiber fiber ON link.RESOURCE_FIBER_ID = fiber.RESOURCE_FIBER_ID
+				  LEFT JOIN t_resource_cable cable ON fiber.RESOURCE_CABLE_ID = cable.RESOURCE_CABLE_ID
+				  LEFT JOIN t_resource_cables cables ON cable.RESOURCE_CABLES_ID = cables.RESOURCE_CABLES_ID
+			  <where>
+			  1=1
+			  	<if test="map.linkId==-1">
+			  		and link.BASE_LINK_ID=-1
+			  	</if>
+			  	<if test="map.linkId!=0">
+			  		and link.BASE_LINK_ID=#{map.linkId}
+			  	</if>
+			  	<if test="map.aNodeId!=-1">
+	  				<if test="map.aNodeLevel==2">
+	  					and (ems1.BASE_EMS_CONNECTION_ID=#{map.aNodeId}
+	  						or
+	  					ems2.BASE_EMS_CONNECTION_ID=#{map.aNodeId}) 
+	  				</if>
+	  				<if test="map.aNodeLevel==4">
+	  					and (ne1.BASE_NE_ID=#{map.aNodeId}
+							or
+	  					ne2.BASE_NE_ID=#{map.aNodeId}) 
+	  				</if>
+	  				<if test="map.aNodeLevel==8">
+	  					and (link.A_END_PTP=#{map.aNodeId}
+	  						or
+	  					link.Z_END_PTP=#{map.aNodeId}) 
+	  				</if>
+	  				<if test="map.aNodeLevel==-99">
+	  					and group1.BASE_EMS_GROUP_ID=-99
+	  				</if>
+	  				<if test="map.aNodeLevel==1">
+	  					and ((group1.BASE_EMS_GROUP_ID=#{map.aNodeId} and ems1.BASE_EMS_CONNECTION_ID in
+	  						<foreach collection="map.emsList" index="index" item="item" open="("
+			      				separator="," close=")">
+			     				 ${item}
+							</foreach>)
+	  						or
+	  						(group2.BASE_EMS_GROUP_ID=#{map.aNodeId} and ems2.BASE_EMS_CONNECTION_ID in
+	  						<foreach collection="map.emsList" index="index" item="item" open="("
+			      				separator="," close=")">
+			     				 ${item}
+							</foreach>))
+	  				</if>
+  				</if>
+				<if test="map.cableId!=null and map.cableId>0">
+			  		and cable.RESOURCE_CABLE_ID=#{map.cableId}
+			  	</if>
+  				<if test="map.fiberId!=null and map.fiberId>0">
+			  		and fiber.RESOURCE_FIBER_ID=#{map.fiberId}
+			  	</if> 
+		  	and link.IS_DEL=0 and link.IS_MAIN=1 and link.LINK_TYPE=#{map.linkType}
+		  	order by tc.TARGET_LINK_ID desc
+			  </where> 
+	</select>
+	<!-- 链路查询 ，只查询链路Id，用于导出显示-->
+	<select id="queryExportLinksById" resultType="hashMap" parameterType="hashMap">
+	select link.DISPLAY_NAME as LINK_NAME,
+			       ems1.DISPLAY_NAME as A_EMS_NAME,
+			       ne1.DISPLAY_NAME as A_NE_NAME,
+			       ptp1.RACK_NO as A_RACK_NO,
+					ptp1.SHELF_NO as A_SHELF_NO,
+					ptp1.SLOT_NO as A_SLOT_NO,
+			       ptp1.PORT_NO as A_PORT_NO,
+			       ems2.DISPLAY_NAME as Z_EMS_NAME,
+			       ne2.DISPLAY_NAME as Z_NE_NAME,
+			       ptp2.RACK_NO as Z_RACK_NO,
+					ptp2.SHELF_NO as Z_SHELF_NO,
+					ptp2.SLOT_NO as Z_SLOT_NO,
+			       ptp2.PORT_NO as Z_PORT_NO,
+			       link.DIRECTION,
+			       link.LINK_TYPE,
+			       link.IS_MANUAL
+	from t_base_link as link
+	left join t_base_ptp as ptp1 on link.A_END_PTP = ptp1.BASE_PTP_ID
+	left join t_base_ptp as ptp2 on ptp2.BASE_PTP_ID = link.Z_END_PTP
+	left join t_base_ne as ne1 on ptp1.BASE_NE_ID = ne1.BASE_NE_ID
+	left join t_base_ne as ne2 on ptp2.BASE_NE_ID = ne2.BASE_NE_ID
+	left join t_base_ems_connection as ems1 on ptp1.BASE_EMS_CONNECTION_ID =
+				                                             ems1.BASE_EMS_CONNECTION_ID
+	left join t_base_ems_connection as ems2 on ptp2.BASE_EMS_CONNECTION_ID =
+				                                             ems2.BASE_EMS_CONNECTION_ID
+	left join t_base_ems_group as group1 on group1.BASE_EMS_GROUP_ID=ems1.BASE_EMS_GROUP_ID
+	left join t_base_ems_group as group2 on group2.BASE_EMS_GROUP_ID=ems2.BASE_EMS_GROUP_ID
+	<where>
+		link.BASE_LINK_ID in
+		<foreach collection="map.links" index="index" item="item" open="("
+		      separator="," close=")">
+		      ${item}
+		</foreach>
+		and link.IS_DEL=0 and link.IS_MAIN=1  and link.LINK_TYPE=#{map.linkType}
+	</where>
+	</select>
+	<!-- 链路查询 ，只查询链路Id，用于页面显示-->
+	<select id="queryLinksById" resultType="hashMap" parameterType="hashMap">
+	select link.BASE_LINK_ID,
+				       link.NATIVE_EMS_NAME as NATIVE_EMS_NAME,
+				       link.USER_LABEL as USER_LABEL,
+				       link.IS_LOCKED as IS_LOCKED,
+				       ems1.DISPLAY_NAME as A_EMS_NAME,
+				       ne1.DISPLAY_NAME as A_NE_NAME,
+				       ptp1.port_desc as A_END_PORT,
+				       ems2.DISPLAY_NAME as Z_EMS_NAME,
+				       ne2.DISPLAY_NAME as Z_NE_NAME,
+				       ptp2.port_desc AS Z_END_PORT,
+				       link.DIRECTION, 
+				       link.LINK_TYPE,
+				       link.IS_MANUAL,
+				       fiber.RESOURCE_FIBER_ID as fiberId,
+				       fiber.RESOURCE_CABLE_ID as cableId,
+				       (CASE WHEN fiber.FIBER_NAME !='' THEN (CONCAT(fiber.FIBER_NO,'(',fiber.FIBER_NAME,')')) ELSE fiber.FIBER_NO END) AS fiber,
+				       (CASE WHEN cable.CABLE_NAME !='' THEN (CONCAT(cable.CABLE_NAME,'(',cable.CABLE_NO,')')) ELSE cable.CABLE_NAME END) AS cableSection,
+				       (CASE WHEN cables.DISPLAY_NAME !='' THEN (CONCAT(cables.DISPLAY_NAME,'(',cables.CABLES_NO,')')) ELSE cables.DISPLAY_NAME END) AS cables
+				  
+	from t_base_link as link
+	left join t_base_ptp as ptp1 on link.A_END_PTP = ptp1.BASE_PTP_ID
+	left join t_base_ptp as ptp2 on ptp2.BASE_PTP_ID = link.Z_END_PTP
+	left join t_base_ne as ne1 on ptp1.BASE_NE_ID = ne1.BASE_NE_ID
+	left join t_base_ne as ne2 on ptp2.BASE_NE_ID = ne2.BASE_NE_ID
+	left join t_base_ems_connection as ems1 on ptp1.BASE_EMS_CONNECTION_ID =
+				                                             ems1.BASE_EMS_CONNECTION_ID
+	left join t_base_ems_connection as ems2 on ptp2.BASE_EMS_CONNECTION_ID =
+				                                             ems2.BASE_EMS_CONNECTION_ID
+	left join t_base_ems_group as group1 on group1.BASE_EMS_GROUP_ID=ems1.BASE_EMS_GROUP_ID
+	left join t_base_ems_group as group2 on group2.BASE_EMS_GROUP_ID=ems2.BASE_EMS_GROUP_ID
+	LEFT JOIN t_resource_fiber fiber ON link.RESOURCE_FIBER_ID = fiber.RESOURCE_FIBER_ID
+	LEFT JOIN t_resource_cable cable ON fiber.RESOURCE_CABLE_ID = cable.RESOURCE_CABLE_ID
+	LEFT JOIN t_resource_cables cables ON cable.RESOURCE_CABLES_ID = cables.RESOURCE_CABLES_ID
+	<where>
+		link.BASE_LINK_ID in
+		<foreach collection="map.links" index="index" item="item" open="("
+		      separator="," close=")">
+		      ${item}
+		</foreach>
+		and link.IS_DEL=0 and link.IS_MAIN=1 and link.LINK_TYPE=#{map.linkType}
+	</where>
+	</select>
+	<!-- 删除链路 -->
+	<delete id="deleteLinks" parameterType="hashMap">
+		update  t_base_link 
+		<set>
+		IS_DEL=1 ,
+		CHANGE_STATE = 2
+		</set>
+		where BASE_LINK_ID in
+		<foreach collection="map.linkIds" index="index" item="item" open="("
+		      separator="," close=")">
+		      ${item}
+		</foreach>
+	</delete>
+	
+	<!-- 更新单条电路 -->
+	<update id="updateSingleLink" parameterType="hashMap">
+		update t_base_link 
+		<set>
+			NATIVE_EMS_NAME=#{map.nativeLinkName},
+			USER_LABEL=#{map.userLabel},
+			<!-- IS_LOCKED=#{map.islocked},  -->
+			DIRECTION=#{map.direction},
+			IS_DEL=0
+		  <if test="map.A_END_PTP != -1">
+			,A_END_PTP = #{map.A_END_PTP}
+		  </if> 
+		  <if test="map.Z_END_PTP!=-1">
+		  	,Z_END_PTP=#{map.Z_END_PTP}
+		  </if>
+		</set>
+		where BASE_LINK_ID=#{map.linkId}
+	</update>
+	
+	<!--判断端口上是否有链路  -->
+	<select id="hasLinkOnPtp" parameterType="hashMap" resultType="hashMap">
+		select count(*) from t_base_link where (A_END_PTP =${map.end_PTP}
+		OR Z_END_PTP = ${map.end_PTP}) and IS_DEL=0
+	</select>
+	<select id="hasLinkOnPtps" parameterType="hashMap" resultType="hashMap">
+		select count(*) from t_base_link where (A_END_PTP in 
+		<foreach collection="map.end_PTP" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		OR Z_END_PTP IN 
+		<foreach collection="map.end_PTP" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		)
+		 and IS_DEL=0
+	</select>
+	
+	<!-- 新增链路 -->
+	<insert id="insertSingleLink" parameterType="hashMap" >
+		insert into t_base_link
+				  (NATIVE_EMS_NAME,
+				   USER_LABEL,
+				   DISPLAY_NAME,
+				   A_END_PTP,
+				   Z_END_PTP,
+				   IS_MANUAL,
+				   DIRECTION,
+				   IS_MAIN,
+				   A_NE_ID,
+				   A_EMS_CONNECTION_ID,
+				   Z_NE_ID,
+				   Z_EMS_CONNECTION_ID,
+				   LINK_TYPE,
+				   CHANGE_STATE
+<!-- 				   ,
+				   IS_LOCKED -->
+				   )
+				VALUES
+				   (#{map.nativeLinkName},
+				   	#{map.userLabel},
+				   	#{map.DISPLAY_NAME},
+				    ${map.A_END_PTP},
+				    ${map.Z_END_PTP},
+				    ${map.IS_MANUAL},
+				    ${map.direction},
+				    ${map.IS_MAIN},
+				    ${map.A_END_NE},
+				    ${map.A_END_EMS},
+				    ${map.Z_END_NE},
+				    ${map.Z_END_EMS},
+				    ${map.LINK_TYPE},
+				    1
+<!-- 				    ,
+				    ${map.islocked} -->
+				    )
+	</insert>
+	<!-- 根据电路号查询sdh类型电路 -->
+	<select id="getCircuitBycircuitNo" parameterType="hashmap" resultType="hashMap">
+		select CIR_CIRCUIT_ID
+  		from t_cir_circuit as cir
+  		left join t_cir_circuit_info as info on cir.CIR_CIRCUIT_INFO_ID =
+                                          		info.CIR_CIRCUIT_INFO_ID
+ 		where info.CIR_NO = #{map.vCircuit}
+  		 and info.cir_count > 0
+  		 and cir.IS_MAIN_CIR = 1 
+	</select>
+	<!-- 根据电路号查询otn类型电路 -->
+	<!-- 获取link网管,网元,机架,子架,槽道,端口信息 -->
+	<select id="getOtnCircuitBycircuitNo" parameterType="hashmap" resultType="hashMap">
+		select CIR_OTN_CIRCUIT_ID
+  		from t_cir_otn_circuit as cir
+  		left join t_cir_otn_circuit_info as info on cir.CIR_OTN_CIRCUIT_INFO_ID =
+                                          		info.CIR_OTN_CIRCUIT_INFO_ID
+ 		where info.CIR_NO = #{map.vCircuit}
+  		 and info.cir_count > 0
+  		 and cir.IS_MAIN_CIR = 1 
+	</select>
+	<select id="getLinksInfo" resultType="hashMap" parameterType="hashmap">
+		select concat(ems.DISPLAY_NAME,
+		              '-',
+		              ne.DISPLAY_NAME,
+		              '-',
+		              ptp.RACK_NO,
+		              '-',
+		              ptp.SHELF_NO,
+		              '-',
+		              ptp.SLOT_NO,
+		              '-',
+		              ptp.PORT_NO) as Name,ptp.BASE_PTP_ID,ptp.BASE_NE_ID,ptp.BASE_EMS_CONNECTION_ID,ptp.PORT_DESC
+		  from t_base_ptp as ptp
+		  left join t_base_ne as ne on ptp.BASE_NE_ID = ne.BASE_NE_ID
+		  left join t_base_ems_connection as ems on ptp.BASE_EMS_CONNECTION_ID =
+		                                            ems.BASE_EMS_CONNECTION_ID
+		  	<if test="map.name!=null and map.name!=''">
+		  	where concat(ems.DISPLAY_NAME,
+		              '-',
+		              ne.DISPLAY_NAME,
+		              '-',
+		              ptp.RACK_NO,
+		              '-',
+		              ptp.SHELF_NO,
+		              '-',
+		              ptp.SLOT_NO,
+		              '-',
+		              ptp.PORT_NO) in
+		  	<foreach collection="map.name" index="index" item="item" open="("
+					separator="," close=")">
+					#{item}
+				</foreach>
+				order by field(concat(ems.DISPLAY_NAME,
+		              '-',
+		              ne.DISPLAY_NAME,
+		              '-',
+		              ptp.RACK_NO,
+		              '-',
+		              ptp.SHELF_NO,
+		              '-',
+		              ptp.SLOT_NO,
+		              '-',
+		              ptp.PORT_NO)
+		              <foreach collection="map.name" index="index" item="item" open=","
+					separator="," close=")">
+					#{item}
+				</foreach>
+		  	</if>
+	</select>
+	<!-- 批量插入链路 -->
+	<insert id="insertLinksfromexcel" parameterType="hashMap">
+		insert into t_base_link (Z_END_PTP, CHANGE_STATE, A_EMS_CONNECTION_ID, Z_EMS_CONNECTION_ID,
+		 IS_MANUAL, Z_NE_ID, A_NE_ID, LINK_TYPE, IS_DEL ,A_END_PTP)
+		values
+		<foreach collection="map.linkList" index="index" item="item"
+		open="(" separator="),(" close=")">
+		${item.Z_END_PTP},${item.CHANGE_STATE},${item.A_EMS_CONNECTION_ID},${item.Z_EMS_CONNECTION_ID},
+		${item.IS_MANUAL},${item.Z_NE_ID},${item.A_NE_ID},${item.LINK_TYPE},${item.IS_DEL},${item.A_END_PTP}
+		</foreach>
+	</insert>
+	<select id="getInnerCrs" parameterType="hashmap" resultType="hashmap">
+		select crs.BASE_SDH_CRS_ID,crs.a_end_ptp,z_end_ptp from t_base_sdh_crs crs
+		left join t_base_ptp p1 on p1.BASE_PTP_ID=crs.A_END_PTP
+		left join t_base_ptp p2 on p2.BASE_PTP_ID=crs.Z_END_PTP
+		where p1.PTP_FTP=1
+		and p2.PTP_FTP=1
+		and p1.NAME like "cc"
+		and p2.NAME like "cc"	
+	   	limit #{map.size},#{map.limit}
+	</select>
+	<!-- 根据朗讯的内部ftp-ftp类型的交叉连接查询其两端的交叉连接 -->
+	<select id="getCrsByInnerCrs" parameterType="hashmap" resultType="hashmap">
+		select p1.BASE_PTP_ID,crs1.a_end_ctp as Ctp,crs1.base_sdh_crs_id,ctp1.CTP_J_ORIGINAL  
+		from t_base_sdh_crs crs1
+		left join t_base_ptp p1 on p1.BASE_PTP_ID=a_end_ptp
+		where z_end_ptp=#{map.a_end_ptp} and z_end_ptp is null
+		union
+		select p2.BASE_PTP_ID,crs2.z_end_ctp as Ctp,crs2.base_sdh_crs_id,ctp2.CTP_J_ORIGINAL  
+		from t_base_sdh_crs crs2
+		left join t_Base_ptp p2 on p2.BASE_PTP_ID=z_end_ptp
+		where a_end_ptp=#{map.z_end_ptp} and a_end_ptp is null 
+	</select>
+	<!-- 根据端口的物理号查询出该端口上的ctpId -->
+	<select id="getCtpIdByPortNo" parameterType="hashmap" resultType="hashmap">
+	select ctp.base_sdh_ctp_id from t_base_sdh_ctp ctp 
+	left join t_base_ptp p on p.base_ptp_id=ctp.base_ptp_id 
+	where p.base_ne_id= #{map.base_ne_id} and p.NAME=#{map.NAME}
+	and p.PORT_NO=#{map.PORT_NO}
+	</select>
+	<!-- 获取otn电路的路由 -->
+	<select id="getOtnCircuitRoute" parameterType="int" resultType="hashmap">
+<!-- 	SELECT ne.DISPLAY_NAME AS NE_NAME,
+		       ems.DISPLAY_NAME AS EMS_NAME,
+		       ctp1.DISPLAY_NAME AS A_END_CTP,
+		       ctp2.DISPLAY_NAME AS Z_END_CTP,
+		       ctp3.DISPLAY_NAME as A_END_CTP_TWO,
+		       ctp4.DISPLAY_NAME as Z_END_CTP_TWO,
+		       p1.port_desc as A_END_PORT,
+		       p2.port_desc as Z_END_PORT,
+		       p3.port_desc as A_END_PORT_TWO,
+		       P4.PORT_DESC AS Z_END_PORT_TWO,
+		       link.DISPLAY_NAME AS LINK_NAME,			
+		       link2.display_name as LINK_NAME_TWO,
+		       ne.base_ne_id
+		  FROM t_cir_otn_circuit_route route
+		  left join t_base_otn_crs crs on (route.CHAIN_TYPE = 2
+		                              and route.CHAIN_ID = crs.BASE_OTN_CRS_ID)
+		  left join t_base_otn_crs crs2 on(route.CHAIN_TYPE=2 
+					      and route.CHAIN_ID_PROTECT=crs2.base_OTN_crs_id)
+		  left join t_base_link link on (route.CHAIN_TYPE = 4
+		                            and route.CHAIN_ID = link.BASE_LINK_ID)
+		  left join t_base_link link2 on(route.CHAIN_TYPE=4 and route.CHAIN_ID_PROTECT=link2.base_link_id)
+		  left join t_base_ne ne on ne.BASE_NE_ID = crs.BASE_NE_ID
+		  left join t_base_ems_connection ems on crs.BASE_EMS_CONNECTION_ID =
+		                                         ems.BASE_EMS_CONNECTION_ID
+		  left join t_base_otn_ctp as ctp3 on crs2.A_END_CTP=ctp3.base_otn_ctp_id
+		  left join t_base_otn_ctp as ctp4 on crs2.z_end_ctp=ctp4.base_otn_ctp_id
+		  left join t_base_otn_ctp as ctp1 on crs.a_end_ctp = ctp1.base_otn_ctp_id
+		  left join t_base_otn_ctp as ctp2 on crs.z_end_ctp = ctp2.base_otn_ctp_id
+		  left join t_base_ptp as p3 on ctp3.base_ptp_id=p3.BASE_PTP_ID
+		  left join t_base_ptp as p4 on ctp4.BASE_ptp_id=p4.base_ptp_id
+		  left join t_base_ptp AS P1 ON ctp1.BASE_ptp_id = p1.BASE_ptp_id
+		  left join T_base_PTP AS P2 ON ctp2.BASE_ptp_id = p2.BASE_ptp_id
+		 where CIR_OTN_CIRCUIT_ID =${circuitId}
+		 order by SEQUENCE -->
+		 	SELECT ne.DISPLAY_NAME AS NE_NAME,
+		       ems.DISPLAY_NAME AS EMS_NAME,
+		       ctp1.DISPLAY_NAME AS A_END_CTP,
+		       ctp2.DISPLAY_NAME AS Z_END_CTP,
+	
+		       p1.port_desc as A_END_PORT,
+		       p2.port_desc as Z_END_PORT,
+		     
+		       link.DISPLAY_NAME AS LINK_NAME,			
+
+		       ne.base_ne_id
+		  FROM t_cir_otn_circuit_route route
+		  left join t_base_otn_crs crs on (route.CHAIN_TYPE = 2
+		                              and route.CHAIN_ID = crs.BASE_OTN_CRS_ID)
+		
+		  left join t_base_link link on (route.CHAIN_TYPE !=2
+		                            and route.CHAIN_ID = link.BASE_LINK_ID)
+		
+		  left join t_base_ne ne on ne.BASE_NE_ID = crs.BASE_NE_ID
+		  left join t_base_ems_connection ems on crs.BASE_EMS_CONNECTION_ID =
+		                                         ems.BASE_EMS_CONNECTION_ID
+	
+		  left join t_base_otn_ctp as ctp1 on crs.a_end_ctp = ctp1.base_otn_ctp_id
+		  left join t_base_otn_ctp as ctp2 on crs.z_end_ctp = ctp2.base_otn_ctp_id
+		
+		  left join t_base_ptp AS P1 ON ctp1.BASE_ptp_id = p1.BASE_ptp_id
+		  left join T_base_PTP AS P2 ON ctp2.BASE_ptp_id = p2.BASE_ptp_id
+		 where CIR_OTN_CIRCUIT_ID =${circuitId}
+		 order by route.CIR_OTN_CIRCUIT_ROUTE_ID
+	</select>
+	<!-- 查询otn网元内部路由信息 -->
+	<select id="getInnerRoute" parameterType='hashmap' resultType="hashmap">
+		select ne.DISPLAY_NAME AS NE_NAME,CHAIN_TYPE,
+		       ctp1.DISPLAY_NAME AS A_END_CTP,
+		       ctp2.DISPLAY_NAME AS Z_END_CTP,
+		       p1.port_desc as A_END_PORT,
+		       p2.port_desc as Z_END_PORT,
+		       link.DISPLAY_NAME AS LINK_NAME,			
+		       link1.display_name as INNER_LINK_NAME,
+			relation.IS_COMPLETE
+			from t_base_otn_crs_relation relation
+			left join t_base_otn_crs as crs on relation.VIR_CRS_ID=crs.BASE_OTN_CRS_ID
+			left join t_base_otn_crs crs1 on (relation.CHAIN_TYPE = 2
+					                              and relation.CHAIN_ID = crs.BASE_OTN_CRS_ID)
+			left join t_base_link link on (relation.CHAIN_TYPE = 4
+					                            and relation.CHAIN_ID = link.BASE_LINK_ID)
+			left join t_base_link link1 on(relation.CHAIN_TYPE=3 AND relation.chain_id=link1.base_link_id)
+			left join t_base_ne ne on ne.BASE_NE_ID = crs.BASE_NE_ID
+			left join t_base_otn_ctp as ctp1 on crs1.a_end_ctp = ctp1.base_otn_ctp_id
+			left join t_base_otn_ctp as ctp2 on crs1.z_end_ctp = ctp2.base_otn_ctp_id
+			left join t_base_ptp AS P1 ON ctp1.BASE_ptp_id = p1.BASE_ptp_id
+			left join T_base_PTP AS P2 ON ctp2.BASE_ptp_id = p2.BASE_ptp_id
+			<!-- where crs.BASE_NE_ID=#{map.neId} and relation.CIR_OTN_CIRCUIT_ID=#{map.circuitId} -->
+	</select>
+	<!-- 查询指定id电路的所有网元和端口 -->
+	<select id="getNeAndPortByCirNo" parameterType='hashmap' resultType="hashmap">
+		select c.A_END_PTP,c.Z_END_PTP,C.BASE_NE_ID,c.A_END_CTP,c.Z_END_CTP from ${map.route_table} r 
+		left join ${map.crs_table} c on c.${map.crs_id_name}=r.CHAIN_ID 
+		where chain_type=${map.CHAIN_TYPE} AND ${map.cir_id_name}=${map.cirId}
+	</select>
+	<select id="getPtnNeAndPortByCirNo" parameterType='hashmap' resultType="hashmap">
+		SELECT 
+		  tp.base_ptp_id AS ptp_id,
+		  tp.base_ne_id AS ne_id 
+		FROM
+		  t_cir_ptn_circuit_route tr 
+		  LEFT JOIN t_base_ptp tp 
+		    ON tr.chain_id = tp.base_ptp_id 
+		WHERE tr.CHAIN_TYPE = 1 
+		and	  tr.CIR_CIRCUIT_ID = #{map.cirId}
+		UNION
+		SELECT 
+		  tcp.base_ptp_id AS ptp_id,
+		  tcp.base_ne_id 
+		FROM
+		  t_cir_ptn_circuit_route tr 
+		  LEFT JOIN t_base_ptn_ctp tcp 
+		    ON tr.chain_id = tcp.base_ptn_ctp_id 
+		WHERE tr.CHAIN_TYPE IN (2, 4) 
+		and	  tr.CIR_CIRCUIT_ID = #{map.cirId}
+		UNION
+		SELECT 
+		  tk.z_end_ptp AS ptp_id,
+		  tk.z_ne_id AS ne_id 
+		FROM
+		  t_cir_ptn_circuit_route tr 
+		  LEFT JOIN t_base_link tk 
+		    ON tr.chain_id = tk.base_link_id 
+		WHERE tr.CHAIN_TYPE = 3
+		and	  tr.CIR_CIRCUIT_ID = #{map.cirId}
+		UNION
+		SELECT 
+		  tk.a_end_ptp AS ptp_id,
+		  tk.a_ne_id AS ne_id 
+		FROM
+		  t_cir_ptn_circuit_route tr 
+		  LEFT JOIN t_base_link tk 
+		    ON tr.chain_id = tk.base_link_id 
+		WHERE tr.CHAIN_TYPE = 3
+		and	  tr.CIR_CIRCUIT_ID = #{map.cirId}
+	</select>
+	<!-- 查询电路两端ptpId -->
+	<select id="getEndPtpsByCirNo" parameterType='hashmap' resultType="hashmap">
+		select A_END_PTP,Z_END_PTP,ptp.BASE_NE_ID as A_END_NE,ptp2.BASE_NE_ID AS Z_END_NE 
+		from ${map.tableName}
+		left join t_base_ptp ptp on ptp.BASE_PTP_ID=A_END_PTP 
+		left join t_base_ptp ptp2 on ptp2.base_ptp_id=Z_END_PTP
+		where cir_no=#{map.cirNo} and SELECT_TYPE=1
+	</select>
+	<!-- 根据保护组Id查询端口Id -->
+	<select id="getPtpByProId" parameterType='Integer' resultType='hashmap'>
+		select BASE_PTP_ID from t_base_pro_list where BASE_PRO_GROUP_ID=#{nodeId}
+	</select>
+	<!-- 根据link两端信息查询网名称网管号 -->
+	<select id="getNeInfoByLink" parameterType='Integer' resultType='hashmap'>
+	select ne.base_ne_id,ne.BASE_EMS_CONNECTION_ID,ne.DISPLAY_NAME as NE_NAME from t_base_link link 
+	left join t_base_ne ne on ne.BASE_NE_ID=link.A_NE_ID where ${map.end}_END_PTP=#{map.value}
+	</select>
+	
+	<!--  -->
+	<select id="getCrsByCtpId" resultType='int'>
+		<if test="serviceType!=3">
+		select crs.BASE_SDH_CRS_ID from t_base_sdh_crs crs 
+		where crs.A_END_CTP=#{ctpId} or crs.Z_END_CTP=#{ctpId} 
+		</if>
+		<if test="serviceType==3">
+		select crs.BASE_OTN_CRS_ID from t_base_otn_crs crs 
+		where crs.A_END_CTP=#{ctpId} or crs.Z_END_CTP=#{ctpId}
+		</if>
+	</select>
+	
+	<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~ 333 ~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+	
+	<!-- 根据电路号查询sdh类型电路 -->
+	<select id="getCircuitBycircuitNoList"  resultType="hashMap">
+		select CIR_CIRCUIT_ID
+  		from t_cir_circuit as cir
+  		left join t_cir_circuit_info as info on cir.CIR_CIRCUIT_INFO_ID =
+                                          		info.CIR_CIRCUIT_INFO_ID
+ 		where 
+ 		info.CIR_NO in 
+ 		<foreach collection='noList' item='cirNo' open='(' close=')' separator=','>
+ 				${cirNo}
+ 		</foreach>
+  		 and info.cir_count > 0
+  		 and cir.IS_MAIN_CIR = 1 
+	</select>
+	
+	<select id="getOtnCircuitBycircuitNoList"  resultType="hashMap">
+		select CIR_OTN_CIRCUIT_ID
+  		from t_cir_otn_circuit as cir
+  		left join t_cir_otn_circuit_info as info on cir.CIR_OTN_CIRCUIT_INFO_ID =
+                                          		info.CIR_OTN_CIRCUIT_INFO_ID
+ 		where info.CIR_NO in
+ 		<foreach collection='noList' item='cirNo' open='(' close=')' separator=','>
+ 				${cirNo}
+ 		</foreach>
+  		 and info.cir_count > 0
+  		 and cir.IS_MAIN_CIR = 1 
+	</select>   
+	
+	<update id="cancelRelateFiber" parameterType="hashmap">
+		update t_base_link
+		set RESOURCE_FIBER_ID = null 
+		where BASE_LINK_ID = #{linkId}
+		<if test="linkId_>0">
+		or BASE_LINK_ID= #{linkId_}
+		</if>
+		
+	</update> 
+	
+	<update id="relateFiber" parameterType="hashmap">
+		update t_base_link
+		set RESOURCE_FIBER_ID = #{map.fiberId} 
+		where BASE_LINK_ID =#{map.linkId}
+	</update>  
+	
+	<select id="getRelateInfo"  resultType="hashMap">
+		 select base_link_id as linkId_,
+		 fiber.RESOURCE_FIBER_ID as fiberId_,fiber.RESOURCE_CABLE_ID as cableId_
+		 from t_base_link link 
+		 left join t_resource_fiber fiber 
+		 on fiber.RESOURCE_FIBER_ID = link.RESOURCE_FIBER_ID 
+ 		where A_END_PTP=#{zNodeId}  and Z_END_PTP=#{aNodeId} 
+ 		limit 1
+	</select>  
+	
+	<!--  中兴ptn电路起始 -->
+	
+	<select id="getPtnPtp"  resultType="hashMap">
+		<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select tp.*,te.PRODUCT_NAME from t_base_ptp tp, t_base_ne te 
+			where tp.BASE_NE_ID = te.BASE_NE_ID
+			and tp.PORT_TYPE = 1
+			and tp.PTP_FTP = 0
+			and te.PRODUCT_NAME in ('ZXCTN 6100','ZXCTN 6200','ZXCTN 6300','ZXCTN 9004')
+			and	te.BASE_EMS_CONNECTION_ID in 
+				(select tpp.BASE_EMS_CONNECTION_ID from t_base_ne tpp where 1=1 
+				 <if test="map.NAME != null and !map.NAME.isEmpty()" >
+				 and	tpp.${map.NAME} in
+				<foreach collection="map.ID" index="index" item="item" open="("
+					separator="," close=")">
+					${item}
+				</foreach>
+				</if>
+				)
+				limit ${start},${limit}
+		</when>
+		<otherwise>
+			select tp.*,te.PRODUCT_NAME 
+				from t_base_ptp tp, 
+				(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as te 
+			where tp.BASE_NE_ID = te.BASE_NE_ID
+			and tp.PORT_TYPE = 1
+			and tp.PTP_FTP = 0
+			and te.PRODUCT_NAME in ('ZXCTN 6100','ZXCTN 6200','ZXCTN 6300','ZXCTN 9004')
+			limit ${start},${limit}
+		</otherwise>
+		</choose>
+		
+		
+	</select>   
+	
+	<select id="getPtnPtpCount"  resultType="java.lang.Integer">
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select count(1) from t_base_ptp tp, t_base_ne te 
+			where tp.BASE_NE_ID = te.BASE_NE_ID
+			and tp.PORT_TYPE = 1
+			and tp.PTP_FTP = 0
+			and te.PRODUCT_NAME in ('ZXCTN 6100','ZXCTN 6200','ZXCTN 6300','ZXCTN 9004')
+			and	te.BASE_EMS_CONNECTION_ID in 
+				(select tpp.BASE_EMS_CONNECTION_ID from t_base_ne tpp where 1=1 
+				 <if test="map.NAME != null and !map.NAME.isEmpty()" >
+				 and	tpp.${map.NAME} in
+				<foreach collection="map.ID" index="index" item="item" open="("
+					separator="," close=")">
+					${item}
+				</foreach>
+				</if>
+				)
+		</when>
+		<otherwise>
+			select count(1) 
+				from t_base_ptp tp, 
+				(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as te 
+			where tp.BASE_NE_ID = te.BASE_NE_ID
+			and tp.PORT_TYPE = 1
+			and tp.PTP_FTP = 0
+			and te.PRODUCT_NAME in ('ZXCTN 6100','ZXCTN 6200','ZXCTN 6300','ZXCTN 9004')
+		</otherwise>
+	</choose>
+	</select> 
+	
+	<select id="getFtpFromBingding"  resultType="hashMap">
+		select * from t_base_binding_path 
+		where BINDING_PTP_ID = #{map.BASE_PTP_ID} 
+		and BASE_PTP_NAME like 'FTP%14_%'
+	</select>
+	
+	
+	<select id="getFtpfromVb"  resultType="hashMap">
+	select * from t_base_vb_list tl 
+	where tl.BASE_VB_ID in ( select tv.BASE_VB_ID from t_base_vb_list tv
+				where tv.ptp_name= #{map.PTP_NAME} 
+				and tv.base_ne_id = #{map.BASE_NE_ID} 
+				)
+	and PTP_NAME like 'FTP%125_%'
+					
+	</select>
+	
+	
+	<select id="getPwByPtp"  resultType="hashMap">
+		select * from t_base_ptn_ctp tc 
+		where  tc.pw_id =  #{map.PW_ID}
+		and tc.base_ne_id = #{map.BASE_NE_ID} 
+	</select>
+	
+	<select id="getPwByPw"  resultType="hashMap">
+		select * from t_base_ptn_ctp tc 
+		where  tc.pw_id =#{map.PW_ID}
+		and tc.base_ne_id = #{map.BASE_NE_ID} 
+	</select>
+	
+	<insert id="insertPtnTemp" parameterType="hashMap" >
+		insert into t_base_ptn_temp values (
+		null,
+		<choose>
+			<when test="map.BASE_PTP_ID != null">
+				#{map.BASE_PTP_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.BASE_PTN_CTP_ID != null">#{map.BASE_PTN_CTP_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.SRC_IN_LABEL != null">#{map.SRC_IN_LABEL}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.SRC_OUT_LABEL != null">#{map.SRC_OUT_LABEL}</when>
+			<otherwise>null</otherwise>
+		</choose>,0
+		) ON DUPLICATE KEY UPDATE
+		<!--  <if test="map.BASE_PTP_ID != null">
+			BASE_PTP_ID= #{map.BASE_PTP_ID},
+		</if>
+		<if test="map.SRC_IN_LABEL != null">
+			SRC_IN_LABEL= #{map.SRC_IN_LABEL},
+		</if>
+		<if test="map.SRC_OUT_LABEL != null">
+			SRC_OUT_LABEL= #{map.SRC_OUT_LABEL},
+		</if>-->
+		BASE_PTN_CTP_ID = #{map.BASE_PTN_CTP_ID}
+
+	</insert>
+	
+	
+	<select id="getPtpFromVb"  resultType="hashMap">
+	select tp.* from t_base_vb_list tl left join t_base_ptp tp on tp.NAME= tl.ptp_name and tp.base_ne_id = tl.base_ne_id
+	where tl.BASE_VB_ID in ( select tv.BASE_VB_ID from t_base_vb_list tv
+				where tv.ptp_name= #{map.PTP_NAME} 
+							
+				and tv.base_ne_id =  #{map.BASE_NE_ID} 
+							
+				)
+	and PTP_NAME like 'FTP%125_%'
+	</select>
+	
+	<select id="getptnTemp"  resultType="hashMap">
+	select  * from t_base_ptn_temp where IS_IN_CIR = 0 limit 0,1
+	</select>
+	
+	<select id="getptnTempCount"  resultType="java.lang.Integer">
+	select  count(1) from t_base_ptn_temp  where IS_IN_CIR = 0
+	</select>
+	
+	<select id="getTunelNameFromCtp"  resultType="hashMap">
+	select * from t_base_ptn_ctp where BASE_PTN_CTP_ID =  #{map.BASE_PTN_CTP_ID} 
+	</select>
+	
+	<select id="getTunelFromRoute"  resultType="hashMap">
+	select * from t_base_ptn_ctp 
+	where LAYER_RATE = 1557
+	and name = #{map.NAME}
+	AND BASE_PTP_ID = #{map.BASE_PTP_ID}
+	</select>
+	
+	<select id="getTunelbyName"  resultType="hashMap">
+	select * from t_base_ptn_route where name = #{map.NAME}
+	</select>
+	
+	<select id="getlinkByAZ"  resultType="hashMap">
+	select * from t_base_link  where a_end_ptp = #{map.A_END_PTP} and z_end_ptp = #{map.Z_END_PTP}
+	</select>
+	
+	<select id="getLastPtnPw"  resultType="hashMap">
+	select * from t_base_ptn_ctp where SRC_IN_LABEL = #{map.SRC_IN_LABEL} and SRC_OUT_LABEL = #{map.SRC_OUT_LABEL} 
+	and BASE_PTP_ID =  #{map.BASE_PTP_ID}
+	</select>
+	
+	<select id="getLastPtnPtp"  resultType="hashMap">
+	select * from t_base_ptn_temp  where BASE_PTN_CTP_ID =  #{map.BASE_PTN_CTP_ID}
+	</select>
+	
+	<select id="getPtnInfo"  resultType="hashMap">
+	select * from t_cir_ptn_circuit_info 
+	<where>
+		 1=1
+		 <if test="map.A_END_PTP != null">
+		 and a_end_ptp =  #{map.A_END_PTP} 
+		 </if>
+		 <if test="map.Z_END_PTP != null ">
+		 and z_end_ptp = #{map.Z_END_PTP}
+		 </if>
+		 <if test="map.IS_COMPLETE_CIR != null ">
+		 and IS_COMPLETE_CIR = #{map.IS_COMPLETE_CIR} 
+		 </if>
+	</where>	
+	union 
+	select * from t_cir_ptn_circuit_info 
+	<where>
+		 1=1
+		 <if test="map.Z_END_PTP != null ">
+		 and a_end_ptp =  #{map.Z_END_PTP} 
+		 </if>
+		 <if test="map.A_END_PTP != null ">
+		 and z_end_ptp = #{map.A_END_PTP}
+		 </if>
+		 <if test="map.IS_COMPLETE_CIR != null">
+		 and IS_COMPLETE_CIR = #{map.IS_COMPLETE_CIR}
+		 </if>
+	</where>	
+	</select>
+	
+	<select id="getPtnCtp"  resultType="hashMap">
+	select * from t_base_ptn_ctp where NAME =  #{map.NAME} and BASE_PTP_ID = #{map.BASE_PTP_ID}
+	</select>
+	
+	
+	
+	<update id="updatePtnInfo" parameterType="hashmap">
+		update t_cir_ptn_circuit_info
+		set CIR_COUNT = CIR_COUNT +1
+		where CIR_CIRCUIT_INFO_ID = #{map.CIR_CIRCUIT_INFO_ID}
+	</update>
+	
+	<insert id="insertPtnInfo" parameterType="hashmap" keyProperty="map.CIR_CIRCUIT_INFO_ID">
+		insert into t_cir_ptn_circuit_info(
+		CIR_CIRCUIT_INFO_ID,A_END_PTP,Z_END_PTP,CIR_COUNT,CIR_NO
+		,IS_COMPLETE_CIR
+		) values (
+		<choose>
+			<when test="map.CIR_CIRCUIT_INFO_ID != null">
+				#{map.CIR_CIRCUIT_INFO_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_PTP != null">#{map.A_END_PTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.Z_END_PTP != null">
+				#{map.Z_END_PTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_COUNT != null">#{map.CIR_COUNT}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_NO != null">#{map.CIR_NO}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE_CIR != null">#{map.IS_COMPLETE_CIR}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+	<insert id="insertPtnCir" parameterType="hashmap" keyProperty="map.CIR_CIRCUIT_ID">
+		insert into t_cir_ptn_circuit(
+		CIR_CIRCUIT_ID,CIR_CIRCUIT_INFO_ID,A_END_PTP,A_END_CTP,Z_END_PTP,Z_END_CTP
+		,IS_COMPLETE_CIR
+		) values (
+		<choose>
+			<when test="map.CIR_CIRCUIT_ID != null">
+				#{map.CIR_CIRCUIT_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_CIRCUIT_INFO_ID != null">
+				#{map.CIR_CIRCUIT_INFO_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_PTP != null">#{map.A_END_PTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.A_END_CTP != null">#{map.A_END_CTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.Z_END_PTP != null">
+				#{map.Z_END_PTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.Z_END_CTP != null">
+				#{map.Z_END_CTP}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.IS_COMPLETE_CIR != null">#{map.IS_COMPLETE_CIR}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+	<insert id="insertPtnRoute" parameterType="hashmap" keyProperty="map.CIR_CIRCUIT_ID">
+		insert into t_cir_ptn_circuit_route(
+		CIR_CIRCUIT_ROUTE_ID,CIR_CIRCUIT_ID,CHAIN_ID,CHAIN_TYPE,SEQUENCE,ROUTE_ID
+		) values (
+		<choose>
+			<when test="map.CIR_CIRCUIT_ROUTE_ID != null">
+				#{map.CIR_CIRCUIT_ROUTE_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CIR_CIRCUIT_ID != null">#{map.CIR_CIRCUIT_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_ID != null">#{map.CHAIN_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.CHAIN_TYPE != null">
+				#{map.CHAIN_TYPE}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.SEQUENCE != null">
+				#{map.SEQUENCE}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.ROUTE_ID != null">
+				#{map.ROUTE_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+
+	</insert>
+	
+	<delete id="deleteAllTemp" parameterType="hashmap">
+		delete from t_base_ptn_temp 
+	</delete>
+	
+	<delete id="deletePtnTemp" parameterType="hashmap">
+		update t_base_ptn_temp set is_in_cir = 1 where BASE_PTN_CTP_ID = #{map.BASE_PTN_CTP_ID}
+	</delete>
+	
+	<select id="getPtnInfoByPtp"  resultType="hashMap">
+	select ti.cir_no,ti.CIR_CIRCUIT_INFO_ID,
+	       '' AS A_CTP_ID,
+	       '' Z_CTP_ID,
+	       ti.source_no,
+	       ti.svc_type,
+	       ti.IS_COMPLETE_CIR,
+	       '' AS a_end_ctp,
+	       '' AS z_end_ctp,
+	       ta.port_desc as a_end_port,
+	       tz.port_desc as z_end_port,
+	       ti.cir_name,
+	       ti.client_name,
+	       ti.USED_FOR,
+	       ti.a_end_user_name,
+	       ti.z_end_user_name,
+	       tna.display_name as a_end_ne,
+	       tsa.a_end_ems,
+	       tsa.a_end_ems_group,
+	       tnz.display_name as z_end_ne,
+	       tsz.z_end_ems,
+	       tsz.z_end_ems_group,
+	       ti.USER_TYPE,
+	       ti.BUSINESS_TYPE,
+	       ti.PROTECT_METHOD,
+	       ti.SERVICE_LEVEL,
+	       ti.MAINTENANCE_LEVEL,
+	       ti.BUSINESS_LEVEL,
+	       ti.NETWORK_LEVEL,
+	       ti.NETWORK_LEVEL2,
+	       ti.A_ROOM,
+	       ti.Z_ROOM,
+	       ti.A_PHONE,
+	       ti.Z_PHONE,
+	       ti.A_ADDRESS,
+	       ti.Z_ADDRESS,
+	       ti.A_PEOPLE,
+	       ti.Z_PEOPLE
+	from   t_cir_ptn_circuit_info ti 
+	left join t_base_ptp ta on ti.a_end_ptp = ta.base_ptp_id
+	left join t_base_ptp tz on ti.z_end_ptp = tz.base_ptp_id
+	left join (select tea.display_name as a_end_ems,tga.group_name as a_end_ems_group,tea.BASE_EMS_CONNECTION_ID from t_base_ems_connection tea,t_base_ems_group tga 
+				where tea.BASE_EMS_GROUP_ID =tga.BASE_EMS_GROUP_ID  ) tsa on tsa.BASE_EMS_CONNECTION_ID = ta.BASE_EMS_CONNECTION_ID
+	left join (select tez.display_name as z_end_ems,tgz.group_name as z_end_ems_group,tez.BASE_EMS_CONNECTION_ID from t_base_ems_connection tez,t_base_ems_group tgz 
+				where tez.BASE_EMS_GROUP_ID =tgz.BASE_EMS_GROUP_ID  ) tsz on tsz.BASE_EMS_CONNECTION_ID = tz.BASE_EMS_CONNECTION_ID
+	left join t_base_ne tna on ta.base_ne_id = tna.base_ne_id
+	left join t_base_ne tnz on tz.base_ne_id = tnz.base_ne_id
+	<where>		
+	1=1
+		<if test="map.aNodeId!=null and map.aNodeId!=''">
+		 		and ta.${map.aNodeName}=#{map.aNodeId}
+		 	</if>
+		<if test="map.zNodeId!=null and map.zNodeId!=''">
+		 		and tz.${map.zNodeName}=#{map.zNodeId}
+		 	</if>
+		 <!-- <if test="map.aLocationLevel==11">
+		 		and tna.${map.aLocationName}=#{map.aLocationId}
+		 		</if> -->
+ 		<if test="map.aLocationLevel==12">
+ 				and tna.${map.aLocationName} IN
+ 				 <foreach collection="map.roomaList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+		 		</if>
+		<!-- <if test="map.zLocationLevel==11">
+		 		and tna.${map.zLocationName}=#{map.zLocationId}
+		 		</if> -->
+ 		<if test="map.zLocationLevel==12">
+ 				and tnz.${map.zLocationName} IN
+ 				 <foreach collection="map.roomzList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+		 		</if>
+	</where>
+	union
+		select ti.cir_no,ti.CIR_CIRCUIT_INFO_ID,
+	       '' AS A_CTP_ID,
+	       '' Z_CTP_ID,
+	       ti.source_no,
+	       ti.svc_type,
+	       ti.IS_COMPLETE_CIR,
+	       '' AS a_end_ctp,
+	       '' AS z_end_ctp,
+	       ta.port_desc as a_end_port,
+	       tz.port_desc as z_end_port,
+	       ti.cir_name,
+	       ti.client_name,
+	       ti.USED_FOR,
+	       ti.a_end_user_name,
+	       ti.z_end_user_name,
+	       tna.display_name as a_end_ne,
+	       tsa.a_end_ems,
+	       tsa.a_end_ems_group,
+	       tnz.display_name as z_end_ne,
+	       tsz.z_end_ems,
+	       tsz.z_end_ems_group,
+	       ti.USER_TYPE,
+	       ti.BUSINESS_TYPE,
+	       ti.PROTECT_METHOD,
+	       ti.SERVICE_LEVEL,
+	       ti.MAINTENANCE_LEVEL,
+	       ti.BUSINESS_LEVEL,
+	       ti.NETWORK_LEVEL,
+	       ti.NETWORK_LEVEL2,
+	       ti.A_ROOM,
+	       ti.Z_ROOM,
+	       ti.A_PHONE,
+	       ti.Z_PHONE,
+	       ti.A_ADDRESS,
+	       ti.Z_ADDRESS,
+	       ti.A_PEOPLE,
+	       ti.Z_PEOPLE
+	from   t_cir_ptn_circuit_info ti 
+	left join t_base_ptp ta on ti.a_end_ptp = ta.base_ptp_id
+	left join t_base_ptp tz on ti.z_end_ptp = tz.base_ptp_id
+	left join (select tea.display_name as a_end_ems,tga.group_name as a_end_ems_group,tea.BASE_EMS_CONNECTION_ID from t_base_ems_connection tea,t_base_ems_group tga 
+				where tea.BASE_EMS_GROUP_ID =tga.BASE_EMS_GROUP_ID  ) tsa on tsa.BASE_EMS_CONNECTION_ID = ta.BASE_EMS_CONNECTION_ID
+	left join (select tez.display_name as z_end_ems,tgz.group_name as z_end_ems_group,tez.BASE_EMS_CONNECTION_ID from t_base_ems_connection tez,t_base_ems_group tgz 
+				where tez.BASE_EMS_GROUP_ID =tgz.BASE_EMS_GROUP_ID  ) tsz on tsz.BASE_EMS_CONNECTION_ID = tz.BASE_EMS_CONNECTION_ID
+	left join t_base_ne tna on ta.base_ne_id = tna.base_ne_id
+	left join t_base_ne tnz on tz.base_ne_id = tnz.base_ne_id
+	<where>		
+	1=1
+		<if test="map.aNodeId!=null and map.aNodeId!=''">
+		 		and tz.${map.aNodeName}=#{map.aNodeId}
+		 	</if>
+		<if test="map.zNodeId!=null and map.zNodeId!=''">
+		 		and ta.${map.zNodeName}=#{map.zNodeId}
+		 	</if>
+		 <!-- <if test="map.aLocationLevel==11">
+		 		and tnz.${map.aLocationName}=#{map.aLocationId}
+		 		</if> -->
+ 		<if test="map.aLocationLevel==12">
+ 				and tnz.${map.aLocationName} IN
+ 				<foreach collection="map.roomaList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+		 		</if>
+		<!-- <if test="map.zLocationLevel==11">
+		 		and tnz.${map.zLocationName}=#{map.zLocationId}
+		 		</if> -->
+ 		<if test="map.zLocationLevel==12">
+ 				and tna.${map.zLocationName} IN
+ 				<foreach collection="map.roomzList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+		 		</if>
+	</where>
+	limit #{map.start},#{map.limit}
+	</select>
+	
+	
+	<select id="getPtnInfoByPtpTotal"  resultType="hashMap">
+	select count(1) as total from (
+		select ti.CIR_CIRCUIT_INFO_ID
+		from   t_cir_ptn_circuit_info ti 
+		left join t_base_ptp ta on ti.a_end_ptp = ta.base_ptp_id
+		left join t_base_ptp tz on ti.z_end_ptp = tz.base_ptp_id
+		left join (select tea.display_name as a_end_ems,tga.group_name as a_end_ems_group,tea.BASE_EMS_CONNECTION_ID from t_base_ems_connection tea,t_base_ems_group tga 
+					where tea.BASE_EMS_GROUP_ID =tga.BASE_EMS_GROUP_ID  ) tsa on tsa.BASE_EMS_CONNECTION_ID = ta.BASE_EMS_CONNECTION_ID
+		left join (select tez.display_name as z_end_ems,tgz.group_name as z_end_ems_group,tez.BASE_EMS_CONNECTION_ID from t_base_ems_connection tez,t_base_ems_group tgz 
+					where tez.BASE_EMS_GROUP_ID =tgz.BASE_EMS_GROUP_ID  ) tsz on tsz.BASE_EMS_CONNECTION_ID = tz.BASE_EMS_CONNECTION_ID
+		left join t_base_ne tna on ta.base_ne_id = tna.base_ne_id
+		left join t_base_ne tnz on tz.base_ne_id = tnz.base_ne_id
+		<where>		
+		1=1
+			<if test="map.aNodeId!=null and map.aNodeId!=''">
+			 		and ta.${map.aNodeName}=#{map.aNodeId}
+			 	</if>
+			<if test="map.zNodeId!=null and map.zNodeId!=''">
+			 		and tz.${map.zNodeName}=#{map.zNodeId}
+			 	</if>
+			 <!-- <if test="map.aLocationLevel==11">
+			 		and tna.${map.aLocationName}=#{map.aLocationId}
+			 		</if> -->
+	 		<if test="map.aLocationLevel==12">
+ 				and tna.${map.aLocationName} IN
+ 				 <foreach collection="map.roomaList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+		 		</if>
+		<!-- <if test="map.zLocationLevel==11">
+		 		and tna.${map.zLocationName}=#{map.zLocationId}
+		 		</if> -->
+ 		<if test="map.zLocationLevel==12">
+ 				and tnz.${map.zLocationName} IN
+ 				 <foreach collection="map.roomzList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+		 		</if>
+		</where>
+		union
+			select ti.CIR_CIRCUIT_INFO_ID
+		from   t_cir_ptn_circuit_info ti 
+		left join t_base_ptp ta on ti.a_end_ptp = ta.base_ptp_id
+		left join t_base_ptp tz on ti.z_end_ptp = tz.base_ptp_id
+		left join (select tea.display_name as a_end_ems,tga.group_name as a_end_ems_group,tea.BASE_EMS_CONNECTION_ID from t_base_ems_connection tea,t_base_ems_group tga 
+					where tea.BASE_EMS_GROUP_ID =tga.BASE_EMS_GROUP_ID  ) tsa on tsa.BASE_EMS_CONNECTION_ID = ta.BASE_EMS_CONNECTION_ID
+		left join (select tez.display_name as z_end_ems,tgz.group_name as z_end_ems_group,tez.BASE_EMS_CONNECTION_ID from t_base_ems_connection tez,t_base_ems_group tgz 
+					where tez.BASE_EMS_GROUP_ID =tgz.BASE_EMS_GROUP_ID  ) tsz on tsz.BASE_EMS_CONNECTION_ID = tz.BASE_EMS_CONNECTION_ID
+		left join t_base_ne tna on ta.base_ne_id = tna.base_ne_id
+		left join t_base_ne tnz on tz.base_ne_id = tnz.base_ne_id
+		<where>		
+		1=1
+			<if test="map.aNodeId!=null and map.aNodeId!=''">
+			 		and tz.${map.aNodeName}=#{map.aNodeId}
+			 	</if>
+			<if test="map.zNodeId!=null and map.zNodeId!=''">
+			 		and ta.${map.zNodeName}=#{map.zNodeId}
+			 	</if>
+			 <!-- <if test="map.aLocationLevel==11">
+			 		and tnz.${map.aLocationName}=#{map.aLocationId}
+			 		</if> 
+	 		<if test="map.aLocationLevel==12">
+	 				and tna.${map.aLocationName}=#{map.aLocationId}
+			 		</if>
+			 <if test="map.zLocationLevel==11">
+			 		and tnz.${map.zLocationName}=#{map.zLocationId}
+			 		</if>
+	 		<if test="map.zLocationLevel==12">
+	 				and tna.${map.zLocationName}=#{map.zLocationId}
+			 		</if> -->
+			 <if test="map.aLocationLevel==12">
+ 				and tnz.${map.aLocationName} IN
+ 				 <foreach collection="map.roomaList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+		 		</if>
+	 		<if test="map.zLocationLevel==12">
+	 				and tna.${map.zLocationName} IN
+	 				 <foreach collection="map.roomzList" index="index" item="item" open="("
+			      			separator="," close=")">
+			      			${item}
+						  </foreach>
+			 		</if>		
+		</where> ) t1
+	</select>
+	
+	<select id="getPtnCircuitBycircuitNo" parameterType="hashmap" resultType="hashMap">
+		select CIR_CIRCUIT_ID
+  		from t_cir_ptn_circuit as cir
+  		left join t_cir_ptn_circuit_info as info on cir.CIR_CIRCUIT_INFO_ID =
+                                          		info.CIR_CIRCUIT_INFO_ID
+ 		where info.CIR_NO = #{map.vCircuit}
+	</select>
+	
+	<select id="getPtnCirInfoById" parameterType="hashmap" resultType="hashMap">
+		select cir_info.CIR_CIRCUIT_INFO_ID ,
+	       '' AS A_CTP_ID,
+	       '' AS Z_CTP_ID,
+	       cir_info.cir_no,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	       concat(tna.display_name,'-',ta.port_desc) as a_end_port,
+	       ta.base_ptp_id as a_ptp_id,
+	       concat(tnz.display_name,'-',tz.port_desc) as z_end_port,
+	       tz.base_ptp_id as z_ptp_id,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name
+	       from t_cir_ptn_circuit_info cir_info 
+	       left join t_cir_ptn_circuit as cir on cir_info.CIR_CIRCUIT_INFO_ID =
+	                                              cir.CIR_CIRCUIT_INFO_ID
+	       left join t_base_ptp ta on cir_info.a_end_ptp = ta.base_ptp_id
+		   left join t_base_ptp tz on cir_info.z_end_ptp = tz.base_ptp_id
+		   left join (select tea.display_name as a_end_ems,tga.group_name as a_end_ems_group,tea.BASE_EMS_CONNECTION_ID from t_base_ems_connection tea,t_base_ems_group tga 
+					where tea.BASE_EMS_GROUP_ID =tga.BASE_EMS_GROUP_ID  ) tsa on tsa.BASE_EMS_CONNECTION_ID = ta.BASE_EMS_CONNECTION_ID
+		   left join (select tez.display_name as z_end_ems,tgz.group_name as z_end_ems_group,tez.BASE_EMS_CONNECTION_ID from t_base_ems_connection tez,t_base_ems_group tgz 
+					where tez.BASE_EMS_GROUP_ID =tgz.BASE_EMS_GROUP_ID  ) tsz on tsz.BASE_EMS_CONNECTION_ID = tz.BASE_EMS_CONNECTION_ID
+		   left join t_base_ne tna on ta.base_ne_id = tna.base_ne_id
+		   left join t_base_ne tnz on tz.base_ne_id = tnz.base_ne_id
+		   where cir.CIR_CIRCUIT_ID = #{map.vCircuit}
+	</select>
+	
+	<select id="getPtnCircuitRouteTopo" parameterType="hashmap" resultType="hashMap">
+		SELECT distinct ne.DISPLAY_NAME AS NE_NAME,ne.base_ne_id,ne.PRODUCT_NAME,
+		       link.DISPLAY_NAME AS LINK_NAME,link.A_END_PTP  ,link.Z_END_PTP ,link.BASE_LINK_ID,
+		       ne.BASE_EMS_CONNECTION_ID,tc.A_END_PTP as PTP1,tc.Z_END_PTP as PTP2
+		  FROM t_cir_ptn_circuit_route route
+		  left join t_base_ptn_route  tc on (route.CHAIN_TYPE = 4
+		                              and route.route_id = tc.BASE_PTN_ROUTE_ID)
+		  left join t_base_link link on (route.CHAIN_TYPE = 3
+		                            and route.CHAIN_ID = link.BASE_LINK_ID)
+      	  left join t_base_ptp AS P1 ON tc.A_END_PTP = p1.BASE_ptp_id
+		  left join t_base_ne ne on ne.BASE_NE_ID = P1.BASE_NE_ID
+		 where CIR_CIRCUIT_ID = #{circuitId} and CHAIN_TYPE in (3,4)
+		 order by route.SEQUENCE
+	</select>
+
+	<select id="getPtnCirById" parameterType="hashmap" resultType="hashMap">
+		SELECT *
+		  FROM t_cir_ptn_circuit
+		 where CIR_CIRCUIT_ID = #{circuitId}
+	</select>	
+	
+	
+	
+	
+	<select id="getPtnCircuitRoute" resultType="hashMap" parameterType="int">
+		select t1.SEQUENCE,t1.PW,t1.TUNEL,tp.PORT_DESC as PORT,tn.DISPLAY_NAME as NE_NAME,te.DISPLAY_NAME as EMS_NAME 
+		from (
+			select tr.SEQUENCE,tr.CHAIN_ID as BASE_PTP_ID ,'' as PW,'' as TUNEL from t_cir_ptn_circuit_route tr  
+			where  CIR_CIRCUIT_ID =  #{circuitId} and CHAIN_TYPE = 1
+			union all
+			select tr.SEQUENCE,tc.BASE_PTP_ID ,tc.pw_id as PW,'' as TUNEL from t_cir_ptn_circuit_route tr,t_base_ptn_ctp tc
+			where tr.CHAIN_ID = tc.base_ptn_ctp_id  and CIR_CIRCUIT_ID =  #{circuitId} and CHAIN_TYPE = 2
+			union all
+			select tr.SEQUENCE,tc.BASE_PTP_ID ,'' as PW,tc.tunnel_id as TUNEL from t_cir_ptn_circuit_route tr,t_base_ptn_ctp tc
+			where tr.CHAIN_ID = tc.base_ptn_ctp_id and CIR_CIRCUIT_ID =  #{circuitId} and CHAIN_TYPE = 4
+		) t1,t_base_ptp tp,t_base_ne tn, t_base_ems_connection te
+		where t1.BASE_PTP_ID = tp.BASE_PTP_ID 
+		and tp.BASE_NE_ID = tn.BASE_NE_ID and tp.BASE_EMS_CONNECTION_ID = te.BASE_EMS_CONNECTION_ID
+		union all
+		select tr.SEQUENCE,'' as PW,'' as TUNEL,'' as PORT,concat('链路：',tl.DISPLAY_NAME) as NE_NAME,'' as  EMS_NAME 
+		from t_cir_ptn_circuit_route tr,t_base_link tl 
+		where tr.CHAIN_ID = tl.BASE_link_ID and CIR_CIRCUIT_ID = #{circuitId} and CHAIN_TYPE = 3
+		order by SEQUENCE
+	</select>
+	
+	<select id="selectPtnCircuitAbout"  resultType="hashMap">
+	select cir_info.CIR_CIRCUIT_INFO_ID,
+	       '' AS A_CTP_ID,
+	       '' AS Z_CTP_ID,
+	       cir_info.cir_no,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	        ta.port_desc as a_end_port,
+	       ta.base_ptp_id as a_ptp_id,
+	       tna.display_name as a_end_ne,
+	       tnz.display_name as z_end_ne,
+	        tz.port_desc as z_end_port,
+	       tz.base_ptp_id as z_ptp_id,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name
+	  from t_cir_ptn_circuit_info cir_info
+	  left join t_base_ptp ta
+	    on cir_info.a_end_ptp = ta.base_ptp_id
+	  left join t_base_ptp tz
+	    on cir_info.z_end_ptp = tz.base_ptp_id
+	  left join (select tea.display_name           as a_end_ems,
+	                    tga.group_name             as a_end_ems_group,
+	                    tea.BASE_EMS_CONNECTION_ID
+	               from t_base_ems_connection tea, t_base_ems_group tga
+	              where tea.BASE_EMS_GROUP_ID = tga.BASE_EMS_GROUP_ID) tsa
+	    on tsa.BASE_EMS_CONNECTION_ID = ta.BASE_EMS_CONNECTION_ID
+	  left join (select tez.display_name           as z_end_ems,
+	                    tgz.group_name             as z_end_ems_group,
+	                    tez.BASE_EMS_CONNECTION_ID
+	               from t_base_ems_connection tez, t_base_ems_group tgz
+	              where tez.BASE_EMS_GROUP_ID = tgz.BASE_EMS_GROUP_ID) tsz
+	    on tsz.BASE_EMS_CONNECTION_ID = tz.BASE_EMS_CONNECTION_ID
+	  left join t_base_ne tna
+	    on ta.base_ne_id = tna.base_ne_id
+	  left join t_base_ne tnz
+	    on tz.base_ne_id = tnz.base_ne_id
+	 where cir_info.CIR_CIRCUIT_INFO_ID in
+	       (select cir.CIR_CIRCUIT_INFO_ID
+	          from (select tr.*,
+	                       concat(ifnull(tp.base_ptp_id, ''),
+	                              ifnull(tc.base_ptp_id, '')) as base_ptp_id,
+	                       tk.base_link_id
+	                  from t_cir_ptn_circuit_route tr
+	                  left join t_base_ptn_ctp tc
+	                    on tr.CHAIN_TYPE in (2, 4)
+	                   and tr.CHAIN_ID = tc.base_ptn_ctp_id
+	                  left join t_base_ptp tp
+	                    on tr.CHAIN_TYPE = 1
+	                   and tr.CHAIN_ID = tp.base_ptp_id
+	                  left join t_base_link tk
+	                    on tr.CHAIN_TYPE = 3
+	                   and tr.CHAIN_ID = tk.base_link_id) t1,
+	               t_base_ptp ttp,
+	               t_base_ne crs,
+	               t_base_ems_connection ems,
+	               t_cir_ptn_circuit cir,
+	               t_cir_ptn_circuit_info info
+	         where t1.base_ptp_id = ttp.base_ptp_id
+	           and ttp.base_ne_id = crs.base_ne_id
+	            and crs.BASE_EMS_CONNECTION_ID =ems.BASE_EMS_CONNECTION_ID 
+	           and cir.CIR_CIRCUIT_ID = t1.CIR_CIRCUIT_ID
+	           and info.CIR_CIRCUIT_INFO_ID = cir.CIR_CIRCUIT_INFO_ID
+					<if test="map.linkId!=null and map.linkId!=''">
+							and t1.base_link_id=${map.linkId}
+					</if>
+					<if test="map.nodeList!=null and map.tag==2">
+					and ttp.${map.select_id} IN 
+						  <foreach collection="map.nodeList" index="index" item="item" open="("
+			      			separator="," close=")">
+			      			${item}
+						  </foreach>
+					</if>
+					<if test="map.nodeList!=null and map.tag==1">
+					and ${map.select_id} IN 
+						  <foreach collection="map.nodeList" index="index" item="item" open="("
+			      			separator="," close=")">
+			      			${item}
+						  </foreach>
+					</if>
+					<!--  <if test="map.aLocationLevel==11">
+						and tn.RESOURCE_STATION_ID =${map.aLocationId}
+					</if>-->
+					<if test="map.aLocationLevel==12">
+						and crs.RESOURCE_ROOM_ID IN 
+						 <foreach collection="map.roomList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					</if>
+					<if test="map.circuitNo!=null and map.circuitNo!=''">
+					    and info.CIR_NO like CONCAT('%',${map.circuitNo},'%' )
+					</if>
+					<if test="map.clientName!=null and map.clientName!=''">
+						and info.CLIENT_NAME like '%${map.clientName}%'
+					</if>
+					<if test="map.circuitName!=null and map.circuitName!=''">
+						and info.cir_name like '%${map.circuitName}%'
+					</if>
+					<if test="map.systemSourceNo!=null and map.systemSourceNo!=''">
+						and info.SOURCE_NO like '%${map.systemSourceNo}%'
+					</if>
+					<if test="map.useFor!=null and map.useFor!=''">
+						and info.USED_FOR like '%${map.useFor}%'
+					</if>
+					<if test="map.serviceType!=null and map.serviceType!=''">
+						and info.SVC_TYPE=#{map.serviceType}
+					</if>
+					<!-- <if test="map.connectRate!=null and map.connectRate!='' and map.serviceType!=3">
+						and info.A_END_RATE= #{map.connectRate}
+					</if> -->
+					<if test="map.circuitState!=null and map.circuitState!=''">
+						and info.IS_COMPLETE_CIR= ${map.circuitState}
+					</if>
+					<if test = "map.circuitId!=null and map.circuitId!=''">
+						and cir.${map.cir_id} = ${map.circuitId}
+					</if>
+					<if test="map.advancedCon!=null and map.advancedCon!=''">
+						and (info.CLIENT_NAME like '%${map.advancedCon}%' 
+							or info.SOURCE_NO like '%${map.advancedCon}%'
+							or info.USED_FOR like '%${map.advancedCon}%'
+							or info.cir_name like '%${map.advancedCon}%')
+					</if>
+	           )
+			limit #{map.start},#{map.limit}
+	</select>
+	
+		<select id="selectPtnCircuitAboutCount"  resultType="hashMap">
+			select count(*) as total
+			from (
+				select distinct cir.CIR_CIRCUIT_INFO_ID
+		          from (select tr.*,
+		                       concat(ifnull(tp.base_ptp_id, ''),
+		                              ifnull(tc.base_ptp_id, '')) as base_ptp_id,
+		                       tk.base_link_id
+		                  from t_cir_ptn_circuit_route tr
+		                  left join t_base_ptn_ctp tc
+		                    on tr.CHAIN_TYPE in (2, 4)
+		                   and tr.CHAIN_ID = tc.base_ptn_ctp_id
+		                  left join t_base_ptp tp
+		                    on tr.CHAIN_TYPE = 1
+		                   and tr.CHAIN_ID = tp.base_ptp_id
+		                  left join t_base_link tk
+		                    on tr.CHAIN_TYPE = 3
+		                   and tr.CHAIN_ID = tk.base_link_id) t1,
+		               t_base_ptp ttp,
+		               t_base_ne crs,
+		               t_base_ems_connection ems,
+		               t_cir_ptn_circuit cir,
+		               t_cir_ptn_circuit_info info
+		         where t1.base_ptp_id = ttp.base_ptp_id
+		           and ttp.base_ne_id = crs.base_ne_id
+		           and crs.BASE_EMS_CONNECTION_ID =ems.BASE_EMS_CONNECTION_ID 
+		           and cir.CIR_CIRCUIT_ID = t1.CIR_CIRCUIT_ID
+		           and info.CIR_CIRCUIT_INFO_ID = cir.CIR_CIRCUIT_INFO_ID
+						<if test="map.linkId!=null and map.linkId!=''">
+								and t1.base_link_id=${map.linkId}
+						</if>
+						<if test="map.nodeList!=null and map.tag==2">
+						and ttp.${map.select_id} IN 
+							  <foreach collection="map.nodeList" index="index" item="item" open="("
+				      			separator="," close=")">
+				      			${item}
+							  </foreach>
+						</if>
+						<if test="map.nodeList!=null and map.tag==1">
+						and ${map.select_id} IN 
+							  <foreach collection="map.nodeList" index="index" item="item" open="("
+				      			separator="," close=")">
+				      			${item}
+							  </foreach>
+						</if>
+						<!-- <if test="map.aLocationLevel==11">
+							and tn.RESOURCE_STATION_ID =${map.aLocationId}
+						</if> -->
+						<if test="map.aLocationLevel==12">
+							and crs.RESOURCE_ROOM_ID IN 
+							 <foreach collection="map.roomList" index="index" item="item" open="("
+			      			separator="," close=")">
+			      			${item}
+					  </foreach>
+						</if>
+						<if test="map.circuitNo!=null and map.circuitNo!=''">
+						    and info.CIR_NO like CONCAT('%',${map.circuitNo},'%' )
+						</if>
+						<if test="map.clientName!=null and map.clientName!=''">
+							and info.CLIENT_NAME like '%${map.clientName}%'
+						</if>
+						<if test="map.circuitName!=null and map.circuitName!=''">
+							and info.cir_name like '%${map.circuitName}%'
+						</if>
+						<if test="map.systemSourceNo!=null and map.systemSourceNo!=''">
+							and info.SOURCE_NO like '%${map.systemSourceNo}%'
+						</if>
+						<if test="map.useFor!=null and map.useFor!=''">
+							and info.USED_FOR like '%${map.useFor}%'
+						</if>
+						<if test="map.serviceType!=null and map.serviceType!=''">
+							and info.SVC_TYPE=#{map.serviceType}
+						</if>
+						<!-- <if test="map.connectRate!=null and map.connectRate!='' and map.serviceType!=3">
+							and info.A_END_RATE= #{map.connectRate}
+						</if> -->
+						<if test="map.circuitState!=null and map.circuitState!=''">
+							and info.IS_COMPLETE_CIR= ${map.circuitState}
+						</if>
+						<if test = "map.circuitId!=null and map.circuitId!=''">
+							and cir.${map.cir_id} = ${map.circuitId}
+						</if>
+						<if test="map.advancedCon!=null and map.advancedCon!=''">
+							and (info.CLIENT_NAME like '%${map.advancedCon}%' 
+								or info.SOURCE_NO like '%${map.advancedCon}%'
+								or info.USED_FOR like '%${map.advancedCon}%'
+								or info.cir_name like '%${map.advancedCon}%')
+						</if>
+			 ) t
+			
+
+	</select>
+	
+	
+	<select id="selectPtnCircuit"  resultType="hashMap">
+	select ti.CIR_NO,ti.CIR_CIRCUIT_INFO_ID,
+	       '' AS A_CTP_ID,
+	       '' Z_CTP_ID,
+	       ti.SOURCE_NO,
+	       ti.SVC_TYPE,
+	       ti.IS_COMPLETE_CIR,
+	       '' AS A_END_CTP,
+	       '' AS Z_END_CTP,
+	       '' AS A_CTP,
+	       '' AS Z_CTP,
+	       ta.port_desc as A_PORT,
+	       tz.port_desc as Z_PORT,
+	       ti.CIR_NAME,
+	       ti.CLIENT_NAME,
+	       ti.USED_FOR,
+	       ti.A_END_USER_NAME,
+	       ti.Z_END_USER_NAME,
+	       tna.display_name as A_NE,
+	       tsa.a_end_ems as A_EMS,
+	       tsa.a_end_ems_group as A_EMS_GROUP,
+	       tnz.display_name as Z_NE,
+	       tsz.z_end_ems as Z_EMS,
+	       tsz.z_end_ems_group as Z_EMS_GROUP,
+	       ti.USER_TYPE,
+	       ti.BUSINESS_TYPE,
+	       ti.PROTECT_METHOD,
+	       ti.SERVICE_LEVEL,
+	       ti.MAINTENANCE_LEVEL,
+	       ti.BUSINESS_LEVEL,
+	       ti.NETWORK_LEVEL,
+	       ti.NETWORK_LEVEL2,
+	       ti.A_ROOM,
+	       ti.Z_ROOM,
+	       ti.A_PHONE,
+	       ti.Z_PHONE,
+	       ti.A_ADDRESS,
+	       ti.Z_ADDRESS,
+	       ti.A_PEOPLE,
+	       ti.Z_PEOPLE
+	from   t_cir_ptn_circuit_info ti 
+	left join t_base_ptp ta on ti.a_end_ptp = ta.base_ptp_id
+	left join t_base_ptp tz on ti.z_end_ptp = tz.base_ptp_id
+	left join (select tea.display_name as a_end_ems,tga.group_name as a_end_ems_group,tea.BASE_EMS_CONNECTION_ID from t_base_ems_connection tea,t_base_ems_group tga 
+				where tea.BASE_EMS_GROUP_ID =tga.BASE_EMS_GROUP_ID  ) tsa on tsa.BASE_EMS_CONNECTION_ID = ta.BASE_EMS_CONNECTION_ID
+	left join (select tez.display_name as z_end_ems,tgz.group_name as z_end_ems_group,tez.BASE_EMS_CONNECTION_ID from t_base_ems_connection tez,t_base_ems_group tgz 
+				where tez.BASE_EMS_GROUP_ID =tgz.BASE_EMS_GROUP_ID  ) tsz on tsz.BASE_EMS_CONNECTION_ID = tz.BASE_EMS_CONNECTION_ID
+	left join t_base_ne tna on ta.base_ne_id = tna.base_ne_id
+	left join t_base_ne tnz on tz.base_ne_id = tnz.base_ne_id
+	where ti.IS_LATEST_CREATE = 1	
+	  
+	limit #{map.start},#{map.limit}
+	</select>
+	
+	<select id="selectPtnCircuitTotal"  resultType="hashMap">
+	select count(1) as total
+	from   t_cir_ptn_circuit_info ti 
+	where ti.IS_LATEST_CREATE = 1	
+	  
+	</select>
+	
+	<select id="selectZteOtn"  resultType="hashMap">
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select 	tbc.*
+			from 	t_base_otn_crs tbc,
+					t_base_ptp tbp,
+					t_base_ne te
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and		tbp.BASE_NE_ID = te.BASE_NE_ID
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.CIRCUIT_COUNT = 0
+			and 	tbc.is_del = 0
+			and		te.PRODUCT_NAME in('ZXMP M800(100M)','ZXONE 8300')		
+			and 	te.FACTORY = 2
+			<!-- and		tbc.BASE_OTN_CRS_ID= 31347 -->
+			<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tbc.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+		</when>
+		<otherwise>
+			select 	tbc.*
+			 from 	t_base_otn_crs tbc , 
+			  		t_base_ptp tbp,
+			  		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.CIRCUIT_COUNT = 0
+			and 	tbc.is_del = 0
+			<!--  and		tbc.BASE_OTN_CRS_ID= 31347-->
+			and		tbc.BASE_NE_ID = tn.BASE_NE_ID
+			and		tn.PRODUCT_NAME in('ZXMP M800(100M)','ZXONE 8300')
+			and 	tn.FACTORY = 2
+		</otherwise>
+		</choose>
+		limit   #{start},#{limit}	
+	  
+	</select>
+	
+	<select id="selectZteOtnCount"  resultType="hashMap">
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select 	count(1) as total
+			from 	t_base_otn_crs tbc,
+					t_base_ptp tbp,
+					t_base_ne te
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and		tbp.BASE_NE_ID = te.BASE_NE_ID
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.is_del = 0
+			and		te.PRODUCT_NAME in('ZXMP M800(100M)','ZXONE 8300')
+			and 	tbc.CIRCUIT_COUNT = 0
+			and 	te.FACTORY = 2
+			<!-- and		tbc.BASE_OTN_CRS_ID= 31347 -->
+			<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tbc.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+		</when>
+		<otherwise>
+			select 	count(1) as total
+			 from 	t_base_otn_crs tbc , 
+			  		t_base_ptp tbp,
+			  		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+			where 	tbc.A_END_PTP = tbp.BASE_PTP_ID
+			and     tbp.PTP_FTP = 0
+			and 	tbp.PORT_TYPE = 1
+			and 	tbc.is_del = 0
+			and 	tbc.CIRCUIT_COUNT = 0
+			<!--  and		tbc.BASE_OTN_CRS_ID= 31347-->
+			and		tbc.BASE_NE_ID = tn.BASE_NE_ID
+			and		tn.PRODUCT_NAME in('ZXMP M800(100M)','ZXONE 8300')
+			and 	tn.FACTORY = 2
+		</otherwise>
+		</choose>	  
+	</select>
+	
+	<select id="selectZteOtnNextCrs"  resultType="hashMap">
+		select * from 	t_base_otn_crs
+				where 	is_del = 0
+				<if test="map.A_END_PTP != null">
+					AND A_END_PTP = #{map.A_END_PTP}
+				</if>
+				<if test="map.Z_END_PTP != null">
+					AND Z_END_PTP <![CDATA[<>]]> #{map.Z_END_PTP}
+				</if>
+				<if test="map.A_TYPE != null">
+					AND A_TYPE = #{map.A_TYPE}
+				</if>
+				<if test="map.A_OS != null">
+					AND A_OS = #{map.A_OS}
+				</if>
+				<if test="map.IS_VIRTUAL != null">
+					AND IS_VIRTUAL = #{map.IS_VIRTUAL}
+				</if>
+				<if test="map.A_OTS != null">
+					AND A_OTS = #{map.A_OTS}
+				</if>
+				<if test="map.A_OMS != null">
+					AND A_OMS = #{map.A_OMS}
+				</if>
+				<if test="map.A_OCH != null">
+					AND A_OCH = #{map.A_OCH}
+				</if>
+				<if test="map.A_ODU0 != null">
+					AND A_ODU0 = #{map.A_ODU0}
+				</if>
+				<if test="map.A_ODU1 != null">
+					AND A_ODU1 = #{map.A_ODU1}
+				</if>
+				<if test="map.A_ODU2 != null">
+					AND A_ODU2 = #{map.A_ODU2}
+				</if>
+				<if test="map.A_ODU3 != null">
+					AND A_ODU3 = #{map.A_ODU3}
+				</if>
+				<if test="map.A_DSR != null">
+					AND A_DSR = #{map.A_DSR}
+				</if>
+				<if test="map.Z_OS != null">
+					AND Z_OS = #{map.Z_OS}
+				</if>
+				<if test="map.Z_OTS != null">
+					AND Z_OTS = #{map.Z_OTS}
+				</if>
+				<if test="map.Z_OMS != null">
+					AND Z_OMS = #{map.Z_OMS}
+				</if>
+				<if test="map.Z_OCH != null">
+					AND Z_OCH = #{map.Z_OCH}
+				</if>
+				<if test="map.Z_ODU0 != null">
+					AND Z_ODU0 = #{map.Z_ODU0}
+				</if>
+				<if test="map.Z_ODU1 != null">
+					AND Z_ODU1 = #{map.Z_ODU1}
+				</if>
+				<if test="map.Z_ODU2 != null">
+					AND Z_ODU2 = #{map.Z_ODU2}
+				</if>
+				<if test="map.Z_ODU3 != null">
+					AND Z_ODU3 = #{map.Z_ODU3}
+				</if>
+				<if test="map.Z_DSR != null">
+					AND Z_DSR = #{map.Z_DSR}
+				</if>
+	  
+	</select>
+	
+	<select id="selectIsEndPort"  resultType="hashMap">
+		select * from 	t_base_otn_crs
+			where IS_DEL = 0
+				<if test="map.A_END_PTP != null">
+					AND A_END_PTP <![CDATA[<>]]> #{map.A_END_PTP}
+				</if>
+				<if test="map.Z_END_PTP != null">
+					AND Z_END_PTP = #{map.Z_END_PTP}
+				</if>
+				
+	  
+	</select>
+	
+	<select id="selectU31EthPortCount"  resultType="hashMap">
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select 	count(1) as total
+			from 	t_base_ptp tbp,
+					t_base_ems_connection tn
+			where 	tbp.BASE_EMS_CONNECTION_ID = tn.BASE_EMS_CONNECTION_ID
+			and		tbp.PTP_FTP = 0
+			and		tbp.DOMAIN =3
+			and		tbp.PORT_TYPE=1
+			and		tn.FACTORY = 2
+			and		tn.TYPE= 22
+			and 	tn.BASE_EMS_CONNECTION_ID in 
+			(select tp.BASE_EMS_CONNECTION_ID from t_base_ne tp where 1=1
+			<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tp.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+			)
+		</when>
+		<otherwise>
+			select 	count(1) as total
+			 from 	t_base_ptp tbp,
+			  		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+			
+			where	tbp.BASE_NE_ID = tn.BASE_NE_ID
+			and		tbp.PTP_FTP = 0
+			and		tbp.DOMAIN =3			
+			and		tbp.PORT_TYPE=1		
+			and		tn.FACTORY = 2
+			and		tn.EMS_TYPE= 22
+		</otherwise>
+		</choose>	  
+	</select>
+	
+	<select id="selectU31EthPort"  resultType="hashMap">
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+			select 	tbp.*
+			from 	t_base_ptp tbp,
+					t_base_ems_connection tn
+			where 	tbp.BASE_EMS_CONNECTION_ID = tn.BASE_EMS_CONNECTION_ID
+			and		tbp.PTP_FTP = 0
+			and		tbp.DOMAIN =3
+			and		tbp.PORT_TYPE=1
+			and		tn.FACTORY = 2
+			and		tn.TYPE= 22
+			and 	tn.BASE_EMS_CONNECTION_ID in 
+			(select tp.BASE_EMS_CONNECTION_ID from t_base_ne tp where 1=1
+			<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	tp.${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+			)
+		</when>
+		<otherwise>
+			select 	tbp.*
+			 from 	t_base_ptp tbp,
+			  		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 			
+			where	tbp.BASE_NE_ID = tn.BASE_NE_ID
+			and		tbp.PTP_FTP = 0
+			and		tbp.DOMAIN =3
+			and		tbp.PORT_TYPE=1	
+			and		tn.FACTORY = 2
+			and		tn.EMS_TYPE= 22
+		</otherwise>
+		</choose>	  
+		limit #{startNum},#{size}
+	</select>
+	
+	<select id="selectFromBangByBangID"  resultType="hashMap">
+		select tp.*  from 	t_base_binding_path tb left join
+			t_base_ptp tp on tb.BASE_NE_ID = tp.BASE_NE_ID 
+			and tb.BASE_PTP_NAME = tp.NAME 
+			where  BINDING_PTP_ID =#{map.BINDING_PTP_ID}
+					  
+	</select>
+	
+	<select id="selectFromVbByNeId"  resultType="hashMap">
+		select tv.*  from 	t_base_vb tv
+			where  
+			 	tv.BASE_NE_ID in
+			<foreach collection="map.list" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+					  
+	</select>
+	
+	<select id="selectFromVbListByFtpId"  resultType="hashMap">
+		select *
+		  from t_base_vb_list tv
+		 where tv.base_vb_id in (select base_vb_id
+		                        from t_base_vb_list tl
+		                       where tl.base_ptp_id = #{map.BASE_PTP_ID})
+		 and tv.base_ptp_id <![CDATA[<>]]> #{map.BASE_PTP_ID}
+		 and tv.PTP_NAME like 'FTP%'
+					  
+	</select>
+	
+	<select id="selectFromBangByPtpId"  resultType="hashMap">
+		select *  from 	t_base_binding_path tb left join t_base_ptp tp on tb.BASE_NE_ID = tp.BASE_NE_ID 
+			and tb.BASE_PTP_NAME = tp.NAME 
+			where    
+			 	tp.BASE_PTP_ID in
+			<foreach collection="map.list" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+					  
+	</select>
+	
+	<select id="selectFromBangdingByPTp"  resultType="hashMap">
+		select *  from 	t_base_binding_path  tb left join t_base_ptp tp on tb.BASE_NE_ID = tp.BASE_NE_ID 
+			and tb.BASE_PTP_NAME = tp.NAME 
+			where    
+			 	tp.BASE_PTP_ID in
+			<foreach collection="map.list" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+					  
+	</select>
+	
+	<select id="selectLinkFromJiheCount"  resultType="hashMap">
+		select count(1) as total  from 	t_resource_correlation_trans_segment  
+			where    	base_link_id is null	  
+	</select>
+	
+	<select id="selectLinkFromJihe"  resultType="hashMap">
+		select *  from 	t_resource_correlation_trans_segment  
+			where    	base_link_id is null	  
+	</select>
+	
+	<select id="selectOtnCirByAZ"  resultType="hashMap">
+		SELECT CIR_OTN_CIRCUIT_INFO_ID, CIR_NO, Z_END_PTP AS OTN_PTP_ID
+		  FROM t_cir_otn_circuit_info
+		 WHERE a_end_ptp = #{map.PTP_ID}
+		   AND IS_COMPLETE_CIR = 1
+		UNION
+		SELECT CIR_OTN_CIRCUIT_INFO_ID, CIR_NO, A_END_PTP AS OTN_PTP_ID
+		  FROM t_cir_otn_circuit_info
+		 WHERE z_end_ptp = #{map.PTP_ID}
+		   AND IS_COMPLETE_CIR = 1  	  
+	</select>
+	
+	<select id="selectLinkFromJiheByPort"  resultType="hashMap">
+		SELECT Z_END_PTP AS PORT_ID
+		  FROM t_resource_correlation_trans_segment
+		 WHERE a_end_ptp = #{map.PTP_ID}
+		UNION
+		SELECT A_END_PTP AS PORT_ID
+		  FROM t_resource_correlation_trans_segment
+		 WHERE z_end_ptp = #{map.PTP_ID}  	  
+	</select>
+	
+	<update id="updateLinkCir" parameterType="hashmap">
+		update t_base_link
+		   set CIR_NO = #{map.CIR_NO}
+		 where (A_END_PTP = #{map.A_END_PTP} and Z_END_PTP = #{map.Z_END_PTP})
+		    or (A_END_PTP = #{map.Z_END_PTP} and Z_END_PTP = #{map.A_END_PTP})
+	</update>
+	
+	<select id="selectLink"  resultType="hashMap">
+		SELECT * from t_base_link where is_del = 0 and link_type = 1  	  
+	</select>
+	
+	<select id="selectPortA"  resultType="hashMap">
+		SELECT Z_END_PTP as PTP_ID from t_resource_correlation_trans_segment
+		where base_link_id is null 
+		and (A_END_PTP = #{map.A_END_PTP} and Z_END_PTP != #{map.Z_END_PTP})
+		union
+		SELECT A_END_PTP as PTP_ID from t_resource_correlation_trans_segment
+		where base_link_id is null 
+		and   (Z_END_PTP = #{map.A_END_PTP} and A_END_PTP != #{map.Z_END_PTP}) 	  
+	</select>
+	
+	<select id="selectPortZ"  resultType="hashMap">
+		SELECT Z_END_PTP as PTP_ID from t_resource_correlation_trans_segment
+		where base_link_id is null 
+		and (A_END_PTP = #{map.Z_END_PTP} and Z_END_PTP != #{map.A_END_PTP})
+		union
+		SELECT A_END_PTP as PTP_ID from t_resource_correlation_trans_segment
+		where base_link_id is null 
+		and (Z_END_PTP = #{map.Z_END_PTP} and A_END_PTP != #{map.A_END_PTP})  	  
+	</select>
+	
+	<select id="selectOtnCirByaz"  resultType="hashMap">
+		SELECT info.* from t_cir_otn_circuit cir 
+				 left join t_cir_otn_circuit_info info on 
+				 cir.CIR_OTN_CIRCUIT_INFO_ID = info.CIR_OTN_CIRCUIT_INFO_ID
+		where cir.is_complete_cir =1 
+		and 
+		<foreach collection="aport" index="index" item="alist"
+					open="(" close=")" separator=" or ">
+					cir.A_END_PTP = ${alist.PTP_ID}
+		</foreach>  	 
+		and 
+		
+		<foreach collection="zport" index="index" item="zlist"
+					open="(" close=")" separator=" or ">
+					cir.Z_END_PTP = ${zlist.PTP_ID}
+		</foreach>
+		union
+		SELECT info.* from t_cir_otn_circuit cir 
+				 left join t_cir_otn_circuit_info info on 
+				 cir.CIR_OTN_CIRCUIT_INFO_ID = info.CIR_OTN_CIRCUIT_INFO_ID
+		where cir.is_complete_cir =1 
+		and 
+		<foreach collection="aport" index="index" item="alist"
+					open="(" close=")" separator=" or ">
+					cir.Z_END_PTP = ${alist.PTP_ID}
+		</foreach>  	 
+		and 
+		
+		<foreach collection="zport" index="index" item="zlist"
+					open="(" close=")" separator=" or ">
+					cir.A_END_PTP = ${zlist.PTP_ID}
+		</foreach>   	 
+	</select>
+	
+	<select id="selectTableByColumn"  resultType="hashMap">
+		SELECT * 
+		from ${tableName}
+		where 1=1
+		<if test="columnName != null and columnName != '' ">
+			and	${columnName} = #{columnValue}	
+		</if> 
+		and is_del = 0
+	</select>
+	
+	<select id="selectCountTableByColumn"  resultType="hashMap">
+		SELECT count(1) as total 
+		from ${tableName}
+		where 1=1
+		<if test="columnName != null and columnName != '' ">
+			and	${columnName} = #{columnValue}	
+		</if> 
+	</select>
+	
+	<select id="selectCountfromFdfrList"  resultType="hashMap">
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+		SELECT count(1) as total 
+		from t_base_ptn_fdfr_list
+		where is_use = 0
+		and is_select = 0
+		and is_del = 0
+		and a_or_z = 'A'
+		<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+		</when>
+		<otherwise>
+		SELECT count(1) as total 
+		from t_base_ptn_fdfr_list tl,
+			(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+		where	tl.base_ne_id = tn.base_ne_id
+		and tl.is_use = 0
+		and tl.is_select = 0
+		and tl.is_del = 0
+		and tl.a_or_z = 'A'
+		</otherwise>
+	</choose>
+		<!-- SELECT count(1) as total 
+		from t_base_ptn_fdfr_list
+		where is_use = 0
+		and is_select = 0
+		and is_del = 0
+		and a_or_z = 'A' -->
+	</select>
+	
+	<select id="selectOnefromFdfrList"  resultType="hashMap">
+	<choose>
+		<when test="map.NAME != null and !map.NAME.isEmpty()">
+		SELECT * 
+		from t_base_ptn_fdfr_list
+		where is_use = 0
+		and is_select = 0
+		and is_del = 0
+		and a_or_z = 'A'
+		<if test="map.NAME != null and !map.NAME.isEmpty()" >
+			and 	${map.NAME} in
+			<foreach collection="map.ID" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+			</if>
+		limit 0,1
+		</when>
+		<otherwise>
+		SELECT tl.* 
+		from t_base_ptn_fdfr_list tl,
+			(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE" />) as tn 
+		where	tl.base_ne_id = tn.base_ne_id
+		and tl.is_use = 0
+		and tl.is_select = 0
+		and tl.is_del = 0
+		and tl.a_or_z = 'A'
+		limit 0,1
+		</otherwise>
+	</choose>
+		<!-- SELECT * 
+		from t_base_ptn_fdfr_list
+		where is_use = 0
+		and is_select = 0
+		and is_del = 0
+		and a_or_z = 'A'
+		limit 0,1 -->
+	</select>	
+	
+	<select id="selectFdfrList"  resultType="hashMap">
+		SELECT * 
+		from t_base_ptn_fdfr_list
+		where BASE_PTN_FD_ID = #{fdrId}
+		and	is_use = 0
+		and is_select = 0
+		and is_del = 0
+		and a_or_z = 'A'
+	</select>
+	
+	<select id="selectPtpfromlinkFdfr"  resultType="hashMap">
+		SELECT tl.* 
+		from t_base_ptn_fdfr_link tl left  join t_base_ptn_fdfr  tf on tf.NAME = tl.FDFR_NAME
+		where tf.BASE_PTN_FD_ID = #{fdrId}
+		and	(tl.a_end_ne = #{ptpId} or tl.z_end_ne = #{ptpId})
+	</select>
+	
+	<update id="updateTableByColumn" parameterType="hashmap">
+		<choose>
+			<when test="columnName!=null and columnName != ''">
+				update ${tableName}
+				set 
+				<if test="upName != null and upName != '' ">
+					${upName} = #{upValue}
+				</if>
+				where ${columnName} = #{columnValue}
+			</when>
+			<otherwise>
+				update ${tableName}
+				set 
+				<if test="upName != null and upName != '' ">
+					${upName} = #{upValue}
+				</if>
+			</otherwise>
+		</choose>
+	</update>
+	
+	<update id="updateEthTableByColumn" parameterType="hashmap">
+		
+		update ${tableName}
+		set 
+		<if test="upName != null and upName != '' ">
+			${upName} = #{upValue}
+		</if>
+		where ${columnName} <![CDATA[>=]]> #{columnValue}
+		
+	</update>
+	
+		<update id="updateEthCir" parameterType="hashmap">
+		
+		update ${tableName}
+		set 
+		<if test="upName != null and upName != '' ">
+			${upName} = #{upValue}
+		</if>
+		where parent_cir is null
+		and svc_type = 2
+		
+	</update>
+	
+	
+	<select id="selectTableByColumnForOne"  resultType="hashMap">
+		SELECT * 
+		from ${tableName}
+		where 1=1
+		<if test="columnName != null and columnName != '' ">
+			and	${columnName} = #{columnValue}	
+		</if> 
+		limit 0,1		
+	</select>
+	
+	<delete id="deleteTableByColumn"  >
+		delete 
+		from ${tableName}
+		where 1=1
+		<if test="columnName != null and columnName != '' ">
+			and	${columnName} = #{columnValue}	
+		</if> 
+	</delete>
+	
+	<select id="selectSdhDeleteCirByCrs"  resultType="hashMap">
+		SELECT DISTINCT * FROM t_cir_circuit_route WHERE CHAIN_TYPE IN (1,2)  AND CHAIN_ID =#{crsId}		
+	</select>
+	
+	<select id="selectOtnDeleteCirByCrs"  resultType="hashMap">
+		SELECT DISTINCT * FROM t_cir_otn_circuit_route WHERE CHAIN_TYPE IN (1,2)  AND CHAIN_ID =#{crsId}		
+	</select>
+	
+	<select id="selectSdhDeleteCirByLink"  resultType="hashMap">
+		SELECT DISTINCT * FROM t_cir_circuit_route WHERE CHAIN_TYPE IN (3,4)  AND CHAIN_ID =#{crsId}		
+	</select>
+	
+	<select id="selectOtnDeleteCirByLink"  resultType="hashMap">
+		SELECT DISTINCT * FROM t_cir_otn_circuit_route WHERE CHAIN_TYPE IN (3,4)  AND CHAIN_ID =#{crsId}		
+	</select>
+	
+	
+	
+</mapper>

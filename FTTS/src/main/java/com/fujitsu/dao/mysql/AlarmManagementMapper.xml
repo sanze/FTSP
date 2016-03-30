@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.AlarmManagementMapper">
+	
+	<!-- 获取当前告警数量 -->
+	<select id="queryCurrentAlarmCount" resultType="int">
+		select count(1) from T_FTTS_CURRENT_ALARM ALARM 
+		left join T_FTTS_RC RC on ALARM.EQPT_ID = RC.RC_ID 
+		left join T_RESOURCE_ROOM ROOM on RC.RESOURCE_ROOM_ID = ROOM.RESOURCE_ROOM_ID 
+		left join T_RESOURCE_STATION STATION on STATION.RESOURCE_STATION_ID = ROOM.RESOURCE_STATION_ID 
+		left join T_RESOURCE_AREA TAREA on TAREA.RESOURCE_AREA_ID = STATION.RESOURCE_AREA_ID 
+		<where>
+			1=1 
+			<if test="map.areaId != null">
+				and TAREA.RESOURCE_AREA_ID = #{map.areaId} 
+			</if>
+			<if test="map.stationId != null">
+				and STATION.RESOURCE_STATION_ID = #{map.stationId} 
+			</if>
+			<if test="map.eqptId != null">
+				and RC.RC_ID = #{map.eqptId} 
+			</if>
+			<if test="map.eqptType != null">
+				and ALARM.EQPT_TYPE = #{map.eqptType} 
+			</if>
+			<if test="map.severity != null">
+				and ALARM.ALARM_LEVEL = #{map.severity} 
+			</if>
+			<if test="map.areaId != null">
+				and ALARM.ACK_STATUS = #{map.ackStatus} 
+			</if>
+		</where>
+	</select>
+	
+	<!-- 获取当前告警记录 -->
+	<select id="queryCurrentAlarm" resultType="hashmap">
+		select ALARM.*,TAREA.AREA_NAME,STATION.STATION_NAME,RC.NUMBER as EQPT_NO,RC.NAME as EQPT_NAME 
+		from T_FTTS_CURRENT_ALARM ALARM 
+		left join T_FTTS_RC RC on ALARM.EQPT_ID = RC.RC_ID 
+		left join T_RESOURCE_ROOM ROOM on RC.RESOURCE_ROOM_ID = ROOM.RESOURCE_ROOM_ID 
+		left join T_RESOURCE_STATION STATION on STATION.RESOURCE_STATION_ID = ROOM.RESOURCE_STATION_ID 
+		left join T_RESOURCE_AREA TAREA on TAREA.RESOURCE_AREA_ID = STATION.RESOURCE_AREA_ID 
+		<where>
+			1=1 
+			<if test="map.areaId != null">
+				and TAREA.RESOURCE_AREA_ID = #{map.areaId} 
+			</if>
+			<if test="map.stationId != null">
+				and STATION.RESOURCE_STATION_ID = #{map.stationId} 
+			</if>
+			<if test="map.eqptId != null">
+				and RC.RC_ID = #{map.eqptId} 
+			</if>
+			<if test="map.eqptType != null">
+				and ALARM.EQPT_TYPE = #{map.eqptType} 
+			</if>
+			<if test="map.severity != null">
+				and ALARM.ALARM_LEVEL = #{map.severity} 
+			</if>
+			<if test="map.areaId != null">
+				and ALARM.ACK_STATUS = #{map.ackStatus} 
+			</if>
+		</where>
+		limit #{start}, #{limit} 
+	</select>
+	
+	<!-- 查询历史告警数量 -->
+	<select id="queryHistoryAlarmCount" resultType="int">
+		select count(1) from T_FTTS_HISTORY_ALARM ALARM 
+		left join T_FTTS_RC RC on ALARM.EQPT_ID = RC.RC_ID 
+		left join T_RESOURCE_ROOM ROOM on RC.RESOURCE_ROOM_ID = ROOM.RESOURCE_ROOM_ID 
+		left join T_RESOURCE_STATION STATION on STATION.RESOURCE_STATION_ID = ROOM.RESOURCE_STATION_ID 
+		left join T_RESOURCE_AREA TAREA on TAREA.RESOURCE_AREA_ID = STATION.RESOURCE_AREA_ID 
+		<where>
+			1=1 
+			<if test="map.startTimeFrom != null">
+				and ALARM.ALARM_OCCUR_DATE <![CDATA[ >= ]]> #{map.startTimeFrom} 
+			</if>
+			<if test="map.startTimeTo != null">
+				and ALARM.ALARM_OCCUR_DATE <![CDATA[ <= ]]> #{map.startTimeTo} 
+			</if>
+			<if test="map.endTimeFrom != null">
+				and ALARM.ALARM_CLEAR_DATE <![CDATA[ >= ]]> #{map.endTimeFrom} 
+			</if>
+			<if test="map.endTimeTo != null">
+				and ALARM.ALARM_CLEAR_DATE <![CDATA[ <= ]]> #{map.endTimeTo} 
+			</if>
+			<if test="map.areaId != null">
+				and TAREA.RESOURCE_AREA_ID = #{map.areaId} 
+			</if>
+			<if test="map.stationId != null">
+				and STATION.RESOURCE_STATION_ID = #{map.stationId} 
+			</if>
+			<if test="map.eqptId != null">
+				and RC.RC_ID = #{map.eqptId} 
+			</if>
+			<if test="map.eqptType != null">
+				and ALARM.EQPT_TYPE = #{map.eqptType} 
+			</if>
+			<if test="map.severity != null">
+				and ALARM.ALARM_LEVEL = #{map.severity} 
+			</if>
+			<if test="map.areaId != null">
+				and ALARM.ACK_STATUS = #{map.ackStatus} 
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询历史告警 -->
+	<select id="queryHistoryAlarm" resultType="hashmap">
+		select ALARM.*,TAREA.AREA_NAME,STATION.STATION_NAME,RC.NUMBER as EQPT_NO,RC.NAME as EQPT_NAME 
+		from T_FTTS_HISTORY_ALARM ALARM 
+		left join T_FTTS_RC RC on ALARM.EQPT_ID = RC.RC_ID 
+		left join T_RESOURCE_ROOM ROOM on RC.RESOURCE_ROOM_ID = ROOM.RESOURCE_ROOM_ID 
+		left join T_RESOURCE_STATION STATION on STATION.RESOURCE_STATION_ID = ROOM.RESOURCE_STATION_ID 
+		left join T_RESOURCE_AREA TAREA on TAREA.RESOURCE_AREA_ID = STATION.RESOURCE_AREA_ID 
+		<where>
+			1=1 
+			<if test="map.startTimeFrom != null">
+				and ALARM.ALARM_OCCUR_DATE <![CDATA[ >= ]]> #{map.startTimeFrom} 
+			</if>
+			<if test="map.startTimeTo != null">
+				and ALARM.ALARM_OCCUR_DATE <![CDATA[ <= ]]> #{map.startTimeTo} 
+			</if>
+			<if test="map.endTimeFrom != null">
+				and ALARM.ALARM_CLEAR_DATE <![CDATA[ >= ]]> #{map.endTimeFrom} 
+			</if>
+			<if test="map.endTimeTo != null">
+				and ALARM.ALARM_CLEAR_DATE <![CDATA[ <= ]]> #{map.endTimeTo} 
+			</if> 
+			<if test="map.areaId != null">
+				and TAREA.RESOURCE_AREA_ID = #{map.areaId} 
+			</if>
+			<if test="map.stationId != null">
+				and STATION.RESOURCE_STATION_ID = #{map.stationId} 
+			</if>
+			<if test="map.eqptId != null">
+				and RC.RC_ID = #{map.eqptId} 
+			</if>
+			<if test="map.eqptType != null">
+				and ALARM.EQPT_TYPE = #{map.eqptType} 
+			</if>
+			<if test="map.severity != null">
+				and ALARM.ALARM_LEVEL = #{map.severity} 
+			</if>
+			<if test="map.areaId != null">
+				and ALARM.ACK_STATUS = #{map.ackStatus} 
+			</if>
+		</where>
+		limit #{start}, #{limit} 
+	</select>
+	
+	<!-- 通过编号获取设备的信息 -->
+	<select id="getRCListByNo" resultType="hashmap">
+		select TR.*
+		from T_FTTS_RC TR where TR.TYPE = #{type}
+		and TR.NUMBER in 
+		<foreach collection="rcNoList" index="index" item="rcNo" 
+			open="(" close=")" separator=",">
+			'${rcNo}'
+		</foreach>
+	</select>
+	
+	<!-- 获取设备的当前告警 -->
+	<select id="getEqptCurrAlarm" resultType="hashmap">
+		select * from T_FTTS_CURRENT_ALARM 
+		where EQPT_TYPE = #{eqptType} 
+		and EQPT_ID = #{eqptId} 
+		and ALARM_NAME != 'OTDR测试：光缆断'
+	</select>
+	
+	<!-- 通过编号获取RTU的信息 -->
+	<select id="getRTUByNo" resultType="hashmap">
+		select * from T_FTTS_RC 
+		where NUMBER = #{rtuNo} and TYPE = 0
+	</select>
+	
+	<!-- 获取机盘型号 -->
+	<select id="getCardType" resultType="hashmap">
+		select 
+		    case when NAME = 'PWR' then 1 
+		    when NAME = 'MCU' then 2 
+		    when NAME = 'OTDR' then 3 
+		    when NAME like '%OSW%' then 4 
+		end CARD_TYPE 
+		from T_FTTS_UNIT 
+		where RC_ID = #{rcId} and SLOT_NO = #{slotNo}
+	</select>
+	
+	<!-- 删除当前告警 -->
+	<delete id="deleteCurAlarm">
+		delete TA.* from T_FTTS_CURRENT_ALARM TA where TA.ALARM_ID = #{alarmId}
+	</delete>
+	
+	<!-- 新增RTU当前告警 -->
+	<insert id="addRTUCurAlarm">
+		insert into T_FTTS_CURRENT_ALARM(
+			ALARM_NAME,
+			ALARM_TYPE,
+			ALARM_LEVEL,
+			EQPT_TYPE,
+			EQPT_ID,
+			SLOT_NO,
+			CARD_TYPE,
+			CARD_PORT,
+			ACK_STATUS,
+			ALARM_OCCUR_DATE,
+			REGION_ID)
+        values(
+   		  #{alarm.alarmName},
+		  #{alarm.alarmType},
+		  #{alarm.alarmLevel},
+		  #{alarm.eqptType},
+		  #{alarm.eqptId},
+		  #{alarm.slotNo},
+		  #{alarm.cardType},
+		  #{alarm.portNo},
+		  2,
+		  #{alarm.alarmOccurTime},
+		  #{alarm.regionId})
+	</insert>
+	
+	<!-- 新增历史告警 -->
+	<insert id="addHistoryAlarm">
+		insert into T_FTTS_HISTORY_ALARM
+			   (ALARM_NAME,
+				TEST_RESULT_ID,
+				ALARM_TYPE,
+				ALARM_LEVEL,
+				EQPT_TYPE,
+				EQPT_ID,
+				SLOT_NO,
+				CARD_TYPE,
+				CARD_PORT,
+				ACK_STATUS,
+				ACK_DATE,
+				ACK_USER_ID,
+				ALARM_OCCUR_DATE,
+				ALARM_CLEAR_DATE,
+				REGION_ID,
+				BREAK_POINT_INFO)
+		 values(#{map.ALARM_NAME},
+		 		#{map.TEST_RESULT_ID},
+		 		#{map.ALARM_TYPE},
+		 		#{map.ALARM_LEVEL},
+		 		#{map.EQPT_TYPE},
+		 		#{map.EQPT_ID},
+		 		#{map.SLOT_NO},
+		 		#{map.CARD_TYPE},
+		 		#{map.CARD_PORT},
+		 		#{map.ACK_STATUS},
+		 		#{map.ACK_DATE},
+		 		#{map.ACK_USER_ID},
+		 		#{map.ALARM_OCCUR_DATE},
+		 		#{map.ALARM_CLEAR_DATE},
+		 		#{map.REGION_ID},
+		 		#{map.BREAK_POINT_INFO})
+	</insert>
+	
+	<!-- 获取告警同步时的设备信息 -->
+	<select id="getAlarmSyncEquip" resultType="hashmap">
+		select RC.*,RS.RESOURCE_STATION_ID,RA.RESOURCE_AREA_ID from T_FTTS_RC RC 
+		left join T_RESOURCE_ROOM RM on RC.RESOURCE_ROOM_ID = RM.RESOURCE_ROOM_ID 
+		left join T_RESOURCE_STATION RS on RM.RESOURCE_STATION_ID = RS.RESOURCE_STATION_ID 
+		left join T_RESOURCE_AREA RA on RS.RESOURCE_AREA_ID = RA.RESOURCE_AREA_ID 
+		<where>
+			RC.TYPE in ${map.eqptTypes} 
+			<if test="map.areaIds != null">
+				and RA.RESOURCE_AREA_ID in 
+				<foreach collection="map.areaIds" index="index" item="areaId"
+					open="(" close=")" separator=",">
+					${areaId}
+				</foreach>
+			</if>
+			<if test="map.stationId != null">
+				and RS.RESOURCE_STATION_ID = #{map.stationId} 
+			</if>
+			<if test="map.eqptId != null">
+				and RC.RC_ID = #{map.eqptId}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 告警确认 -->
+	<update id="confirmAlarm">
+		update T_FTTS_CURRENT_ALARM TA set 
+			TA.ACK_DATE = now(),
+			TA.ACK_STATUS = 1 
+		where TA.ALARM_ID in 
+		<foreach collection="map.currentAlarmIds" index="index" item="currentAlarmId"
+					open="(" close=")" separator=",">
+				${currentAlarmId}
+		</foreach>
+	</update>
+	
+	<select id="getEquipAlarm" resultType="hashmap">
+		select TA.EQPT_ID,
+		1 as SHELF_NO,
+		TA.SLOT_NO,
+		TA.ALARM_LEVEL as SEVERITY 
+		from T_FTTS_CURRENT_ALARM TA 
+		where TA.EQPT_ID = #{rcId}
+	</select>
+	
+	<!-- 获取RTU当前告警 -->
+	<select id="getRTUCurrentAlarm" resultType="hashmap">
+		select TA.* from T_FTTS_CURRENT_ALARM TA where 
+		TA.EQPT_ID = #{alarm.eqptId} 
+		and TA.ALARM_NAME = #{alarm.alarmName} 
+		and TA.ALARM_TYPE = #{alarm.alarmType} 
+		and TA.EQPT_TYPE = #{alarm.eqptType} 
+		and TA.SLOT_NO = #{alarm.slotNo} 
+		and TA.CARD_PORT = #{alarm.portNo} 
+		and TA.CARD_TYPE = #{alarm.cardType} 
+	</select>
+
+</mapper>

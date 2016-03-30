@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.AlarmConvergeMapper" >
+
+    <!-- 按表名获取整表数据 -->
+    <select id="selectTable" resultType="hashmap" statementType="STATEMENT">
+        select *
+          from ${tableName}
+    </select>
+
+    <!-- 按id获取数据列表 -->
+    <select id="selectTableListById" resultType="hashmap" statementType="STATEMENT">
+        select *
+          from ${tableName}
+         where ${idName} = ${id}
+    </select>
+
+    <!-- 查询系统参数 -->
+    <select id="getSystemParam" resultType="hashmap">
+        select PARAM_VALUE from t_sys_param
+        where PARAM_KEY = #{paramKey}
+    </select>
+    
+    <!-- 获取特定网元与相邻网元间的Ptp -->
+    <select id="getLinkPtpByNeId" resultType="hashmap">
+        select Z_END_PTP PTP_ID from t_base_link where IS_DEL = 0 and A_NE_ID = #{neId} union
+            select A_END_PTP from t_base_link where IS_DEL = 0 and Z_NE_ID = #{neId}
+    </select>
+    
+    <!-- 获取指定网元所属传输系统网元 -->
+    <select id="getNeListFromTransSysByNeId" resultType="hashmap">
+        select NE_ID from t_resource_trans_sys_ne 
+        where RESOURCE_TRANS_SYS_ID in
+            (select RESOURCE_TRANS_SYS_ID from t_resource_trans_sys_ne where NE_ID = #{neId})
+            and NE_ID != #{neId}
+    </select>
+    
+    <!-- 获取特定板卡与相邻网元间的Ptp -->
+    <select id="getLinkPtpByUnitId" resultType="hashmap">
+        select Z_END_PTP PTP_ID from t_base_link where IS_DEL = 0 and A_END_PTP in 
+            (select BASE_PTP_ID from t_base_ptp where BASE_UNIT_ID = #{unitId}) union
+            select A_END_PTP from t_base_link where IS_DEL = 0 and Z_END_PTP in 
+                (select BASE_PTP_ID from t_base_ptp where BASE_UNIT_ID = #{unitId})
+    </select>
+    
+    <!-- 获取特定端口与相邻网元间的Ptp -->
+    <select id="getLinkPtpByPtpId" resultType="hashmap">
+        select Z_END_PTP PTP_ID from t_base_link where IS_DEL = 0 and A_END_PTP = #{ptpId} union
+            select A_END_PTP from t_base_link where IS_DEL = 0 and Z_END_PTP = #{ptpId} 
+    </select>
+    
+    <!-- 通过电路相关性查询获取网元/板卡/端口/通道相关电路的CTP -->
+    <select id="getCtpFromCircuit" resultType="hashmap">
+    <!-- SDH -->
+    <if test="neType == 1">
+        select  t1.a_end_ctp CTP_ID
+        from    t_base_sdh_crs t1,
+            t_cir_circuit_route  t2,
+            (select  tr.* 
+	            from    t_base_sdh_crs ts,
+	                t_cir_circuit_route  tr,
+	                t_cir_circuit tc
+	            where   tr.cir_circuit_id = tc.cir_circuit_id
+	               and tr.chain_type = 1
+	               and tr.chain_id = ts.BASE_SDH_CRS_ID
+	            <if test="neId != null">
+	               and ts.base_ne_id = #{neId}
+	            </if>
+	            <if test="unitId != null">
+	               and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                        ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+	            </if>
+	            <if test="ptpId != null">
+	               and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+                </if>
+                <if test="ctpId != null">
+                   and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+                </if>            
+	               and     ts.IS_DEL = 0) t3
+	    where t1.BASE_SDH_CRS_ID = t2.chain_id
+	       and t2.chain_type = 1
+	       and t2.cir_circuit_id = t3.cir_circuit_id
+        union 
+        select distinct t1.z_end_ctp 
+	    from    t_base_sdh_crs t1,
+	        t_cir_circuit_route  t2,
+	        (select  tr.* 
+	            from    t_base_sdh_crs ts,
+	                t_cir_circuit_route  tr,
+	                t_cir_circuit tc
+	            where   tr.cir_circuit_id = tc.cir_circuit_id
+	               and tr.chain_type = 1
+	               and     tr.chain_id = ts.BASE_SDH_CRS_ID
+	            <if test="neId != null">
+	               and ts.base_ne_id = #{neId}
+	            </if>
+	            <if test="unitId != null">
+	               and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                        ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+                </if>
+                <if test="ptpId != null">
+                    and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+                </if>
+                <if test="ctpId != null">
+                    and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+                </if>            
+                    and ts.IS_DEL = 0) t3
+	    where  t1.BASE_SDH_CRS_ID = t2.chain_id
+	       and t2.chain_type = 1
+	       and t2.cir_circuit_id = t3.cir_circuit_id
+    </if>
+    <!-- OTN -->
+    <if test="neType==3">
+		select t1.a_end_ctp CTP_ID
+		    from    t_base_otn_crs t1,
+		        t_cir_otn_circuit_route  t2,
+		        (select  tr.* 
+		            from    t_base_otn_crs ts,
+		                t_cir_otn_circuit_route  tr,
+		                t_cir_otn_circuit tc
+		            where tr.cir_otn_circuit_id = tc.cir_otn_circuit_id
+		              and tr.chain_type = 2
+		              and tr.chain_id = ts.BASE_OTN_CRS_ID
+		            <if test="neId != null">
+		              and ts.base_ne_id = #{neId}
+		            </if>
+		            <if test="unitId != null">
+		              and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                           ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+		            </if>
+		            <if test="ptpId != null">
+		              and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+		            </if>
+		            <if test="ctpId != null">
+		              and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+		            </if>           
+		              and ts.IS_DEL = 0) t3
+		    where t1.BASE_OTN_CRS_ID = t2.chain_id
+		      and t2.chain_type = 2
+		      and t2.cir_otn_circuit_id = t3.cir_otn_circuit_id
+		union 
+		select t1.z_end_ctp 
+		    from    t_base_otn_crs t1,
+		        t_cir_otn_circuit_route  t2,
+		        (select  tr.* 
+		            from    t_base_otn_crs ts,
+		                t_cir_otn_circuit_route  tr,
+		                t_cir_otn_circuit tc
+		            where  tr.cir_otn_circuit_id = tc.cir_otn_circuit_id
+		              and tr.chain_type = 2
+		              and tr.chain_id = ts.BASE_OTN_CRS_ID
+		            <if test="neId != null">
+		              and ts.base_ne_id = #{neId}
+		            </if>
+		            <if test="unitId != null">
+		              and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                           ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+                    </if>
+                    <if test="ptpId != null">
+                      and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+                    </if>
+                    <if test="ctpId != null">
+                      and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+                    </if>	            
+		              and  ts.IS_DEL = 0) t3
+		    where  t1.BASE_OTN_CRS_ID = t2.chain_id
+		      and  t2.chain_type = 2
+		      and  t2.cir_otn_circuit_id = t3.cir_otn_circuit_id
+    </if>
+    </select>
+    
+    <!-- 更新指定告警收敛规则的启用状态 -->
+    <update id="updateAlarmConvergeById">
+        update t_alarm_converge
+        <set >
+            STATUS = #{status}
+        </set>
+        where CONVERGE_ID = #{ruleId}
+    </update>
+</mapper>

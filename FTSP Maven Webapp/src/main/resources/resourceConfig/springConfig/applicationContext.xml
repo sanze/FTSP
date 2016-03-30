@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+									http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+									http://www.springframework.org/schema/context  
+						           http://www.springframework.org/schema/context/spring-context-2.5.xsd  
+						           http://www.springframework.org/schema/aop  
+						           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd  
+						           http://www.springframework.org/schema/tx   
+						           http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+						           http://cxf.apache.org/jaxws 
+    							   http://cxf.apache.org/schemas/jaxws.xsd
+    							   http://cxf.apache.org/transports/http/configuration 
+    							   http://cxf.apache.org/schemas/configuration/http-conf.xsd">
+    							   
+    <!-- 导入cxf需要配置文件 -->
+<!--      <import resource="classpath:META-INF/cxf/cxf.xml"/>
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/> -->
+	
+	<!-- 配置文件地址 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	        <property name="ignoreResourceNotFound" value="true" />
+	        <property name="locations">
+	            <list>
+	                <value> classpath:resourceConfig/springConfig/config.properties</value>
+	                <value>file:../conf/config.properties</value>
+	                <value>file:../../conf/config.properties</value>
+	            </list>
+	        </property>
+	</bean>
+
+	<!-- enable autowire -->
+	<context:annotation-config />
+	
+	<aop:aspectj-autoproxy />
+
+	<!-- <bean id="transactionManager-sybase"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource-sybase" />
+	</bean>
+
+	<bean id="transactionManager-oracle"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource-oracle" />
+	</bean> -->
+	
+	<bean id="transactionManager-mysql"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="globalRollbackOnParticipationFailure" value="false" />
+	</bean>
+
+	<!-- <bean id="sqlSessionFactory-sybase" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource-sybase" />
+		<property name="configLocation"
+			value="classpath:resourceConfig/mybatisConfig/mybatisConfig-sybase.xml" />
+		<property name="typeAliasesPackage" value="com.zbiti.ssm.bean" />
+	</bean>
+
+	<bean id="sqlSessionFactory-oracle" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource-oracle" />
+		<property name="configLocation"
+			value="classpath:resourceConfig/mybatisConfig/mybatisConfig-oracle.xml" />
+		<property name="typeAliasesPackage" value="com.zbiti.ssm.bean" />
+	</bean> -->
+	
+	<bean id="sqlSessionFactory-mysql" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="configLocation"
+			value="classpath:resourceConfig/mybatisConfig/mybatisConfig-mysql.xml" />
+		<!-- <property name="typeAliasesPackage" value="com.jftt.ssm.bean" /> -->
+	</bean>
+
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory-mysql" />
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManager-mysql"/>
+	 
+	<!-- jms相关配置connectionFactory -->  
+    <bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory"  
+        destroy-method="stop">  
+        <property name="connectionFactory">  
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">  
+                <property name="brokerURL">  
+                    <value>${jms.url}</value>  
+                </property>
+            </bean>
+        </property>  
+    </bean>
+    
+    <bean id="destination" class="org.apache.activemq.command.ActiveMQTopic">  
+        <!-- 设置消息队列的名字 -->  
+        <constructor-arg index="0" value="subject" />  
+    </bean>
+    <!-- Spring JMS Template -->  
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">  
+        <property name="connectionFactory">  
+            <ref local="jmsFactory" />  
+        </property>  
+        <property name="defaultDestination" ref="destination" />  
+        <!-- 区别它采用的模式为false是p2p为true是订阅 -->  
+        <property name="pubSubDomain" value="true" />  
+    </bean>
+    
+    <!-- 消息监听     -->
+    <bean id="jmsReceiver" class="com.fujitsu.activeMq.JMSReceiver">  
+    </bean>
+    <!-- 7.队列监听器的容器   	 -->
+    <bean id="QueueReceiverContainer"  
+        class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
+        <property name="concurrentConsumers" value="1" />  
+        <property name="connectionFactory" ref="jmsFactory" />  
+        <!-- 监听的队列 -->  
+        <property name="destination" ref="destination" />  
+        <property name="messageListener" ref="jmsReceiver" />  
+        <property name="pubSubNoLocal" value="false"/>     
+    </bean> 
+
+    <!-- 故障信息推送/割接信息获取 -->
+    <bean id="WebMsgPush" class="com.fujitsu.util.WebMsgPush"/>
+    
+    <jaxws:client id="fttsWsClient" serviceClass="com.fujitsu.IService.IWSManagerService" 
+        address="${ws.ftts.url}" />
+    
+    <!-- 设置超时时间，对所有webservice生效 -->
+    <http-conf:conduit name="*.http-conduit">
+    	<http-conf:client ConnectionTimeout="${ws.connectionTimeout}" ReceiveTimeout="${ws.receiveTimeout}"/>
+    </http-conf:conduit>
+    
+</beans>

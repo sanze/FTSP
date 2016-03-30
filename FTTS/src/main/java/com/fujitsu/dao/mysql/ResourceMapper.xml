@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ResourceMapper">
+
+	<!-- 根据查询条件查询RC总数 -->
+	<select id="queryRCCount" parameterType="hashmap" resultType="int">
+		select count(1) FROM T_FTTS_RC RC
+		left join t_resource_room room
+		on room.RESOURCE_ROOM_ID = RC.RESOURCE_ROOM_ID
+		left join t_resource_station sta
+		on sta.RESOURCE_STATION_ID = room.RESOURCE_STATION_ID
+		left join t_resource_area area 
+		on area.RESOURCE_AREA_ID = sta.RESOURCE_AREA_ID
+		<where>
+			1=1
+			<!-- 缺少区域的删选条件  -->
+			<if test="level>0 and level&lt;11 and ids!='()'">
+				and  area.RESOURCE_AREA_ID in ${ids} 
+			</if>
+			<if test="level==11 and ids!='()'">
+				and  sta.RESOURCE_STATION_ID in ${ids} 
+			</if>
+			<if test="level==12 and ids!='()'">
+				and  room.RESOURCE_ROOM_ID in ${ids} 
+			</if>
+			<if test="map.name != null and map.name !='' ">
+				and NAME like CONCAT('%','${map.name}','%' )
+			</if>
+		</where>
+	</select>
+
+	<!-- 分页查询RC数据 -->
+	<select id="queryRC" resultType="hashmap" parameterType="hashmap">
+		SELECT RC.*, room.ROOM_NAME as roomName,sta.STATION_NAME as stationName,
+		area.AREA_NAME as areaName FROM T_FTTS_RC RC
+		left join t_resource_room room
+		on room.RESOURCE_ROOM_ID = RC.RESOURCE_ROOM_ID
+		left join t_resource_station sta
+		on sta.RESOURCE_STATION_ID = room.RESOURCE_STATION_ID
+		left join t_resource_area area 
+		on area.RESOURCE_AREA_ID = sta.RESOURCE_AREA_ID
+		<where>
+			1=1
+			<!-- 缺少区域的删选条件  -->
+			<if test="level>0 and level&lt;11 and ids!='()'">
+				and  area.RESOURCE_AREA_ID in ${ids} 
+			</if>
+			<if test="level==11 and ids!='()'">
+				and  sta.RESOURCE_STATION_ID in ${ids} 
+			</if>
+			<if test="level==12 and ids!='()'">
+				and  room.RESOURCE_ROOM_ID in ${ids} 
+			</if>
+			<if test="map.name != null and map.name !='' ">
+				and RC.NAME like CONCAT('%','${map.name}','%' )
+			</if>
+		</where> 
+		limit #{start}, #{limit}
+	</select> 
+	
+	<!-- 新增RTU/CTU -->
+	<insert id="addRC" parameterType="hashmap" keyProperty="map.newId">
+		INSERT INTO T_FTTS_RC(NUMBER,NAME,FACTORY,TYPE,IP,PORT,
+			TIMEOUT,RESOURCE_ROOM_ID,NOTE)
+		VALUES(
+			#{map.number},
+			#{map.name},
+			<choose>
+			  <when test="map.comboFactory!=-99"> #{map.comboFactory}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>, 	 
+     	   <choose>
+			  <when test="map.comboType!=-99"> #{map.comboType}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>,
+			#{map.ip},
+			#{map.port},
+			#{map.timeOut},
+			#{map.roomId}, 
+			#{map.note})
+	</insert>
+	
+		<!-- 新增测试计划 -->
+	<insert id="addTestPlan" parameterType="hashmap">
+		INSERT INTO t_ftts_test_plan(RC_ID,START_TIME,STATUS)
+		VALUES(
+			#{map.newId},
+			"0:30:00", 
+			1) 
+	</insert>
+	
+	<select id="RCExists" resultType="hashmap">
+		select * from T_FTTS_RC 
+		where NAME = #{map.name}  OR NUMBER = #{map.number}   
+	</select>
+	
+	<select id="getRCInfo" resultType="hashmap">
+		select rc.*, room.ROOM_NAME as roomName 
+		from T_FTTS_RC rc 
+		left join t_resource_room room
+		on rc.RESOURCE_ROOM_ID = room.RESOURCE_ROOM_ID
+		where RC_ID = #{rcId}   
+	</select> 
+	
+	<select id="modRCCheck" resultType="hashmap">
+		select * from T_FTTS_RC 
+		where  RC_ID != #{map.rcId}   and
+		(NAME = #{map.name}  OR NUMBER = #{map.number})   
+	</select> 
+	
+	<update id="modRC">
+		update T_FTTS_RC 
+		<set> 
+			<if test="map.number!=null">NUMBER = #{map.number},</if>  
+			<if test="map.name!=null">NAME = #{map.name},</if>  
+			<if test="map.comboFactory!=-99"> FACTORY = #{map.comboFactory},</if>
+			<if test="map.comboType!=-99">TYPE = #{map.comboType},</if>   
+			<if test="map.status!=null">STATUS = #{map.status},</if>  
+			<if test="map.ip!=null">IP =#{map.ip},</if>  
+			<if test="map.port!=null">PORT =#{map.port},</if>  
+			<if test="map.timeOut!=null">TIMEOUT=#{map.timeOut},</if>    
+			<if test="map.note!=null">NOTE=#{map.note},</if>  		
+		</set>
+		where RC_ID = #{map.rcId}
+	</update> 
+	
+	<update id="modRCByNumber">
+		update T_FTTS_RC 
+		<set>  
+			<if test="map.name!=null">NAME = #{map.name},</if>  
+			<if test="map.comboFactory!=-99"> FACTORY = #{map.comboFactory},</if>
+			<if test="map.comboType!=-99">TYPE = #{map.comboType},</if>  
+			<if test="map.status!=null">STATUS = #{map.status},</if>  
+			<if test="map.port!=null">PORT =#{map.port},</if>  
+			<if test="map.ip!=null">IP =#{map.ip},</if>  
+			<if test="map.timeOut!=null">TIMEOUT=#{map.timeOut},</if>    
+			<if test="map.note!=null">NOTE=#{map.note},</if>  		
+		</set>
+		where NUMBER = #{map.number}
+	</update> 
+	
+	<!-- RC/SHELF数据-->
+	<select id="getRcById" resultType="hashmap" parameterType="hashmap">
+		select rc.RC_ID,rc.NAME,rc.TYPE,rc.NAME,rc.PORT,rc.IP,
+		rc.NUMBER,rc.FACTORY,shelf.SHELF_ID
+		from t_ftts_rc rc left join t_ftts_shelf shelf
+		on  rc.RC_ID=shelf.RC_ID  
+		where rc.RC_ID=#{rcId}
+	</select> 
+	 
+	<!-- UNIT数据-->
+	<select id="getUnitById" resultType="hashmap" parameterType="hashmap">
+		select STATUS,UNIT_ID,SLOT_NO,NAME from t_ftts_unit 
+		where RC_ID=#{rcId}
+	</select>  
+	
+	<!-- UNIT数据-->
+	<select id="getTestEquipAttr" resultType="hashmap" parameterType="hashmap">
+		select * from t_ftts_unit 
+		where UNIT_ID=#{unitId}
+	</select>  
+	
+	<!-- UNIT数据-->
+	<select id="getCardById" resultType="hashmap" parameterType="hashmap">
+		SELECT  13 AS slotNo,"SHELF" AS name,0 AS portCount,SHELF_ID AS cardId
+		FROM t_ftts_shelf 
+		WHERE RC_ID=#{rcId}
+		UNION 
+		SELECT unit.SLOT_NO AS slotNo,unit.NAME AS name,COUNT(port.UNIT_ID) portCount,unit.UNIT_ID AS cardId 
+		FROM t_ftts_unit unit LEFT JOIN t_ftts_port port ON 
+		unit.UNIT_ID=port.UNIT_ID
+		WHERE unit.RC_ID=#{rcId} GROUP BY cardId
+	</select> 
+	
+	<select id="selectSysParam" resultType="java.lang.String" parameterType="java.lang.String">
+		select PARAM_VALUE from t_sys_param
+		 where PARAM_KEY = #{paramKey}
+	</select>
+	
+	<update id="updateShelf">
+		update t_ftts_shelf  
+		<set> 
+			<if test="map.hardWareVersion!=null and map.hardWareVersion!=''">HARDWARE_VER = #{map.hardWareVersion},</if>  
+			<if test="map.softWareVersion!=null and map.softWareVersion!=''">SOFTWARE_VER = #{map.softWareVersion},</if>  
+			<if test="map.tu!=null and map.tu!=''">SHELF_NO = #{map.tu},</if>  
+		</set>
+		where SHELF_ID = #{map.cardId}
+	</update> 
+	
+	<update id="updateUnit">
+		update t_ftts_unit 
+		<set>  
+			<if test="map.hardWareVersion!=null and map.hardWareVersion!=''">HARDWARE_VER = #{map.hardWareVersion},</if>  
+			<if test="map.softWareVersion!=null and map.softWareVersion!=''">SOFTWARE_VER = #{map.softWareVersion},</if>  
+			<if test="map.otdrType!=null and map.otdrType!=''">OTDR_TYPE = #{map.otdrType},</if>  
+			<if test="map.waveLen!=null and map.waveLen!=''">WAVE_LEN = #{map.waveLen},</if>   
+			<if test="map.status!=null and map.status!=''">STATUS = #{map.status},</if>   
+			<if test="map.tu!=null and map.tu!=''">SHELF_NO = #{map.tu},</if>  
+		</set>
+		where UNIT_ID = #{map.cardId}
+	</update>  
+	
+	<insert id="addShelf" parameterType="hashmap" keyProperty="map.shelfId">
+		INSERT INTO T_FTTS_SHELF(RC_ID,SHELF_NAME,SHELF_NO,
+								SERIAL_NO,HARDWARE_VER,SOFTWARE_VER)
+		VALUES(
+			#{map.rcId},
+			"shelf-1", 
+			#{map.tu},
+			#{map.serialNo},
+			#{map.hardWareVersion},
+			#{map.softWareVersion}
+		)
+	</insert> 
+	
+	<insert id="addSlot" parameterType="hashmap">
+		INSERT INTO T_FTTS_SLOT
+		(SHELF_ID,RC_ID,NAME,SHELF_NO,SLOT_NO)
+		VALUES
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.SHELF_ID},#{item.RC_ID},concat("slot",#{item.SLOT_NO}),
+			#{item.SHELF_NO},#{item.SLOT_NO})
+		</foreach>
+	</insert>
+	 
+ 	<select id="getSlotId" resultType="Integer" parameterType="hashmap"> 
+		SELECT SLOT_ID FROM t_ftts_slot 
+		WHERE RC_ID=#{map.rcId} 
+			and SHELF_ID=#{map.shelfId}
+			and SLOT_NO=#{map.slot} 
+	</select> 
+	 
+	<insert id="addUnit" parameterType="hashmap" keyProperty="map.unitId">
+		INSERT INTO T_FTTS_UNIT
+		(SLOT_ID,SHELF_ID,RC_ID,NAME,SHELF_NO,SLOT_NO,SERIAL_NO,
+		HARDWARE_VER,SOFTWARE_VER,OTDR_TYPE,WAVE_LEN,STATUS)
+		VALUES(
+			#{map.slotId},
+			#{map.shelfId},
+			#{map.rcId},
+			#{map.cardType},
+			#{map.tu},
+			#{map.slot},
+			#{map.serialNo},
+			#{map.hardWareVersion},
+			#{map.softWareVersion},
+			#{map.otdrType},
+			#{map.waveLen},
+			#{map.status}
+		) 
+	</insert>  
+	
+	<insert id="addOSWPort" parameterType="hashmap">  
+		INSERT INTO T_FTTS_PORT
+		(UNIT_ID,SLOT_ID,SHELF_ID,RC_ID,PORT_NO)
+		VALUES
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.UNIT_ID},#{item.SLOT_ID},#{item.SHELF_ID},
+			#{item.RC_ID},#{item.PORT_NO})
+		</foreach> 
+	</insert>  
+	
+	<update id="updateOSWUnit">
+		update t_ftts_unit 
+		set NAME = #{unitName}
+		where UNIT_ID = #{unitId}
+	</update> 
+	
+ 	<select id="isPortUsed" resultType="hashmap" parameterType="hashmap"> 
+		SELECT * FROM t_ftts_port WHERE USE_STATUS =1 and RC_ID=#{rcId} 
+	</select>  
+	
+ 	<delete id="deleteRC" parameterType="hashmap"> 
+		delete from t_ftts_rc where RC_ID=#{rcId} 
+	</delete> 
+	
+ 	<delete id="deleteTestPlan" parameterType="hashmap"> 
+		delete from t_ftts_test_plan where RC_ID=#{rcId} 
+	</delete> 
+	
+	<select id="testRouteExist" resultType="hashmap" parameterType="hashmap"> 
+		SELECT route.* from t_ftts_test_route route
+		left join t_ftts_test_plan plan
+		on  route.TEST_PLAN_ID=plan.TEST_PLAN_ID 
+		WHERE plan.RC_ID=#{rcId}  
+	</select>  
+	
+ 	<delete id="deleteUnit" parameterType="hashmap"> 
+		delete from t_ftts_unit where RC_ID=#{rcId} and SLOT_NO =#{slotNo}
+	</delete>  
+	
+	<select id="getRouteById" resultType="String" parameterType="hashmap"> 
+		SELECT distinct TEST_EQPT_INFO from t_ftts_test_route  
+		WHERE TEST_EQPT_INFO like CONCAT('${rcId}','-','%' )
+		or TEST_EQPT_INFO like CONCAT(',','${rcId}','-','%')
+	</select>  
+	
+	<update id="updateUnitStatus">
+		update t_ftts_unit 
+		<set>    
+			 STATUS = #{status}
+		</set>
+		where  RC_ID=#{rcId} and SLOT_NO =#{slotNo}
+	</update>  
+	
+</mapper>

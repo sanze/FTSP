@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 槽道可用率，综合图表属性配置 -->
+<chartConfig>
+	<slotAvailability_zonghe>
+		<chart>
+			<caption>综合可用率</caption>
+			<numberSuffix>%</numberSuffix>
+			<bgColor>random</bgColor>
+			<bgAlpha>0</bgAlpha>
+			<pieYScale>50</pieYScale>
+			<startingAngle>175</startingAngle>
+			<showBorder>0</showBorder>
+			<smartLineColor>random</smartLineColor>
+			<smartLineThickness>2</smartLineThickness>
+		</chart>
+		<set>
+			<color>random</color>
+		</set>
+	</slotAvailability_zonghe>
+	<!-- 槽道可用率，各类型板卡槽道可用率 -->
+	<slotAvailability>
+		<chart>
+			<caption>各类型板卡槽道可用率</caption>
+			<yAxisName>可用率</yAxisName>
+			<bgColor>random</bgColor>
+			<bgAlpha>0</bgAlpha>
+			<numberSuffix>%</numberSuffix>
+			<imageSave>1</imageSave>
+			<showBorder>0</showBorder>
+			<imageSaveURL>http://www.fusioncharts.com/ExportHandlers/PHP/_FCExporter.php</imageSaveURL>
+		</chart>
+		<set>
+			<color>random</color>
+		</set>
+	</slotAvailability>
+	
+	
+	<portAvailability_zonghe>
+		<chart>
+			<caption>综合可用率</caption>
+			<numberSuffix>%</numberSuffix>
+			<bgColor>random</bgColor>
+			<bgAlpha>0</bgAlpha>
+			<pieYScale>50</pieYScale>
+			<startingAngle>175</startingAngle>
+			<showBorder>0</showBorder>
+			<smartLineColor>random</smartLineColor>
+			<smartLineThickness>2</smartLineThickness>
+		</chart>
+		<set>
+			<color>random</color>
+		</set>
+	</portAvailability_zonghe>
+	<!-- 端口可用率，端口可用率 -->
+	<portAvailability>
+		<chart>
+			<caption>各类端口可用率</caption>
+			<yAxisName>可用率</yAxisName>
+			<bgColor>random</bgColor>
+			<bgAlpha>0</bgAlpha>
+			<numberSuffix>%</numberSuffix>
+			<imageSave>1</imageSave>
+			<showBorder>0</showBorder>
+			<imageSaveURL>http://www.fusioncharts.com/ExportHandlers/PHP/_FCExporter.php</imageSaveURL>
+		</chart>
+		<set>
+			<color>random</color>
+		</set>
+	</portAvailability>
+	
+	
+	
+	<ctpAvailability_zonghe_VC4>
+		<chart>
+			<caption>VC4综合可用率</caption>
+			<numberSuffix>%</numberSuffix>
+			<bgColor>random</bgColor>
+			<bgAlpha>0</bgAlpha>
+			<pieYScale>50</pieYScale>
+			<startingAngle>175</startingAngle>
+			<showBorder>0</showBorder>
+			<smartLineColor>random</smartLineColor>
+			<smartLineThickness>2</smartLineThickness>
+		</chart>
+		<set>
+			<color>random</color>
+		</set>
+	</ctpAvailability_zonghe_VC4>
+	<ctpAvailability_zonghe_VC12>
+		<chart>
+			<caption>VC12综合可用率</caption>
+			<numberSuffix>%</numberSuffix>
+			<bgColor>random</bgColor>
+			<bgAlpha>0</bgAlpha>
+			<pieYScale>50</pieYScale>
+			<startingAngle>175</startingAngle>
+			<showBorder>0</showBorder>
+			<smartLineColor>random</smartLineColor>
+			<smartLineThickness>2</smartLineThickness>
+		</chart>
+		<set>
+			<color>random</color>
+		</set>
+	</ctpAvailability_zonghe_VC12>
+	<!-- 时隙可用率，各类端口时隙可用率 -->
+	<ctpAvailability>
+		<chart>
+			<caption>各类端口时隙可用率</caption>
+			<yAxisName>可用率</yAxisName>
+			<bgColor>random</bgColor>
+			<bgAlpha>0</bgAlpha>
+			<numberSuffix>%</numberSuffix>
+			<imageSave>1</imageSave>
+			<showBorder>0</showBorder>
+			<imageSaveURL>http://www.fusioncharts.com/ExportHandlers/PHP/_FCExporter.php</imageSaveURL>
+		</chart>
+		<categories>
+			<font>Arial</font>
+			<fontSize>12</fontSize>
+		</categories>
+		<dataset_VC4>
+			<seriesname>VC4</seriesname>
+			<alpha>90</alpha>
+			<showValues>1</showValues>
+			<color>random</color>
+		</dataset_VC4>
+		<dataset_VC12>
+			<seriesname>VC12</seriesname>
+			<alpha>90</alpha>
+			<showValues>1</showValues>
+			<color>random</color>
+		</dataset_VC12>
+	</ctpAvailability>
+	
+	
+</chartConfig>

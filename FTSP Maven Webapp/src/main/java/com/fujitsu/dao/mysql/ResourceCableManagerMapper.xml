@@ -1,0 +1,391 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ResourceCableManagerMapper">
+
+<select id="getCables" resultType="hashmap">
+	SELECT tcs.*, SUM(tc.CABLE_LENGTH) as cableLength
+	FROM T_RESOURCE_CABLES tcs LEFT JOIN t_resource_cable tc
+	ON tcs.RESOURCE_CABLES_ID = tc.RESOURCE_CABLES_ID 
+	<where>
+			1=1
+		<if test="map.name != null and map.name != ''">
+			and tcs.DISPLAY_NAME like CONCAT('%','${map.name}','%' )
+		</if>
+		<if test="map.no != null and map.no != ''">
+		    and tcs.CABLES_NO like CONCAT('%','${map.no}','%' ) 
+		</if> 
+	</where>
+	GROUP BY tcs.`RESOURCE_CABLES_ID`
+	<if test="limit>0">
+		LIMIT ${start}, ${limit}
+	</if>
+</select>
+
+<select id="getCablesCount" resultType="Integer">
+	select count(1) as total from T_RESOURCE_CABLES 
+	<where>
+		1=1
+		<if test="map.name != null and map.name != ''">
+			and DISPLAY_NAME like CONCAT('%','${map.name}','%' )
+		</if>
+		<if test="map.no != null and map.no != ''">
+			and CABLES_NO like CONCAT('%','${map.no}','%' ) 
+		</if>
+	</where>
+</select> 
+
+<select id="cablesExist" resultType="hashmap">
+	select * from T_RESOURCE_CABLES 
+	where 
+	 DISPLAY_NAME = #{map.name}   
+	<if test="map.no != null and map.no !=''">
+		OR CABLES_NO = #{map.no}  
+	</if> 
+</select>
+ 
+<insert id="addCables">
+	insert into T_RESOURCE_CABLES(DISPLAY_NAME,CABLES_NO,NOTE) 
+	values(#{map.name},
+		   #{map.no},
+		   #{map.note})
+</insert> 
+
+<select id="modCablesCheck" resultType="hashmap">
+	select * from T_RESOURCE_CABLES 
+	where 
+		RESOURCE_CABLES_ID != #{map.cablesId} 
+      	AND (DISPLAY_NAME = #{map.name}   
+		<if test="map.no != null and map.no !=''">
+    		OR CABLES_NO = #{map.no} 
+		</if>)  
+</select>
+
+<update id="modCables">
+	update T_RESOURCE_CABLES 
+	<set> 
+		DISPLAY_NAME = #{map.name}, 
+		CABLES_NO = #{map.no}, 
+		NOTE = #{map.note} 
+	</set>
+	where RESOURCE_CABLES_ID = #{map.cablesId}
+</update>
+
+<select id="getSubCable" resultType="hashmap">
+	select * from T_RESOURCE_CABLE
+	where  RESOURCE_CABLES_ID = #{cablesId}  
+</select>
+
+<delete id="delCables">
+	delete from T_RESOURCE_CABLES where RESOURCE_CABLES_ID = #{cablesId}
+</delete>
+
+<select id="getCablesInfoById" resultType="hashmap">
+	select * from T_RESOURCE_CABLES 
+	<where>
+		    RESOURCE_CABLES_ID =#{cablesId}
+	</where>
+</select>
+
+<select id="getCableList" resultType="hashmap">
+	select c.*,left(c.BUILD_TIME,10) as buildTime,
+	(select STATION_NAME from T_RESOURCE_STATION where RESOURCE_STATION_ID = A_END) as A_END_STATION_NAME,
+	(select STATION_NAME from T_RESOURCE_STATION where RESOURCE_STATION_ID = Z_END) as Z_END_STATION_NAME,  
+	(CASE WHEN s.CABLES_NO !='' THEN (CONCAT(s.DISPLAY_NAME,'(',s.CABLES_NO,')')) ELSE s.DISPLAY_NAME END) as CABLES,
+	CONCAT(s.DISPLAY_NAME,'[',c.CABLE_NAME,']') as CABLE_NAME_FTTS,c.RESOURCE_CABLE_ID as CABLE_ID
+	from T_RESOURCE_CABLE c left join T_RESOURCE_CABLES s on c.RESOURCE_CABLES_ID=s.RESOURCE_CABLES_ID
+	<where>
+	1=1
+		<if test="map.name != null and map.name != ''">
+			and s.DISPLAY_NAME like CONCAT('%','${map.name}','%' )
+		</if>
+		<if test="map.no != null and map.no != ''">
+			and s.CABLES_NO like CONCAT('%','${map.no}','%' )
+		</if>
+		<if test="map.cName != null and map.cName != ''">
+			and c.CABLE_NAME like CONCAT('%','${map.cName}','%' )
+		</if> 
+		<if test="map.cNo != null and map.cNo != ''"> 
+			and c.CABLE_NO like CONCAT('%','${map.cNo}','%' ) 
+		</if>
+		<if test="map.comboCover != null and map.comboCover != ''"> 
+			and c.CABLE_COVER = #{map.comboCover} 
+		</if> 
+		<if test="map.cableType !=null and map.cableType !=''"> 
+			and c.CABLE_TYPE like CONCAT('%','${map.cableType}','%' ) 
+		</if> 
+		<if test="map.comboType != null and map.comboType != ''"> 
+			and c.CABLE_FIBER_TYPE = #{map.comboType} 
+		</if> 
+		<if test="map.aStationId != null and map.aStationId >0"> 
+			and c.A_END = #{map.aStationId} 
+		</if>
+		<if test="map.zStationId != null and map.zStationId >0">  
+			and c.Z_END = #{map.zStationId} 
+		</if>
+		<if test="map.cablesId != null and map.cablesId >0">
+			and c.RESOURCE_CABLES_ID = #{map.cablesId}
+		</if>
+		<if test="map.DIRECTION == 1">
+			or ( 1=1
+			<if test="map.aStationId != null and map.aStationId >0">
+				and c.Z_END = #{map.aStationId}
+			</if>
+			<if test="map.zStationId != null and map.zStationId >0">
+			  	and c.A_END = #{map.zStationId}
+			</if>
+			)
+		</if>
+	</where>
+	<if test="limit>0">
+		LIMIT ${start}, ${limit}
+	</if>
+</select>
+
+<select id="getCableListCount" resultType="int">
+	select count(1) as total 
+	from T_RESOURCE_CABLE c left join T_RESOURCE_CABLES s on c.RESOURCE_CABLES_ID=s.RESOURCE_CABLES_ID
+	<where>
+	1=1
+		<if test="map.name != null and map.name != ''">
+			and s.DISPLAY_NAME like CONCAT('%','${map.name}','%' )
+		</if>
+		<if test="map.no != null and map.no != ''">
+			and s.CABLES_NO like CONCAT('%','${map.no}','%' )
+		</if>
+		<if test="map.cName != null and map.cName != ''">
+			and CABLE_NAME like CONCAT('%','${map.cName}','%' )
+		</if> 
+		<if test="map.cNo != null and map.cNo != ''"> 
+			and CABLE_NO like CONCAT('%','${map.cNo}','%' ) 
+		</if>
+		<if test="map.comboCover != null and map.comboCover != ''"> 
+			and CABLE_COVER = #{map.comboCover} 
+		</if> 
+		<if test="map.cableType !=null and map.cableType !=''"> 
+			and CABLE_TYPE like CONCAT('%','${map.cableType}','%' ) 
+		</if> 
+		<if test="map.comboType != null and map.comboType != ''"> 
+			and CABLE_FIBER_TYPE = #{map.comboType} 
+		</if> 
+		<if test="map.aStationId != null and map.aStationId >0"> 
+			and A_END = #{map.aStationId} 
+		</if>
+		<if test="map.zStationId != null and map.zStationId >0">  
+			and Z_END = #{map.zStationId} 
+		</if>
+		<if test="map.cablesId != null and map.cablesId >0">
+			and c.RESOURCE_CABLES_ID = #{map.cablesId}
+		</if>
+	</where>
+</select>
+
+<select id="getAllCodeNames" resultType="hashmap">
+	select RESOURCE_CABLES_ID as CODE_NAME_ID,
+		DISPLAY_NAME as NAME,
+		CABLES_NO as CODE 
+		from T_RESOURCE_CABLES   
+</select>
+
+<select id="cableExist" resultType="hashmap">
+	select * from T_RESOURCE_CABLE  
+	where  
+	RESOURCE_CABLES_ID = #{map.cablesId}
+	and (CABLE_NAME = #{map.cName}   
+	<if test="map.cableNo != null and map.cableNo !=''">
+		OR CABLE_NO = #{map.cableNo}  
+	</if>)  
+</select>
+
+<select id="getCableInfo" resultType="hashmap">
+	select *,
+ 	left(BUILD_TIME,10) as buildTime,
+ 	(select STATION_NAME from T_RESOURCE_STATION where RESOURCE_STATION_ID = A_END) as A_END_STATION_NAME,
+	(select STATION_NAME from T_RESOURCE_STATION where RESOURCE_STATION_ID = Z_END) as Z_END_STATION_NAME
+	from T_RESOURCE_CABLE where RESOURCE_CABLE_ID=#{cableId}
+</select>
+
+<insert id="addCable" keyProperty="map.newId">
+	insert into T_RESOURCE_CABLE(RESOURCE_CABLES_ID,CABLE_NAME,CABLE_NO,CABLE_LENGTH, 
+	CABLE_FIBER_COUNT,CABLE_TYPE,CABLE_FIBER_TYPE,CABLE_COVER, A_END, Z_END,
+	NOTE,BUILD_TIME,ATT_COEFFICIENT_EXPERIENCE,ATT_COEFFICIENT_THEORY) 
+	values(#{map.cablesId},
+		   #{map.cName},
+		   #{map.cNo}, 
+ 	       <choose>
+			  <when test="map.length_>0.0"> #{map.length_}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>, 
+     	   <choose>
+			  <when test="map.fiberCount!=-99"> #{map.fiberCount}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>, 	 
+		   #{map.cableType},
+	   	   #{map.comboType}, 	
+ 	       #{map.comboCover}, 	
+     	   <choose>
+			  <when test="map.aStationId>0"> #{map.aStationId}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>, 
+     	   <choose>
+			  <when test="map.zStationId>0"> #{map.zStationId}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>,  
+		   #{map.note},
+		    <choose>
+			  <when test="map.time!=null and map.time!=''"> #{map.time}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>, 
+     	   <choose>
+			  <when test="map.attExper>0.0"> #{map.attExper}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>,  
+     	   <choose>
+			  <when test="map.attTheory>0.0"> #{map.attTheory}</when>
+			  <otherwise>null</otherwise>
+     	   </choose>)
+</insert>
+
+<insert id="addFiber">
+	insert into T_RESOURCE_FIBER(RESOURCE_CABLE_ID,FIBER_NO,ATT_BUILD,ATT_VALUE) 
+	values(#{cableId},#{cableFiberNumber},
+	<choose>
+		<when test="map.attBuild>0.0">#{map.attBuild}</when>
+		<otherwise>null</otherwise>
+   	</choose>,
+    <choose>
+		<when test="map.attValue>0.0"> #{map.attValue}</when>
+		<otherwise>null</otherwise>
+     </choose>)
+</insert>
+
+<select id="modCableCheck" resultType="hashmap">
+	select * from T_RESOURCE_CABLE
+	where 
+		RESOURCE_CABLES_ID = #{map.cablesId} 
+		AND RESOURCE_CABLE_ID != #{map.cableId} 
+      	AND (CABLE_NAME = #{map.cName}   
+		<if test="map.cNo != null and map.cNo !=''">
+    		OR CABLE_NO = #{map.cNo} 
+		</if>)  
+</select>
+
+<update id="modifyCable">
+	update T_RESOURCE_CABLE 
+	<set>
+		RESOURCE_CABLES_ID=#{map.cablesId},
+		CABLE_NAME = #{map.cName},
+		CABLE_NO = #{map.cNo},
+		<if test="map.length_ != null and map.length_ >0">
+			CABLE_LENGTH = #{map.length_},
+		</if>
+		<if test="map.fiberCount != null and map.fiberCount >0">
+			CABLE_FIBER_COUNT = #{map.fiberCount},
+		</if>
+		<if test="map.cableType != null">
+			CABLE_TYPE = #{map.cableType},
+		</if> 
+		CABLE_FIBER_TYPE = #{map.comboType}, 
+		CABLE_COVER = #{map.comboCover},
+		<if test="map.aStationId != null and map.aStationId>0">
+			A_END = #{map.aStationId},
+		</if>
+		<if test="map.zStationId != null and map.zStationId>0">
+			Z_END = #{map.zStationId},
+		</if> 
+		<if test="map.time!=null and map.time!=''"> 
+			BUILD_TIME = #{map.time},  
+		</if>
+		<if test="map.attTheory != null and map.attTheory>0">
+			ATT_COEFFICIENT_THEORY = #{map.attTheory},
+		</if> 
+		<if test="map.attExper!=null and map.attExper>0">
+			ATT_COEFFICIENT_EXPERIENCE = #{map.attExper},  
+		</if> 
+		NOTE = #{map.note} 
+	</set>
+	where RESOURCE_CABLE_ID = #{map.cableId}
+</update>
+
+<select id="getLinkById" resultType="hashmap">
+	select * from T_RESOURCE_CABLE c right join T_RESOURCE_FIBER f
+	on c.RESOURCE_CABLE_ID = f.RESOURCE_CABLE_ID 
+	right join T_BASE_LINK l 
+	on  f.RESOURCE_FIBER_ID = l.RESOURCE_FIBER_ID
+	where c.RESOURCE_CABLE_ID = #{cableId}
+</select>
+
+<select id="getOdfById" resultType="hashmap">
+	select * from T_RESOURCE_CABLE c right join T_RESOURCE_FIBER f
+	on c.RESOURCE_CABLE_ID = f.RESOURCE_CABLE_ID 
+	right join T_RESOURCE_ODF o 
+	on  f.RESOURCE_FIBER_ID = o.RESOURCE_FIBER_ID
+	where c.RESOURCE_CABLE_ID = #{cableId}
+</select>
+
+<delete id="deleteFiber">
+	delete from T_RESOURCE_FIBER where RESOURCE_CABLE_ID = #{cableId} 
+</delete>
+
+<delete id="deleteCable"> 
+	delete from T_RESOURCE_CABLE where RESOURCE_CABLE_ID = #{cableId} 
+</delete> 
+
+<select id="getFiberList" resultType="hashmap">
+	SELECT f.*,c.ATT_COEFFICIENT_EXPERIENCE as attExper,
+	c.ATT_COEFFICIENT_THEORY as attTheory,
+	GROUP_CONCAT(tbk.DISPLAY_NAME) AS linkName
+	FROM T_RESOURCE_FIBER f 
+	LEFT JOIN t_resource_cable c ON f.RESOURCE_CABLE_ID=c.RESOURCE_CABLE_ID 
+	LEFT JOIN t_base_link tbk ON f.RESOURCE_FIBER_ID=tbk.RESOURCE_FIBER_ID 
+	<if test="cableId!=null">
+		where f.RESOURCE_CABLE_ID = #{cableId}
+	</if>
+	GROUP BY f.RESOURCE_FIBER_ID
+	<if test="limit!=null and limit>0">
+		LIMIT ${start}, ${limit}
+	</if>
+</select>
+
+<select id="getFiberListByCableId" resultType="hashmap">
+    SELECT * FROM t_resource_fiber
+    <if test="cableId!=null">
+        WHERE RESOURCE_CABLE_ID = #{cableId}
+    </if>
+    <if test="limit!=null and limit>0">
+        LIMIT ${start}, ${limit}
+    </if>
+</select>
+
+<select id="countFiberList" resultType="Integer">
+	select COUNT(1) from T_RESOURCE_FIBER f  
+	<if test="cableId!=null">
+		where f.RESOURCE_CABLE_ID = #{cableId}
+	</if>
+</select>  
+
+<update id="modifyFiberResource">
+	update T_RESOURCE_FIBER 
+	<set>
+		<if test="map.FIBER_NAME != null">FIBER_NAME = #{map.FIBER_NAME},</if>
+		<if test="map.ATT!=null and map.ATT!=''">ATT = #{map.ATT},</if>
+		<if test="map.ATT_VALUE!=null and map.ATT_VALUE!=''">ATT_VALUE = #{map.ATT_VALUE},</if>  
+		<if test="map.ATT_BUILD!=null and map.ATT_BUILD!=''">ATT_BUILD=#{map.ATT_BUILD},</if>  
+		<if test="map.NOTE!=null">NOTE= #{map.NOTE}</if>  
+	</set>
+		where RESOURCE_FIBER_ID = #{map.RESOURCE_FIBER_ID} 
+</update>  
+
+<select id="countFiberRelateLink" resultType="Integer">
+	SELECT COUNT(1) FROM T_RESOURCE_FIBER f
+	RIGHT JOIN T_BASE_LINK l 
+	ON  f.RESOURCE_FIBER_ID = l.RESOURCE_FIBER_ID
+	WHERE f.RESOURCE_CABLE_ID = #{cableId}
+	AND FIBER_NO = #{fiberNo}
+</select>  
+
+<delete id="deleteFiberList"> 
+	delete from T_RESOURCE_FIBER 
+	where RESOURCE_CABLE_ID = #{cableId} 
+	and FIBER_NO = #{fiberNo}
+</delete>  
+</mapper>

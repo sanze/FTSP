@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Items>
+<Item><key>perfectUpperBound</key><value>0</value></Item>
+<Item><key>excellentLowerBound</key><value>1</value></Item>
+<Item><key>excellentUpperBound</key><value>2</value></Item>
+<Item><key>goodLowerBound</key><value>3</value></Item>
+<Item><key>goodUpperBound</key><value>4</value></Item>
+<Item><key>averageLowerBound</key><value>5</value></Item>
+<Item><key>averageUpperBound</key><value>6</value></Item>
+<Item><key>badLowerBounder</key><value>7</value></Item>
+<Item><key>SDHDifferent</key><value>0.5</value></Item>
+<Item><key>WDMDifferent</key><value>0.2</value></Item>
+<Item><key>一个性能项重要预警</key><value>3</value></Item>
+<Item><key>一个性能项次要预警</key><value>2</value></Item>
+<Item><key>一个性能项一般预警</key><value>1</value></Item>
+<Item><key>一个性能差值改善判定</key><value>-1</value></Item>
+<Item><key>一个性能差值劣化判定</key><value>1</value></Item>
+<Item><key>一个割接期间紧急告警（STM端口）</key><value>5</value></Item>
+<Item><key>一个割接期间重要告警（STM端口）</key><value>4</value></Item>
+<Item><key>一个割接期间次要告警（STM端口）</key><value>3</value></Item>
+<Item><key>一个割接期间提示告警（STM端口）</key><value>2</value></Item>
+<Item><key>一个割接期间紧急告警（非STM端口）</key><value>2</value></Item>
+<Item><key>一个割接期间重要告警（非STM端口）</key><value>2</value></Item>
+<Item><key>一个割接期间次要告警（非STM端口）</key><value>1</value></Item>
+<Item><key>一个割接期间提示告警（非STM端口）</key><value>1</value></Item>
+<Item><key>一个割接期间未恢复的倒换事件</key><value>3</value></Item>
+</Items>

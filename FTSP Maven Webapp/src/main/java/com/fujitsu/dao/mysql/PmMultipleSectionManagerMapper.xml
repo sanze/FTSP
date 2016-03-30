@@ -1,0 +1,1193 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.PmMultipleSectionManagerMapper">
+	<!--wangjian -->
+	<!-- 查询电路生成的任务页面 --> 
+	<select id="selectAllEMS" resultType="hashmap"
+		parameterType="Integer">
+		select 	*
+		FROM 	t_base_ems_connection 			
+		where 	is_del = 0
+		<if test = "emsGroupId != 0 and emsGroupId != -1">
+		and  	BASE_EMS_GROUP_ID = #{emsGroupId}
+		</if>
+		<if test = "emsGroupId == -1">
+		and  	BASE_EMS_GROUP_ID is null
+		</if>
+	</select>
+	
+	<!-- 获取网管分组 --> 
+	<select id="selectAllGroup" resultType="hashmap">
+		select * from T_BASE_EMS_GROUP where IS_DEL = 0
+	</select>
+
+	<!-- 查询干线信息 --> 
+	<select id="selectTrunkLine" resultType="hashmap">
+		select 	tk.*,
+				tc.DISPLAY_NAME as EMS_NAME,
+				tc.TYPE,
+				(select 	tg.GROUP_NAME 
+					from 	t_base_ems_group tg 
+					where 	tg.BASE_EMS_GROUP_ID = tc.BASE_EMS_GROUP_ID) as GROUP_NAME
+		from 	t_pm_trunk_line tk,
+				t_base_ems_connection tc
+		where	tk.BASE_EMS_CONNECTION_ID = tc.BASE_EMS_CONNECTION_ID
+		<if test = "map.ID!= null">
+		and tc.BASE_EMS_CONNECTION_ID in
+		<foreach collection="map.ID" index="index" item="list"
+					open="(" close=")" separator=",">
+					${list}
+		</foreach>
+		</if>
+		order by tc.BASE_EMS_GROUP_ID,tc.BASE_EMS_CONNECTION_ID,tk.PM_TRUNK_LINE_ID asc
+		<if test = " map.start != null and map.limit != null">
+			limit #{map.start},#{map.limit}
+		</if>
+	</select>
+	
+	<!-- 查询干线信息数量 --> 
+	<select id="selectTrunkLineTotal" resultType="hashmap">
+		select 	count(*) as total
+		from 	t_pm_trunk_line tk,
+				t_base_ems_connection tc
+		where	tk.BASE_EMS_CONNECTION_ID = tc.BASE_EMS_CONNECTION_ID
+		<if test = "map.ID!= null">
+		and tc.BASE_EMS_CONNECTION_ID in
+			<foreach collection="map.ID" index="index" item="list"
+					open="(" close=")" separator=",">
+					${list}
+			</foreach>
+		</if>
+	</select>
+
+	<!-- 新增干线信息 --> 
+	<insert id="insertTrunkLine"  parameterType="hashmap"  keyProperty="map.PM_TRUNK_LINE_ID">
+		insert into t_pm_trunk_line(
+			PM_TRUNK_LINE_ID,
+			BASE_EMS_CONNECTION_ID,
+			DISPLAY_NAME,
+			IP
+		) values (
+			null,
+			<choose>
+				<when test="map.BASE_EMS_CONNECTION_ID != null">#{map.BASE_EMS_CONNECTION_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.DISPLAY_NAME != null">#{map.DISPLAY_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.IP != null">#{map.IP}</when>
+				<otherwise>null</otherwise>
+			</choose>
+		)
+	</insert>
+	
+	<!-- 查询光复用段 --> 
+	<select id="selectMultipleSection" resultType="hashmap">
+		select 	tps.PM_MULTI_SEC_ID,
+				tps.GROUP_NAME,
+				tps.SEC_NAME,
+				tps.STD_WAVE,
+				tps.ACTULLY_WAVE,
+				tps.DIRECTION,
+				tps.PM_TRUNK_LINE_ID,
+				CAST(tps.PM_UPDATE_TIME AS char) as PM_UPDATE_TIME,
+				tps.SEC_STATE,
+				CAST(tps.ROUTE_UPDATE_TIME AS char) as ROUTE_UPDATE_TIME,
+				CAST(tps.PM_HISTORY_TIME AS char) as PM_HISTORY_TIME,
+				tps.SEQUENCE,
+				tpl.DISPLAY_NAME as TRUNK_NAME,
+				tbc.TYPE,
+				tbc.DISPLAY_NAME as EMS_NAME,
+				tbc.BASE_EMS_CONNECTION_ID,
+				tbc.FACTORY,
+				(select tg.GROUP_NAME 
+				  from 	t_base_ems_group tg 
+				 where 	tg.BASE_EMS_GROUP_ID = tbc.BASE_EMS_GROUP_ID) as EMS_GROUP_NAME
+		from 	t_pm_multi_sec  tps,
+				t_pm_trunk_line tpl,
+				t_base_ems_connection tbc
+		where	tps.PM_TRUNK_LINE_ID = tpl.PM_TRUNK_LINE_ID
+	 	and		tpl.BASE_EMS_CONNECTION_ID = tbc.BASE_EMS_CONNECTION_ID
+	 	<if test = "map.ID!= null">
+			and tbc.BASE_EMS_CONNECTION_ID in
+			<foreach collection="map.ID" index="index" item="list"
+						open="(" close=")" separator=",">
+						${list}
+			</foreach>
+		</if>
+		<if test = " map.PM_TRUNK_LINE_ID != null and map.PM_TRUNK_LINE_ID != '' ">
+		and		tpl.PM_TRUNK_LINE_ID = #{map.PM_TRUNK_LINE_ID}
+		</if>
+		<if test = " map.SEC_NAME != null and map.SEC_NAME != ''">
+		and		tps.SEC_NAME like "%"#{map.SEC_NAME}"%"
+		</if>
+		order by tbc.BASE_EMS_GROUP_ID,tbc.BASE_EMS_CONNECTION_ID,tpl.PM_TRUNK_LINE_ID,tps.SEQUENCE,tps.PM_MULTI_SEC_ID asc
+		<if test = " map.start != null and map.limit != null">
+		limit #{map.start},#{map.limit}
+		</if>
+		
+	</select>
+
+	<!-- 查询光复用段总数 --> 
+	<select id="selectMultipleSectionTotal" resultType="hashmap">
+		select 	count(*) as total
+		from 	t_pm_multi_sec  tps,
+				t_pm_trunk_line tpl,
+				t_base_ems_connection tbc
+		where	tps.PM_TRUNK_LINE_ID = tpl.PM_TRUNK_LINE_ID
+	 	and		tpl.BASE_EMS_CONNECTION_ID = tbc.BASE_EMS_CONNECTION_ID
+		<if test = "map.ID!= null">
+			and tbc.BASE_EMS_CONNECTION_ID in
+			<foreach collection="map.ID" index="index" item="list"
+						open="(" close=")" separator=",">
+						${list}
+				</foreach>
+		</if>
+		<if test = " map.PM_TRUNK_LINE_ID != null and map.PM_TRUNK_LINE_ID !='' ">
+		and		tpl.PM_TRUNK_LINE_ID = #{map.PM_TRUNK_LINE_ID}
+		</if>
+		<if test = " map.SEC_NAME != null and map.SEC_NAME != ''">
+		and		tps.SEC_NAME like "%"#{map.SEC_NAME}"%"
+		</if>
+	</select>
+	
+	
+	<!-- 新增光复用段 --> 
+	<insert id="insertMultipleSection" parameterType="hashmap"  keyProperty="map.PM_MULTI_SEC_ID">
+		insert into t_pm_multi_sec(
+			PM_MULTI_SEC_ID,
+			SEC_NAME,
+			STD_WAVE,
+			ACTULLY_WAVE,
+			DIRECTION,
+			PM_TRUNK_LINE_ID,
+			ROUTE_UPDATE_TIME
+		) values (
+			null,
+			<choose>
+				<when test="map.SEC_NAME != null">#{map.SEC_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.STD_WAVE != null">#{map.STD_WAVE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.ACTULLY_WAVE != null">#{map.ACTULLY_WAVE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.DIRECTION != null">#{map.DIRECTION}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PM_TRUNK_LINE_ID != null">#{map.PM_TRUNK_LINE_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.ROUTE_UPDATE_TIME != null">#{map.ROUTE_UPDATE_TIME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+		)
+	</insert>
+	
+	<!-- 查询光复用段所含网元个数 --> 
+	<select id="selectMultipleSectionNe" resultType="hashmap">
+		select tsn.MULTI_SEC_NE_ID,
+		       tsn.MULTI_SEC_ID,
+		       tbn.BASE_NE_ID,
+		       (select GROUP_NAME
+		          from t_base_ems_group tbg
+		         where tbg.BASE_EMS_GROUP_ID = tec.BASE_EMS_GROUP_ID) as EMS_GROUP_NAME,
+		       tec.DISPLAY_NAME as EMS_NAME,
+		       tbn.DISPLAY_NAME as NE_NAME,
+		       tbn.PRODUCT_NAME,
+		       (select trs.STATION_NAME
+		          from t_resource_room tro, t_resource_station trs
+		         where tro.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+		           and trs.RESOURCE_STATION_ID = tro.RESOURCE_STATION_ID) as STATION_NAME,
+		       (select tra.AREA_NAME
+		          from t_resource_room    tro,
+		               t_resource_station trs,
+		               t_resource_area    tra
+		         where tro.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+		           and trs.RESOURCE_STATION_ID = tro.RESOURCE_STATION_ID
+		           and tra.RESOURCE_AREA_ID = trs.RESOURCE_AREA_ID) as AREA_NAME
+		  from t_pm_multi_sec_ne tsn, t_base_ne tbn, t_base_ems_connection tec
+		 where tsn.NE_ID = tbn.BASE_NE_ID
+		   and tbn.BASE_EMS_CONNECTION_ID = tec.BASE_EMS_CONNECTION_ID
+		   <if test="map.MULTI_SEC_ID != null" >
+		   and	tsn.MULTI_SEC_ID = #{map.MULTI_SEC_ID}
+		   </if>
+		    <if test="map.DIRECTION != null" >
+		   	and	tsn.DIRECTION = #{map.DIRECTION}
+		   </if>
+		 order by tsn.SEQUENCE asc
+		
+	</select>
+	
+	<!--根据网元id查询网元相关信息 --> 
+	<select id="selectByNeId" resultType="hashmap">
+		select 
+		       tbn.BASE_NE_ID,
+		       (select GROUP_NAME
+		          from t_base_ems_group tbg
+		         where tbg.BASE_EMS_GROUP_ID = tec.BASE_EMS_GROUP_ID) as EMS_GROUP_NAME,
+		       tec.DISPLAY_NAME as EMS_NAME,
+		       tbn.DISPLAY_NAME as NE_NAME,
+		       tbn.PRODUCT_NAME,
+		       (select trs.STATION_NAME
+		          from t_resource_room tro, t_resource_station trs
+		         where tro.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+		           and trs.RESOURCE_STATION_ID = tro.RESOURCE_STATION_ID) as STATION_NAME,
+		       (select tra.AREA_NAME
+		          from t_resource_room    tro,
+		               t_resource_station trs,
+		               t_resource_area    tra
+		         where tro.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+		           and trs.RESOURCE_STATION_ID = tro.RESOURCE_STATION_ID
+		           and tra.RESOURCE_AREA_ID = trs.RESOURCE_AREA_ID) as AREA_NAME
+		  from t_base_ne tbn, t_base_ems_connection tec
+		 where tbn.BASE_EMS_CONNECTION_ID = tec.BASE_EMS_CONNECTION_ID
+		   <if test="map.BASE_NE_ID != null" >
+		   and	tbn.BASE_NE_ID = #{map.BASE_NE_ID}
+		   </if>
+		
+	</select>
+	
+	<!-- 新增光复用段 --> 
+	<insert id="insertMulSecNe" keyProperty="map.MULTI_SEC_NE_ID" >
+		insert into t_pm_multi_sec_ne(
+			MULTI_SEC_NE_ID,
+			MULTI_SEC_ID,
+			NE_ID,
+			SEQUENCE,
+			DIRECTION,
+			NE_NAME
+		) values (
+			null,
+			<choose>
+				<when test="map.MULTI_SEC_ID != null">#{map.MULTI_SEC_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.NE_ID != null">#{map.NE_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SEQUENCE != null">#{map.SEQUENCE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.DIRECTION != null">#{map.DIRECTION}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.NE_NAME != null">#{map.NE_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+		)
+	</insert>
+	
+	<!-- 查询去重的光放型号 --> 
+	<select id="selectMultipleModel" resultType="hashmap">
+		select distinct MODEL  from t_pm_std_opt_amp		
+	</select>
+	
+	<!-- 查询光放段 --> 
+	<select id="selectStandOptVal" resultType="hashmap">
+		select * from t_pm_std_opt_amp	
+		<where>
+		<if test="map.FACTORY != null and map.FACTORY != ''">
+			FACTORY = #{map.FACTORY}
+		</if>
+		<if test="map.TYPE != null and map.TYPE != ''">
+			AND TYPE = #{map.TYPE}
+		</if>
+		<if test="map.MODEL != null and map.MODEL != ''">
+			AND MODEL = #{map.MODEL}
+		</if>
+		</where>
+		limit #{map.start},#{map.limit}
+	</select>
+	
+		<!-- 查询光放段 --> 
+	<select id="selectStandOptValTotal" resultType="hashmap">
+		select count(1) as total from t_pm_std_opt_amp		
+		<where>
+		<if test="map.FACTORY != null and map.FACTORY != ''">
+			FACTORY = #{map.FACTORY}
+		</if>
+		<if test="map.TYPE != null and map.TYPE != ''">
+			AND TYPE = #{map.TYPE}
+		</if>
+		<if test="map.MODEL != null and map.MODEL != ''">
+			AND MODEL = #{map.MODEL}
+		</if>
+		</where>
+	</select>
+	
+	<!-- 新增光放 --> 
+	<insert id="insertStandOptVal"  keyProperty="map.PM_STD_OPT_AMP_ID">
+		insert into t_pm_std_opt_amp(
+			PM_STD_OPT_AMP_ID,
+			FACTORY,
+			TYPE,
+			MODEL,
+			MAX_OUT,
+			MIN_GAIN,
+			MAX_GAIN,
+			TYPICAL_GAIN,
+			MAX_IN,
+			MIN_IN,
+			TYPICAL_IN
+		) values (
+			null,
+			<choose>
+				<when test="map.FACTORY != null">#{map.FACTORY}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.TYPE != null">#{map.TYPE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.MODEL != null">#{map.MODEL}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.MAX_OUT != null">#{map.MAX_OUT}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.MIN_GAIN != null">#{map.MIN_GAIN}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.MAX_GAIN != null">#{map.MAX_GAIN}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.TYPICAL_GAIN != null">#{map.TYPICAL_GAIN}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.MAX_IN != null">#{map.MAX_IN}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.MIN_IN != null">#{map.MIN_IN}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.TYPICAL_IN != null">#{map.TYPICAL_IN}</when>
+				<otherwise>null</otherwise>
+			</choose>
+		)
+	</insert>
+	
+	<!-- 查询光放段根据网元id --> 
+	<select id="selectPtpRouteList" resultType="hashmap">
+		select * ,
+				(select tu.DISPLAY_NAME from t_base_unit tu, t_base_ptp tp 
+					where tu.BASE_UNIT_ID = tp.BASE_UNIT_ID and tp.BASE_PTP_ID = ptp_id and ROUTE_TYPE =1) as EQUIP_TYPE,
+				(select tu.DISPLAY_NAME from t_base_unit tu, t_base_ptp tp 
+					where tu.BASE_UNIT_ID = tp.BASE_UNIT_ID and tp.BASE_PTP_ID = SUB_ptp_id and SUB_ROUTE_TYPE =1) as SUB_EQUIP_TYPE 				
+		from t_pm_multi_sec_ptp 
+		<where>
+		<if test="map.MULTI_SEC_NE_ID != null ">
+			MULTI_SECT_NE_ROUTE_ID = #{map.MULTI_SEC_NE_ID}
+		</if>
+		</where>
+		order by SEQUENCE asc
+	</select>
+	<!-- 查询光放段根据网元id --> 
+	<select id="selectSubPtpRouteList" resultType="hashmap">
+		select * from t_pm_multi_sec_ptp 
+		<where>
+		<if test="map.MULTI_SEC_NE_ID != null ">
+			MULTI_SECT_NE_ROUTE_ID = #{map.MULTI_SEC_NE_ID}
+		</if>
+		</where>
+		
+		order by SEQUENCE asc
+	</select>
+	
+	<!-- 根据网元厂家查询网元型号 --> 
+	<select id="selectModelType" resultType="hashmap">
+		select 	toa.PM_STD_OPT_AMP_ID,
+				toa.MODEL
+		from 	t_pm_std_opt_amp toa
+		<if test="map.BASE_NE_ID != null and map.BASE_NE_ID !=''">
+		        , t_base_ne tbn
+		</if>
+		where	1=1
+		<if test="map.BASE_NE_ID != null and map.BASE_NE_ID !=''">
+			AND 	toa.FACTORY = tbn.FACTORY
+			AND 	tbn.BASE_NE_ID = #{map.BASE_NE_ID}
+		</if>
+		<if test="map.FACTORY != null and map.FACTORY !=''">
+			AND 	toa.FACTORY = #{map.FACTORY}
+		</if>
+	</select>
+	
+	<!-- 更新光放段Ptp路由信息 --> 
+	<update id="updateMultiplePtp"  parameterType="hashMap" >
+	  	update t_pm_multi_sec_ptp
+		  <set>			
+			<if test="map.MULTI_SEC_ID != null">
+			 MULTI_SEC_ID = #{map.MULTI_SEC_ID},
+			</if>
+			<if test="map.MULTI_SECT_NE_ROUTE_ID != null">
+			 MULTI_SECT_NE_ROUTE_ID = #{map.MULTI_SECT_NE_ROUTE_ID},
+			</if>
+			<if test="map.PTP_ID != null">
+			 PTP_ID = #{map.PTP_ID},
+			</if>
+			<if test="map.SEQUENCE != null">
+			 SEQUENCE = #{map.SEQUENCE},
+			</if>
+			<if test="map.EQUIP_NAME != null">
+			 EQUIP_NAME = #{map.EQUIP_NAME},
+			</if>
+			<if test="map.PTP_NAME != null">
+			 PTP_NAME = #{map.PTP_NAME},
+			</if>
+			<if test="map.PM_TYPE != null">
+			 PM_TYPE = #{map.PM_TYPE},
+			</if>
+			<if test="map.NOTE != null">
+			 NOTE = #{map.NOTE},
+			</if>
+			<if test="map.CALCULATE_POINT != null and map.CALCULATE_POINT != ''">
+			 CALCULATE_POINT = #{map.CALCULATE_POINT},
+			</if>
+			<if test="map.ROUTE_TYPE != null">
+			 ROUTE_TYPE = #{map.ROUTE_TYPE},
+			</if>
+			<if test="map.SUB_PTP_ID != null">
+			 SUB_PTP_ID = #{map.SUB_PTP_ID},
+			</if>
+			<if test="map.SUB_PTP_NAME != null">
+			 SUB_PTP_NAME = #{map.SUB_PTP_NAME},
+			</if>
+			<if test="map.SUB_PM_TYPE != null">
+			 SUB_PM_TYPE = #{map.SUB_PM_TYPE},
+			</if>
+			<if test="map.SUB_NOTE != null">
+			 SUB_NOTE = #{map.SUB_NOTE},
+			</if>
+			<if test="map.SUB_CALCULATE_POINT != null and map.SUB_CALCULATE_POINT != ''">
+			 SUB_CALCULATE_POINT = #{map.SUB_CALCULATE_POINT},
+			</if>
+			<if test="map.CUT_PM_VALUE != null  ">
+			 CUT_PM_VALUE = #{map.CUT_PM_VALUE},
+			</if>
+			<if test="map.SUB_CUT_PM_VALUE != null ">
+			 SUB_CUT_PM_VALUE = #{map.SUB_CUT_PM_VALUE},
+			</if>
+			<if test="map.SUB_ROUTE_TYPE != null and map.SUB_ROUTE_TYPE != ''  ">
+			 SUB_ROUTE_TYPE = #{map.SUB_ROUTE_TYPE},
+			</if>
+			<if test="map.PM_STD_OPT_AMP_ID != null and map.PM_STD_OPT_AMP_ID != '' ">
+			 PM_STD_OPT_AMP_ID = #{map.PM_STD_OPT_AMP_ID},
+			</if>
+			<if test="map.SUB_PM_STD_OPT_AMP_ID != null and map.SUB_PM_STD_OPT_AMP_ID != ''">
+			 SUB_PM_STD_OPT_AMP_ID = #{map.SUB_PM_STD_OPT_AMP_ID},
+			</if>
+			<if test="map.IS_DEL != null">
+			 IS_DEL = #{map.IS_DEL},
+			</if>
+			<if test="map.PTP_TAG != null">
+			 PTP_TAG = #{map.PTP_TAG},
+			</if>
+			<if test="map.SUB_PTP_TAG != null">
+			 SUB_PTP_TAG = #{map.SUB_PTP_TAG},
+			</if>
+		</set>
+		<where>
+			PM_MULTI_SEC_PTP_ID = #{map.PM_MULTI_SEC_PTP_ID}
+		</where>
+	</update>
+	
+	
+	<!-- 新增光复用段端口信息 --> 
+	<insert id="insertMultiplePtp" >
+		insert into t_pm_multi_sec_ptp(
+			PM_MULTI_SEC_PTP_ID,
+			MULTI_SEC_ID,
+			MULTI_SECT_NE_ROUTE_ID,
+			PTP_ID,
+			EQUIP_NAME,
+			PTP_NAME,
+			PM_TYPE,
+			NOTE,
+			CALCULATE_POINT,
+			ROUTE_TYPE,
+			SUB_PTP_ID,
+			SUB_PTP_NAME,
+			SUB_PM_TYPE,
+			SUB_NOTE,
+			SUB_CALCULATE_POINT,
+			SUB_CUT_PM_VALUE,
+			SUB_ROUTE_TYPE,
+			SEQUENCE,
+			CUT_PM_VALUE,
+			DIRECTION,
+			PM_STD_OPT_AMP_ID,
+			SUB_PM_STD_OPT_AMP_ID,
+			PTP_TAG,
+			SUB_PTP_TAG
+			) values (
+			null,
+			<choose>
+				<when test="map.MULTI_SEC_ID != null">#{map.MULTI_SEC_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.MULTI_SECT_NE_ROUTE_ID != null">#{map.MULTI_SECT_NE_ROUTE_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PTP_ID != null">#{map.PTP_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.EQUIP_NAME != null">#{map.EQUIP_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PTP_NAME != null">#{map.PTP_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PM_TYPE != null">#{map.PM_TYPE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.NOTE != null">#{map.NOTE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.CALCULATE_POINT != null and map.CALCULATE_POINT != ''">#{map.CALCULATE_POINT}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.ROUTE_TYPE != null">#{map.ROUTE_TYPE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_PTP_ID != null and map.SUB_PTP_ID != ''">#{map.SUB_PTP_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_PTP_NAME != null and map.SUB_PTP_NAME != ''">#{map.SUB_PTP_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_PM_TYPE != null and map.SUB_PM_TYPE != ''">#{map.SUB_PM_TYPE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_NOTE != null and map.SUB_NOTE != ''">#{map.SUB_NOTE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_CALCULATE_POINT != null and map.SUB_CALCULATE_POINT != ''">#{map.SUB_CALCULATE_POINT}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_CUT_PM_VALUE != null and map.SUB_CUT_PM_VALUE != ''">#{map.SUB_CUT_PM_VALUE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_ROUTE_TYPE != null and map.SUB_ROUTE_TYPE != ''">#{map.SUB_ROUTE_TYPE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SEQUENCE != null">#{map.SEQUENCE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.CUT_PM_VALUE != null">#{map.CUT_PM_VALUE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.DIRECTION != null">#{map.DIRECTION}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PM_STD_OPT_AMP_ID != null and map.PM_STD_OPT_AMP_ID != ''">#{map.PM_STD_OPT_AMP_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_PM_STD_OPT_AMP_ID != null and map.SUB_PM_STD_OPT_AMP_ID != ''">#{map.SUB_PM_STD_OPT_AMP_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PTP_TAG != null">#{map.PTP_TAG}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.SUB_PTP_TAG != null">#{map.SUB_PTP_TAG}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			
+		)
+	</insert>
+	
+	<!-- 查询光复用段相关信息 --> 
+	<select id="selectMultipleAbout" resultType="hashmap">
+		select tpl.DISPLAY_NAME,tpl.BASE_EMS_CONNECTION_ID,
+				tps.PM_MULTI_SEC_ID,
+				tps.GROUP_NAME,
+				tps.SEC_NAME,
+				tps.STD_WAVE,
+				tps.ACTULLY_WAVE,
+				tps.DIRECTION,
+				tps.PM_TRUNK_LINE_ID,
+				CAST(tps.REFRESH_BEFORE AS char) as REFRESH_BEFORE,
+				CAST(tps.REFRESH_AFTER AS char) as REFRESH_AFTER,
+				CAST(tps.PM_UPDATE_TIME AS char) as PM_UPDATE_TIME,
+				tps.SEC_STATE,
+				tps.SEC_STATE_CUTOVER,
+				CAST(tps.ROUTE_UPDATE_TIME AS char) as ROUTE_UPDATE_TIME,
+				CAST(tps.PM_HISTORY_TIME AS char) as PM_HISTORY_TIME,
+				tps.SEQUENCE
+		from
+				t_pm_multi_sec tps,
+				t_pm_trunk_line tpl
+		where 	tps.PM_TRUNK_LINE_ID = tpl.PM_TRUNK_LINE_ID
+		<if test="map.MULTI_SEC_ID != null ">
+		and		tps.PM_MULTI_SEC_ID = #{map.MULTI_SEC_ID}
+		</if>
+	</select>
+	
+	<!-- 查询光复用段详细信息 --> 
+	<select id="selectMultiplePtpRoute" resultType="hashmap">
+		select tpp.*,
+				tbn.BASE_EMS_CONNECTION_ID,
+				tbn.FACTORY,
+		       (select trs.STATION_NAME
+		          from t_resource_room tro, t_resource_station trs
+		         where tro.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+		           and trs.RESOURCE_STATION_ID = tro.RESOURCE_STATION_ID) as STATION_NAME,
+		       (select tra.AREA_NAME
+		          from t_resource_room    tro,
+		               t_resource_station trs,
+		               t_resource_area    tra
+		         where tro.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+		           and trs.RESOURCE_STATION_ID = tro.RESOURCE_STATION_ID
+		           and tra.RESOURCE_AREA_ID = trs.RESOURCE_AREA_ID) as AREA_NAME,
+		       (select tap.MODEL
+		          from t_pm_std_opt_amp tap
+		         where tap.PM_STD_OPT_AMP_ID = tpp.PM_STD_OPT_AMP_ID) as MODEL,
+		       (select tap.MODEL
+		          from t_pm_std_opt_amp tap
+		         where tap.PM_STD_OPT_AMP_ID = tpp.SUB_PM_STD_OPT_AMP_ID) as SUB_MODEL
+		  from t_pm_multi_sec_ptp tpp, t_pm_multi_sec_ne tpn, t_base_ne tbn
+		 where tpp.MULTI_SECT_NE_ROUTE_ID = tpn.MULTI_SEC_NE_ID
+		   and tpn.NE_ID = tbn.BASE_NE_ID
+		<if test="map.MULTI_SEC_ID != null ">
+			and	tpp.MULTI_SEC_ID = #{map.MULTI_SEC_ID}
+		</if>
+		<if test="map.DIRECTION != null ">
+			and	tpp.DIRECTION = #{map.DIRECTION}
+		</if>
+		order by tpn.SEQUENCE,tpp.SEQUENCE asc
+		<if test="map.limit != null">
+		limit #{map.start},#{map.limit}
+		</if>
+	</select>
+	
+	<!-- 查询光复用段详细信息(报表用) --> 
+	<select id="selectMultiplePtpRouteForReport" resultType="hashmap">
+		select 
+		    tpp . *,
+		    tbn.BASE_EMS_CONNECTION_ID,
+		    tpn.NE_ID,
+		    unit1.BASE_UNIT_ID as UNIT_ID,
+		    concat(unit1.RACK_NO,
+		            '-',
+		            unit1.SHELF_NO,
+		            '-',
+		            unit1.SLOT_NO,
+		            '-',
+		            unit1.DISPLAY_NAME) as UNIT_DISPLAY_NAME,
+		    unit2.BASE_UNIT_ID as SUB_UNIT_ID,
+		    concat(unit2.RACK_NO,
+		            '-',
+		            unit2.SHELF_NO,
+		            '-',
+		            unit2.SLOT_NO,
+		            '-',
+		            unit2.DISPLAY_NAME) as SUB_UNIT_DISPLAY_NAME,
+		    (select 
+		            DISPLAY_NAME
+		        from
+		            t_base_ne ne
+		        where
+		            ne.BASE_NE_ID = tpn.NE_ID) as NE_DISPLAY_NAME,
+		    (select 
+		            tap.MODEL
+		        from
+		            t_pm_std_opt_amp tap
+		        where
+		            tap.PM_STD_OPT_AMP_ID = tpp.PM_STD_OPT_AMP_ID) as MODEL,
+		    (select 
+		            tap.MODEL
+		        from
+		            t_pm_std_opt_amp tap
+		        where
+		            tap.PM_STD_OPT_AMP_ID = tpp.SUB_PM_STD_OPT_AMP_ID) as SUB_MODEL
+		from
+		    t_pm_multi_sec_ptp tpp
+		        left join
+		    t_base_ptp ptp1 ON (ptp1.BASE_PTP_ID = tpp.PTP_ID)
+		        left join
+		    t_base_ptp ptp2 ON (ptp2.BASE_PTP_ID = tpp.SUB_PTP_ID)
+		        left join
+		    t_base_unit unit1 ON (unit1.BASE_UNIT_ID = ptp1.BASE_UNIT_ID)
+		        left join
+		    t_base_unit unit2 ON (unit2.BASE_UNIT_ID = ptp2.BASE_UNIT_ID),
+		    t_pm_multi_sec_ne tpn,
+		    t_base_ne tbn
+		where
+		    tpp.MULTI_SECT_NE_ROUTE_ID = tpn.MULTI_SEC_NE_ID
+		        and tpn.NE_ID = tbn.BASE_NE_ID
+		        <if test="map.MULTI_SEC_ID != null ">
+					and	tpp.MULTI_SEC_ID = #{map.MULTI_SEC_ID}
+				</if>
+				<if test="map.DIRECTION != null ">
+					and	tpp.DIRECTION = #{map.DIRECTION}
+				</if>
+		<choose>
+			<when test="map.DIRECTION != null  and map.DIRECTION==2">
+				order by tpn.SEQUENCE desc, tpp.SEQUENCE desc
+			</when>
+			<when test="map.DIRECTION != null  and map.DIRECTION==1">
+				order by tpn.SEQUENCE , tpp.SEQUENCE asc
+			</when>
+		</choose>
+	</select>
+	
+	<!-- 查询光复用段详细信息(报表用) --> 
+	<select id="selectSimpleMultiplePtpRouteForReport" resultType="hashmap">
+		select 
+		    tpp . *
+		from
+		    t_pm_multi_sec_ptp tpp,
+		    t_pm_multi_sec_ne tpn
+		where
+		    tpp.MULTI_SECT_NE_ROUTE_ID = tpn.MULTI_SEC_NE_ID
+		        <if test="map.MULTI_SEC_ID != null ">
+					and	tpp.MULTI_SEC_ID = #{map.MULTI_SEC_ID}
+				</if>
+				<if test="map.DIRECTION != null ">
+					and	tpp.DIRECTION = #{map.DIRECTION}
+				</if>
+		<choose>
+			<when test="map.DIRECTION != null  and map.DIRECTION==2">
+				order by tpn.SEQUENCE desc, tpp.SEQUENCE desc
+			</when>
+			<when test="map.DIRECTION != null  and map.DIRECTION==1">
+				order by tpn.SEQUENCE , tpp.SEQUENCE asc
+			</when>
+		</choose>
+	</select>
+	
+	<select id="selectMultipleInfoForReport" resultType="hashmap">
+		select 
+		    ms . *,
+		    ec.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		    ec.TYPE as EMS_TYPE,
+		    eg.GROUP_NAME as EMS_GROUP_DISPLAY_NAME,
+		    tl.DISPLAY_NAME as TRUNK_LINE_DISPLAY_NAME,
+		    tl.BASE_EMS_CONNECTION_ID
+		from
+		    t_pm_multi_sec ms,
+		    t_pm_trunk_line tl
+		        left join
+		    t_base_ems_connection ec ON tl.BASE_EMS_CONNECTION_ID = ec.BASE_EMS_CONNECTION_ID
+		        left join
+		    t_base_ems_group eg ON ec.BASE_EMS_GROUP_ID = eg.BASE_EMS_GROUP_ID
+		where
+		    ms.PM_TRUNK_LINE_ID = tl.PM_TRUNK_LINE_ID
+		        and ms.PM_MULTI_SEC_ID in (${multiSecId})
+	</select>
+	
+	<select id="selectMultiplePmInfoForReport" resultType="Integer">
+		select 
+		    max(pm.EXCEPTION_LV)
+		from
+		    ${tableName} pm
+		where
+		    pm.TARGET_TYPE = 7
+		        and pm.BASE_PTP_ID in (select 
+		            msp.PTP_ID as PTP_ID
+		        from
+		            t_pm_multi_sec_ptp msp
+		        where
+		            msp.MULTI_SEC_ID = #{multiSecId}
+		                and msp.ROUTE_TYPE = 1 union select 
+		            msp.SUB_PTP_ID as PTP_ID
+		        from
+		            t_pm_multi_sec_ptp msp
+		        where
+		            msp.MULTI_SEC_ID = #{multiSecId}
+		                and msp.SUB_ROUTE_TYPE = 1)
+		        and pm.RETRIEVAL_TIME between '${startTime}' and '${emdTime}';
+	</select>
+	
+	<select id="getMultiSecDirection" resultType="String">
+		select 
+		    t.DIRECTION
+		from
+		    t_pm_multi_sec t
+		where
+		    t.PM_MULTI_SEC_ID = #{multiSecId}
+	</select>
+	
+	<!-- 按顺序查询光复用段详细信息，用于计算理论值 --> 
+	<select id="selectMultiplePtpList" resultType="hashmap">
+		select tpp.*
+		  from t_pm_multi_sec_ptp tpp,
+		  t_pm_multi_sec_ne tpn
+		 <where>
+		 	 tpp.MULTI_SECT_NE_ROUTE_ID = tpn.MULTI_SEC_NE_ID
+		<if test="map.MULTI_SEC_NE_ID != null ">
+			AND tpp.MULTI_SEC_ID = #{map.MULTI_SEC_ID}
+		</if>
+		<if test="map.DIRECTION != null ">
+			AND	tpp.DIRECTION = #{map.DIRECTION}
+		</if>
+		<if test="map.MULTI_SEC_ID != null ">
+			AND	tpp.MULTI_SEC_ID = #{map.MULTI_SEC_ID}
+		</if>
+		</where>
+		order by tpn.SEQUENCE,tpp.SEQUENCE asc
+	</select>
+	
+	<select id="generateDiagramNend" resultType="hashmap">
+		
+			select
+			PM_DESCRIPTION as pmDesc,
+			PM_VALUE as pmValue,
+			UNIT as unit,
+			date_format(RETRIEVAL_TIME,'%Y-%m-%d') as retrievalTime,
+			DISPLAY_NE as
+			neName,
+			BASE_PTP_ID,
+			DISPLAY_PORT_DESC as portDesc
+			from
+			${tableName}
+			<where>
+				PM_STD_INDEX = #{pmIndex}
+				and
+				unix_timestamp( RETRIEVAL_TIME ) between
+				unix_timestamp( #{searchCond.startTime})
+				and unix_timestamp(
+				#{searchCond.endTime} )
+				and BASE_PTP_ID in
+				<foreach collection="listPort" index="index" item="list"
+					open="(" close=")" separator=",">
+					${list}
+			</foreach>
+			</where>
+	</select>
+	
+	
+	
+	<select id="getMSIdList" resultType="hashmap">
+		select
+		ms.PM_MULTI_SEC_ID as MSId,
+		tl.BASE_EMS_CONNECTION_ID as emsId
+		from
+		t_pm_multi_sec ms,
+		t_pm_trunk_line tl
+		where
+		ms.PM_TRUNK_LINE_ID = tl.PM_TRUNK_LINE_ID
+		and
+		ms.IS_DEL != 1
+		and 
+		tl.IS_DEL != 1
+		and
+		<foreach collection="targetList" item="target"
+					open="(" close=")" separator="or">
+			<if test="target.TARGET_TYPE==Define.TRUNK_LINE">
+				ms.PM_TRUNK_LINE_ID = #{target.TARGET_Id} 
+			</if>
+			<if test="target.TARGET_TYPE==Define.MULTI_SEC">
+				ms.PM_MULTI_SEC_ID = #{target.TARGET_Id} 
+			</if>
+		</foreach>
+	</select>
+	
+	<select id="getMSInfoListForReport" resultType="hashmap">
+		select
+		ms.PM_MULTI_SEC_ID as MSId,
+		ms.SEC_NAME as secName,
+		tl.DISPLAY_NAME as tlName,
+		tl.PM_TRUNK_LINE_ID as TLId
+		from
+		t_pm_multi_sec ms,
+		t_pm_trunk_line tl
+		where
+		ms.PM_TRUNK_LINE_ID = tl.PM_TRUNK_LINE_ID
+		and
+		ms.IS_DEL != 1
+		and 
+		tl.IS_DEL != 1
+		and
+		<foreach collection="targetList" item="target"
+					open="(" close=")" separator="or">
+			<if test="target.TARGET_TYPE==Define.TRUNK_LINE">
+				ms.PM_TRUNK_LINE_ID = #{target.TARGET_ID} 
+			</if>
+			<if test="target.TARGET_TYPE==Define.MULTI_SEC">
+				ms.PM_MULTI_SEC_ID = #{target.TARGET_ID} 
+			</if>
+		</foreach>
+	</select>
+	
+	<select id="getTargetList" resultType = "hashmap">
+		select
+		TARGET_ID,
+		TARGET_TYPE
+		from
+		t_sys_task_info
+		where
+		SYS_TASK_ID = #{taskId}
+	</select>
+	
+	<select id="getMSInfoForCSV" resultType="hashmap">
+		select
+			ms.PM_MULTI_SEC_ID as MSId,
+			emsGrp.GROUP_NAME as emsGroup,
+			tems.DISPLAY_NAME as ems, 
+			tems.TYPE as emsType, 
+			tl.DISPLAY_NAME as TL, 
+			ms.SEC_NAME as MS, 
+			ms.DIRECTION as direction,
+			ms.STD_WAVE as standardWave, 
+			ms.ACTULLY_WAVE as actualWave, 
+		from
+			t_pm_multi_sec ms
+			left join
+			t_pm_trunk_line tl
+			on
+			tl.PM_TRUNK_LINE_ID = ms.PM_TRUNK_LINE_ID
+			left join
+			t_base_ems_connection tems
+			on
+			tl.BASE_EMS_CONNECTION_ID = tems.BASE_EMS_CONNECTION_ID
+			left join
+			t_base_ems_group emsGrp
+			on
+			tems.BASE_EMS_GROUP_ID = emsGrp.BASE_EMS_GROUP_ID 
+		where
+			ms.IS_DEL != 1
+			AND
+			tl.IS_DEL != 1
+			AND
+			tems.IS_DEL != 1
+			AND
+			emsGrp.IS_DEL != 1
+			AND
+			ms.PM_MULTI_SEC_ID = ${map.PM_MULTI_SEC_ID}	
+		limit 1
+	</select>
+	
+	<!-- 333 START -->
+	<update id="updateMSPtpBeforeCutover">
+		update t_pm_multi_sec_ptp
+		<set>
+		PM_BEFORE_CUTOVER = #{map.CURRENT_PM_VALUE},
+		PM_BEFORE_CUTOVER_SUB = #{map.SUB_CURRENT_PM_VALUE},
+		REFRESH_TIME_CUTOVER = #{map.CURRENT_PM_TIME},
+		PM_AFTER_CUTOVER = null,
+		PM_DIFF_CUTOVER = null,
+		PM_DIFF_CUTOVER_SUB = null
+		</set>
+		<where>
+		PM_MULTI_SEC_PTP_ID = #{map.PM_MULTI_SEC_PTP_ID}
+		</where>
+	</update>
+	
+	<update id="updateMSBeforeCutover">
+		update t_pm_multi_sec
+		<set>
+		CUTOVER_REFRESH_TIME = now(),
+		REFRESH_BEFORE = now(),
+		SEC_STATE_CUTOVER = null
+		</set>
+		<where>
+		PM_MULTI_SEC_ID = #{map.PM_MULTI_SEC_ID}
+		</where>
+	</update>
+	
+	<update id="updateMSPtpAfterCutover">
+		update t_pm_multi_sec_ptp
+		<set>
+		PM_AFTER_CUTOVER = #{map.CURRENT_PM_VALUE},
+		PM_AFTER_CUTOVER_SUB = #{map.SUB_CURRENT_PM_VALUE},
+		REFRESH_TIME_CUTOVER = #{map.CURRENT_PM_TIME},
+		PM_DIFF_CUTOVER = ROUND(abs(#{map.CURRENT_PM_VALUE} - PM_BEFORE_CUTOVER),2),
+		PM_DIFF_CUTOVER_SUB = ROUND(abs(#{map.SUB_CURRENT_PM_VALUE} - PM_BEFORE_CUTOVER_SUB),2)
+		</set>
+		<where>
+		PM_MULTI_SEC_PTP_ID = #{map.PM_MULTI_SEC_PTP_ID}
+		</where>
+	</update>
+	
+	<update id="updateMSAfterCutover">
+		update t_pm_multi_sec
+		<set>
+		CUTOVER_REFRESH_TIME = now(),
+		REFRESH_AFTER = now()
+		</set>
+		<where>
+		PM_MULTI_SEC_ID = #{map.PM_MULTI_SEC_ID}
+		</where>
+	</update>
+
+	<select id="getGreatestDiff" resultType="double">
+	SELECT 
+	if(
+		max(PM_DIFF_CUTOVER) is null or max(PM_DIFF_CUTOVER_SUB) is null,
+		COALESCE(
+			max(PM_DIFF_CUTOVER),
+			max(PM_DIFF_CUTOVER_SUB),
+			0
+			),
+		greatest(
+			max(PM_DIFF_CUTOVER),
+			max(PM_DIFF_CUTOVER_SUB)
+			)
+	) 
+	FROM t_pm_multi_sec_ptp
+	where
+	MULTI_SEC_ID = #{map.PM_MULTI_SEC_ID}
+	</select>
+	<!-- 333 END -->
+	
+	<!-- 计算t_pm_multi_sec_ne表中指定光复用段Id，方向的记录个数 -->
+	<select id="getMultipleRouteRecordTotal" resultType="int">
+		select count(*) from t_pm_multi_sec_ne
+		where MULTI_SEC_ID=${mulId} AND DIRECTION=${direction} AND IS_DEL=0;
+	</select>
+	
+	<!-- 计算t_pm_multi_sec_ptp表中指定光复用段Id，方向的记录个数 -->
+	<select id="getMultipleRouteRecordTotalOnPtp" resultType="int">
+		select count(*) from t_pm_multi_sec_ptp
+		where MULTI_SEC_ID=${mulId} AND DIRECTION=${direction} AND IS_DEL=0;
+	</select>
+	
+	<!-- 标记删除t_pm_multi_sec_ne表中的路由记录 -->
+	<update id="deleteRouteOnNeByMark">
+		update t_pm_multi_sec_ne set IS_DEL=1 
+		where MULTI_SEC_ID=${mulId} AND DIRECTION=${direction}
+	</update>
+	
+	<!-- 标记删除t_pm_multi_sec_ptp表中的路由记录 -->
+	<update id="deleteRouteOnPtpByMark">
+		update t_pm_multi_sec_ptp set IS_DEL=1 
+		where MULTI_SEC_ID=${mulId} AND DIRECTION=${direction}
+	</update>
+	
+	<!-- 真实删除t_pm_multi_sec_ne表中的路由记录 -->
+	<delete id="deleteRouteOnNe">
+		delete from t_pm_multi_sec_ne
+		where MULTI_SEC_ID=${mulId} AND DIRECTION=${direction} and IS_DEL=1
+	</delete>
+	
+	<!-- 真实删除t_pm_multi_sec_ptp表中的路由记录 -->
+	<delete id="deleteRouteOnPtp">
+		delete from t_pm_multi_sec_ptp
+		where MULTI_SEC_ID=${mulId} AND DIRECTION=${direction} and IS_DEL=1
+	</delete>
+	
+	<!-- 根据电路中ptpId查询出所有相关的otn电路信息 -->
+	<select id="getCircuitRouteInfoByPtp" resultType='hashmap'>
+		select route.* from t_cir_otn_circuit_route route 
+		left join t_base_otn_crs crs on crs.BASE_OTN_CRS_ID=route.CHAIN_ID
+		where CHAIN_TYPE=2 and crs.A_END_PTP=${ptpId} and crs.A_TYPE in ("A_OS","A_OMS","A_OTS")
+	</select>
+	
+	<!-- 根据电路Id和路由Id获取路由中符合条件的网元信息 -->
+	<select id="getNeInRoute" resultType='hashmap'>
+		select ne.* from t_cir_otn_circuit_route route
+		left join t_base_otn_crs crs on crs.BASE_OTN_CRS_ID=route.CHAIN_ID
+		left join t_base_ne ne on ne.BASE_NE_ID=crs.BASE_NE_ID
+		where CHAIN_TYPE=2
+		and CIR_OTN_CIRCUIT_ID=${cirId} and route.CIR_OTN_CIRCUIT_ROUTE_ID>=${routeId}
+		and route.CIR_OTN_CIRCUIT_ROUTE_ID &lt;= ${endRouteId}
+		GROUP BY crs.BASE_NE_ID ORDER BY route.CIR_OTN_CIRCUIT_ROUTE_ID;
+	</select>
+	
+	<!-- 根据电路Id和路由Id获取路由中符合条件的网元信息 -->
+	<select id="getRouteInfo" resultType='hashmap'>
+		select route.*,crs.A_END_PTP,crs.Z_END_PTP,crs.BASE_NE_ID,ptp1.PORT_DESC A_PTP_NAME,
+		ptp2.PORT_DESC Z_PTP_NAME,ne.DISPLAY_NAME as NE_NAME,crs.A_TYPE
+		from t_cir_otn_circuit_route route 
+		left join t_base_otn_crs crs on crs.BASE_OTN_CRS_ID=route.CHAIN_ID
+		left join t_base_ne ne on ne.BASE_NE_ID=crs.BASE_NE_ID
+		left join t_base_ptp ptp1 on ptp1.BASE_PTP_ID=crs.A_END_PTP
+		left join t_base_ptp ptp2 on ptp2.BASE_PTP_ID=crs.Z_END_PTP
+		where CHAIN_TYPE=2
+		and CIR_OTN_CIRCUIT_ID=${cirId} and route.CIR_OTN_CIRCUIT_ROUTE_ID>=${routeId};
+	</select>
+	
+	<!-- 根据复用段Id(mulId)和网元Id(neId)在t_pm_multi_sec_ne表中查询MULTI_SEC_NE_ID -->
+	<select id="getMultiSecNeId" resultType='hashmap'>
+		select * from t_pm_multi_sec_ne ne 
+		where ne.MULTI_SEC_ID=${mulId} and ne.DIRECTION=${direction} 
+		and ne.NE_ID=${neId} and ne.IS_DEL=0
+	</select>
+	
+</mapper>

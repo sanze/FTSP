@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<chart caption='综合可用率' numberSuffix='%'  bgColor='165919' bgAlpha='0' pieYScale='50' startingAngle='175'  showBorder='0' smartLineColor='7D8892' smartLineThickness='2'>
+
+<!-- <set value='65' label='France'  color='B2D2DD'/>
+	<set value='175' label='Others'  color='507D9E'/> -->
+	<set value='70' label='可用' />
+	<set value='30' label='不可用' />
+</chart>	

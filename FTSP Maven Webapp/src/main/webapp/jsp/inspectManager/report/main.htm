@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<script type="text/javascript">
+//iframe高度自适应
+function IFrameReSize(iframe) {
+	var pTar = iframe;//document.getElementById(iframename);
+	if (pTar) { //ff
+		if (pTar.contentDocument && pTar.contentDocument.body.offsetHeight) {
+			pTar.height = pTar.contentDocument.body.offsetHeight;
+		} //ie
+		else if (pTar.Document && pTar.Document.body.scrollHeight) {
+			pTar.height = pTar.Document.body.scrollHeight;
+		}
+	}
+}
+//iframe宽度自适应
+function IFrameReSizeWidth(iframe) {
+	var pTar = iframe;//document.getElementById(iframename);
+	if (pTar) { //ff
+		if (pTar.contentDocument && pTar.contentDocument.body.offsetWidth) {
+			pTar.width = pTar.contentDocument.body.offsetWidth;
+		} //ie
+		else if (pTar.Document && pTar.Document.body.scrollWidth) {
+			pTar.width = pTar.Document.body.scrollWidth;
+		}
+	}
+}
+// param 为 参数的名称
+function getParameter(param){
+	var query = window.location.search;
+	var iLen = param.length;
+	var iStart = query.indexOf(param);
+	if (iStart == -1){
+		return "";
+	}
+	iStart += iLen + 1;
+	var iEnd = query.indexOf("&", iStart);
+	if (iEnd == -1){
+		return query.substring(iStart);
+	}
+	return query.substring(iStart, iEnd);
+}
+function searchFiles(folder,reg){  
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+	var curDir=window.location.pathname.substr(1, window.location.pathname.lastIndexOf("/"));
+	
+	folder=folder?folder:curDir;
+    var f = fso.GetFolder(folder);
+    var fc = new Enumerator(f.files);
+    var s = [];  
+    for (; !fc.atEnd(); fc.moveNext()){  
+		if(reg){
+			var patt=new RegExp(reg);
+			if(patt.test(fc.item().name)){
+				s.push(fc.item());
+			}
+		}else{
+			s.push(fc.item());
+		}
+    }
+	return s;
+    /*fk = new Enumerator(f.SubFolders);  
+    for (; !fk.atEnd(); fk.moveNext())  
+    {  
+        s += fk.item();  
+        s += "<br/>";  
+    }*/
+}
+function urlDecode(string, overwrite){
+	function isEmpty(v, allowBlank){
+		return v === null || v === undefined || (!allowBlank ? v === '' : false);
+	}
+	function each(array, fn, scope){
+		if(isEmpty(array, true)){
+			return;
+		}
+		for(var i = 0, len = array.length; i < len; i++){
+			if(fn.call(scope || array[i], array[i], i, array) === false){
+				return i;
+			};
+		}
+	}
+	if(isEmpty(string)){
+		return {};
+	}
+	var obj = {},pairs = string.split('&'),d = decodeURIComponent,name,value;
+	each(pairs, function(pair) {
+		pair = pair.split('=');
+		name = d(pair[0]);
+		value = d(pair[1]);
+		obj[name] = overwrite || !obj[name] ? value : [].concat(obj[name]).concat(value);
+	});
+	return obj;
+}
+function addEvt(ifr) {
+	var doc = ifr.contentWindow.document;
+	doc.onclick = function () {
+		IFrameReSize(ifr);
+		IFrameReSizeWidth(ifr);
+	}
+	IFrameReSize(ifr);
+	IFrameReSizeWidth(ifr);
+}
+function onload(){
+	//alert(files);
+	var param=urlDecode(window.location.href.substr(window.location.href.indexOf("?")+1));
+	var basePath=param["basePath"];
+	var files=param["files"];
+	if(files==null||files==''){
+		files=searchFiles(null,/.*\.htm$/);
+	}else{
+		files=files.split("*");
+		for(var i=0;i<files.length;i++){
+			files[i]=basePath+files[i];
+		}
+	}
+	var curFile=window.location.pathname.substr(window.location.pathname.lastIndexOf("/")+1);
+	for(var i=0;i<files.length;i++){
+		var tar=""+files[i];
+		if(curFile==tar.substr(tar.lastIndexOf("\\")+1)) continue;
+		var body=document.getElementsByTagName("body")[0];
+		var newel=document.createElement("div");
+		newel.innerHTML='<iframe src="'+files[i]+'" scrolling="no" frameborder="0" height="100%" width="100%" onload=\'addEvt(this);\'></iframe>';
+		body.appendChild(newel);
+	}
+}
+</script>
+<body onload="onload();">
+</body>
+</html>

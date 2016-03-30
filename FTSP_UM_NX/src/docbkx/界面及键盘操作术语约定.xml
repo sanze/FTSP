@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<title>界面及键盘操作术语约定</title>
+	<informaltable>
+		<tgroup cols="2">
+			<colspec colwidth="3*" />
+			<colspec colwidth="7*" />
+			<tbody>
+				<row>
+					<entry>图标</entry>
+					<entry>含义</entry>
+				</row>
+				<row>
+					<entry>&lt;文字按钮名称&gt;</entry>
+					<entry>表示界面或对话框中的文字按钮或键盘中的按键</entry>
+				</row>
+				<row>
+					<entry>&lt;键1+键2&gt;</entry>
+					<entry>表示同时按下键盘中几个按键</entry>
+				</row>
+				<row>
+					<entry>&lt;键1，键2&gt;</entry>
+					<entry>表示依次按下键盘中几个按键</entry>
+				</row>
+				<row>
+					<entry>&lt;菜单项&gt;</entry>
+					<entry>表示菜单项，如主菜单中的 [系统]菜单项</entry>
+				</row>
+				<row>
+					<entry>&lt;菜单1&gt;→&lt;菜单2&gt;→&lt;菜单3&gt;</entry>
+					<entry>表示路径，即多级菜单项。如主菜单中的 [系统/选项/颜色设置]，表示[系统]菜单下的[选项]菜单下的[颜色设置]项目
+					</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</informaltable>
+	<para>说明：</para>
+	<para>对于键盘操作，术语“按下”意味着一个或多个按键被按下去，再释放或松开“键入”文字意味着用键盘进行打字（输入）。</para>
+	
+</section>

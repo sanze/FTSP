@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+<!-- 
+	<bean id="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+		<property name="serviceName" value="alarmConvergeService" />
+		<property name="service" ref="alarmConvergeService" />
+		<property name="serviceInterface" value="com.fujitsu.IService.IAlarmConvergeService" />
+		<property name="registryPort" value="1022" />
+		<property name="servicePort" value="1022" />
+	</bean>
+
+	<bean id="alarmConvergeService" class="com.fujitsu.manager.alarmConvergeManager.serviceImpl.AlarmConvergeServiceImpl" />
+ -->
+    <bean name="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+       <property name="service" ref="alarmConvergeService"/>
+       <property name="serviceName" value="alarmConvergeService"/>
+       <property name="serviceInterface" value="com.fujitsu.IService.IAlarmConvergeService"/>
+       <property name="registryPort" value="1022"/>
+       <property name="servicePort" value="1022" />
+    </bean>
+    <bean id="alarmConvergeService" class="com.fujitsu.manager.alarmConvergeManager.serviceImpl.AlarmConvergeServiceImpl" >
+    </bean>
+
+</beans>

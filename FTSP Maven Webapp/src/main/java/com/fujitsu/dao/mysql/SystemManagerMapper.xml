@@ -1,0 +1,637 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.SystemManagerMapper">
+
+	<select id="selectSvcRecordByEmsconnectionId" resultType="hashmap" >
+	select r.*
+	  from T_BASE_EMS_CONNECTION c, T_SYS_SVC_RECORD r
+	 where c.BASE_EMS_CONNECTION_ID = #{emsConnectionId} 
+	   and c.SVC_RECORD_ID = r.SYS_SVC_RECORD_ID
+	</select>
+	
+		<!-- 用户管理 -->
+	
+	<!-- 用户管理，所有用户组 -->
+	<select id="getUserGroup" resultType="hashmap" parameterType="Integer" >
+		select 
+    		SYS_USER_GROUP_ID,GROUP_NAME
+		from
+    		t_sys_user_group
+	    <where>
+			<if test="userGroupId != 0">
+				SYS_USER_GROUP_ID = #{userGroupId}
+			</if>
+		</where>  
+	</select>
+	
+	<!-- 获取某用户组的所有用户信息 -->
+	<select id="getUserListByGroupId" resultType="hashmap" parameterType="Integer" >
+		select  sysuser.SYS_USER_ID,
+				(select group_concat(usergroup.GROUP_NAME)  from t_sys_user_ref_group refgroup
+				left join t_sys_user_group usergroup on refgroup.SYS_USER_GROUP_ID=usergroup.SYS_USER_GROUP_ID			
+				where refgroup.SYS_USER_ID=sysuser.SYS_USER_ID) GROUP_NAME,	
+				sysuser.USER_NAME,
+				sysuser.LOGIN_NAME,
+				sysuser.JOB_NUMBER,
+				sysuser.DEPARTMENT,
+				sysuser.POSITION,
+				date_format(sysuser.CREATE_TIME,'%Y-%c-%d %H:%i:%s') CREATE_TIME,
+				sysuser.EMAIL,
+				sysuser.TELEPHONE,
+				sysuser.NOTE,
+				(select group_concat(authdomain.NAME)  from t_sys_user_ref_auth refauth
+				left join t_sys_auth_domain authdomain on authdomain.SYS_AUTH_DOMAIN_ID=refauth.SYS_AUTH_DOMAIN_ID				
+				where  refauth.SYS_USER_ID=sysuser.SYS_USER_ID) AUTH_DOMAIN_NAME ,	
+				(select group_concat(devicedomain.NAME)  from t_sys_user_ref_device refdevice
+				left join t_sys_device_domain devicedomain on devicedomain.SYS_DEVICE_DOMAIN_ID=refdevice.SYS_DEVICE_DOMAIN_ID				
+				where refdevice.SYS_USER_ID=sysuser.SYS_USER_ID) DEVICE_DOMAIN_NAME 
+				from t_sys_user sysuser
+	    <where>  
+	    	 	sysuser.IS_DEL=0   
+			<if test="userGroupId!=0">
+				  and exists(
+			         select 1 from t_sys_user_ref_group t
+			         where t.SYS_USER_ID=sysuser.SYS_USER_ID
+			         and t.sys_user_group_id=#{userGroupId}
+			        )
+			</if>
+		</where>  
+		limit #{start},#{limit}
+	</select>
+	
+	<!-- 获取某用户组的用户数量 -->
+	<select id="countUserList" parameterType="hashmap" resultType="int">
+		select count(1)  from    
+		(select sysuser.SYS_USER_ID  from t_sys_user sysuser , t_sys_user_ref_group refgroup    
+		where sysuser.IS_DEL=0 and refgroup.SYS_USER_ID=sysuser.SYS_USER_ID 
+   		<if test="userGroupId != -1">
+		  and exists(
+	         select 1 from t_sys_user_ref_group t
+	         where t.SYS_USER_ID=sysuser.SYS_USER_ID
+	         and t.sys_user_group_id=#{userGroupId}
+	        )
+		</if>
+		) x
+  	</select>
+	<!-- 获取部门列表 -->
+	<select id="getDepartment" resultType="hashmap" >
+		select distinct DEPARTMENT,IS_DEL from t_sys_user where IS_DEL=0
+	</select>
+	<!-- 获取职务列表 -->
+	<select id="getPosition" resultType="hashmap" >
+		select distinct POSITION ,IS_DEL from t_sys_user where IS_DEL=0
+	</select>
+	<!-- 获取全部权限域 -->
+	<select id="getAuthDomain" resultType="hashmap" >
+		select distinct SYS_AUTH_DOMAIN_ID,NAME AS AUTH_DOMAIN_NAME from t_sys_auth_domain  
+	</select>
+	<!-- 获取全部设备域 -->
+	<select id="getDeviceDomain" resultType="hashmap" >
+		select distinct SYS_DEVICE_DOMAIN_ID,NAME AS DEVICE_DOMAIN_NAME from t_sys_device_domain
+	</select>
+	<!-- 新增用户基础信息 -->
+	<insert id="addUserBaseDetail" parameterType="com.fujitsu.model.UserModel" useGeneratedKeys="true" keyProperty="userModel.sysUserId">
+		INSERT INTO t_sys_user(USER_NAME,LOGIN_NAME,JOB_NUMBER,TELEPHONE,TIME_OUT,EMAIL,NOTE,
+			 DEPARTMENT,POSITION,PASSWORD,CREATE_TIME) 
+	        VALUES(
+		     #{userModel.userName},
+		     #{userModel.loginName},
+		     #{userModel.jobNumber},
+		     #{userModel.telephone},
+		     #{userModel.timeout},
+		     #{userModel.email},
+		     #{userModel.note},
+		     #{userModel.department},
+		     #{userModel.position},
+		     '888888',
+		     NOW()) 
+    	  <selectKey resultType="string"   keyProperty="userModel.sysUserId">  
+		        SELECT LAST_INSERT_ID() AS sysUserId
+   	</selectKey>  
+	</insert>
+	<!-- 新增用户权限域 -->
+		<insert id="addUserRefAuth"  parameterType="hashmap"  >  
+		INSERT INTO t_sys_user_ref_auth
+		(
+		`SYS_USER_ID`,
+		`SYS_AUTH_DOMAIN_ID`)
+	VALUES
+	(
+		#{map.sysUserId},
+		#{map.sysAuthDomainId}
+	)
+	</insert>
+	
+	<!-- 获取新增用户的ID -->
+	<select id="getNewUserID" resultType="Integer" parameterType="hashmap" >
+		select SYS_USER_ID from t_sys_user where JOB_NUMBER= #{map.jobNumber}
+	</select>
+	
+	<!-- 获取用户 -->
+	<select id="getUserById" resultType="hashmap" parameterType="int" >
+		select * from T_SYS_USER where SYS_USER_ID = #{userId}
+	</select>
+	
+	<!-- 新增用户设备域 -->
+	<insert id="addUserRefDevice"  parameterType="hashmap"  >  
+		INSERT INTO t_sys_user_ref_device
+		(
+		`SYS_USER_ID`,
+		`SYS_DEVICE_DOMAIN_ID`)
+		VALUES
+		(
+			#{map.sysUserId},
+			#{map.sysDeviceDomainId}
+		)
+	</insert>
+	<!-- 修改用户基本信息 -->
+	<update id="updateUserBaseDetail" parameterType="com.fujitsu.model.UserModel" >
+			UPDATE t_sys_user			
+		<set>
+			LOGIN_NAME=#{userModel.loginName},
+			TELEPHONE= #{userModel.telephone},
+			TIME_OUT= #{userModel.timeout},
+			EMAIL=#{userModel.email},
+			NOTE=#{userModel.note},
+			DEPARTMENT= #{userModel.department},
+			POSITION=#{userModel.position}
+		</set>
+			WHERE	 SYS_USER_ID =#{userModel.sysUserId}
+	</update>
+	<!-- 删除用户设备域 -->
+	<delete id="deleteUserDeviceDomain" parameterType="com.fujitsu.model.UserModel" >
+		delete from  t_sys_user_ref_device where SYS_USER_ID = #{userModel.sysUserId}
+	</delete>
+	<!-- 删除用户权限域 -->
+	<delete id="deleteUserAuthDomain" parameterType="com.fujitsu.model.UserModel" >
+		delete from  t_sys_user_ref_auth where SYS_USER_ID = #{userModel.sysUserId}
+	</delete>	
+	<!-- 删除用户 -->
+	<delete id="deleteUser" parameterType="hashmap">
+			UPDATE t_sys_user			
+		<set>
+			IS_DEL=1
+		</set>
+			WHERE	
+			SYS_USER_ID = #{map.sysUserId}
+	</delete>
+	<!-- 修改密码 -->
+	<update id="updateUserInfo" parameterType="hashmap" >
+			UPDATE t_sys_user 			
+		<set>
+			<if test="map.PASSWORD != null" >
+	        	PASSWORD=#{map.PASSWORD},
+	      	</if>
+	      	<if test="map.LOGIN_TIME != null" >
+	        	LOGIN_TIME=#{map.LOGIN_TIME},
+	      	</if>
+	      	<if test="map.LOGOUT_TIME != null" >
+	        	LOGOUT_TIME=#{map.LOGOUT_TIME},
+	      	</if>
+		</set>
+			WHERE	
+			SYS_USER_ID = #{map.SYS_USER_ID}
+	</update>
+	
+	<!-- 判断用户的工号，登录名，手机号是否重复 -->
+	<select id="userValidate" resultType="Integer"  parameterType="hashmap" >
+		select count(1) from
+		( 
+			select SYS_USER_ID, LOGIN_NAME from t_sys_user 
+			union 
+			select  SYS_USER_ID,JOB_NUMBER from t_sys_user
+			union 
+			select  SYS_USER_ID,TELEPHONE from t_sys_user			
+		)detail where detail.SYS_USER_ID!=#{map.sysUserId}
+	</select>
+	
+	<!-- 获取当前用户的权限域 -->
+		<select id="getCurrrentAuthDomain" resultType="hashmap"  parameterType="hashmap" >
+		select refauth.SYS_AUTH_DOMAIN_ID,authdomain.NAME AS AUTH_DOMAIN_NAME from t_sys_user_ref_auth refauth, t_sys_auth_domain authdomain
+		where refauth.SYS_USER_ID = #{sysUserId} and authdomain.SYS_AUTH_DOMAIN_ID=refauth.SYS_AUTH_DOMAIN_ID
+		</select>
+	<!-- 获取当前用户的设备域 -->
+	<select id="getCurrrentDeviceDomain" resultType="hashmap" parameterType="hashmap"  >	
+		select refdevice.SYS_DEVICE_DOMAIN_ID,devicedomain.NAME AS DEVICE_DOMAIN_NAME from t_sys_user_ref_device refdevice, t_sys_device_domain devicedomain
+		where refdevice.SYS_USER_ID = #{sysUserId} and devicedomain.SYS_DEVICE_DOMAIN_ID=refdevice.SYS_DEVICE_DOMAIN_ID
+	</select>
+	
+	<!-- 获取当前用户权限管理域详细信息 -->
+	<select id="getCurrrentAuthDomainDetail" resultType="hashmap" >	
+		SELECT 
+		  * 
+		FROM
+		  t_sys_auth_domain_ref t 
+		WHERE t.`SYS_AUTH_DOMAIN_ID` IN 
+		  (SELECT 
+		    refAuth.`SYS_AUTH_DOMAIN_ID` 
+		  FROM
+		    t_sys_user_ref_auth refAuth 
+		  WHERE refAuth.`SYS_USER_ID` = #{userId}) ;
+	</select>
+	
+	<!-- 获取当前用户设备管理域详细信息 -->
+	<select id="getCurrrentDeviceDomainDetail" resultType="hashmap" >	
+		SELECT 
+		  * 
+		FROM
+		  t_sys_device_domain_ref t 
+		WHERE t.`SYS_DEVICE_DOMAIN_ID` IN 
+		  (SELECT 
+		    refDevice.`SYS_DEVICE_DOMAIN_ID` 
+		  FROM
+		    t_sys_user_ref_device refDevice 
+		  WHERE refDevice.`SYS_USER_ID` = #{userId}) ;
+	</select>
+	
+		<!-- 获取当前用户的基本信息 -->
+	<select id="getCurrentUserBaseDetail" resultType="hashmap" parameterType="hashmap" >
+		select  USER_NAME,
+				LOGIN_NAME,
+				JOB_NUMBER,
+				DEPARTMENT,
+				POSITION,
+				EMAIL,
+				TELEPHONE,
+				TIME_OUT,
+				NOTE
+	    from    t_sys_user sysuser 
+		where   SYS_USER_ID = #{sysUserId}
+		</select>
+		
+	<!--用户组管理 -->
+	<!--用户组管理列表  -->
+	<select id="getGroupDetailList" resultType="hashmap" parameterType="hashmap">
+		select SYS_USER_GROUP_ID,GROUP_NAME,date_format(CREATE_TIME,'%Y-%c-%d %H:%i:%s') CREATE_TIME,NOTE from t_sys_user_group limit #{start},#{limit}
+	</select>
+	 <select id="countGroupList" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_user_group
+  	</select>
+	
+	
+	
+	<!-- 新增组时，获取全部用户信息 -->
+	<select id="getAllGroupUserList" resultType="hashmap" parameterType="hashmap">
+			select SYS_USER_ID,USER_NAME,LOGIN_NAME,JOB_NUMBER,TELEPHONE,DEPARTMENT
+				 from t_sys_user t
+				where t. is_del=0
+			<choose>
+					<when test="saveType==2">
+						and exists(select 1 from t_sys_user_ref_group  ts
+								where ts.sys_user_group_id=#{userGroupId}
+								and ts.sys_user_id=t.sys_user_id)
+					</when>
+			</choose>
+	</select>
+	
+	
+	
+	<!-- 插入组-->
+	<insert id="addGroupDetail" parameterType="com.fujitsu.model.UserGroupModel" useGeneratedKeys="true" keyProperty="userGroupModel.sysUserGroupId">
+		INSERT INTO t_sys_user_group(GROUP_NAME,NOTE,IS_DEL,CREATE_TIME)
+			VALUES(#{userGroupModel.groupName},#{userGroupModel.note},0,NOW())
+     	  <selectKey resultType="int"   keyProperty="userGroupModel.sysUserGroupId">  
+			        SELECT LAST_INSERT_ID() AS sysUserGroupId
+    	</selectKey>  
+	</insert>
+	
+	<!-- 新增组时，新增用户组与用户的信息 -->
+	<insert id="addRefOfUserGroup" parameterType="hashmap"  >
+		INSERT INTO t_sys_user_ref_group(SYS_USER_ID,SYS_USER_GROUP_ID)
+			VALUES(#{map.sysUserId},#{map.sysUserGroupId})
+	</insert>
+	<!-- 修改组时，获取某组的当前基础信息 -->
+	<select id="getModiPreGroupBaseById" resultType="hashmap" parameterType="Integer" >
+		select SYS_USER_GROUP_ID,GROUP_NAME,NOTE from t_sys_user_group
+		<where>		
+			SYS_USER_GROUP_ID = #{userGroupId}
+		</where>
+	</select>	
+	<!-- 获取组的用户 -->
+	<select id="getCurrentGroupDetailById" resultType="hashmap" parameterType="Integer" >
+		select sys_user_id from t_sys_user_ref_group t where t.sys_user_group_id=#{userGroupId}
+	</select>	
+	<!-- 修改组时，修改某用户组的基本信息 -->
+	<update id="updatePreGroupBase" parameterType="com.fujitsu.model.UserGroupModel" >
+		UPDATE t_sys_user_group
+		<set>
+			GROUP_NAME=#{userGroupModel.groupName},
+			NOTE=#{userGroupModel.note},
+			UPDATE_TIME=NOW()
+		</set>
+			WHERE	
+			SYS_USER_GROUP_ID = #{userGroupModel.sysUserGroupId}
+	</update>
+	<!--修改时，修改某组的当前用户信息，先删除，后增加-->
+	<!--删除当前用户组用户 -->
+	<delete id="deleteGroupUser" parameterType="com.fujitsu.model.UserGroupModel">
+		delete from t_sys_user_ref_group
+		 where SYS_USER_GROUP_ID = #{userGroupModel.sysUserGroupId} 
+	</delete>
+	<!--删除当前用户组全部用户 -->
+	<delete id="deleteGroupAllUser" parameterType="hashmap">
+		delete from t_sys_user_ref_group
+		 where SYS_USER_GROUP_ID = #{map.sysUserGroupId} 
+	</delete>
+	<!-- 删除当前用户组 -->
+	<delete id="deleteGroup" parameterType="hashmap">
+		delete from t_sys_user_group where SYS_USER_GROUP_ID = #{map.sysUserGroupId} 
+	</delete>
+	
+	<!--详情，获取当前用户组所包含的用户 -->
+	<select id="getCurrentGroupUserById" resultType="hashmap" parameterType="Integer" >
+		select user.SYS_USER_ID,user.USER_NAME,user.LOGIN_NAME,
+	    user.JOB_NUMBER,user.TELEPHONE,user.DEPARTMENT,1 as CHECK_FLAG
+        from (select ref.SYS_USER_ID from t_sys_user_ref_group ref  where	
+			SYS_USER_GROUP_ID = #{map.sysUserGroupId}
+		)x left join t_sys_user user on user.SYS_USER_ID=x.SYS_USER_ID
+	</select>
+
+	<!--设备域管理  -->
+		<!--设备域管理列表  -->
+	<select id="getDeviceDomainDetailList" resultType="hashmap">
+		select NAME,NOTE from t_sys_device_domain limit #{start},#{limit}
+	</select>
+	<!-- 修改时，获取当前设备域的基础信息 -->
+	<select id="getDeviceDomainBaseById" resultType="hashmap" parameterType="Integer" >
+		select NAME,NOTE from t_sys_device_domain
+		<where>		
+			SYS_DEVICE_DOMAIN_ID = #{map.sysDeviceDomainId}
+		</where>
+	</select>	
+	
+	<!-- 验证登录名，工号，手机号是否已存在-->
+	<select id="validateUserInformation" resultType="int" parameterType="hashmap">
+		select count(1) from t_sys_user t
+			WHERE t.is_del=0
+			and
+				<choose>
+					<when test="sign=='save'">
+						(t.login_name=#{value}
+						or t.job_number=#{value}
+						or t.telephone=#{value}
+						)
+					</when>
+					<when test="sign=='modify'">
+						(t.telephone=#{value}
+						or t.login_name=#{value}
+						or t.job_number=#{value}
+						)
+						and t.sys_user_id<![CDATA[<>]]>#{userId}
+					</when>
+				</choose>
+	</select>
+	
+	
+	<!--获取用户的密码-->
+	<select id="getOldPassByUserId" resultType="string" parameterType="string">
+		select t.password from t_sys_user t
+			WHERE t.is_del=0
+			and t.sys_user_id=#{userId}
+			 limit 1
+	</select>
+	
+	<!--更新用户新密码-->
+	<update id="saveModifyPass" parameterType="com.fujitsu.model.UserModel" >
+		update t_sys_user t
+		set t.password=#{userModel.newPass},
+		t.password_validity=#{userModel.passVal}
+		WHERE t.is_del=0
+			and t.sys_user_id=#{userModel.sysUserId}
+	</update>
+	
+	<!-- 用户登陆-->
+	<select id="getUserByNameAndPass" resultType="hashmap" parameterType="String">
+			select * from t_sys_user t
+			where (LOGIN_NAME = #{userName} 
+					or JOB_NUMBER = #{userName}
+					or TELEPHONE = #{userName})
+			and  PASSWORD = #{password}
+			and t.is_del=0
+	</select>
+	
+	
+		
+	<!-- 验证用户组名是否存在-->
+	<select id="validateUserGroupName" resultType="int" parameterType="String">
+			select count(1) from t_sys_user_group t
+			where t.is_del=0
+			and t.GROUP_NAME=#{groupName}
+	</select>
+	
+	<!-- 用户登陆-->
+	<select id="getAllServers" resultType="hashmap">
+			select * from t_sys_server_monitor
+	</select>
+	
+	<!-- 通过网管ID列表获取taskIds-->
+	<select id="getTaskIdsByEMSIDList" resultType="hashmap">
+			select SYS_TASK_ID from t_sys_task_info where TARGET_TYPE=2 and TARGET_ID in 
+			<foreach collection="emsIds" index="index" item="list"
+						open="(" close=")" separator=",">
+						${list}
+			</foreach>
+	</select>
+	
+	<!-- 获取任务数 -->
+	<select id="getTaskNum" resultType="hashmap">
+		select count(*) as taskNum from t_sys_task 
+			where IS_DEL = 0 
+			and TASK_TYPE = #{taskType} 
+			and (TASK_STATUS = 1 or TASK_STATUS = 2) 
+			and  SYS_TASK_ID in 
+			<foreach collection="map.taskIds" index="index" item="taskId"
+				open="(" close=")" separator=",">
+				${taskId}
+			</foreach>
+	</select>
+	
+	<!-- 获取任务启用状态个数 -->
+	<select id="getTaskStartStatusNum" resultType="hashmap">
+		select count(*) as startStatusNum from t_sys_task 
+			where IS_DEL = 0 
+			and TASK_TYPE = #{taskType} 
+			and TASK_STATUS = 1 
+			and  SYS_TASK_ID in 
+			<foreach collection="map.taskIds" index="index" item="taskId"
+				open="(" close=")" separator=",">
+				${taskId}
+			</foreach>
+	</select>
+	
+	<!-- 获取成功执行个数 -->
+	<select id="getTaskSuccessNum" resultType="hashmap">
+		select count(*) as successNum from t_sys_task 
+			where IS_DEL = 0 
+			and TASK_TYPE = #{taskType} 
+			and TASK_STATUS = 1 
+			and (RESULT = 1 or RESULT = 6) 
+			and  SYS_TASK_ID in 
+			<foreach collection="map.taskIds" index="index" item="taskId"
+				open="(" close=")" separator=",">
+				${taskId}
+			</foreach>
+	</select>
+	
+	<!-- 获取性能报表生成任务个数 -->
+	<select id="getPMReportTaskNum" resultType="hashmap">
+		select count(*) as taskNum from t_sys_task 
+			where IS_DEL = 0 
+			and TASK_TYPE in (8,9) 
+			and (TASK_STATUS = 1 or TASK_STATUS = 2) 
+			and  SYS_TASK_ID in 
+			<foreach collection="map.taskIds" index="index" item="taskId"
+				open="(" close=")" separator=",">
+				${taskId}
+			</foreach>
+	</select>
+	
+	<!-- 获取性能报表启用任务个数 -->
+	<select id="getPMReportStartStatusNum" resultType="hashmap">
+		select count(*) as startStatusNum from t_sys_task 
+			where IS_DEL = 0 
+			and TASK_TYPE in (8,9) 
+			and TASK_STATUS = 1 
+			and  SYS_TASK_ID in 
+			<foreach collection="map.taskIds" index="index" item="taskId"
+				open="(" close=")" separator=",">
+				${taskId}
+			</foreach>
+	</select>
+	
+	<!-- 获取性能报表生成任务成功执行个数 -->
+	<select id="getPMReportSuccessNum" resultType="hashmap">
+		select count(*) as successNum from t_sys_task 
+			where IS_DEL = 0 
+			and TASK_TYPE in (8,9) 
+			and TASK_STATUS = 1 
+			and (RESULT = 1 or RESULT = 6) 
+			and  SYS_TASK_ID in 
+			<foreach collection="map.taskIds" index="index" item="taskId"
+				open="(" close=")" separator=",">
+				${taskId}
+			</foreach>
+	</select>
+	
+	<!-- 获取割接任务不同状态任务数量 -->
+	<select id="getCutoverTaskNum" resultType="hashmap">
+		SELECT
+		  COUNT(1) AS total 
+		FROM (SELECT *
+             FROM T_SYS_TASK 
+             where task_type = 10) task
+  		LEFT JOIN (SELECT *
+             FROM T_SYS_TASK_PARAM
+             WHERE PARAM_NAME = '任务状态') taskParam
+    	ON task.SYS_TASK_ID = taskParam.SYS_TASK_ID
+  		LEFT JOIN (SELECT *
+             FROM T_SYS_TASK_PARAM
+             WHERE PARAM_NAME = '操作权限组') taskParam1
+    	ON task.SYS_TASK_ID = taskParam1.SYS_TASK_ID
+  		LEFT JOIN t_sys_user USER
+    	ON task.CREATE_PERSON = user.SYS_USER_ID
+  		LEFT JOIN (SELECT *
+             FROM T_SYS_TASK_PARAM
+             WHERE PARAM_NAME = 'startTimeActual') taskParam2
+    	ON task.SYS_TASK_ID = taskParam2.SYS_TASK_ID
+    	<where>
+    		taskParam.PARAM_VALUE in 
+    		<foreach collection="taskStatus" index="index" item="status"
+						open="(" close=")" separator=",">
+						${status}
+			</foreach>
+    		<if test="userGrps == null or userGrps.size()==0">
+			and (#{userId} = -1 or #{userId} = task.CREATE_PERSON)
+			</if>
+			<if test="userGrps!=null and userGrps.size()>0">
+			and
+			( #{userId} = -1 or #{userId} = task.CREATE_PERSON
+			or
+	       <foreach collection="userGrps" item="item" open="(" close=")"
+				separator="or">
+				find_in_set(#{item.userGrpId},taskParam1.PARAM_VALUE)
+		   </foreach> 
+		   )
+			</if>
+    	</where>
+	</select>
+	
+	<select id="getCutoverTaskInfoForNotice" resultType="hashmap">
+        SELECT  task.TASK_NAME,  DATE_FORMAT(task.START_TIME,'%Y-%m-%d %H:%i:%s') START_TIME,
+            DATE_FORMAT(task.END_TIME,'%Y-%m-%d %H:%i:%s') END_TIME
+        FROM (SELECT * FROM T_SYS_TASK where task_type = 10) task
+            LEFT JOIN (SELECT * FROM T_SYS_TASK_PARAM WHERE PARAM_NAME = '任务状态') taskParam
+            ON task.SYS_TASK_ID = taskParam.SYS_TASK_ID
+        <where>  
+            task.is_del=0 and
+            ((task.START_TIME between #{startTime} and #{endTime} and taskParam.PARAM_VALUE = 1)
+            or taskParam.PARAM_VALUE = 2)
+        </where>
+    </select>
+	
+	<select id="userGroupisExists" resultType="int">
+		SELECT count(1) cou FROM t_sys_user_group t
+	    <where>  
+			t.is_del=0
+			<if test="type == 0">
+				AND t.SYS_USER_GROUP_ID=#{groupId}
+			</if>
+			<if test="type == 1">
+				AND t.GROUP_NAME=#{groupId}
+			</if>
+		</where>
+	</select>
+	
+	
+	<select id="userisExists" resultType="int">
+		SELECT count(1) cou FROM t_sys_user t
+	    <where>  
+			t.is_del=0
+			<if test="type == 0">
+				AND t.sys_user_id=#{userId}
+			</if>
+			<if test="type == 1">
+				AND t.login_name=#{userId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getAllUserToGroupByCondition" resultType="hashmap" parameterType="hashmap" >
+					SELECT 
+					t.sys_user_Id,
+					t.user_name,
+					(SELECT GROUP_CONCAT(tsug.group_name) 
+					FROM t_sys_user_ref_group tsurg
+					LEFT JOIN t_sys_user_group tsug ON tsurg.SYS_USER_GROUP_ID=tsug.SYS_USER_GROUP_ID
+					WHERE t.SYS_USER_ID=tsurg.SYS_USER_ID) group_name
+				FROM t_sys_user t
+		  <where>  
+			  t.is_del=0
+			<if test="map.groupId !=null">
+				AND EXISTS(
+				  SELECT 1 FROM t_sys_user_ref_group tsurg
+				  WHERE t.SYS_USER_ID=tsurg.SYS_USER_ID
+				  AND tsurg.SYS_USER_GROUP_ID=#{map.groupId}
+				)
+
+			</if>
+			<if test="map.groupName !=null">
+				AND EXISTS(
+				  SELECT 1 FROM t_sys_user_ref_group tsurg
+				  LEFT JOIN t_sys_user_group tsug ON tsurg.SYS_USER_GROUP_ID=tsug.SYS_USER_GROUP_ID
+				  WHERE t.SYS_USER_ID=tsurg.SYS_USER_ID
+				  AND tsug.GROUP_NAME LIKE '%#{map.groupName}%'
+				)
+			</if>
+			<if test="map.userId !=null">
+				AND t.SYS_USER_ID=#{map.userId}
+			</if>
+			<if test="map.userName !=null">
+				AND t.USER_NAME LIKE '%#{map.userName}%'
+			</if>
+		</where>
+		
+		
+	</select>
+
+</mapper>

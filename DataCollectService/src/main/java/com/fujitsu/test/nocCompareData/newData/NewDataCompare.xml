@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.test.nocCompareData.newData.NewDataCompare" >
+
+	<select id="selectNeList_OLA" resultType="hashmap" >
+		select *
+		  from t_ne t
+		 where t.EMS_CONNECTION_ID = #{emsConnectionId} 
+		 and t.NE_MODEL  = #{neModel}
+	</select>
+	
+	<select id="selectTableListById" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${idName} = ${id}
+	</select>
+	
+	<update id="updateNeById" parameterType="hashmap" >
+	    update T_NE
+	    <set >
+	      <if test="NE_NAME != null" >
+	        NE_NAME = #{NE_NAME},
+	      </if>
+	      <if test="NE_TYPE != null" >
+	        NE_TYPE = #{NE_TYPE},
+	      </if>
+	      <if test="SUPORT_RATES != null" >
+	        SUPORT_RATES = #{SUPORT_RATES},
+	      </if>
+	    </set>
+	    where NE_ID = #{NE_ID}
+	  </update>
+	
+</mapper>

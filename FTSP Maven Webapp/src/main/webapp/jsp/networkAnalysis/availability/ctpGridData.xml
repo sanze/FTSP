@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Data>
+  <Items>   
+    <TotalResults>3</TotalResults>
+    <TotalPages>1</TotalPages>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>中卫老电信局_1/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>CX600</DISPLAY_PRODUCT_NAME>
+      <PORT>1-2(WDM)-5(OBA)-2(out)</PORT>
+      <TYPE>SDH</TYPE>
+      <PORT_TYPE>STM-4</PORT_TYPE>
+      <TYPE_A_NAME>54%(54/100)</TYPE_A_NAME>
+      <TYPE_B_NAME>9%(9/100)</TYPE_B_NAME>
+    </Item>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>气象局_20/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>ZXMP S200</DISPLAY_PRODUCT_NAME>
+      <PORT>1-2(WDM)-2(OBA)-2(out)</PORT>
+      <TYPE>SDH</TYPE>
+      <PORT_TYPE>STM-4</PORT_TYPE>
+      <TYPE_A_NAME>54%(54/100)</TYPE_A_NAME>
+      <TYPE_B_NAME>9%(9/100)</TYPE_B_NAME>
+    </Item>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>地毯厂60/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>ZXMP S380</DISPLAY_PRODUCT_NAME>
+      <PORT>1-2(WDM)-4(OBA)-2(out)</PORT>
+      <TYPE>SDH</TYPE>
+      <PORT_TYPE>STM-1</PORT_TYPE>
+      <TYPE_A_NAME>54%(54/100)</TYPE_A_NAME>
+      <TYPE_B_NAME>9%(9/100)</TYPE_B_NAME>
+    </Item>
+  </Items>
+</Data>

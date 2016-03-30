@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.fujitsu.dao.mysql.FaultDiagnoseMapper">
+
+	<!-- 查询故障诊断规则记录数 -->
+	<select id="getFaultDiagnoseRulesCount" resultType="int">
+		select count(1) from T_FAULT_DIAGNOSE
+	</select>
+
+	<!-- 查询故障诊断规则记录 -->
+	<select id="getFaultDiagnoseRules" resultType='hashmap'>
+		select FD.*,date_format(FD.UPDATE_TIME,'%Y-%m-%d %H:%i:%s') as UPDATE_TIME_STR,TA.MAIN_ALARM,TEMS.EMS_NAME,TEQUIP.EQUIPMENT_NAME from T_FAULT_DIAGNOSE FD 
+		left join (
+		select DIAGNOSE_ID,group_concat(ALARM_NAME) as MAIN_ALARM from T_FAULT_DIAGNOSE_CONDITION group by DIAGNOSE_ID) TA on FD.DIAGNOSE_ID = TA.DIAGNOSE_ID
+		left join (
+		select FDS.DIAGNOSE_ID,concat('网管：',group_concat(EMS.DISPLAY_NAME)) as EMS_NAME from T_FAULT_DIAGNOSE_SCOPE FDS 
+		left join T_BASE_EMS_CONNECTION EMS on FDS.EMS_ID = EMS.BASE_EMS_CONNECTION_ID 
+		group by FDS.DIAGNOSE_ID) TEMS on FD.DIAGNOSE_ID = TEMS.DIAGNOSE_ID
+		left join (
+		select EQUIP.DIAGNOSE_ID,group_concat((select case when MAPPING.FACTORY=1 then '华为'
+		when MAPPING.FACTORY=2 then '中兴'
+		when MAPPING.FACTORY=3 then '朗讯'
+		when MAPPING.FACTORY=4 then '烽火' 
+		when MAPPING.FACTORY=9 then '富士通' end),EQUIP.PRODUCT_NAME) as EQUIPMENT_NAME
+		from T_FAULT_DIAGNOSE_EQUIPMENT EQUIP
+		left join T_BASE_PRODUCT_MAPPING MAPPING on EQUIP.PRODUCT_NAME = MAPPING.PRODUCT_NAME
+		group by EQUIP.DIAGNOSE_ID) TEQUIP 
+		on FD.DIAGNOSE_ID = TEQUIP.DIAGNOSE_ID 
+		limit #{start}, #{limit}
+	</select>
+	
+	<!-- 通过ID获取故障诊断规则详情 -->
+	<select id="getFaultDiagnoseDetailById" resultType='hashmap'>
+		select FD.*,date_format(FD.UPDATE_TIME,'%Y-%m-%d %H:%i:%s') as UPDATE_TIME_STR,TA.MAIN_ALARM,TEMS.EMS_NAME,TEQUIP.EQUIPMENT_NAME from T_FAULT_DIAGNOSE FD 
+		left join (
+		select DIAGNOSE_ID,group_concat(ALARM_NAME) as MAIN_ALARM from T_FAULT_DIAGNOSE_CONDITION group by DIAGNOSE_ID) TA on FD.DIAGNOSE_ID = TA.DIAGNOSE_ID
+		left join (
+		select FDS.DIAGNOSE_ID,concat('网管：',group_concat(EMS.DISPLAY_NAME)) as EMS_NAME from T_FAULT_DIAGNOSE_SCOPE FDS 
+		left join T_BASE_EMS_CONNECTION EMS on FDS.EMS_ID = EMS.BASE_EMS_CONNECTION_ID 
+		group by FDS.DIAGNOSE_ID) TEMS on FD.DIAGNOSE_ID = TEMS.DIAGNOSE_ID
+		left join (
+		select DIAGNOSE_ID,group_concat(PRODUCT_NAME) as EQUIPMENT_NAME  from T_FAULT_DIAGNOSE_EQUIPMENT group by DIAGNOSE_ID) TEQUIP 
+		on FD.DIAGNOSE_ID = TEQUIP.DIAGNOSE_ID 
+		where FD.DIAGNOSE_ID = #{diagnoseId}
+	</select>
+	
+	<!-- 通过diagnoseId获取故障诊断条件 -->
+	<select id="getCondByDiagnoseId" resultType='hashmap'>
+		select * from T_FAULT_DIAGNOSE_CONDITION where DIAGNOSE_ID = #{diagnoseId}
+	</select>
+	
+	<!-- 通过diagnoseId获取故障诊断执行动作 -->
+	<select id="getActionByDiagnoseId" resultType='hashmap'>
+		select * from T_FAULT_DIAGNOSE_ACTION where DIAGNOSE_ID = #{diagnoseId}
+	</select>
+	
+	<!-- 获取故障诊断规则的适用范围 -->
+	<select id="getApplyScope" resultType='hashmap'>
+		select SCOPE.EMS_ID as nodeId,EG.GROUP_NAME,EMS.DISPLAY_NAME as EMS_NAME from T_FAULT_DIAGNOSE_SCOPE SCOPE 
+		left join T_BASE_EMS_CONNECTION EMS on SCOPE.EMS_ID = EMS.BASE_EMS_CONNECTION_ID 
+		left join T_BASE_EMS_GROUP EG on EMS.BASE_EMS_GROUP_ID = EG.BASE_EMS_GROUP_ID 
+		where SCOPE.DIAGNOSE_ID = #{diagnoseId}
+	</select>
+	
+	<!-- 取指定网管下的网元型号和工厂信息 -->
+	<select id="getApplyEquips" resultType='hashmap'>
+		select distinct PRODUCT_NAME, FACTORY from t_base_ne
+		where BASE_EMS_CONNECTION_ID in 
+		<foreach collection="emsIds" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+	</select>
+	
+	<!-- 获取指定故障诊断规则的适用范围 -->
+	<select id="getFaultDiagnoseEms" resultType='hashmap'>
+		select EMS.BASE_EMS_CONNECTION_ID as nodeId,
+	    GRO.GROUP_NAME as GROUP_NAME,EMS.DISPLAY_NAME as EMS_NAME 
+	    from T_FAULT_DIAGNOSE_SCOPE SCOPE 
+		left join  T_BASE_EMS_CONNECTION EMS 
+		on SCOPE.EMS_ID = EMS.BASE_EMS_CONNECTION_ID  
+		left join T_BASE_EMS_GROUP GRO 
+		on GRO.BASE_EMS_GROUP_ID = EMS.BASE_EMS_GROUP_ID 
+		where SCOPE.DIAGNOSE_ID = #{diagnoseId}
+	</select>
+	
+	<!-- 获取指定故障诊断规则的适用设备 -->
+	<select id="getFaultDiagnoseEquips" resultType='hashmap'>
+		select (case when map.FACTORY=1 then '华为'
+		when map.FACTORY=2 then '中兴'
+		when map.FACTORY=3 then '朗讯'
+		when map.FACTORY=4 then '烽火' 
+		when map.FACTORY=9 then '富士通' end) as factoryStr,
+		map.FACTORY,equip.PRODUCT_NAME 
+		from t_fault_diagnose_equipment equip 
+		left join t_base_product_mapping map 
+		on equip.PRODUCT_NAME = map.PRODUCT_NAME 
+		where equip.DIAGNOSE_ID = #{diagnoseId}
+	</select>
+	
+	<delete id="deleteTableById"  parameterType="java.lang.Integer"> 
+ 		delete from ${map.NAME} where ${map.ID_NAME} = #{map.ID_VALUE}  
+	</delete>
+	
+	<!-- 新增故障诊断规则适用范围 -->
+	<insert id="addFaultDiagnoseScope" parameterType="hashmap">
+		insert into t_fault_diagnose_scope (DIAGNOSE_ID,EMS_ID) 
+		values 
+		<foreach collection="map.ids" item="item" index="index" separator=",">
+   			(#{map.diagnoseId}, #{item})
+   		</foreach>
+	</insert>
+	
+	<!-- 新增故障诊断规则适用设备 -->
+	<insert id="addFaultDiagnoseEquipment" parameterType="hashmap">
+		insert into t_fault_diagnose_equipment (DIAGNOSE_ID,PRODUCT_NAME) 
+		values 
+		<foreach collection="map.proNames" item="item" index="index" separator=",">
+   			(#{map.diagnoseId}, #{item})
+   		</foreach>
+	</insert>
+	
+	<!-- 新增故障诊断规则条件 -->
+	<insert id="addFaultDiagnoseCondition" parameterType="hashmap">
+		insert  into t_fault_diagnose_condition (DIAGNOSE_ID, ALARM_NAME, OBJECT_TYPE, LEVEL) 
+		values 
+		<foreach collection="param" item="item" index="index" separator=",">
+   			(#{item.diagnoseId}, #{item.ALARM_NAME}, #{item.OBJECT_TYPE}, #{item.LEVEL})
+   		</foreach>
+	</insert>
+	
+	<!-- 设置系统参数 -->
+	<update id="setSysParam" parameterType="java.lang.String">
+		update t_sys_param T_SYS_PARAM 
+		set PARAM_VALUE = #{value} 
+		where PARAM_KEY = #{key}
+	</update>
+	
+	<!-- 获取系统参数 -->
+	<select id="getSysParam" resultType='hashmap'>
+		select * from T_SYS_PARAM where PARAM_KEY = #{key}
+	</select>
+	
+	
+	
+</mapper>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<title>读者对象</title>
+	<para>本书适合下列人员阅读：</para>
+	<itemizedlist>
+		<listitem>
+			<para>网管操作工程师</para>
+		</listitem>
+	</itemizedlist>
+
+</section>

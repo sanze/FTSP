@@ -1,0 +1,14 @@
+.x-tree-node-cb{
+	vertical-align: middle;
+	width : 16px !important;
+	height: 16px !important;
+}
+.icon-checked-all {
+    background-image: url( ../images/TreeCheckNodeUI/checked-all.gif) !important;
+}
+.icon-checked-none {
+    background-image: url( ../images/TreeCheckNodeUI/checked-none.gif) !important;
+}
+.icon-checked-part {
+    background-image: url( ../images/TreeCheckNodeUI/checked-part.gif) !important;
+}

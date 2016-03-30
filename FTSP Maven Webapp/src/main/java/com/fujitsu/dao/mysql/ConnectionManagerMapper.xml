@@ -1,0 +1,2177 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ConnectionManagerMapper">
+	
+	<select id="getConnectionListByGroupId" resultType="hashmap" parameterType="java.util.Map" statementType="STATEMENT">
+	select 
+    	t1.BASE_EMS_CONNECTION_ID,
+    	t1.BASE_EMS_GROUP_ID,
+    	t1.IP,
+    	t1.DISPLAY_NAME,
+    	t1.USER_NAME,
+    	(case when t1.type = 11 then 'T2000' 
+              when t1.type = 12 then 'U2000'
+              when t1.type = 21 then 'E300'
+              when t1.type = 22 then 'U31'
+              when t1.type = 31 then 'LUCENT_OMS'
+              when t1.type = 41 then 'OTNM2000'
+              when t1.type = 51 then 'ALU'
+              when t1.type = 91 then 'FUJITSU' end) as TYPE,
+    	(case when t1.CONNECTION_MODE = 0 then '自动' 
+              when t1.CONNECTION_MODE = 1 then '手动' end) as CONNECTION_MODE,
+    	(case when t1.CONNETION_TYPE = 1 then 'CORBA' 
+              when t1.CONNETION_TYPE = 2 then 'TELNET' end) as CONNETION_TYPE,
+    	t1.PORT,
+    	t1.EMS_NAME,
+    	t1.INTERNAL_EMS_NAME,
+    	t1.EMS_VERSION,
+    	t1.ENCODE,
+    	t1.IDL_VERSION,
+    	t1.EXCEPTION_REASON,
+    	CAST(t1.INTERVAL_TIME  AS char) as INTERVAL_TIME,
+    	t1.TIME_OUT,
+    	CAST(t1.COLLEC_START_TIME  AS char)  as COLLEC_START_TIME,
+    	CAST(t1.COLLEC_END_TIME  AS char) as COLLEC_END_TIME,
+    	t1.FACTORY,
+    	t1.CONNECT_STATUS,
+    	t1.EXCEPTION_REASON, 
+     	(case when t1.CONNECT_STATUS = 1 then '连接正常'
+              when t1.CONNECT_STATUS = 2 then '连接异常'
+              else  '连接中断 '  
+         end)  as CONNECT_STATUSSTR,
+              
+    	t1.GATEWAY_NE_ID,
+    	t1.SYNC_PERIOD,
+    	t1.SYNC_PERIOD_DISPLAY,
+    	CAST(t1.LATEST_SYNC_TIME  AS char) as LATEST_SYNC_TIME,
+    	CAST(t1.NEXT_SYNC_TIME  AS char)  as NEXT_SYNC_TIME,
+    	t1.SVC_RECORD_ID,
+    	t2.SERVICE_NAME,
+    	t2.STATUS,
+        (case when (t1.COLLECT_STATUS = 3 and TIMESTAMPDIFF(SECOND, now(), t1.FORBIDDEN_TIME_LIMIT) >0) then t1.COLLECT_STATUS
+              when (t1.COLLECT_STATUS = 3 and TIMESTAMPDIFF(SECOND, t1.FORBIDDEN_TIME_LIMIT, now()) >0) then t1.COLLECT_STATUS - 1
+        else  t1.COLLECT_STATUS end)  as COLLECT_STATUS ,
+    	CAST( TIMESTAMPDIFF(MINUTE, now(), t1.FORBIDDEN_TIME_LIMIT) AS char)  as time ,
+     	(case when t1.COLLECT_STATUS = 2 then '正在采集'
+              when t1.COLLECT_STATUS = 3 then '暂停采集 '  
+              when t1.COLLECT_STATUS = 4 then '禁止 采集'  end) as COLLECT_STATUSSTR,
+    	CAST(t1.LINK_SYNC_TIME  AS char) as LINK_SYNC_TIME,
+    	t1.LINK_SYNC_STATUS,
+    	t1.LINK_SYNC_RESULT,
+    	t1.COLLECT_SOURCE,
+    	t1.POSITION_X,
+    	t1.POSITION_Y,
+    	t1.THREAD_NUM,
+    	t1.ITERATOR_NUM,
+    	t1.IS_DEL,
+    	CAST(t1.CREATE_TIME  AS char) as CREATE_TIME,
+    	CAST(t1.UPDATE_TIME  AS char) as UPDATE_TIME,
+    	t3.GROUP_NAME,
+    	t1.GATEWAY_NE_ID,
+    	t4.DISPLAY_NAME as NeDisplayName
+	from
+    	T_BASE_EMS_CONNECTION t1
+        	left join
+    	T_SYS_SVC_RECORD t2 ON t1.SVC_RECORD_ID = t2.SYS_SVC_RECORD_ID
+        	left join
+    	T_BASE_EMS_GROUP t3 ON t1.BASE_EMS_GROUP_ID = t3.BASE_EMS_GROUP_ID
+        	left join
+    	T_BASE_NE t4 ON t1.GATEWAY_NE_ID = t4.BASE_NE_ID
+     	where
+			<!--  <if test="map.emsGroupId == null">
+				t1.BASE_EMS_GROUP_ID is  #{map.emsGroupId}   and t1.IS_DEL = 0
+			</if>
+			<if test="map.emsGroupId == -1">
+				t1.IS_DEL = 0
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null ">
+				t1.BASE_EMS_GROUP_ID = #{map.emsGroupId}   and t1.IS_DEL = 0  
+			</if>-->
+			t1.IS_DEL = 0 
+			
+			and t1.BASE_EMS_CONNECTION_ID in 
+		<foreach collection="map.ids" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		ORDER BY t1.BASE_EMS_CONNECTION_ID ASC
+		<if test="map.flag == 0">
+			limit ${map.start},${map.limit}
+		</if>	
+	</select>
+	
+	<select id="getConnectionListCount" resultType="Integer" parameterType="java.util.Map" statementType="STATEMENT">
+	select 
+    	count(*)
+	from
+    	T_BASE_EMS_CONNECTION t1
+        	left join
+    	T_SYS_SVC_RECORD t2 ON t1.SVC_RECORD_ID = t2.SYS_SVC_RECORD_ID
+        	left join
+    	T_BASE_EMS_GROUP t3 ON t1.BASE_EMS_GROUP_ID = t3.BASE_EMS_GROUP_ID
+        	left join
+    	T_BASE_NE t4 ON t1.GATEWAY_NE_ID = t4.BASE_NE_ID
+     	<!-- <where>
+			<if test="map.emsGroupId == null">
+				t1.BASE_EMS_GROUP_ID is  #{map.emsGroupId}   and t1.IS_DEL = 0
+			</if>
+			<if test="map.emsGroupId == -1">
+				t1.IS_DEL = 0
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null ">
+				t1.BASE_EMS_GROUP_ID = #{map.emsGroupId}   and t1.IS_DEL = 0  
+			</if>
+		</where>
+		 --> 
+	where 	t1.IS_DEL = 0 and t1.BASE_EMS_CONNECTION_ID in 
+		<foreach collection="map.ids" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach> 	
+	</select>
+	
+	<update id="updateCollectStatus"  parameterType="hashmap">
+		UPDATE `T_BASE_EMS_CONNECTION` 
+		SET    `COLLECT_STATUS` = #{map.collectStatus},
+			   `FORBIDDEN_TIME_LIMIT` = null 
+        WHERE  `BASE_EMS_CONNECTION_ID`= #{map.emsConnectionId} ;
+	</update>
+	
+	<update id="updateEmsConnection"  parameterType="hashmap">
+		UPDATE `T_BASE_EMS_CONNECTION` 
+		SET    `CONNECT_STATUS` = #{map.connectStatus},
+			   `EXCEPTION_REASON` = #{map.exceptionReason},
+			   `CONNECTION_MODE` = #{map.connectMode}
+        WHERE  `BASE_EMS_CONNECTION_ID`= #{map.emsConnectionId} ;
+	</update>
+	
+	<select id="getEmsCollectInfoByEmsConnectionId" resultType="hashmap" parameterType="hashmap">
+		SELECT 
+    		(case when (COLLECT_STATUS = 3 and TIMESTAMPDIFF(SECOND, now(), FORBIDDEN_TIME_LIMIT) >0) then COLLECT_STATUS
+                  when (COLLECT_STATUS = 3 and TIMESTAMPDIFF(SECOND, FORBIDDEN_TIME_LIMIT, now()) >0) then COLLECT_STATUS - 1
+        	 else  COLLECT_STATUS end)  as COLLECT_STATUS,`FORBIDDEN_TIME_LIMIT`  
+		FROM
+    		T_BASE_EMS_CONNECTION
+     	where  `BASE_EMS_CONNECTION_ID`= #{map.emsConnectionId} ;
+	</select>
+	
+	<update id="updateCollectTime"  parameterType="hashMap"> 
+		 update  `T_BASE_EMS_CONNECTION`
+		 set `FORBIDDEN_TIME_LIMIT` = DATE_ADD(FORBIDDEN_TIME_LIMIT,INTERVAL  #{map.minutes}  MINUTE)
+		 where   `BASE_EMS_CONNECTION_ID`= #{map.emsConnectionId}
+	</update>
+	
+	<update id="updateCollectStatusAndTime"  parameterType="hashMap"> 
+		 update  `T_BASE_EMS_CONNECTION`
+		 set  `COLLECT_STATUS` = #{map.collectStatus},
+		      `FORBIDDEN_TIME_LIMIT` = DATE_ADD(NOW(),INTERVAL  #{map.minutes}  MINUTE)
+		 where   `BASE_EMS_CONNECTION_ID`= #{map.emsConnectionId}
+	</update>
+	
+	<select id="pauseCollectTime" resultType="Integer" parameterType="hashmap">
+		SELECT 
+    		TIMESTAMPDIFF(SECOND, now(), FORBIDDEN_TIME_LIMIT) 
+		FROM
+    		T_BASE_EMS_CONNECTION
+     	where  `BASE_EMS_CONNECTION_ID`= #{map.emsConnectionId} ;
+	</select>
+		
+	<update id="updateEmsConnectionSync"  parameterType="Integer">
+		UPDATE t_sys_task s  SET s.RESULT= 5  WHERE s.SYS_TASK_ID= #{taskId} ;
+	</update>
+	
+	<insert id="insertEmsSyncTaskParam"  parameterType="hashmap"  >  
+		INSERT INTO `t_sys_task_param` 
+		(
+		 `SYS_TASK_ID`,
+		 `PARAM_NAME`,  
+		 `PARAM_VALUE`) 
+        VALUES 
+        (
+	     #{map.taskId},
+	     '网管同步任务暂停时间',
+	     DATE_ADD(NOW(),INTERVAL  #{map.minutes}  MINUTE)) 
+	</insert>
+	
+	<select id="getEmsSyncTaskParamByTaskId" resultType="hashmap" parameterType="hashmap">
+		SELECT 
+    		SYS_TASK_ID,
+    		PARAM_VALUE
+		FROM
+    		t_sys_task_param t
+     	where t.SYS_TASK_ID =  #{map.taskId}
+	</select>
+	
+	<!-- 再次暂停时更新网管同步暂停时间 -->
+	<update id="updateEmsSyncTaskParamAfter"  parameterType="hashmap">
+		update t_sys_task_param
+		set PARAM_VALUE =  DATE_ADD(PARAM_VALUE,INTERVAL  #{map.minutes}  MINUTE) 
+		where SYS_TASK_ID =  #{map.taskId} ;
+	</update>
+	
+	<!-- 更新网管同步暂停时间 -->
+	<update id="updateEmsSyncTaskParamBefore"  parameterType="hashmap">
+		update t_sys_task_param
+		set PARAM_VALUE =  DATE_ADD(NOW(),INTERVAL  #{map.minutes}  MINUTE) 
+		where SYS_TASK_ID =  #{map.taskId} ;
+	</update>
+	
+	<!-- 添加、修改网管连接时判断网管名称地址是否存在 -->
+	<select id="checkConnectionNameExist" resultType="hashmap" parameterType="hashmap">
+		SELECT * FROM t_base_ems_connection
+		<where>
+			<if test="map.emsGroupId == 0">
+				base_ems_group_id is null  and display_name = #{map.emsDisplayName} and IS_DEL = 0 ;
+			</if>
+			<if test="map.emsGroupId != 0 and map.emsGroupId != -1">
+				base_ems_group_id = #{map.emsGroupId}  and display_name = #{map.emsDisplayName} and IS_DEL = 0 ;
+			</if>
+			<if test="map.emsGroupId == -1">
+				display_name = #{map.emsDisplayName} and IS_DEL = 0 ;
+			</if>
+		</where> 
+	</select>
+	
+	<!-- 添加、修改网管连接时判断网管IP地址是否存在 -->
+	<select id="checkIpAddressExist" resultType="hashmap" parameterType="hashmap">
+		SELECT * FROM t_base_ems_connection
+		where IP = #{map.ip}  and IS_DEL = 0 ;
+	</select>
+	
+	<!-- 获取 网管同步页面手动同步操作  时暂停操作相关信息 -->
+	<select id="getEmsSyncTaskInfoByEmsConnectionId" resultType="hashmap" parameterType="Integer">
+		select i.SYS_TASK_ID,i.TARGET_TYPE,i.TARGET_ID,p.PARAM_VALUE 
+		from  t_sys_task_info i left join t_sys_task_param p on i.SYS_TASK_ID = p.SYS_TASK_ID
+		where i.TARGET_TYPE = 2 and i.SYS_TASK_ID = #{emsConnectionId} ;
+	</select>
+	
+	<select id="getConnectionByEmsConnectionId" resultType="map" parameterType="Integer">
+	select 
+    	t1.BASE_EMS_CONNECTION_ID,
+    	t1.BASE_EMS_GROUP_ID,
+    	t1.IP,
+    	t1.DISPLAY_NAME,
+    	t1.USER_NAME,
+    	t1.PASSWORD,
+    	t1.type,
+    	t1.CONNECTION_MODE,
+    	t1.CONNETION_TYPE,
+    	t1.PORT,
+    	t1.EMS_NAME,
+    	t1.INTERNAL_EMS_NAME,
+    	t1.EMS_VERSION,
+    	t1.ENCODE,
+    	t1.IDL_VERSION,
+    	t1.EXCEPTION_REASON,
+    	CAST(t1.INTERVAL_TIME  AS char) as INTERVAL_TIME,
+    	t1.TIME_OUT,
+    	CAST(t1.COLLEC_START_TIME  AS char) as COLLEC_START_TIME,
+    	CAST(t1.COLLEC_END_TIME  AS char) as COLLEC_END_TIME,
+    	t1.FACTORY,
+    	t1.CONNECT_STATUS,
+    	t1.GATEWAY_NE_ID,
+    	t1.SYNC_PERIOD,
+    	t1.SYNC_PERIOD_DISPLAY,
+    	CAST(t1.LATEST_SYNC_TIME  AS char) as LATEST_SYNC_TIME,
+    	CAST(t1.NEXT_SYNC_TIME  AS char) as NEXT_SYNC_TIME,
+    	t1.SVC_RECORD_ID,
+    	t1.SVC_RECORD_ID,
+    	t2.SERVICE_NAME,
+    	t1.COLLECT_STATUS,
+    	CAST(t1.LINK_SYNC_TIME  AS char) as LINK_SYNC_TIME,
+    	t1.LINK_SYNC_STATUS,
+    	t1.LINK_SYNC_RESULT,
+    	t1.COLLECT_SOURCE,
+    	t1.POSITION_X,
+    	t1.POSITION_Y,
+    	t1.IS_DEL,
+    	CAST(t1.CREATE_TIME  AS char) as CREATE_TIME,
+    	CAST(t1.UPDATE_TIME  AS char) as UPDATE_TIME,
+    	t1.BASE_EMS_GROUP_ID,
+    	t3.GROUP_NAME,
+    	t1.GATEWAY_NE_ID,
+    	t4.DISPLAY_NAME as NeDisplayName,
+    	t1.THREAD_NUM,
+    	t1.ITERATOR_NUM
+	from
+    	T_BASE_EMS_CONNECTION t1
+        	left join
+    	T_SYS_SVC_RECORD t2 ON t1.SVC_RECORD_ID = t2.SYS_SVC_RECORD_ID
+        	left join
+    	T_BASE_EMS_GROUP t3 ON t1.BASE_EMS_GROUP_ID = t3.BASE_EMS_GROUP_ID
+        	left join
+    	T_BASE_NE t4 ON t1.GATEWAY_NE_ID = t4.BASE_NE_ID
+     	<where>
+			<if test="emsConnectionId != -1">
+				t1.BASE_EMS_CONNECTION_ID = #{emsConnectionId} and t1.IS_DEL = 0
+			</if>
+			<if test="emsConnectionId == -1">
+				t1.IS_DEL = 0
+			</if>
+		</where> 		
+	</select>
+	
+	<select id="getConnectGroup" resultType="hashmap" parameterType="Integer">
+		select 
+    		BASE_EMS_GROUP_ID, GROUP_NAME
+		from
+    		T_BASE_EMS_GROUP
+	    <where>
+			<if test="emsGroupId != -1">
+				BASE_EMS_GROUP_ID = #{emsGroupId}
+			</if>
+		</where>  
+	</select>
+	
+	<select id="getConnectService" resultType="hashmap" >
+		SELECT 
+    		t.SYS_SVC_RECORD_ID, t.SERVICE_NAME
+		FROM
+    		t_sys_svc_record t; 
+	</select>
+
+	<insert id="addCorbaConnection"  parameterType="hashmap"  keyProperty="BASE_EMS_CONNECTION_ID" >  
+		INSERT INTO `t_base_ems_connection` 
+		(
+		`BASE_EMS_CONNECTION_ID`,
+		 `CONNETION_TYPE`,
+		 `BASE_EMS_GROUP_ID`,  
+		 `DISPLAY_NAME`,
+		 `TYPE`, 
+		 `FACTORY`,
+		 `SVC_RECORD_ID`,
+		 `CONNECTION_MODE`,
+		 `CONNECT_STATUS`,
+		  `IP`, 
+		  `ENCODE`, 
+		  `PORT`,  
+		  `EMS_NAME`, 
+		  `INTERNAL_EMS_NAME`, 
+		  `COLLEC_START_TIME`, 
+		  `COLLEC_END_TIME`,
+		  `COLLECT_SOURCE`,
+		  `COLLECT_STATUS`,
+		  `USER_NAME`, 
+		  `PASSWORD`,  
+		  `INTERVAL_TIME`, 
+		  `TIME_OUT`, 
+		 `CREATE_TIME`,
+		 `THREAD_NUM`,
+		 `ITERATOR_NUM`) 
+        VALUES 
+        (
+         #{BASE_EMS_CONNECTION_ID},
+	     #{connectionType},
+	     #{emsGroupId},
+	     #{displayName},
+	     #{type},
+	     #{factory},
+	     #{svcRecordId},
+	     #{connectionMode},
+	     #{connectStatus},
+	     #{ip},
+	     #{encode},
+	     #{port},
+	     #{emsName},
+	     #{internalEmsName},
+	     #{collecStartTime},
+	     #{collecEndTime},
+	     #{collectSource},
+	     #{collectStatus},
+	     #{userName},
+	     #{password},
+	     #{intervalTime},
+	     #{timeOut},
+	     now(),
+	     #{threadNum},
+	     #{iteratorNum}) 
+	</insert>
+	
+	<insert id="addNeInfo"  parameterType="hashmap"   >  
+		INSERT INTO `t_base_ne` 
+		( 
+		 `DISPLAY_NAME`,
+		 `USER_NAME`,
+		 `PASSWORD`, 
+		 `CREATE_TIME`) 
+        VALUES 
+        (
+	     #{hashMap.nativeEmsName},
+	     #{hashMap.userName},
+	     #{hashMap.password},
+	     now()) 
+	</insert>
+
+	<select id="getNeInfoByNativeName" resultType="String" parameterType="java.lang.String">
+		SELECT 
+    		t.base_ne_id
+		FROM
+    		t_base_ne t
+		where
+    		t.DISPLAY_NAME = #{nativeEmsName} 
+	</select>
+	
+	<insert id="addTelnetConnection"  parameterType="hashmap"  keyProperty="BASE_EMS_CONNECTION_ID" >  
+		INSERT INTO `t_base_ems_connection` 
+		(
+		`BASE_EMS_CONNECTION_ID`,
+		 `CONNETION_TYPE`,
+		 `BASE_EMS_GROUP_ID`,  
+		 `DISPLAY_NAME`,
+		 `TYPE`, 
+		 `FACTORY`, 
+		 `SVC_RECORD_ID`,
+		 `CONNECTION_MODE`,
+		 `CONNECT_STATUS`,
+		  `IP`, 
+		  `ENCODE`, 
+		  `PORT`,  
+		  `GATEWAY_NE_ID`,  
+		  `USER_NAME`, 
+		  `PASSWORD`,  
+		  `COLLEC_START_TIME`, 
+		  `COLLEC_END_TIME`,
+		  `COLLECT_SOURCE`,
+		  `COLLECT_STATUS`,
+		  `INTERVAL_TIME`, 
+		  `TIME_OUT`, 
+		 `CREATE_TIME`) 
+        VALUES 
+        (
+         #{BASE_EMS_CONNECTION_ID},
+	     #{connectionType},
+	     #{emsGroupId},
+	     #{displayName},
+	     #{type},
+	     #{factory},
+	     #{svcRecordId},
+	     #{connectionMode},
+	     #{connectStatus},
+	     #{ip},
+	     #{encode},
+	     #{port},
+	     #{gateWayNeId},
+	     #{userName},
+	     #{password},
+	     #{collecStartTime},
+	     #{collecEndTime},
+	     #{collectSource},
+	     #{collectStatus},
+	     #{intervalTime},
+	     #{timeOut},
+	     now()) 
+	</insert>
+	
+	<select id="getNeInfoByNeId" resultType="hashmap" parameterType="Integer">
+		SELECT 
+    		t.*
+		FROM
+    		t_base_ne t
+		where
+    		t.BASE_NE_ID = #{neId}  and t.is_del = 0
+	</select>
+	
+	<select id="getNeInfoByNeSerialNo" resultType="hashmap" parameterType="Integer">
+		SELECT 
+    		t.BASE_NE_ID as neId,t.NAME as neSerialNo,t.DISPLAY_NAME as neDisplayName,c.BASE_EMS_CONNECTION_ID as emsConnectionId,c.DISPLAY_NAME as emsDisplayName,t.SUPORT_RATES as suportRates   
+		FROM
+    		t_base_ne t		        
+    			left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = t.BASE_EMS_CONNECTION_ID
+		where
+    		t.BASE_NE_ID = #{neId}  and t.is_del = 0
+	</select>
+	
+	<update id="modifyNeInfoByNeId"  parameterType="hashmap">
+		UPDATE `t_base_ne` 
+		SET    `DISPLAY_NAME` = #{hashMap.nativeEmsName},
+       		   `USER_NAME` =  #{hashMap.userName},
+               `PASSWORD` =  #{hashMap.password} 
+        WHERE  `BASE_NE_ID`= #{hashMap.neId} ;
+	</update>
+	
+	<update id="modifyConnection"  parameterType="map">
+		UPDATE `t_base_ems_connection` 
+		SET    `BASE_EMS_GROUP_ID` = #{map.emsGroupId},
+		       `IP` = #{map.ip}, 
+		       `DISPLAY_NAME` = #{map.displayName},
+		       `USER_NAME` = #{map.userName},
+		       `PASSWORD` = #{map.password}, 
+		       `CONNECTION_MODE` = #{map.connectionMode},
+		       `CONNETION_TYPE` = #{map.connectionType},
+		       `SVC_RECORD_ID` = #{map.svcRecordId},
+   		       `TYPE` = #{map.type},  
+               `PORT` = #{map.port},
+               `THREAD_NUM` = #{map.threadNum},
+               `ITERATOR_NUM` = #{map.iteratorNum},
+               	<if test="map.connectionType == 1">
+					`EMS_NAME` = #{map.emsName},  
+					`INTERNAL_EMS_NAME` = #{map.internalEmsName}, 
+		        </if>
+		        
+		        `ENCODE` = #{map.encode},   
+		       `INTERVAL_TIME` = #{map.intervalTime}, 
+		       `TIME_OUT` = #{map.timeOut} 
+		WHERE `BASE_EMS_CONNECTION_ID` = #{map.emsConnectionId};
+	</update>
+	
+	<delete id="deleteNeInfoByNeId"  parameterType="Integer">
+		update `t_base_ne` set `IS_DEL` = 1  where `BASE_NE_ID` = #{neId}
+	</delete>
+	
+	<delete id="deleteConnection"  parameterType="Integer">
+	 	
+		update  `T_BASE_EMS_CONNECTION`  set `IS_DEL` = 1  where `BASE_EMS_CONNECTION_ID` = #{emsConnectionId} ;
+	</delete>
+	
+	<!-- 网管管理页面中网管数量统计 -->
+	<select id="selectEmsGroupListCount" parameterType="hashmap"
+		resultType="Integer">
+		SELECT
+			count(*)
+		FROM
+			t_base_ems_group
+		<where>
+			<if test="map.emsGroupId != -1">
+				BASE_EMS_GROUP_ID = #{map.emsGroupId} 
+			</if>
+		</where> 
+			
+	</select>
+
+	<!-- 网管管理页面中网管记录查询 -->
+	<select id="selectEmsGroupList" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT
+			BASE_EMS_GROUP_ID,
+			GROUP_NAME,
+			NOTE
+		FROM
+			t_base_ems_group
+		<where>
+			<if test="map.emsGroupId != -1">
+				BASE_EMS_GROUP_ID = #{map.emsGroupId} 
+			</if>
+		</where> 
+		limit #{map.start},#{map.limit}
+	</select>
+	
+	<insert id="addEmsGroup"  parameterType="hashmap"  >  
+		INSERT INTO `t_base_ems_group` 
+		(
+		 `GROUP_NAME`,
+		 `NOTE`,  
+		 `CREATE_TIME`) 
+        VALUES 
+        (
+	     #{map.emsGroupName},
+	     #{map.emsGroupNote},
+	     now()) 
+	</insert>
+	
+	<delete id="deleteEmsGroup"  parameterType="hashmap">
+		delete from `t_base_ems_group` where `BASE_EMS_GROUP_ID` = #{map.emsGroupId}
+	</delete>
+	
+	<update id="updateEmsConnnectionByEmsGroupId"  parameterType="hashmap">
+		UPDATE `T_BASE_EMS_CONNECTION` 
+		SET    `BASE_EMS_GROUP_ID` = null
+        WHERE  `BASE_EMS_GROUP_ID`= #{map.emsGroupId} ;
+	</update>
+	
+	<update id="modifyEmsGroup"  parameterType="hashmap">
+		UPDATE `t_base_ems_group` 
+		SET    `GROUP_NAME`= #{map.emsGroupName}, 
+		       `NOTE`= #{map.emsGroupNote} 
+        WHERE  `BASE_EMS_GROUP_ID`= #{map.emsGroupId} ;
+	</update>
+	
+	<insert id="addSubnet"  parameterType="hashmap"  >  
+		INSERT INTO `t_base_subnet` 
+		(
+		 `DISPLAY_NAME`,
+		 `NOTE`,  
+		 `BASE_EMS_CONNECTION_ID`,
+		 `PARENT_SUBNET`, 
+		 `CREATE_TIME`) 
+        VALUES 
+        (
+	     #{map.subnetName},
+	     #{map.subnetNote},
+	     #{map.emsConnectionId},
+	     #{map.parentSubnetId},
+	     now()) 
+	</insert>
+	
+	<update id="modifySubnet"  parameterType="hashmap">
+		UPDATE `t_base_subnet` 
+		SET    `DISPLAY_NAME`= #{map.subnetName}, 
+		       `NOTE`= #{map.subnetNote} 
+        WHERE  `BASE_SUBNET_ID`= #{map.subnetId} ;
+	</update>
+
+	<select id="getSubnetBySubnetId" resultType="hashmap"
+		parameterType="Integer">
+		SELECT
+			t.BASE_SUBNET_ID,
+			t.BASE_EMS_CONNECTION_ID,
+			t.PARENT_SUBNET,
+			t.DISPLAY_NAME,
+			t.NOTE
+		FROM
+			t_base_subnet t
+		where
+			BASE_SUBNET_ID = #{subnetId} ;
+	</select>
+	
+	<select id="checkSubnetNameExist" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+			t.BASE_SUBNET_ID,
+			t.BASE_EMS_CONNECTION_ID,
+			t.PARENT_SUBNET,
+			t.DISPLAY_NAME,
+			t.NOTE
+		FROM
+			t_base_subnet t
+		where
+			t.DISPLAY_NAME = #{map.subnetName} and t.BASE_EMS_CONNECTION_ID = #{map.emsConnectionId} ;
+	</select>
+	
+	<update id="updateNeInfoBySubnetId"  parameterType="hashmap">
+		UPDATE `T_BASE_NE` 
+		SET    `BASE_SUBNET_ID` = null
+        WHERE  `BASE_SUBNET_ID`= #{map.subnetId} ;
+	</update>
+	
+	<delete id="deleteSubnet"  parameterType="hashmap">
+		delete from `t_base_subnet` where `BASE_SUBNET_ID` = #{map.subnetId} or `PARENT_SUBNET` = #{map.subnetId}
+	</delete>
+	
+	<select id="getSyncNeListByEmsInfoCount" resultType="Integer"
+		parameterType="hashmap">
+		SELECT 
+			Count(*)
+		FROM
+		    t_base_ne n
+		<!-- 
+     	<where>
+     		<if test="map.emsGroupId == null">
+				n.is_del in (0,2)   and c.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId == -1">
+				n.is_del in (0,2) 
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				g.BASE_EMS_GROUP_ID =  #{map.emsGroupId} and n.is_del in (0,2)  
+			</if>
+			<if test="map.emsConnectionId != -1">
+				 AND n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId} 
+			</if>
+		</where>
+		 -->
+		 where 	n.is_del in (0,2) and n.BASE_NE_ID in 
+		<foreach collection="map.neIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+    </select>
+
+	<select id="getSyncNeListByEmsInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			n.*,
+			DATE_FORMAT(n.BASIC_SYNC_TIME,'%Y-%c-%d %H:%i:%s') AS BASIC_SYNC_TIME_DISPLAY,
+		    c.DISPLAY_NAME as emsConnectionName,
+		    c.CONNETION_TYPE,
+		    g.BASE_EMS_GROUP_ID,
+		    g.GROUP_NAME,
+		    s.STATION_NAME,
+		    a.AREA_NAME
+		FROM
+		    t_base_ne n
+		        left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = n.BASE_EMS_CONNECTION_ID
+		        left join
+		    T_BASE_EMS_GROUP g ON g.BASE_EMS_GROUP_ID = c.BASE_EMS_GROUP_ID
+		        left join
+		    t_resource_room r ON  r.RESOURCE_ROOM_ID= n.RESOURCE_ROOM_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = r.RESOURCE_STATION_ID
+		        left join
+		    T_RESOURCE_AREA a ON a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+
+		<!-- 
+     	<where>
+     		<if test="map.emsGroupId == null">
+				n.is_del in (0,2)   and c.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId == -1">
+				n.is_del in (0,2) 
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				g.BASE_EMS_GROUP_ID =  #{map.emsGroupId} and n.is_del in (0,2)  
+			</if>
+			<if test="map.emsConnectionId != -1">
+				 AND n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId} 
+			</if>
+		</where>
+		 -->
+		 where 	n.is_del in (0,2) and n.BASE_NE_ID in 
+		<foreach collection="map.neIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach> 
+			ORDER BY n.BASE_EMS_CONNECTION_ID ASC
+	 		limit ${map.start},${map.limit}
+    </select>
+    
+    <select id="getEmsConnection" resultType="hashmap"
+		parameterType="Integer">
+		SELECT 
+		    c.BASE_EMS_CONNECTION_ID as emsConnectionId,
+		    c.BASE_EMS_GROUP_ID as emsGroupId,
+		    c.DISPLAY_NAME as emsConnectionName,
+    		c.CONNETION_TYPE as connnectionType
+		FROM
+		    t_base_ems_connection c
+     	<where>
+     		<if test="emsGroupId == -1">
+				 c.is_del = 0
+			</if>
+     		<if test="emsGroupId == null">
+				 c.is_del = 0 and c.BASE_EMS_GROUP_ID  is null
+			</if>
+			<if test="emsGroupId != -1 and emsGroupId != null">
+				 c.BASE_EMS_GROUP_ID  =  #{emsGroupId}  and is_del = 0
+			</if>
+
+		</where>
+    </select>
+    
+	<select id="getNeListSyncByEmsConnectionId" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			n.BASE_NE_ID as neId,
+			n.NAME as neSerialNo,
+		    n.DISPLAY_NAME as neName,
+		    n.BASE_EMS_CONNECTION_ID as emsConnectionId,
+		    c.DISPLAY_NAME as emsConnectionName,
+		    g.BASE_EMS_GROUP_ID as emsGroupId,
+		    g.GROUP_NAME as emsGroupName,
+		    s.STATION_NAME as stationName,
+		    r.AREA_NAME as areaName,
+		    (case
+		        when n.FACTORY = 1 then '华为'
+		        when n.FACTORY = 2 then '中兴'
+		        when n.FACTORY = 3 then '朗讯 '
+		        when n.FACTORY = 4 then '烽火'
+		        when n.FACTORY = 5 then '贝尔 '
+		        when n.FACTORY = 9 then '富士通 '
+		    end) as factory,
+		    n.PRODUCT_NAME as productName,
+		    n.VERSION,
+		    n.BASIC_SYNC_STATUS as syncStatus,
+		     CAST(n.BASIC_SYNC_TIME AS char)  as syncTime,
+		    n.USER_NAME as userName,
+    		(case
+		        when n.COMMUNICATION_STATE = 0 then '在线'
+		        when n.COMMUNICATION_STATE = 1 then '离线'
+		        when n.COMMUNICATION_STATE = 2 then '未知 '
+		    end)  as loginStatus,
+		    (case
+		        when n.CONNECTION_MODE = 0 then '自动'
+		        when n.CONNECTION_MODE = 1 then '手工'
+		    end)   as loginMode
+		FROM
+		    t_base_ne n
+		        left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = n.BASE_EMS_CONNECTION_ID
+		        left join
+		    T_BASE_EMS_GROUP g ON g.BASE_EMS_GROUP_ID = c.BASE_EMS_GROUP_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = n.LOCATION
+		        left join
+		    T_RESOURCE_AREA r ON r.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+     	<where>
+			<if test="map.emsGroupId == -1">
+				n.is_del in (0,2) 
+			</if>
+			<if test="map.emsGroupId != -1">
+				g.BASE_EMS_GROUP_ID =  #{map.emsGroupId}  and n.is_del in (0,2) 
+			</if>
+
+			<if test="map.emsConnectionId != -1">
+				AND n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId} 
+			</if>
+		</where> 
+    </select>
+    
+    <update id="updateSubnetByParentSubnetId"  parameterType="Integer">
+		UPDATE `t_base_subnet` 
+		SET    `PARENT_SUBNET` = null
+        WHERE  `PARENT_SUBNET`= #{subnetId} ;
+	</update>
+	
+	<update id="updateNeBySubnetId"  parameterType="Integer">
+		UPDATE `T_BASE_NE` 
+		SET    `BASE_SUBNET_ID` = null
+        WHERE  `BASE_SUBNET_ID`= #{subnetId} ;
+	</update>
+	
+	<delete id="deleteSubnetBySubnetId"  parameterType="Integer">
+		delete from `t_base_subnet` where `BASE_SUBNET_ID` = #{subnetId}
+	</delete>
+	
+    <update id="updateSubnetBySubnetId"  parameterType="Integer">
+		UPDATE `t_base_subnet` 
+		SET    `PARENT_SUBNET` =  #{parentSubnetId} 
+        WHERE  `PARENT_SUBNET`= #{subnetId} ;
+	</update>
+	
+	<update id="updateNeByParentSubnetId"  parameterType="Integer">
+		UPDATE `T_BASE_NE` 
+		SET    `BASE_SUBNET_ID` =  #{parentSubnetId} 
+        WHERE  `BASE_SUBNET_ID`= #{subnetId} ;
+	</update>
+	<!-- @@@分权分域到网元@@@ -->
+	<select id="getNeListByEmsConnnectionId" resultType="hashmap"
+		parameterType="Integer">
+		SELECT
+			n.BASE_NE_ID as neId,
+			n.DISPLAY_NAME as neName,
+			n.BASE_EMS_CONNECTION_ID as emsConnectionId
+		FROM
+			(<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) n
+		WHERE
+			BASE_EMS_CONNECTION_ID = #{emsConnectionId} and BASE_SUBNET_ID is null and IS_DEL = 0
+    </select>
+    <!-- @@@分权分域到网元@@@ -->
+	<select id="getNeListByEmsConnnectionIdAndSubnetId" resultType="hashmap"
+		parameterType="Integer">
+		SELECT
+			n.BASE_NE_ID as neId,
+			n.DISPLAY_NAME as neName,
+			n.BASE_EMS_CONNECTION_ID as emsConnectionId,
+			n.PRODUCT_NAME,
+			s.STATION_NAME,
+		    a.AREA_NAME
+		FROM
+			(<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) n
+		        left join
+		    t_resource_room r ON  r.RESOURCE_ROOM_ID= n.RESOURCE_ROOM_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = r.RESOURCE_STATION_ID
+		        left join
+		    T_RESOURCE_AREA a ON a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+		WHERE
+			BASE_EMS_CONNECTION_ID = #{emsConnectionId} and BASE_SUBNET_ID = #{subnetId} and IS_DEL = 0
+    </select>
+    
+	<insert id="addTelnetNe"  parameterType="hashmap"  >  
+		INSERT INTO `t_base_ne` 
+		(
+		 `DISPLAY_NAME`,
+		 `DISPLAY_NAME`,
+		 `USER_NAME`,  
+		 `PASSWORD`,
+		 `CONNECTION_MODE`, 
+		 `BASE_EMS_CONNECTION_ID`, 
+		 `CREATE_TIME`) 
+        VALUES 
+        (
+         #{neMap.displayName},
+	     #{neMap.displayName},
+	     #{neMap.userName},
+	     #{neMap.password},
+	     #{neMap.connectionMode},
+	     #{neMap.emsConnectionId},
+	     now()) 
+	</insert>
+	
+	<select id="getTelnetNeByNeId" resultType="hashmap"
+		parameterType="map">
+		SELECT
+			n.BASE_EMS_CONNECTION_ID as emsConnectionId,	
+			n.BASE_NE_ID as neId,
+			n.DISPLAY_NAME as neName,
+			n.USER_NAME as userName,
+			n.PASSWORD as password,
+			n.SYNC_MODE as syncMode,
+			n.USER_LABEL,
+		    (case
+		        when n.CONNECTION_MODE = 0 then '自动'
+		        when n.CONNECTION_MODE = 1 then '手工'
+		    end)    as connectionMode
+		FROM
+			t_base_ne n
+		WHERE
+			 n.BASE_NE_ID = #{map.neId} and  n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId}
+    </select>
+    
+	<update id="modifyCorbaNe"  parameterType="map">
+		UPDATE `t_base_ne` 
+		<set>
+        	<if test="map.userLabel != null">
+                 `USER_LABEL` = #{map.userLabel},
+            </if>
+            <if test="map.syncMode != null">
+                 `SYNC_MODE` = #{map.syncMode}
+            </if>
+        </set>
+		WHERE `BASE_NE_ID` = #{map.neId};
+	</update>
+    
+	<update id="modifyTelnetNe"  parameterType="map">
+		UPDATE `t_base_ne` 
+		<set>
+        	<if test="map.displayName != null">
+                `DISPLAY_NAME` = #{map.displayName}, 
+            </if>
+            <if test="map.syncMode != null">
+                 `USER_NAME` = #{map.userName},
+            </if>
+            <if test="map.password != null">
+                `PASSWORD` = #{map.password}, 
+            </if>
+            <if test="map.connectionMode != null">
+                 `CONNECTION_MODE` = #{map.connectionMode}
+            </if>
+        </set>
+		WHERE `BASE_NE_ID` = #{map.neId};
+	</update>
+	
+	<delete id="deleteTelnetNe"  parameterType="Integer">
+		update `t_base_ne` set is_del = 1 where `BASE_NE_ID` =  #{map.neId};
+		
+	</delete>
+	
+	<update id="saveClassifiedNe"  parameterType="Integer">		
+		UPDATE `t_base_ne` 
+		<if test="subnetId == 0 ">
+		SET    `BASE_SUBNET_ID` = null
+		</if>
+		<if test="subnetId != 0 ">
+		SET    `BASE_SUBNET_ID` = #{subnetId}
+		</if>
+		WHERE `BASE_NE_ID` = #{neId} ;
+	</update>
+	
+	<update id="updateClassifiedNeBySubnetId"  parameterType="Integer">
+		UPDATE `T_BASE_NE` 
+		SET    `BASE_SUBNET_ID` = null
+        WHERE  `BASE_SUBNET_ID`=  #{subnetId} ;
+	</update>
+	
+	<select id="getCrossConnectListCount" resultType="Integer"
+		parameterType="hashmap">
+		SELECT 
+		    count(*)
+		FROM
+		    t_base_ne n
+		        left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = n.BASE_EMS_CONNECTION_ID
+		        left join
+		    T_BASE_EMS_GROUP g ON g.BASE_EMS_GROUP_ID = c.BASE_EMS_GROUP_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = n.LOCATION
+		        left join
+		    T_RESOURCE_AREA a ON a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+		        left join
+		    T_RESOURCE_ROOM r ON r.RESOURCE_STATION_ID = s.RESOURCE_STATION_ID
+		<!-- 
+     	<where>
+			<if test="map.emsGroupId == -1 ">
+				n.is_del in (0,1) 
+			</if>
+			<if test="map.emsGroupId == null">
+				n.is_del in (0,1) and c.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				g.BASE_EMS_GROUP_ID =  #{map.emsGroupId} and n.is_del in (0,1)  
+			</if>
+			<if test="map.emsConnectionId != -1">
+				AND n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId} 
+			</if>
+		</where>
+		 -->
+		where 	n.is_del = 0 and n.BASE_NE_ID in 
+		<foreach collection="map.neIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+    </select>
+	
+	<select id="getCrossConnectListByEmsInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+		    n.BASE_NE_ID as neId,
+		    n.NAME as neSerialNo,
+		    n.DISPLAY_NAME as neName,
+		    n.TYPE as type,
+		    n.SUPORT_RATES as suportRates,
+		    n.BASE_EMS_CONNECTION_ID as emsConnectionId,
+		    c.DISPLAY_NAME as emsConnectionName,
+		    g.BASE_EMS_GROUP_ID as emsGroupId,
+		    g.GROUP_NAME as emsGroupName,
+		    s.STATION_NAME as stationName,
+		    a.AREA_NAME as areaName,
+		    r.ROOM_NAME as roomName,
+		    (case
+		        when n.FACTORY = 1 then '华为'
+		        when n.FACTORY = 2 then '中兴'
+		        when n.FACTORY = 3 then '朗讯 '
+		        when n.FACTORY = 4 then '烽火'
+		        when n.FACTORY = 5 then '贝尔'
+		        when n.FACTORY = 9 then '富士通 '
+		    end) as factory,
+		    n.PRODUCT_NAME as productName,
+		    n.VERSION,
+		    (case
+		        when n.CRS_SYNC_STATUS = 1 then '已同步'
+		        when n.CRS_SYNC_STATUS = 2 then '未同步'
+		        when n.CRS_SYNC_STATUS = 3 then '同步失败'
+		    end) as crsSyncStatus,
+		    CAST(n.CRS_SYNC_TIME AS char)  as crsSyncTime
+		FROM
+		    t_base_ne n
+		        left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = n.BASE_EMS_CONNECTION_ID
+		        left join
+		    T_BASE_EMS_GROUP g ON g.BASE_EMS_GROUP_ID = c.BASE_EMS_GROUP_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = n.LOCATION
+		        left join
+		    T_RESOURCE_AREA a ON a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+		        left join
+		    T_RESOURCE_ROOM r ON r.RESOURCE_STATION_ID = s.RESOURCE_STATION_ID
+		<!-- 
+     	<where>
+			<if test="map.emsGroupId == -1 ">
+				n.is_del in (0,1) 
+			</if>
+			<if test="map.emsGroupId == null">
+				n.is_del in (0,1) and c.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				g.BASE_EMS_GROUP_ID =  #{map.emsGroupId} and n.is_del in (0,1)  
+			</if>
+			<if test="map.emsConnectionId != -1">
+				AND n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId} 
+			</if>
+		</where>
+		-->
+		where 	n.is_del = 0 and n.BASE_NE_ID in 
+		<foreach collection="map.neIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		limit #{map.start},#{map.limit} 
+    </select>
+    
+	<select id="getCrsSdhNeDetailInfoCount" resultType="Integer"
+		parameterType="hashmap">
+		SELECT
+			count(*) 
+		FROM
+		    t_base_sdh_crs c
+		        left join
+		    t_base_ne n ON c.BASE_NE_ID = n.BASE_NE_ID
+		        left join
+		    t_base_sdh_ctp d ON c.A_END_CTP = d.BASE_SDH_CTP_ID
+		        left join
+		    t_base_ptp p ON p.BASE_PTP_ID = d.BASE_PTP_ID
+
+		        left join
+		    t_base_sdh_ctp b ON c.Z_END_CTP = b.BASE_SDH_CTP_ID 
+		        left join
+		    t_base_ptp g ON g.BASE_PTP_ID = b.BASE_PTP_ID 
+		where
+		    c.BASE_NE_ID = #{map.neId}
+			<if test="map.rate != null ">
+				and c.RATE =  #{map.rate} 
+			</if>
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 0">
+				AND c.CIRCUIT_COUNT =  #{map.circuitCount} 
+			</if> 
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 1">
+				AND c.CIRCUIT_COUNT > 0 
+			</if>
+			<if test="map.changeState != -1">
+				<if test="map.changeState==1||map.changeState==2">
+					AND c.CHANGE_STATE =  #{map.changeState} 
+				</if>
+				<if test="map.changeState==3">
+					and  c.CHANGE_STATE  between 2 and 3
+				</if>
+			</if> 
+	</select>
+    
+	<select id="getCrsSdhNeDetailInfoByNeId" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+			n.DISPLAY_NAME as neName, 
+		    p.PORT_DESC as portA,
+		    d.DISPLAY_NAME as nnameCtpA,
+		    CONCAT(d.CTP_J_ORIGINAL,
+            '-',
+            d.CTP_K,
+            '-',
+            d.CTP_L,
+            '-',
+            d.CTP_M) as nameCtpA,
+		    g.PORT_DESC as portZ,
+		    b.DISPLAY_NAME as nnameCtpZ,
+		    CONCAT(b.CTP_J_ORIGINAL,
+            '-',
+            b.CTP_K,
+            '-',
+            b.CTP_L,
+            '-',
+            b.CTP_M) as nameCtpZ,
+		    c.RATE as connectRate,
+	    	c.CIRCUIT_COUNT as circuitCount,
+	    	c.CHANGE_STATE as changeState
+		FROM
+		    t_base_sdh_crs c
+		        left join
+		    t_base_ne n ON c.BASE_NE_ID = n.BASE_NE_ID
+		        left join
+		    t_base_sdh_ctp d ON c.A_END_CTP = d.BASE_SDH_CTP_ID
+		        left join
+		    t_base_ptp p ON p.BASE_PTP_ID = d.BASE_PTP_ID
+
+		        left join
+		    t_base_sdh_ctp b ON c.Z_END_CTP = b.BASE_SDH_CTP_ID 
+		        left join
+		    t_base_ptp g ON g.BASE_PTP_ID = b.BASE_PTP_ID
+		where
+		    c.BASE_NE_ID = #{map.neId}
+			<if test="map.rate != null ">
+				and c.RATE =  #{map.rate} 
+			</if>
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 0">
+				AND c.CIRCUIT_COUNT =  #{map.circuitCount} 
+			</if> 
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 1">
+				AND c.CIRCUIT_COUNT > 0 
+			</if>
+			<if test="map.changeState != -1">
+				<if test="map.changeState==1||map.changeState==2">
+					AND c.CHANGE_STATE =  #{map.changeState} 
+				</if>
+				<if test="map.changeState==3">
+					and  c.CHANGE_STATE  between 2 and 3
+				</if>
+			</if> 
+		limit #{map.start},#{map.limit} 
+	</select>
+	
+	<select id="getCrsOtherNeDetailInfoCount" resultType="Integer"
+		parameterType="hashmap">
+		SELECT
+			count(*) 
+		FROM
+		    t_base_otn_crs c
+		        left join
+		    t_base_ne n ON c.BASE_NE_ID = n.BASE_NE_ID
+		        left join
+		    t_base_otn_ctp d ON c.A_END_CTP = d.BASE_OTN_CTP_ID 
+		        left join
+		    t_base_ptp p on p.BASE_PTP_ID = d.BASE_PTP_ID 
+		        left join
+		    t_base_otn_ctp b ON c.Z_END_CTP = b.BASE_OTN_CTP_ID 
+		        left join
+		    t_base_ptp g ON g.BASE_PTP_ID = b.BASE_PTP_ID 
+		where
+		    n.BASE_NE_ID = #{map.neId}
+			<if test="map.rate != null ">
+				and c.RATE =  #{map.rate}  
+			</if>
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 0">
+				AND c.CIRCUIT_COUNT =  #{map.circuitCount} 
+			</if> 
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 1">
+				AND c.CIRCUIT_COUNT > 0 
+			</if>
+			<if test="map.changeState != -1">
+				<if test="map.changeState==1||map.changeState==2">
+					AND c.CHANGE_STATE =  #{map.changeState} 
+				</if>
+				<if test="map.changeState==3">
+				and  c.CHANGE_STATE  between 2 and 3
+				</if>
+			</if> 
+	</select>
+	
+	<select id="getCrsOtherNeDetailInfoByNeId" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+			n.DISPLAY_NAME as neName, 
+		    p.PORT_DESC as portA,
+		    d.DISPLAY_NAME as nnameCtpA,
+		    d.CTP_VALUE as nameCtpA,
+		    g.PORT_DESC as portZ,
+		    b.DISPLAY_NAME as nnameCtpZ,
+		    b.CTP_VALUE as nameCtpZ,
+		    c.RATE as connectRate,
+	    	c.CIRCUIT_COUNT as circuitCount,
+	    	c.CHANGE_STATE as changeState
+		FROM
+		    t_base_otn_crs c
+		        left join
+		    t_base_ne n ON c.BASE_NE_ID = n.BASE_NE_ID   
+		        left join
+		    t_base_otn_ctp d ON c.A_END_CTP = d.BASE_OTN_CTP_ID 
+		        left join
+		    t_base_ptp p on p.BASE_PTP_ID = d.BASE_PTP_ID 
+		        left join
+		    t_base_otn_ctp b ON c.Z_END_CTP = b.BASE_OTN_CTP_ID 
+		        left join
+		    t_base_ptp g ON g.BASE_PTP_ID = b.BASE_PTP_ID 
+		where
+		    n.BASE_NE_ID = #{map.neId}
+			<if test="map.rate != null ">
+				and c.RATE =  #{map.rate}   
+			</if>
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 0">
+				AND c.CIRCUIT_COUNT =  #{map.circuitCount} 
+			</if> 
+			<if test="map.circuitCount != null and map.circuitCount != -1 and map.circuitCount == 1">
+				AND c.CIRCUIT_COUNT > 0 
+			</if>
+			<if test="map.changeState != -1">
+				<if test="map.changeState==1||map.changeState==2">
+					AND c.CHANGE_STATE =  #{map.changeState} 
+				</if>
+				<if test="map.changeState==3">
+					and  c.CHANGE_STATE  between 2 and 3
+				</if>
+			</if>  
+		limit #{map.start},#{map.limit} 
+	</select>
+	
+	<select id="getMstpListCount" resultType="Integer"
+		parameterType="hashmap">
+		SELECT 
+		    count(*)
+		FROM
+		    t_base_ne n
+		        left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = n.BASE_EMS_CONNECTION_ID
+		        left join
+		    T_BASE_EMS_GROUP g ON g.BASE_EMS_GROUP_ID = c.BASE_EMS_GROUP_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = n.LOCATION
+		        left join
+		    T_RESOURCE_AREA a ON a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+		        left join
+		    T_RESOURCE_ROOM r ON r.RESOURCE_STATION_ID = s.RESOURCE_STATION_ID
+		<!--  
+     	<where>
+			<if test="map.emsGroupId == -1">
+				n.is_del in (0,1) 
+			</if>
+			<if test="map.emsGroupId == null">
+				n.is_del in (0,1)  and  c.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				g.BASE_EMS_GROUP_ID =  #{map.emsGroupId} and n.is_del in (0,1)  
+			</if>
+
+			<if test="map.emsConnectionId != -1">
+				AND n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId} 
+			</if>
+		</where>
+		 -->
+		where 	n.is_del = 0 and n.BASE_NE_ID in 
+		<foreach collection="map.neIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach> 
+    </select>
+	
+	<select id="getMstpListByEmsInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+		    n.BASE_NE_ID as neId,
+		    n.NAME as neSerialNo,
+		    n.DISPLAY_NAME as neName,
+		    n.TYPE as type,
+		    n.BASE_EMS_CONNECTION_ID as emsConnectionId,
+		    c.DISPLAY_NAME as emsConnectionName,
+		    g.BASE_EMS_GROUP_ID as emsGroupId,
+		    g.GROUP_NAME as emsGroupName,
+		    s.STATION_NAME as stationName,
+		    a.AREA_NAME as areaName,
+		    r.ROOM_NAME as roomName,
+		    (case
+		        when n.FACTORY = 1 then '华为'
+		        when n.FACTORY = 2 then '中兴'
+		        when n.FACTORY = 3 then '朗讯 '
+		        when n.FACTORY = 4 then '烽火'
+		        when n.FACTORY = 5 then '贝尔'
+		        when n.FACTORY = 9 then '富士通 '
+		    end) as factory,
+		    n.PRODUCT_NAME as productName,
+		    n.VERSION,
+		    (case
+		        when n.MSTP_SYNC_STATUS = 1 then '已同步'
+		        when n.MSTP_SYNC_STATUS = 2 then '未同步'
+		        when n.MSTP_SYNC_STATUS = 3 then '同步失败'
+		    end) as neSyncStatus,
+		    CAST(n.MSTP_SYNC_TIME AS char)   as neSyncTime
+		FROM
+		    t_base_ne n
+		        left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = n.BASE_EMS_CONNECTION_ID
+		        left join
+		    T_BASE_EMS_GROUP g ON g.BASE_EMS_GROUP_ID = c.BASE_EMS_GROUP_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = n.LOCATION
+		        left join
+		    T_RESOURCE_AREA a ON a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+		        left join
+		    T_RESOURCE_ROOM r ON r.RESOURCE_STATION_ID = s.RESOURCE_STATION_ID
+		<!-- 
+     	<where>
+			<if test="map.emsGroupId == -1">
+				n.is_del in (0,1) 
+			</if>
+			<if test="map.emsGroupId == null">
+				n.is_del in (0,1)  and  c.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				g.BASE_EMS_GROUP_ID =  #{map.emsGroupId} and n.is_del in (0,1)  
+			</if>
+
+			<if test="map.emsConnectionId != -1">
+				AND n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId} 
+			</if>
+		</where>
+		 -->
+		where 	n.is_del = 0 and n.BASE_NE_ID in 
+		<foreach collection="map.neIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+				limit #{map.start},#{map.limit} 
+    </select>
+    
+	<select id="getTopoLinkSyncListCount" resultType="Integer" parameterType="hashmap">
+		select 
+    		count(*)
+		from
+    		T_BASE_EMS_CONNECTION t1
+        		left join
+    		T_BASE_EMS_GROUP t3 ON t1.BASE_EMS_GROUP_ID = t3.BASE_EMS_GROUP_ID
+    	<!-- 
+     	<where>
+			<if test="map.emsGroupId == -1">
+				t1.IS_DEL = 0
+			</if>
+			<if test="map.emsGroupId == 0">
+				t1.IS_DEL = 0 and t1.BASE_EMS_GROUP_ID  is null
+			</if>
+			<if test="map.emsGroupId != -1  and map.emsGroupId != 0">
+				t3.BASE_EMS_GROUP_ID = #{map.emsGroupId} and t1.IS_DEL = 0
+			</if>
+		</where>
+		 --> 
+		where 	t1.is_del = 0 and t1.BASE_EMS_CONNECTION_ID in 
+		<foreach collection="map.emsIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>		
+	</select>
+	
+	<select id="getTopoLinkSyncListByEmsGroupId" resultType="hashmap" parameterType="hashmap">
+		select 
+    		t1.BASE_EMS_CONNECTION_ID as emsConnectionId,
+    		t1.DISPLAY_NAME as emsDisplayName,
+    		(case 	when t1.type = 11 then 'T2000' 
+              	  	when t1.type = 12 then 'U2000'
+              	  	when t1.type = 21 then 'E300'
+              		when t1.type = 22 then 'U31'
+              when t1.type = 31 then 'LUCENT_OMS'
+              when t1.type = 41 then 'OTNM2000'
+              when t1.type = 51 then 'ALU'
+              when t1.type = 91 then 'FUJITSU' 
+             end) as TYPE,
+    		t1.FACTORY,
+	    	CAST(t1.LINK_SYNC_TIME  AS char) as linkSyncTime,
+	    	(case
+		        when t1.LINK_SYNC_STATUS = 1 then '已同步'
+		        when t1.LINK_SYNC_STATUS = 2 OR t1.LINK_SYNC_STATUS IS NULL then '未同步'
+		        when t1.LINK_SYNC_STATUS = 3 then '同步失败'
+		        when t1.LINK_SYNC_STATUS = 4 then '需要同步'
+		        when t1.LINK_SYNC_STATUS = 5 then '正在同步'
+		    end) as linkSyncStatus,
+	    	t1.LINK_SYNC_RESULT as linkSyncResult,
+	    	t1.BASE_EMS_GROUP_ID as emsGroupId,
+	    	t3.GROUP_NAME as emsGroupName,
+	    	(case
+		        when t1.SYNC_MODE = 1 then '人工同步'
+		        when t1.SYNC_MODE = 2 then '自动同步' 
+		    end) as syncMode 
+		from
+    		T_BASE_EMS_CONNECTION t1
+        		left join
+    		T_BASE_EMS_GROUP t3 ON t1.BASE_EMS_GROUP_ID = t3.BASE_EMS_GROUP_ID
+    	<!-- 
+     	<where>
+			<if test="map.emsGroupId == -1">
+				t1.IS_DEL = 0
+			</if>
+			<if test="map.emsGroupId == 0">
+				t1.IS_DEL = 0 and t1.BASE_EMS_GROUP_ID  is null
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != 0">
+				t3.BASE_EMS_GROUP_ID = #{map.emsGroupId} and t1.IS_DEL = 0
+			</if>
+		</where> 	
+		 -->
+		where 	t1.is_del = 0 and t1.BASE_EMS_CONNECTION_ID in 
+		<foreach collection="map.emsIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		limit  #{map.start},#{map.limit}	
+	</select>
+	
+	<select id="getLinkByChangeInfo" resultType="hashmap"
+		parameterType="Integer">
+		SELECT
+            n.DISPLAY_NAME as neDisplayName,
+    		n.BASE_NE_ID as neId,
+    		p.PORT_DESC as ptpDesc
+		FROM
+    		t_base_ne n 
+        		left join
+    		t_base_ptp p ON n.BASE_NE_ID = p.BASE_NE_ID 
+		where p.BASE_PTP_ID =  #{endPtp}
+	</select>
+	
+	<!--  网管同步管理  查询记录数 -->
+	<select id="getEmsConnectionSyncCount" resultType="Integer" parameterType="hashmap">
+		select 
+    		count(*)
+		from
+        	t_sys_task t4
+            	left join 
+        	t_sys_task_info t2  ON t4.SYS_TASK_ID = t2.SYS_TASK_ID 
+            	left join 
+    		T_BASE_EMS_CONNECTION t1 ON t2.TARGET_ID = t1.BASE_EMS_CONNECTION_ID 
+        		left join
+    		T_BASE_EMS_GROUP t3 ON t1.BASE_EMS_GROUP_ID = t3.BASE_EMS_GROUP_ID
+    	<!--  
+     	<where>
+			<if test="map.emsGroupId == -1">
+				t2.TARGET_TYPE = 2 and t4.TASK_TYPE = 12
+			</if>
+			<if test="map.emsGroupId == null">
+				t2.TARGET_TYPE = 2 and t4.TASK_TYPE = 12 and t1.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				t3.BASE_EMS_GROUP_ID = #{map.emsGroupId}  and t2.TARGET_TYPE = 2 and t4.TASK_TYPE = 12
+			</if>
+		</where>
+		 --> 
+		where 	t1.is_del = 0  and  t2.TARGET_TYPE = 2 and  t4.TASK_TYPE = 12 and t1.BASE_EMS_CONNECTION_ID in 
+		<foreach collection="map.emsIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>		
+	</select>
+	
+	<!-- 网管同步管理页面 显示信息 -->
+	<select id="getEmsConnectionSyncInfo" resultType="hashmap" parameterType="hashmap">
+		select 
+    		t1.BASE_EMS_CONNECTION_ID as emsConnectionId,
+    		t1.DISPLAY_NAME as emsDisplayName,
+    		(case 	when t1.type = 11 then 'T2000' 
+              	  	when t1.type = 12 then 'U2000'
+              	  	when t1.type = 21 then 'E300'
+              		when t1.type = 22 then 'U31'
+              when t1.type = 31 then 'LUCENT_OMS'
+              when t1.type = 41 then 'OTNM2000'
+              when t1.type = 51 then 'ALU'
+              when t1.type = 91 then 'FUJITSU'
+             end) as TYPE,
+	    	t1.BASE_EMS_GROUP_ID as emsGroupId,
+	    	t3.GROUP_NAME as emsGroupName, 
+			<!--  t4.RESULT as executeStatus,-->
+			t4.SYS_TASK_ID as taskId,
+			t2.SYS_TASK_INFO_ID as taskInfoId,
+	    	<!--  (case
+		        when t4.RESULT = 3 then '正在执行'
+		        when t4.RESULT = 4 then '暂停'
+		        when t4.RESULT = 5 then '等待执行'
+		        else  '' 
+		    end)-->
+		     t4.RESULT as executeStatus,
+		     CAST( TIMESTAMPDIFF(MINUTE, now(), t5.PARAM_VALUE) AS char)  as time ,
+		     <!-- 
+	    	(case
+		        when t4.TASK_STATUS = 1 then '启用'
+		        when t4.TASK_STATUS = 2 then '挂起'
+		        else  ''
+		    end) as taskStatus,
+		    end)-->
+		    t4.TASK_STATUS as taskStatus, 
+			CAST(DATE_FORMAT(t4.END_TIME, '%Y-%m-%d %H:%i') AS char) as latestSyncTime ,	
+			CAST(DATE_FORMAT(t4.NEXT_TIME, '%Y-%m-%d %H:%i')  AS char) as nextSyncTime ,
+			t4.PERIOD_TYPE as periodType,
+			t4.PERIOD as period 
+		from
+        	t_sys_task t4
+            	left join 
+        	t_sys_task_info t2  ON t4.SYS_TASK_ID = t2.SYS_TASK_ID 
+            	left join 
+        	t_sys_task_param t5  ON t4.SYS_TASK_ID = t5.SYS_TASK_ID 
+            	left join 
+    		T_BASE_EMS_CONNECTION t1 ON t2.TARGET_ID = t1.BASE_EMS_CONNECTION_ID 
+        		left join
+    		T_BASE_EMS_GROUP t3 ON t1.BASE_EMS_GROUP_ID = t3.BASE_EMS_GROUP_ID
+    	<!--  
+     	<where>
+			<if test="map.emsGroupId == -1">
+				t2.TARGET_TYPE = 2 and t4.TASK_TYPE = 12
+			</if>
+			<if test="map.emsGroupId == null">
+				t2.TARGET_TYPE = 2 and t4.TASK_TYPE = 12 and t1.BASE_EMS_GROUP_ID is null
+			</if>
+			<if test="map.emsGroupId != -1 and map.emsGroupId != null">
+				t3.BASE_EMS_GROUP_ID = #{map.emsGroupId}  and t2.TARGET_TYPE = 2 and t4.TASK_TYPE = 12
+			</if>
+
+		</where> 
+		 -->	
+		where 	t1.is_del = 0  and  t2.TARGET_TYPE = 2 and t4.TASK_TYPE = 12 and t1.BASE_EMS_CONNECTION_ID in 
+		<foreach collection="map.emsIdList" index="index" item="item" open="("
+			separator="," close=")">
+			${item}
+		</foreach>
+		limit  #{map.start},#{map.limit}	
+	</select>
+	
+	<!-- 网管同步管理页面 启动功能 -->
+	<update id="startTask"  parameterType="hashmap">
+		UPDATE t_sys_task t4 
+		SET    t4.TASK_STATUS = 1,t4.NEXT_TIME =  #{map.nextTime} 
+        WHERE   t4.SYS_TASK_ID = #{map.taskId}  ;
+	</update>
+	
+	<!-- 网管同步 挂起任务功能-->
+	<update id="disTask" parameterType="hashmap">
+		update t_sys_task
+		<set>	   
+			TASK_STATUS = 2,		
+			<if test="map.executeStatus == 3  or map.executeStatus == 5">
+				END_TIME = now(), RESULT = 4,
+			</if>
+			NEXT_TIME = null 
+				
+		</set>
+		where SYS_TASK_ID = #{map.taskId}
+	</update>
+	
+	<!--网管同步管理页面  更新任务状态  -->
+	<update id="updateTaskStatus" parameterType="Integer">
+		update t_sys_task
+		<set>	   
+			<if test="emsSyncValue == 1  or emsSyncValue == 2 or emsSyncValue == 4 or emsSyncValue == 6">
+				END_TIME = now(), NEXT_TIME = #{nextTime}, 
+			</if>
+			RESULT = #{emsSyncValue}				
+		</set>
+		where SYS_TASK_ID = #{taskId}
+	</update>
+	
+	<!-- 网管同步管理页面  手动同步操作时获取任务状态信息 -->
+	<select id="getTaskStatusValue" resultType="String" parameterType="String">
+		select  RESULT  from  t_sys_task
+		where SYS_TASK_ID = #{taskId}
+	</select>
+	
+	<!-- 网管同步管理页面   任务状态显示信息 -->
+	<select id="getTaskDetailInfo" resultType="hashmap" parameterType="Integer">
+		select  c.BASE_EMS_CONNECTION_ID as emsConnectionId,
+				c.DISPLAY_NAME as emsName,
+     			(case when d.TARGET_TYPE = 4 then '基础数据同步'
+              			else  '拓扑链路同步'  
+         			end)  as taskType,
+				(case when d.TARGET_TYPE = 4 then n.DISPLAY_NAME
+              			else  ''  
+         			end)  as neName,
+				d.DETAIL_INFO as syncStatus
+		from t_sys_task_run_detail d left join t_sys_task t on d.SYS_TASK_ID = t.SYS_TASK_ID
+ 		left join t_sys_task_info i on d.SYS_TASK_ID = i.SYS_TASK_ID
+ 		left join t_base_ems_connection c on c.BASE_EMS_CONNECTION_ID = i.TARGET_ID
+ 		left join t_base_ne  n on n.BASE_NE_ID = d.TARGET_ID
+		where c.BASE_EMS_CONNECTION_ID = #{emsConnectionId} AND t.`TASK_TYPE` = 12;
+	</select>
+	
+	<!-- 接入服务器记录数 -->
+	<select id="getSysServiceRecordCount" resultType="Integer"
+		parameterType="hashmap">
+		SELECT 
+			count(*)
+		from
+    		t_sys_svc_record t1
+     	<where>
+			<if test="map.sysSvcRecordId != -1">
+				t1.SYS_SVC_RECORD_ID = #{map.sysSvcRecordId} 
+			</if>
+		</where>
+	</select>
+	
+	<!-- 接入管理器页面显示信息 -->
+	<select id="getSysServiceRecordInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t1.SYS_SVC_RECORD_ID,
+    		t1.IP,
+    		t1.SERVICE_NAME,
+    		t1.PORT,
+		    t1.STATUS,
+    		t1.NOTE
+		from
+    		t_sys_svc_record t1
+     	<where>
+			<if test="map.sysSvcRecordId != -1">
+				t1.SYS_SVC_RECORD_ID = #{map.sysSvcRecordId} 
+			</if>
+		</where>
+		limit #{map.start},#{map.limit}
+	</select>
+	
+	<!-- 新增接入服务器 -->
+	<insert id="addSysService"  parameterType="hashmap"  keyProperty="map.ip" >  
+		INSERT INTO `t_sys_svc_record` 
+		(
+		 `IP`,
+		 `PORT`,
+		 `ADDRESS`,
+		 `SERVICE_NAME`,  
+		 `NOTE`) 
+        VALUES 
+        (
+	     #{map.ip},
+	     #{map.port},
+	     #{map.address},
+	     #{map.serviceName},
+	     #{map.note}) 
+	</insert>
+	
+	<!-- 删除接入服务器 -->
+	<delete id="deleteSysService"  parameterType="Integer">
+		delete from `t_sys_svc_record` where `SYS_SVC_RECORD_ID` = #{map.sysSvcRecordId}
+	</delete>
+	
+	<!-- 修改接入服务器 -->
+	<update id="modifySysService"  parameterType="hashmap">
+		UPDATE `t_sys_svc_record` 
+		SET    `SERVICE_NAME`= #{map.serviceName}, 
+		       `NOTE`= #{map.note} ,
+			   `IP`= #{map.ip}, 
+		       `PORT`= #{map.port} ,
+			   `ADDRESS`= #{map.address}, 
+		       `STATUS`= #{map.status}  
+        WHERE  `SYS_SVC_RECORD_ID`= #{map.sysSvcRecordId}
+	</update>
+	
+	<!-- 修改接入服务器之前 根据选的的记录查找该记录相关信息 -->
+	<select id="getSysServiceBySysSvcId" resultType="hashmap"
+		parameterType="Integer">
+		SELECT 
+			t1.SYS_SVC_RECORD_ID,
+    		t1.IP,
+    		t1.PORT,
+    		t1.SERVICE_NAME,
+		    t1.STATUS,
+    		t1.NOTE
+		from
+    		t_sys_svc_record t1
+     	where
+			t1.SYS_SVC_RECORD_ID = #{sysSvcRecordId} 
+	</select>
+	
+	<select id="getSysServiceBySvcInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t1.SYS_SVC_RECORD_ID,
+    		t1.IP,
+    		t1.PORT,
+    		t1.SERVICE_NAME,
+		    t1.STATUS,
+    		t1.NOTE
+		from
+    		t_sys_svc_record t1
+     	where
+			t1.SERVICE_NAME = #{map.serviceName}
+						
+	</select>
+	
+		<select id="getSysServiceBySvcIpAddress" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t1.SYS_SVC_RECORD_ID,
+    		t1.IP,
+    		t1.PORT,
+    		t1.SERVICE_NAME,
+		    t1.STATUS,
+    		t1.NOTE
+		from
+    		t_sys_svc_record t1
+     	where
+		    t1.IP = #{map.ip} and t1.PORT = #{map.port} 
+						
+	</select>
+	
+	<!-- 网管同步 管理页面中  手动同步时  获取该网管下的所有网元信息 -->
+	<select id="getAllNeListByEmsConnnectionId" resultType="hashmap"
+		parameterType="Integer">
+		SELECT
+			n.BASE_NE_ID,
+			n.NAME,
+		    n.DISPLAY_NAME,
+		    n.SUPORT_RATES,
+		    n.BASIC_SYNC_STATUS,
+		    n.BASE_EMS_CONNECTION_ID
+		FROM
+			t_base_ne n
+		WHERE
+			BASE_EMS_CONNECTION_ID = #{emsConnectionId} and  IS_DEL = 0
+		ORDER BY n.BASE_NE_ID ASC
+    </select>
+    
+	<!-- 网管同步 管理页面中  自动同步时  删除该网管同步任务下的执行详细信息 -->
+	<delete id="deleteAllNeListByTaskId" parameterType="Integer">
+		delete	from 
+				t_sys_task_run_detail 
+		where SYS_TASK_ID = #{taskId} ;
+    </delete>
+    
+	<!-- 网管同步 管理页面中  自动同步时  获取该网管下的所有需要执行操作的详细信息 -->
+	<select id="getTaskDetailInfoByTaskId" resultType="hashmap"
+		parameterType="Integer">
+		select 	SYS_TASK_RUN_DETAIL_ID, 
+				SYS_TASK_ID, 
+				TARGET_TYPE, 
+				TARGET_NAME, 
+				TARGET_ID, 
+				TYPE, 
+				RUN_RESULT, 
+				DETAIL_INFO, 
+				CREATE_TIME	 
+		from 
+				t_sys_task_run_detail 
+		where SYS_TASK_ID = #{taskId};
+    </select>
+
+		<!-- 向任务表中插入数据 -->
+	<insert id="insertTask" parameterType="hashmap"  keyProperty="map.SYS_TASK_ID">
+		insert into t_sys_task(
+		SYS_TASK_ID,
+		TASK_NAME,
+		TASK_TYPE,
+		PERIOD_TYPE,
+		PERIOD,
+		TASK_STATUS,
+		RESULT,
+		NEXT_TIME,
+		CREATE_TIME
+		) values(
+		null
+		,
+		<choose>
+			<when test="map.TASK_NAME != null">#{map.TASK_NAME}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.TASK_TYPE != null">#{map.TASK_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.PERIOD_TYPE != null">#{map.PERIOD_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.PERIOD!= null">#{map.PERIOD}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.TASK_STATUS != null">#{map.TASK_STATUS}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		#{map.RESULT}
+		,
+		<choose>
+			<when test="map.NEXT_TIME != null">#{map.NEXT_TIME}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		now()
+		)
+	</insert>
+    
+	<!-- 向任务详细表中插入数据 -->
+	<insert id="insertTaskInfo" parameterType="hashmap">
+		insert into t_sys_task_info(
+		SYS_TASK_ID,
+		TARGET_TYPE,
+		TARGET_ID
+		) values(
+		<choose>
+			<when test="map.SYS_TASK_ID != null">#{map.SYS_TASK_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.TARGET_TYPE!= null">#{map.TARGET_TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.TARGET_ID!= null">#{map.TARGET_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+	</insert>
+	
+	<!-- 更新任务表状态 --> 
+	<update id="updateTask" parameterType="hashMap">
+		update t_sys_task
+		<set>
+			SYS_TASK_ID = #{map.SYS_TASK_ID}
+		<if test="map.TASK_STATUS != null">
+			,TASK_STATUS = #{map.TASK_STATUS}
+		</if> 
+		<if test="map.NEXT_TIME != null and map.TASK_STATUS == 2">
+			,NEXT_TIME = null
+		</if>
+		<if test="map.NEXT_TIME != null and map.TASK_STATUS != 2">
+			,NEXT_TIME = #{map.NEXT_TIME}
+		</if>
+		<if test="map.PERIOD_TYPE != null">
+			,PERIOD_TYPE = #{map.PERIOD_TYPE}
+		</if>
+		<if test="map.PERIOD != null">
+			,PERIOD = #{map.PERIOD}
+		</if> 
+		<if test="map.TASK_DESCRIPTION != null">
+			,TASK_DESCRIPTION = #{map.TASK_DESCRIPTION}
+		</if>
+		<if test="map.RESULT != null">
+			,RESULT = #{map.RESULT}
+		</if>
+		</set>
+		where  SYS_TASK_ID = #{map.SYS_TASK_ID}	
+	</update>
+	
+	<!-- 查询网管下的网管同步任务 --> 
+	<select id="getEmsSyncTask" resultType="hashmap"
+		parameterType="Integer">
+		select 	ti.TARGET_ID,
+				tt.SYS_TASK_ID,
+				ti.SYS_TASK_INFO_ID,
+				tt.PERIOD_TYPE,
+				tt.PERIOD
+		FROM 	t_sys_task tt,
+				t_sys_task_info ti
+		where 	tt.SYS_TASK_ID= ti.SYS_TASK_ID 
+		and		ti.TARGET_ID = #{emsId}
+		and		tt.task_type = 12
+		and     ti.target_type = 2 
+	</select>
+	
+	<!-- 万能删除法 -->
+	<delete id="deleteByParameter"  parameterType="hashMap"> 
+		  delete from ${map.NAME}
+		  <where>
+		  <if test="map.ID_NAME != null">
+					${map.ID_NAME} = #{map.ID_VALUE}
+			</if>
+			<if test="map.ID_NAME_2 != null">
+					AND $(map.ID_NAME_2) = #{map.ID_VALUE_2}
+			</if>
+		</where>
+	</delete>
+	
+	<!-- 万能更新法 -->
+	<update id="updateTaskSetting"> 
+		 update  T_SYS_TASK
+		 set RESULT = #{result}
+		 where SYS_TASK_ID = #{taskId}
+	</update>
+	
+	<update id="updateNeCRSInfo"  parameterType="Integer">
+		UPDATE `T_BASE_NE` 
+		SET    `CRS_SYNC_STATUS` = #{neSync},
+		      	<if test="neSync == 1">
+				`CRS_SYNC_TIME` = now(),
+				</if>
+				`CRS_SYNC_RESULT` = #{result}
+        WHERE  `BASE_NE_ID`= #{neId} ;
+	</update>
+	
+	<update id="updateNeBasicSyncInfo"  parameterType="Integer">
+		UPDATE `T_BASE_NE` 
+		SET    `BASIC_SYNC_STATUS` = #{neSync},
+				<if test="neSync == 1">
+				`BASIC_SYNC_TIME` = now(),
+				</if>
+				`BASIC_SYNC_RESULT` = #{result}
+        WHERE  `BASE_NE_ID`= #{neId} ;
+	</update>
+	
+	<update id="updateNeMstpSyncInfo"  parameterType="Integer">
+		UPDATE `T_BASE_NE` 
+		SET    `MSTP_SYNC_STATUS` = #{neSync},
+				<if test="neSync == 1">
+			   `MSTP_SYNC_TIME` = now(),
+			   </if>
+			   `MSTP_SYNC_RESULT` = #{result}
+        WHERE  `BASE_NE_ID`= #{neId} ;
+	</update>
+	
+	<update id="updateEmsLinkSyncInfo"  parameterType="Integer">
+		UPDATE `T_BASE_EMS_CONNECTION` 
+		SET    `LINK_SYNC_STATUS` = #{linkSync},
+				<if test="linkSync == 1">
+			   `LINK_SYNC_TIME` = now(),
+			   </if>
+			   `LINK_SYNC_RESULT` = #{result}
+        WHERE  `BASE_EMS_CONNECTION_ID`= #{emsConnectionId} ;
+	</update>
+	
+	<!-- 查询记录 -->
+	<select id="getRecord" resultType="hashmap">
+		select * from ${map.NAME}
+		<where>
+			<if test = "map.IN_VALUE != null">
+				${map.IN_NAME} = #{map.IN_VALUE}
+			</if>
+			<if test = "map.ID != null">
+				AND ${map.ID_NAME} = #{map.ID_VALUE}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getEmsGroupByName" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+			t1.BASE_EMS_GROUP_ID as emsGroupId,
+			t1.GROUP_NAME as emsGroupName,
+			t1.NOTE as emsGroupNote
+		from
+    		t_base_ems_group t1
+     	where  t1.GROUP_NAME = #{map.emsGroupName}			
+	</select>
+	
+	<select id="getConnectionByInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t1.BASE_EMS_CONNECTION_ID,
+    		t1.IP,
+    		t1.BASE_EMS_GROUP_ID,
+    		t1.DISPLAY_NAME
+		from
+    		t_base_ems_connection t1
+     	<where>
+			<if test="map.emsConnectionId != null and map.emsGroupId == null">
+				(t1.BASE_EMS_CONNECTION_ID = #{map.emsConnectionId}  OR  t1.IP = #{map.ip}   OR (t1.BASE_EMS_GROUP_ID is null and t1.DISPLAY_NAME = #{map.displayName}) ) and t1.IS_DEL = 0 
+			</if>
+			<if test="map.emsConnectionId != null and map.emsGroupId != null">
+				(t1.BASE_EMS_CONNECTION_ID = #{map.emsConnectionId}  OR  t1.IP = #{map.ip}   OR (t1.BASE_EMS_GROUP_ID = #{map.emsGroupId} and t1.DISPLAY_NAME = #{map.displayName})) and t1.IS_DEL = 0 
+			</if>
+			<if test="map.emsConnectionId == null and map.emsGroupId == null">
+				( t1.BASE_EMS_GROUP_ID is null and t1.DISPLAY_NAME = #{map.displayName} )  and t1.IP = #{map.ip} and t1.IS_DEL = 0
+			</if>
+			<if test="map.emsConnectionId == null and map.emsGroupId != null">
+				( t1.BASE_EMS_GROUP_ID = #{map.emsGroupId} and t1.DISPLAY_NAME = #{map.displayName} )  and t1.IP = #{map.ip} and t1.IS_DEL = 0
+			</if>
+		</where>			
+	</select>
+	
+	<select id="getEmsGroupInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t1.BASE_EMS_CONNECTION_ID,
+    		t1.IP,
+    		t1.BASE_EMS_GROUP_ID,
+    		t1.DISPLAY_NAME
+		from
+    		t_base_ems_connection t1
+     	<where>
+			<if test="map.emsConnectionId != null">
+				t1.BASE_EMS_CONNECTION_ID = #{map.emsConnectionId}  OR  t1.IP = #{map.ip}   OR (t1.BASE_EMS_GROUP_ID = #{map.emsGroupId} and t1.DISPLAY_NAME = #{map.displayName})  
+			</if>
+			<if test="map.emsConnectionId == null">
+				( t1.BASE_EMS_GROUP_ID = #{map.emsGroupId} and t1.DISPLAY_NAME = #{map.displayName} )  OR t1.IP = #{map.ip}   
+			</if>
+		</where>			
+	</select>
+	
+	<select id="getSubnetInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+			t.BASE_SUBNET_ID,
+			t.BASE_EMS_CONNECTION_ID,
+			t.PARENT_SUBNET,
+			t.DISPLAY_NAME,
+			t.NOTE
+		FROM
+			t_base_subnet t
+     	<where>
+			<if test="map.subnetId != null">
+				t.BASE_EMS_CONNECTION_ID = #{map.emsConnectionId}  and   t.DISPLAY_NAME = #{map.subnetName}   
+			</if>
+			<if test="map.subnetId == null">
+				t.BASE_EMS_CONNECTION_ID = #{map.emsConnectionId}  and t.DISPLAY_NAME = #{map.subnetName} 
+			</if>
+		</where>
+	</select>
+	<select id="getTaskForbiddenTime" resultType="String">
+		<![CDATA[SELECT 
+		    taskParm.PARAM_VALUE
+		FROM
+		    t_sys_task_param taskParm
+		WHERE
+		    taskParm.SYS_TASK_ID = #{taskId} ]]>
+	</select>
+	
+	<delete id="deleteTaskForbiddenTime">
+		delete from t_sys_task_param
+		<where>
+			SYS_TASK_ID = #{taskId}
+		</where>
+	</delete>
+	
+	<insert id="addTaskRunDetailInfo"  parameterType="hashmap"  keyProperty="SYS_TASK_RUN_DETAIL_ID" >  
+		INSERT INTO `t_sys_task_run_detail` 
+		(
+		`SYS_TASK_RUN_DETAIL_ID`,
+		 `SYS_TASK_ID`,
+		 `TARGET_TYPE`,  
+		 `TARGET_NAME`,
+		 `TARGET_ID`, 
+		 `TYPE`,
+		 `CREATE_TIME`) 
+        VALUES 
+        (
+         #{SYS_TASK_RUN_DETAIL_ID},
+	     #{SYS_TASK_ID},
+	     #{TARGET_TYPE},
+	     #{TARGET_NAME},
+	     #{TARGET_ID},
+	     #{TYPE},
+	     now()) 
+	</insert>
+	
+	<select id="getTaskRunResultCount" resultType="Integer">
+		select 	count(*)	 
+		from 
+				t_sys_task_run_detail 
+		where SYS_TASK_ID = #{taskId} and RUN_RESULT = #{runResult};
+    </select>
+	
+	<update id="updateTaskDetailInfo">
+		UPDATE `t_sys_task_run_detail` 
+		SET    `RUN_RESULT` = #{runResult},
+			   `DETAIL_INFO` = #{taskDetailInfo} 
+		<where>
+			<if test = "taskId != null">
+				`SYS_TASK_ID` = #{taskId}
+			</if>
+			<if test = "targetType != null">
+				AND `TARGET_TYPE` = #{targetType}
+			</if>
+			<if test = "taskDetailType != null">
+				AND `TYPE` =  #{taskDetailType}
+			</if>
+			<if test = "targetId != null">
+				AND `TARGET_ID` = #{targetId}
+			</if>
+		</where>
+	</update>
+	
+	<select id="getConnectionInfoByConnectionStatus" resultType="hashmap" parameterType="java.util.Map" statementType="STATEMENT">
+		select 
+			t1.CONNECT_STATUS,count(*) as connectCount
+		from
+    		T_BASE_EMS_CONNECTION t1
+		where 	t1.IS_DEL = 0  and t1.BASE_EMS_CONNECTION_ID in 
+			<foreach collection="map.ids" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach> 
+		group by  t1.CONNECT_STATUS
+	</select>
+	
+	<select id="getTelnetNeByNeInfo" resultType="hashmap"
+		parameterType="map">
+		SELECT
+			n.BASE_EMS_CONNECTION_ID as emsConnectionId,	
+			n.BASE_NE_ID as neId,
+			n.DISPLAY_NAME as neName,
+			n.USER_NAME as userName,
+			n.PASSWORD as password,
+		    (case
+		        when n.CONNECTION_MODE = 0 then '自动'
+		        when n.CONNECTION_MODE = 1 then '手工'
+		    end)    as connectionMode
+		FROM
+			t_base_ne n
+		WHERE
+			 n.DISPLAY_NAME = #{map.neName} and  n.BASE_EMS_CONNECTION_ID =  #{map.emsConnectionId}
+    </select>
+    
+    <update id="updateServerStatus"  parameterType="Integer">		
+		UPDATE `t_sys_svc_record` 
+		SET    `status` = #{status}
+		<where>
+			<if test = "recordId != null">
+				`SYS_SVC_RECORD_ID` = #{recordId}
+			</if>
+		</where>
+	</update>
+	
+	<update id="updateEmsConnectStatusByServerId" >
+	    update T_BASE_EMS_CONNECTION
+	    <set >
+	      <if test="collectStatus != null" >
+	        CONNECT_STATUS = #{collectStatus},
+	      </if>
+	      <if test="exceptionReason != null" >
+	        EXCEPTION_REASON = #{exceptionReason},
+	      </if>
+	    </set>
+	    <where>
+			<if test = "sysServiceId != null">
+				SVC_RECORD_ID = #{sysServiceId}
+			</if>
+		</where>
+	  </update>
+	
+	<!-- 获取所有接入服务器配置信息 -->
+	<select id="selectAllSvcRecord" resultType="hashmap" >
+	select *
+	  from T_SYS_SVC_RECORD
+	</select>
+	    
+	<!-- 设置链路同步的同步模式 -->
+    <update id="updateSyncMode"  parameterType="Integer">		
+		UPDATE t_base_ems_connection
+		SET  SYNC_MODE = #{syncMode}
+		<where>
+			BASE_EMS_CONNECTION_ID = #{emsConnectionId}
+		</where>
+	</update> 
+</mapper>

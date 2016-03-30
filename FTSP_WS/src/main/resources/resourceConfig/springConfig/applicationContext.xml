@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+									http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+									http://www.springframework.org/schema/context  
+						           http://www.springframework.org/schema/context/spring-context-2.5.xsd  
+						           http://www.springframework.org/schema/aop  
+						           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd  
+						           http://www.springframework.org/schema/tx   
+						           http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+						           http://cxf.apache.org/jaxws 
+    							   http://cxf.apache.org/schemas/jaxws.xsd">
+    							   
+    <!-- 导入cxf需要配置文件 -->
+     <import resource="classpath:META-INF/cxf/cxf.xml"/>
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+
+	<!-- 配置文件地址 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	        <property name="ignoreResourceNotFound" value="true" />
+	        <property name="locations">
+	            <list>
+	                <value> classpath:resourceConfig/springConfig/config.properties</value>
+	                <value>file:../conf/config.properties</value>
+	                <value>file:../../conf/config.properties</value>
+	            </list>
+	        </property>
+	</bean>
+
+	<!-- enable autowire -->
+	<context:annotation-config />
+	
+	<aop:aspectj-autoproxy />
+	
+	<bean id="transactionManager-mysql"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="globalRollbackOnParticipationFailure" value="false" />
+	</bean>
+	
+	<bean id="sqlSessionFactory-mysql" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="configLocation"
+			value="classpath:resourceConfig/mybatisConfig/mybatisConfig-mysql.xml" />
+		<!-- <property name="typeAliasesPackage" value="com.jftt.ssm.bean" /> -->
+	</bean>
+
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory-mysql" />
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManager-mysql"/>
+
+	<!-- 注册实现类 -->
+	<bean id="wsManagerImpl" class="com.fujitsu.manager.wsManager.serviceImpl.WSManagerImpl" />
+	
+	<!-- 前置消息拦截器 -->
+	<bean id="inMessageInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+	 <!-- 后置消息拦截器 -->
+	<bean id="outLoggingInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+	<!-- 注意下面的address，这里的address的名称就是访问的WebService的name -->
+	<jaxws:server id="ftspWS" serviceClass="com.fujitsu.IService.IWSManagerService" address="/ftspWS">
+	    <jaxws:serviceBean>
+	        <!-- 要暴露的 bean 的引用 -->
+	        <ref bean="wsManagerImpl"/>
+	    </jaxws:serviceBean>
+	    <jaxws:inInterceptors>
+	        <ref bean="inMessageInterceptor"/>
+	    </jaxws:inInterceptors>
+	    <jaxws:outInterceptors>
+	        <ref bean="outLoggingInterceptor"/>
+	    </jaxws:outInterceptors>
+	</jaxws:server>
+
+</beans>

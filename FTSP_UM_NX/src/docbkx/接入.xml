@@ -1,0 +1,2214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0"	
+ 	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+	<info>
+		<title>接入</title>
+	</info>
+
+	<section xml:id="节-南向连接管理">
+		<title>南向连接管理</title>
+
+		<para>【描述】</para>
+
+		<para>南向连接管理用来管理通过网管北向接口接入的各个网管，正确的配置才能将各个网管接入，保证FTSP系统的正常运行。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;接入&gt;→&lt;南向连接管理&gt;，南向连接管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-南向连接管理">
+			<title>南向连接管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/south_connection_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：EMS分组名称</para>
+
+		<para>“网管名称”：网络友好名称</para>
+
+		<para>“网管类型”：EMS网管的类型</para>
+
+		<para>“接入服务器”：连接EMS的接入服务器名称</para>
+
+		<para>“接口类型”：CORBA或者TELNET</para>
+
+		<para>“连接模式”：手动或者自动</para>
+
+		<para>“连接状态”：当前连接状态指示，如连接正常/连接异常/连接中断/网络中断</para>
+
+		<para>“用户名”：登录EMS的用户名</para>
+
+		<para>“网管版本”：EMS网管的版本</para>
+
+		<para>“网管IP地址”：EMS网管的IP地址</para>
+
+		<para>“端口号”：EMS CORBA的端口号</para>
+
+		<para>“EMS Name”：EMS CORBA的名称</para>
+
+		<para>“IDL版本号”：EMS CORBA的IDL版本号</para>
+
+		<para>“编码格式”：网管中文编码格式</para>
+
+		<para>“线程数”：同一时间连接网管的服务数量</para>
+
+		<para>“迭代数”：网管一次请求返回数据（告警、性能等）的数量</para>
+
+		<para>“网关网元”：TELNET连接的网关网元名称</para>
+
+		<para>“采集任务控制”：采集任务是否允许执行，如正常采集/禁止采集/暂停</para>
+
+		<para>“命令间隔(s)”：对EMS 命令发送的间隔时间</para>
+
+		<para>“命令超时(s)”：接收EMS返回的等待时间</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;网管分组&gt;后的下拉框，选择组名后，可自动显示对应组的数据。默认将显示全部网管分组的数据。</para>
+
+		<para>点击&lt;新增&gt;按钮，将增加各种南向连接，参见<xref linkend="节-新增连接"/>。</para>
+
+		<para>点击&lt;删除&gt;按钮，将删除连接，参见<xref linkend="节-删除连接"/>。</para>
+
+		<para>点击&lt;修改&gt;按钮，将编辑修改连接参数，参见<xref linkend="节-修改连接"/>。</para>
+
+		<para>点击&lt;导出&gt;按钮，将导出CORBA连接的参数和连接状态，参见<xref linkend="节-导出连接"/>。</para>
+
+		<para>点击&lt;启动连接&gt;按钮，将启动激活相关连接，参见<xref linkend="节-启动连接"/>。</para>
+
+		<para>点击&lt;断开连接&gt;按钮，将断开相关连接，参见<xref linkend="节-断开连接"/>。</para>
+
+		<para>点击&lt;任务控制&gt;按钮，将控制该连接的自动采集任务，参见<xref linkend="节-任务控制"/>。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;启动连接&gt;、&lt;断开连接&gt;和&lt;任务控制&gt;按钮前必须选择一个网管分组，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-新增连接">
+			<title>新增连接</title>
+
+			<para>【页面显示】</para>
+
+			<para>在南向连接管理页面点击&lt;新增&gt;按钮，新增连接窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-新增连接">
+				<title>新增连接</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/add_connection.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>“接口类型”：选择CORBA或TELNET。</para>
+
+			<para>“网管分组”：选择所属分组，默认为“无”。</para>
+
+			<para>“网管名称”：输入网管名称，同一分组下，不允许有相同网管名称。</para>
+
+			<para>“网管类型”：选择网管类型。</para>
+
+			<para>“接入服务器”：选择接入服务器。</para>
+
+			<para>“连接模式”：选择连接模式。</para>
+
+			<para>“IP地址”：输入连接IP地址。</para>
+
+			<para>“端口号”：输入CORBA接口端口号。</para>
+
+			<para>“EMS Name”：输入CORBA接口的EMS NAME。</para>
+
+			<para>“用户名”：输入登录EMS的用户。</para>
+
+			<para>“密码”：输入登录EMS的密码。</para>
+
+			<para>“编码格式”：输入网管中文编码格式。</para>
+
+			<para>“线程数”：输入同一时间连接网管的服务数量。</para>
+
+			<para>“迭代”：输入网管一次请求返回数据（告警、性能等）的数量。</para>
+
+			<para>“命令间隔时间”：可不输，系统默认1秒；若输入则值应该大于等于1且小于300。</para>
+
+			<para>“命令超时时间”：可不输，系统默认600秒；如输入则值应该大于300且小于1200。</para>
+
+			<para>点击&lt;确认&gt;，添加连接。</para>
+
+			<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>同一分组下，网管名称不能重名，IP地址也不可重复。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-修改连接">
+			<title>修改连接</title>
+
+			<para>【页面显示】</para>
+
+			<para>在南向连接管理页面点击&lt;修改&gt;按钮，修改连接窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-修改连接">
+				<title>修改连接</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/update_connection.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>修改连接前要先中断连接，修改方法类同新增连接，不同之处此情况下“接口类型”和“网管类型”不能修改。</para>
+
+			<para>点击&lt;确认&gt;，立即修改连接。</para>
+
+			<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+			<para>点击&lt;取消&gt;，关闭窗口，不做任何改动。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>如在选择“连接正常”的网管分组执行修改连接,则系统会提示“接口正在连接中，请先中断连接”。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-删除连接">
+			<title>删除连接</title>
+
+			<para>【页面显示】</para>
+
+			<para>在南向连接管理页面点击&lt;删除&gt;按钮，删除连接窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-删除连接">
+				<title>删除连接</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/delete_connection.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>先选择一个连接，然后点击&lt;断开连接&gt;，最后点击&lt;删除连接&gt;按钮。</para>
+
+			<para>点击&lt;是&gt;，将删除连接。</para>
+
+			<para>点击&lt;否&gt;，退出窗口，并且放弃删除连接操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>此操作会删除所有相关树节点和数据库记录，包括网管、子网、网元、机架、子架、槽道、板卡、端口，通道等等相关信息，故需谨慎操作。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-导出连接">
+			<title>导出连接</title>
+
+			<para>【页面显示】</para>
+
+			<para>在南向连接管理页面点击&lt;导出&gt;按钮，导出连接窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-导出连接">
+				<title>导出连接</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/export_connection.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要可以打开或者保存文件。</para>
+
+			<para>点击&lt;打开&gt;，将打开文件。</para>
+
+			<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行过程中，系统弹窗显示“正在导出请稍候”，执行完后，弹窗显示“文件导出成功”。</para>
+
+			<para>点击&lt;取消&gt;，将关闭窗口，并且放弃导出连接。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>导出文件名格默认式是YYYY_MM_DD_HH_MM_SS.xls，例如2013_08_28_18_34_19.xls。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-启动连接">
+			<title>启动连接</title>
+
+			<para>【页面显示】</para>
+
+			<para>在南向连接管理页面，点击&lt;启动连接&gt;按钮，启动连接进度遮罩窗口将弹出，页面不能做任何操作，如下图。</para>
+
+			<figure xml:id="图-启动连接">
+				<title>启动连接</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/start_connection.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>需要先选择一个未进行连接的网管分组，然后点击&lt;启动连接&gt;，系统将启动激活相关连接。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>若选择网管分组状态为“连接正常”，执行启动连接操作，则系统提示“已在连接状态”。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-断开连接">
+			<title>断开连接</title>
+
+			<para>【页面显示】</para>
+
+			<para>在南向连接管理页面，点击&lt;断开连接&gt;按钮，断开连接窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-断开连接">
+				<title>断开连接</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/disconnect.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>需要先选择一个连接正常的网管分组，然后点击&lt;断开连接&gt;，系统将断开相关连接。</para>
+
+			<para>点击&lt;是&gt;，将断开连接。</para>
+
+			<para>点击&lt;否&gt;，退出窗口，并且放弃断开连接。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>若选择网管分组状态为“网络中断”或“连接异常”，执行断开连接操作，则系统提示“连接已经中断”。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-任务控制">
+			<title>任务控制</title>
+
+			<para>【页面显示】</para>
+
+			<para>在南向连接管理页面点击&lt;任务控制&gt;按钮，采集任务控制窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-采集任务控制">
+				<title>采集任务控制</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/collect_task_control.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要进行单选。</para>
+
+			<para>“正常采集”：允许各种任务通过接口自动采集网管或者网元数据。</para>
+
+			<para>“禁止采集”：禁止各种任务通过接口自动采集网管或者网元数据，但不影响手动采集。</para>
+
+			<para>“暂停采集”：暂停各种任务通过接口自动采集网管或者网元数据，但不影响手动采集。</para>
+
+			<para>点击&lt;确定&gt;，执行采集任务控制。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口，并且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>如果选择暂停采集，必须输入暂停时间（时间范围为10～90分钟）。</para>
+			</caution>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-接入服务器管理">
+		<title>接入服务器管理</title>
+
+		<para>【描述】</para>
+
+		<para>接入服务器指连接各个网管的服务器，用于数据采集和分析，是连接网管和系统之间的桥梁。接入服务器管理则用来管理连接网管的接入服务器。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;接入&gt;→&lt;接入服务器管理&gt;，接入服务器管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-接入服务器管理">
+			<title>接入服务器管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/access_server_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“接入服务器”：接入服务器的名称</para>
+
+		<para>“IP地址”：接入服务器的IP地址</para>
+
+		<para>“端口号”：接入服务器的端口号</para>
+
+		<para>“状态”：显示接入服务器的状态</para>
+
+		<para>“备注”：接入服务器的备注信息</para>
+
+		<para>【功能说明】</para>
+
+		<para>系统默认将显示全部接入服务器的数据。</para>
+
+		<para>点击&lt;新增&gt;按钮，将增加接入服务器，参见3.2.1。</para>
+
+		<para>点击&lt;删除&gt;按钮，将删除接入服务器，参见3.2.3。</para>
+
+		<para>点击&lt;修改&gt;按钮，将修改接入服务器，参见3.2.2。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>点击&lt;删除&gt;和&lt;修改&gt;按钮前必须选择一个接入服务器，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-新增接入服务器">
+			<title>新增接入服务器</title>
+
+			<para>【页面显示】</para>
+
+			<para>在接入服务器管理页面，点击&lt;新增&gt;按钮，新增接入服务器窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-新增接入服务器">
+				<title>新增接入服务器</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/add_access_server.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>“接入服务器名称”：输入接入服务器名称，必填项。</para>
+
+			<para>“IP地址”：输入接入服务器的IP地址，必填项。</para>
+
+			<para>“端口号”：输入接入服务器的端口号，必填项。</para>
+
+			<para>“备注”：输入接入服务器的备注信息，选填项。</para>
+
+			<para>点击&lt;确认&gt;，将新增接入服务器。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口，并且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>接入服务器名称、IP地址不能重复。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-修改接入服务器">
+			<title>修改接入服务器</title>
+
+			<para>【页面显示】</para>
+
+			<para>在接入服务器管理页面，点击&lt;修改&gt;按钮，修改接入服务器窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-修改接入服务器">
+				<title>修改接入服务器</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/update_access_server.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>同新增接入服务器。</para>
+
+		</section>
+
+		<section xml:id="节-删除接入服务器">
+			<title>删除接入服务器</title>
+
+			<para>【页面显示】</para>
+
+			<para>在接入服务器管理页面，选择待删除的接入服务器，点击&lt;删除&gt;按钮，如果该接入服务器无南向连接，则立即删除接入服务器；如果该服务器有南向连接，删除接入服务器窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-删除接入服务器">
+				<title>删除接入服务器</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/delete_access_server.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>待删除的服务器有南向连接，点击&lt;确认&gt;，需要首先在南向连接管理中删除或修改连接，然后在接入服务器管理中删除接入服务器。</para>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-网管分组管理">
+		<title>网管分组管理</title>
+
+		<para>【描述】</para>
+
+		<para>网管分组管理指对各种连接方式接入的网管进行分组管理，方便进行分类查询和显示。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;接入&gt;→&lt;网管分组管理&gt;，网管分组管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-网管分组管理">
+			<title>网管分组管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/ems_group_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组名称”：网管分组名称</para>
+
+		<para>“备注”：备注信息</para>
+
+		<para>【功能说明】</para>
+
+		<para>系统默认将显示全部网管分组的数据。</para>
+
+		<para>点击&lt;新增&gt;按钮，将增加网管分组，参见3.3.1。</para>
+
+		<para>点击&lt;删除&gt;按钮，将删除网管分组，参见3.3.3。</para>
+
+		<para>点击&lt;修改&gt;按钮，将修改网管分组，参见3.3.2。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>点击&lt;删除&gt;、&lt;修改&gt;按钮前必须选择一个网管分组，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-新增网管分组">
+			<title>新增网管分组</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网管分组管理页面点击&lt;新增&gt;按钮，新增网管分组窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-新增网管分组">
+				<title>新增网管分组</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/add_ems_group.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>“网管分组名称”：输入网管分组名称。</para>
+
+			<para>“网管分组备注”：输入网管分组备注。</para>
+
+			<para>点击&lt;确认&gt;，将添加网管分组。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>网管分组名称不能重复。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-修改网管分组">
+			<title>修改网管分组</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网管分组管理页面点击&lt;修改&gt;按钮，修改网管分组窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-修改网管分组">
+				<title>修改网管分组</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/update_ems_group.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>“网管分组名称”：输入网管分组名称。</para>
+
+			<para>“网管分组备注”：输入网管分组备注。</para>
+
+			<para>点击&lt;确认&gt;，将修改网管分组。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>网管分组名称不能重复。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-删除网管分组">
+			<title>删除网管分组</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网管分组管理页面选择一网管分组点击&lt;删除&gt;按钮，删除网管分组窗口将弹出，如下图。</para>
+
+			<para></para>
+
+			<figure xml:id="图-删除网管分组">
+				<title>删除网管分组</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/delete_ems_group.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将删除网管分组（即原来下属网管将无分组信息，但不会删除原网管信息）。</para>
+
+			<para>点击&lt;否&gt;，退出窗口且放弃操作。</para>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-网元管理">
+		<title>网元管理</title>
+
+		<para>【描述】</para>
+
+		<para>网元管理指对接入的所有网元进行管理，具体功能包括：显示网元列表、列表同步、网元同步、新增网元、删除网元、修改网元设置、登录网元、退出网元登录等。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;接入&gt;→&lt;网元管理&gt;，网元管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-网元管理">
+			<title>网元管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/ne_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：网管分组的名称</para>
+
+		<para>“网管”：网管的名称</para>
+
+		<para>“网元名称”：网元的名称</para>
+
+		<para>“规范网元名称”：用户自定义名称</para>
+
+		<para>“区域”：网元所在的区域</para>
+
+		<para>“局站”：网元所在的局站</para>
+
+		<para>“厂家”：网元的生产厂家</para>
+
+		<para>“网元型号”：网元的型号</para>
+
+		<para>“网元版本”：网元的版本</para>
+
+		<para>“同步状态”：最近一次同步的状态</para>
+
+		<para>“同步模式”：网元同步的模式（自动同步、手工同步）</para>
+
+		<para>“成功同步时间”：最近一次同步成功的时间</para>
+
+		<para>“登录用户名”：登录网元的TELNET连接的用户名</para>
+
+		<para>“登录状态”：登录的状态，是否在线</para>
+
+		<para>“登录模式”：登录的模式，是否要自动登录</para>
+
+		<para>“网管侧状态”：分为正常和已删除</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;网管分组&gt;和&lt;网管&gt;后的下拉框，选择相应的网管分组和网管名后，可自动显示对应的数据，系统默认显示第1个网管分组和第1个网管的数据。</para>
+
+		<para>点击&lt;列表同步&gt;按钮，将同步网管网元列表，参见<xref linkend="节-列表同步"/>。</para>
+
+		<para>点击&lt;网元同步&gt;按钮，将同步网元基础数据，参见<xref linkend="节-网元同步"/></para>
+
+		<para>点击&lt;新增网元&gt;按钮，将新增网元，参见<xref linkend="节-新增网元"/>。</para>
+
+		<para>点击&lt;删除网元&gt;按钮，将删除网元，参见<xref linkend="节-删除网元"/>。</para>
+
+		<para>点击&lt;修改网元&gt;按钮，将修改网元，参见<xref linkend="节-修改网元"/>。</para>
+
+		<para>点击&lt;同步模式&gt;按钮，弹出同步模式按钮种类（自动同步、手工同步），见下图。点击&lt;自动同步&gt;或&lt;手工同步&gt;，网元的同步模式被修改。</para>
+
+		<figure xml:id="图-同步模式按钮">
+			<title>同步模式按钮</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/synchronous_mode_button.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>点击&lt;登录网元&gt;按钮，将登录网元，参见<xref linkend="节-登录网元"/>。</para>
+
+		<para>点击&lt;退出登录&gt;按钮，将退出网元登录，参见<xref linkend="节-退出登录"/>。</para>
+
+		<caution>
+		<title> [注意]</title>
+
+		<para>点击&lt;列表同步&gt;、&lt;网元同步&gt;、&lt;删除网元&gt;、&lt;修改网元&gt;、&lt;登录网元&gt;、&lt;退出登录&gt;按钮前必须选择一个网管分组/网管/网元，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-列表同步">
+			<title>列表同步</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网元管理页面选择一接入方式属于CORBA类型的网管，点击&lt;列表同步&gt;按钮，列表同步窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-列表同步">
+				<title>列表同步</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/synchronize_list.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>“变化情况”：同步前后有无变化。</para>
+
+			<para>“网元名称”：网元的名称。</para>
+
+			<para>点击&lt;更新&gt;，将新增网元加入网元列表且将已删除网元的登录状态改为离线，网管侧状态改为删除；原标记删除网元，若同步时采集到网元列表数据，则恢复为正常。</para>
+
+			<para>点击&lt;取消&gt;，不做修改。</para>
+
+			<para>点击&lt;导出&gt;，将显示内容导出为EXCLE表格。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>列表同步功能菜单仅适用于CORBA类型的的网管。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-网元同步">
+			<title>网元同步</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网元管理页面选择网元（可以多选），点击&lt;网元同步&gt;按钮，网元同步窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-网元同步">
+				<title>网元同步</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/synchronize_ne.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，进行网元同步，系统显示网元同步的进度条和相关数据。</para>
+
+			<para>点击&lt;否&gt;，不进行同步。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>执行网元同步时，系统进度条显示当前网元序号/总网元数量，系统相关数据显示正在同步的网元名称和同步项目。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-新增网元">
+			<title>新增网元</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网元管理页面选择一接入方式属于TELNET类型的网管，点击&lt;新增网元&gt;按钮，新增网元窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-新增网元">
+				<title>新增网元</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/add_ne.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>“网元名称”：输入登录网元名称（同一个网管下不能有有重名网元）。</para>
+
+			<para>“登录用户”：输入TELNET方式登录网元的用户名称。</para>
+
+			<para>“登录密码”：输入登录网元密码。</para>
+
+			<para>“连接模式”：网元连接模式，是否自动登录，默认为自动。</para>
+
+			<para>点击&lt;确认&gt;，将新增网元。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>新增网元功能菜单仅适用于TELNET类型的的网管。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-删除网元">
+			<title>删除网元</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网元管理页面单选网管侧状态为已删除的网元，点击&lt;删除网元&gt;按钮，删除网元窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-删除网元">
+				<title>删除网元</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/delete_ne.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将删除网元。</para>
+
+			<para>点击&lt;否&gt;，退出窗口且放弃删除操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>必须先选择网元且不能多选。</para>
+
+			<para>如果单选的TELNET连接类型的网元登录状态为在线，或者CORBA连接类型的网元网管侧状态为非删除，则系统提示“网元在登录状态，请先退出登录、或者列表同步”。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-修改网元">
+			<title>修改网元</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网元管理页面单选网元的网元，点击&lt;修改网元&gt;按钮，根据类型（CORBA类型或TELNET类型）对应的修改网元窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-修改CORBA网元">
+				<title>修改CORBA网元</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/update_corba_ne.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-修改TELNET网元">
+				<title>修改TELNET网元</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/update_telnet_ne.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>CORBA类型网元：</para>
+
+			<para>“网元名称”：输入修改后的网元名称。</para>
+
+			<para>TELNET类型网元：</para>
+
+			<para>“网元名称”：输入修改后的网元名称。</para>
+
+			<para>“登录用户”：输入修改后的TELNET方式登录网元的用户名称。</para>
+
+			<para>“登录密码”：输入修改后的登录网元密码。</para>
+
+			<para>“连接模式”：选择网元连接模式，自动或者手动。</para>
+
+			<para>点击&lt;确认&gt;，将修改网元。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>同一网管下，网元名称不能相同，否则系统会提示错误。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-登录网元">
+			<title>登录网元</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网元管理页面选择TELNET连接类型，点击&lt;登录网元&gt;按钮，网元显示登录中，页面遮罩，不能进行其他操作，登录成功后弹出提示框，如下图。</para>
+
+			<figure xml:id="图-登录网元提示">
+				<title>登录网元提示</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/login_ne_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>登录网元功能菜单仅适用于TELNET类型的的网管。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-退出登录">
+			<title>退出登录</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网元管理页面选择TELNET连接类型的网元，点击&lt;退出登录&gt;按钮，系统提示“退出登录将无法接收告警，采集性能数据。是否确定退出登录？”如下图。</para>
+
+			<figure xml:id="图-退出登录">
+				<title>退出登录</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/logout.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，网元退出登录。</para>
+
+			<para>点击&lt;否&gt;，退出窗口且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>退出登录功能菜单仅适用于TELNET类型的网管。</para>
+
+			<para>点击&lt;取消&gt;按钮后，需等完成当前网元的操作后才会退出。</para>
+			</caution>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-链路管理">
+		<title>链路管理</title>
+
+		<section xml:id="节-拓扑链路同步">
+			<title>拓扑链路同步</title>
+
+			<para>【描述】</para>
+
+			<para>拓扑链路同步指对于CORBA接口连接的网管，以网管为单位，同步链路信息。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;接入&gt;→&lt;链路管理&gt;→&lt;拓扑链路同步&gt;，拓扑链路同步页面将会打开，如下图。</para>
+
+			<figure xml:id="图-拓扑链路同步">
+				<title>拓扑链路同步</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/synchronize_link.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“网管分组”：EMS分组名称</para>
+
+			<para>“网管名称”：网管友好名称</para>
+
+			<para>“网管类型”：EMS网管的类型</para>
+
+			<para>“同步状态”：最近一次同步的状态</para>
+
+			<para>“同步模式”：拓扑链路同步模式（自动同步、人工同步）</para>
+
+			<para>“成功同步时间”：链路成功同步的时间</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;网管分组&gt;后的下拉框，选择相应的网管分组名后，可自动显示对应的数据，系统默认显示所有网管分组的数据。</para>
+
+			<para>点击&lt;同步&gt;按钮，将同步网元之间拓扑链路信息（不包括网元内部链路信息），参见<xref linkend="节-链路同步"/>。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;同步&gt;按钮前必须选择一个网管，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-链路同步">
+				<title>拓扑链路同步</title>
+
+				<para>【页面显示】</para>
+
+				<para>在拓扑链路同步页面选择网管，点击&lt;同步&gt;按钮，系统提示“正在执行，请稍候”。根据情况，同步后如无变化，则提示“链路无变化”；如有变化但有链路不匹配，则拓扑链路同步不匹配窗口将弹出，如下图；</para>
+
+				<figure xml:id="图-拓扑链路同步不匹配">
+					<title>拓扑链路同步不匹配</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/link_synchronous_mismatch.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>点击&lt;立即同步网元&gt;按钮，列表中网元进行同步，如下图所示：</para>
+
+				<figure xml:id="图-同步进度条">
+					<title>同步进度条</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/synchronous_progress_bar.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>如有变化且链路都可匹配，则拓扑链路同步匹配窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-拓扑链路同步匹配">
+					<title>拓扑链路同步匹配</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/access/link_synchronous_match.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/access/link_synchronous_match.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>拓扑链路同步不匹配情况：</para>
+
+				<para>“网管名称”：网管名称。</para>
+
+				<para>“网元名称”：网元名称。</para>
+
+				<para>点击&lt;立即同步网元&gt;按钮，立即同步网元数据且显示进度条。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+				<para>拓扑链路同步匹配情况：</para>
+
+				<para>“变化”：分新增和删除。</para>
+
+				<para>“A端网元”：源端网元。</para>
+
+				<para>“A端端口”：源端端口。</para>
+
+				<para>“Z端网元”：宿端网元。</para>
+
+				<para>“Z端端口”：宿端端口。</para>
+
+				<para>“名称”：链路名称。</para>
+
+				<para>点击&lt;更新&gt;按钮，将更新拓扑链路数据。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-拓扑链路管理">
+			<title>拓扑链路管理</title>
+
+			<para>【描述】</para>
+
+			<para>拓扑链路管理是对自动采集和手动生成的链路进行管理，可以进行查看和增删修改。</para>
+
+			<para>手动生成链路主要是针对跨网管链路及富士通设备等无法自动获取的情况。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;接入&gt;→&lt;链路管理&gt;→&lt;拓扑链路管理&gt;，拓扑链路管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-拓扑链路管理">
+				<title>拓扑链路管理</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/link_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>左侧为网元树，右侧为链路管理列表。</para>
+
+			<para>“链路号”：FTSP所生成的链路号。</para>
+
+			<para>“链路原始名称”：原始获取的链路的名称。</para>
+
+			<para>“链路规范名称”：修改后的链路的名称。</para>
+
+			<para>“A端网管”：源端网管。</para>
+
+			<para>“A端网元”：源端网元。</para>
+
+			<para>“A端端口”：源端端口，具体格式为机架-子架-槽道(板卡)-端口。</para>
+
+			<para>“Z端网管”：宿端网管。</para>
+
+			<para>“Z端网元”：宿端网元。</para>
+
+			<para>“Z端端口”：宿端端口，具体格式为机架-子架-槽道(板卡)-端口。</para>
+
+			<para>“方向”：分双向（A-Z、Z-A）和单向（A-Z）。</para>
+
+			<para>“生成方式”：分为手动和自动。手动指的是在拓扑链路管理界面，通过&lt;新增&gt;按钮手动生成的链路。自动指的是通过FTSP采集功能自动生成的链路。</para>
+
+			<para>“状态”：网元内部链路的状态（冲突项/冲突源/等）。</para>
+
+			<para>【功能说明】</para>
+
+			<para>在左侧网元树中，选择指定的网管分组、网管、网元，或者在右侧链路号文本框输入链路号，点击&lt;查询&gt;按钮，将查询到对应的拓扑链路数据。</para>
+
+			<para>点击&lt;新增&gt;按钮，将手动新增一条链路，参见<xref linkend="节-新增链路"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的手动生成的链路，参见<xref linkend="节-删除链路"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选链路的信息，参见<xref linkend="节-修改链路"/>。</para>
+
+			<para>点击&lt;导入&gt;按钮，将从外部导入符合格式要求的.xls文件，批量新增链路，参见<xref linkend="节-导入链路"/>。</para>
+
+			<para>点击&lt;导出&gt;按钮，将链路信息列表中显示的链路导出为.xls文件，参见<xref linkend="节-导出链路"/>。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;查询&gt;按钮前必须选择一个链路，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增链路">
+				<title>新增链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在拓扑链路管理页面中，点击&lt;新增&gt;按钮，新增链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增链路">
+					<title>新增链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/add_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>填写新增链路的“链路原始名称”和“链路规范名称”，选择该链路的“A端端口”和“Z端端口”，选择“链路方向”。</para>
+
+				<para>“链路名称”：输入新增链路的链路名称。若不填写链路名称，则缺省将A端节点与Z端节点的拼接生成链路名称（格式为“A-Z”）。</para>
+
+				<para>“A端端口”：必填项，该链路的起始端口，通过右边&lt;…&gt;按钮选择(在弹出的网元树窗口中必须详细定位到端口)如下图。</para>
+
+				<para>“Z端端口”：必填项，该链路的终结端口，通过右边&lt;…&gt;按钮选择(在弹出的网元树窗口中必须详细定位到端口) 如下图。</para>
+
+				<para>“链路方向”:分为单向和双向（缺省为双向）。</para>
+
+				<para>点击&lt;确认&gt;，完成新增链路操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增链路。</para>
+
+				<figure xml:id="图-网元树端口选择">
+					<title>网元树端口选择</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/ne_tree_port_select.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>在“A端端口”“Z端端口”弹出的网元树窗口中必须定位到端口，且任一端口不能被占用，否则会弹出错误信息对话框。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-删除链路">
+				<title>删除链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在拓扑链路管理页面选中一个链路点击&lt;删除&gt;按钮，删除链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除链路">
+					<title>删除链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/delete_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除链路操作，系统提示删除链路成功。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除链路。</para>
+
+			</section>
+
+			<section xml:id="节-修改链路">
+				<title>修改链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在拓扑链路管理页面选中一个链路点击&lt;修改&gt;按钮，修改链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改链路">
+					<title>修改链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/update_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增链路。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>仅“链路原始名称”和“链路规范名称”可以修改。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-导入链路">
+				<title>导入链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在拓扑链路管理页面点击&lt;导入&gt;按钮，导入链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导入链路">
+					<title>导入链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/import_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>通过点击右边的&lt;…&gt;按钮来选择导入“文件路径”，导入文件格式为符合要求的.xls文件。</para>
+
+				<para>点击&lt;确认&gt;，执行导入链路操作，系统弹窗显示“正在导入请稍候”，导入完成后弹窗显示“文件导入成功”。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃导入链路。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>若导入不符合格式规定的.xls文件或者其他类型的文件，否则会弹出错误信息对话框。</para>
+
+				<para>若导入文件中出现错误，则取消导入且系统提示导入文件出错行数的信息。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-导出链路">
+				<title>导出链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在拓扑链路管理页面点击&lt;导出&gt;按钮，导出链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导出链路">
+					<title>导出链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/export_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要可以打开或者保存文件。</para>
+
+				<para>点击&lt;打开&gt;，将打开文件。</para>
+
+				<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口且放弃导出链路。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>若信息列表为空，则使用导出功能时会弹出错误信息对话框。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-内部链路管理">
+			<title>内部链路管理</title>
+
+			<para>【描述】</para>
+
+			<para>实现网元内部的LINK管理，网元之间的LINK不在管理范围。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;接入&gt;→&lt;链路管理&gt;→&lt;内部链路管理&gt;，内部链路管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-内容不链路管理">
+				<title>内部链路管理</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/inside_link_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>左侧为网元树，右侧为链路管理列表。</para>
+
+			<para>“链路号”：FTSP所生成的链路号。</para>
+
+			<para>“链路原始名称”：原始获取的链路的名称。</para>
+
+			<para>“链路规范名称”：修改后的链路的名称。</para>
+
+			<para>“A端网管”：源端网管。</para>
+
+			<para>“A端网元”：源端网元。</para>
+
+			<para>“A端端口”：源端端口，具体格式为机架-子架-槽道(板卡)-端口。</para>
+
+			<para>“Z端网管”：宿端网管。</para>
+
+			<para>“Z端网元”：宿端网元。</para>
+
+			<para>“Z端端口”：宿端端口，具体格式为机架-子架-槽道(板卡)-端口。</para>
+
+			<para>“方向”：分双向（A-Z、Z-A）和单向（A-Z）。</para>
+
+			<para>“生成方式”：分为手动和自动。手动指的是在拓扑链路管理界面，通过&lt;新增&gt;按钮手动生成的链路。自动指的是通过FTSP采集功能自动生成的链路。</para>
+
+			<para>“状态”：网元内部链路的状态（冲突项/冲突源/等）。</para>
+
+			<para>【功能说明】</para>
+
+			<para>在左侧网元树中，选择指定的网管分组、网管、网元，或者在右侧链路号文本框输入链路号，点击&lt;查询&gt;按钮，将查询到对应的内部链路数据。</para>
+
+			<para>点击&lt;新增&gt;按钮，将手动新增一条链路，参见<xref linkend="节-新增内部链路"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的手动生成的链路，参见<xref linkend="节-删除内部链路"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选链路的信息，参见<xref linkend="节-修改内部链路"/>。</para>
+
+			<para>点击&lt;导入&gt;按钮，将从外部导入符合格式要求的.xls文件，批量新增链路，参见<xref linkend="节-导入内部链路"/>。</para>
+
+			<para>点击&lt;导出&gt;按钮，将链路信息列表中显示的链路导出为.xls文件，参见<xref linkend="节-导出内部链路"/>。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;查询&gt;按钮前必须选择一个链路，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增内部链路">
+				<title>新增链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在内部链路管理页面点击&lt;新增&gt;按钮，新增链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增内部链路">
+					<title>新增链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/add_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>填写新增链路的“链路原始名称”和“链路规范名称”，选择该链路的“A端端口”和“Z端端口”，选择“链路方向”。</para>
+
+				<para>“链路原始名称”、“链路规范名称”：输入新增链路的链路名称。若不填写链路名称，则缺省将A端节点与Z端节点的拼接生成链路名称（格式为“A-Z”）。</para>
+
+				<para>“A端端口”：必填项，该链路的起始端口，通过右边&lt;…&gt;按钮选择(在弹出的网元树窗口中必须详细定位到端口)如下图。</para>
+
+				<para>“Z端端口”：必填项，该链路的终结端口，通过右边&lt;…&gt;按钮选择(在弹出的网元树窗口中必须详细定位到端口) 如下图。</para>
+
+				<para>“链路方向”:分为单向和双向（缺省为双向）。</para>
+
+				<para>点击&lt;确认&gt;，完成新增内部链路操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口，并且放弃新增链路。</para>
+
+				<figure xml:id="图-网元树端口选择_内部链路">
+					<title>网元树选择</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/ne_tree_port_select.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>在“A端端口”、“Z端端口”弹出的网元树窗口中必须定位到端口，且任一端口不能被占用，否则会弹出错误信息对话框。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-删除内部链路">
+				<title>删除链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在内部链路管理页面选中一个链路点击&lt;删除&gt;按钮，删除链路确认窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除内部链路">
+					<title>删除链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/delete_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除内部链路操作，系统提示删除链路成功。</para>
+
+				<para>点击&lt;否&gt;，退出窗口，并且放弃删除链路操作。</para>
+
+			</section>
+
+			<section xml:id="节-修改内部链路">
+				<title>修改链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在内部链路管理页面中，选择一条链路，点击&lt;修改&gt;按钮，修改链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改内部链路">
+					<title>修改链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/update_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增内部链路。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>仅“链路原始名称”和“链路规范名称”可以修改。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-导入内部链路">
+				<title>导入链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在内部链路管理页面中，点击&lt;导入&gt;按钮，导入链路窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导入内部链路">
+					<title>导入链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/import_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>通过点击右边的&lt;…&gt;按钮来选择导入“文件路径”，导入文件格式为符合要求的.xls文件。</para>
+
+				<para>点击&lt;确认&gt;，执行导入链路操作，进度条显示“正在导入请稍候”，导入完成后弹窗显示“文件导入成功”。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口，并且放弃导入链路。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>若导入不符合格式规定的.xls文件或者其他类型的文件，否则会弹出错误信息对话框。</para>
+
+				<para>若导入文件中出现错误，则取消导入且系统提示导入文件出错行数的信息。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-导出内部链路">
+				<title>导出链路</title>
+
+				<para>【页面显示】</para>
+
+				<para>在内部链路管理页面中，点击&lt;导出&gt;按钮，导出窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导出内部链路">
+					<title>导出链路</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/access/export_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要可以打开或者保存文件。</para>
+
+				<para>点击&lt;打开&gt;，将打开文件。</para>
+
+				<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行过程中，系统弹窗显示“正在导出请稍候”，执行完后，弹窗显示“文件导出成功”。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口，且且放弃导出链路操作。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>若信息列表为空，则使用导出功能时会弹出错误信息对话框。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-网管同步">
+		<title>网管同步</title>
+
+		<para>【描述】</para>
+
+		<para>网管同步指采集网管级别的相关数据实现自动同步或手动同步，以确保系统数据的准确性。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;接入&gt;→&lt;网管同步&gt;，网管同步页面将会打开，如下图。</para>
+
+		<para></para>
+
+		<figure xml:id="图-网管同步">
+			<title>网管同步</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/synchronize_ems.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：EMS分组名称</para>
+
+		<para>“网管名称”：网管友好名称</para>
+
+		<para>“网管类型”：EMS网管的类型</para>
+
+		<para>“同步周期”：EMS网管的类型</para>
+
+		<para>“任务状态”：任务是否启用</para>
+
+		<para>“执行状态”：空（之前没有执行过）/执行成功（执行完成后的状态）/部分成功（部分项目同步成功）/执行失败（执行失败的状态）/执行中（正在执行）/暂停（任务暂停一定时间）/执行中止（任务被中途取消）</para>
+
+		<para>“上次同步时间”：上次完成同步的时间</para>
+
+		<para>“下次同步时间”：按计划下次同步的时间</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;网管分组&gt;后的下拉框，选择组名后，可自动显示对应组的数据。默认将显示全部分组的数据。</para>
+
+		<para>点击&lt;启用&gt;按钮，将启用选中的任务。</para>
+
+		<para>点击&lt;挂起&gt;按钮，如果任务非“执行中”，状态“启用”，立即挂起选中的任务；如果任务非“执行中”，状态“挂起”，系统提示“任务已经挂起”；如果任务执行中，系统提示““任务执行中，如果挂起将会停止任务。是否确定？”，点击&lt;是&gt;按钮，立即停止任务，点击&lt;否&gt;按钮，则取消操作。</para>
+
+		<para>点击&lt;手动同步&gt;按钮，如果任务执行状态为非“执行中”或者“暂停”，系统提示“同步整个网管的数据，时间可能较长，是否同步？”。点击&lt;是&gt;按钮，立即手动同步，点击&lt;否&gt;按钮，则取消操作；如果任务执行状态为“执行中”或者“暂停”，系统提示“任务执行中”。</para>
+
+		<para>点击&lt;任务状态&gt;按钮，将显示任务的最近一次执行情况，参见<xref linkend="节-任务状态"/>。</para>
+
+		<para>点击同步周期里面右边的&lt;编辑&gt;按钮，将进行同步周期设置，重复周期可以选择每季/月/周，默认为每季度。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>点击&lt;启用&gt;、&lt;挂起&gt;、&lt;手动同步&gt;、&lt;任务状态&gt;和&lt;编辑&gt;按钮前必须选择一个网管，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-任务状态">
+			<title>任务状态</title>
+
+			<para>【页面显示】</para>
+
+			<para>在网管同步页面点击&lt;任务状态&gt;按钮，任务状态窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-任务状态_非停止">
+				<title>任务状态（非停止）</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/task_status_running.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-任务状态_停止">
+				<title>任务状态（停止）</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/task_status_stop.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;停止&gt;，将取消本次采集任务。&lt;继续&gt;和&lt;停止&gt;按钮均不让点击。</para>
+
+			<para>点击&lt;继续&gt;，将继续采集任务。</para>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-子网管理">
+		<title>子网管理</title>
+
+		<para>【描述】</para>
+
+		<para>子网管理指将特定的网元归属划分为一类子网，具体包括新增子网、删除子网、修改子网。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;接入&gt;→&lt;子网管理&gt;，子网管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-子网管理">
+			<title>子网管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/subnet_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“节点树”：展开到网元级别,只能单选。</para>
+
+		<para>“可选网元”：不在任何子网内的网元。默认不显示任何网元，选择到某个网管或者子网后，点击节点树右上方的&lt;&gt;&gt;&gt;按钮，才显示该网管内所有未分配子网的网元名称。</para>
+
+		<para>“已选网元”：已经在某个子网内的网元。默认不显示任何网元，选择到某个子网后，点击节点树右上方的&lt;&gt;&gt;&gt;按钮，显示该子网内所有的网元名称。</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;新增子网&gt;按钮，将新增加子网,参见<xref linkend="节-新增子网"/>。</para>
+
+		<para>点击&lt;修改子网&gt;按钮，将修改子网,参见<xref linkend="节-修改子网"/>。</para>
+
+		<para>点击&lt;删除子网&gt;按钮，将删除子网,参见<xref linkend="节-删除子网"/>。</para>
+
+		<para>点击&lt;划分子网&gt;按钮，保存子网划分修改结果，参见<xref linkend="节-划分子网"/>。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>如果未在左侧节点树上选中网管或者子网，系统会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-新增子网">
+			<title>新增子网</title>
+
+			<para>【页面显示】</para>
+
+			<para>在子网管理页面左侧节点树上选中网管或者子网,点击&lt;新增子网&gt;按钮，新增子网窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-新增子网">
+				<title>新增子网</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/add_subnet.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>填写“子网名称”（子网的显示名称,必填项），酌情填写“备注”信息 (子网的备注信息)。</para>
+
+			<para>子网父路径只能查看不能修改（默认为分组名\EMS名称\子网名称）。</para>
+
+			<para>点击&lt;确认&gt;，新增子网生效且更新节点树。</para>
+
+			<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>同一个网管下子网不能重名。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-修改子网">
+			<title>修改子网</title>
+
+			<para>【页面显示】</para>
+
+			<para>在子网管理页面左侧节点树上选中子网,点击&lt;修改子网&gt;按钮，修改子网窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-修改子网">
+				<title>修改子网</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/update_subnet.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>同新增子网。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>同一个网管下子网不能重名。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-删除子网">
+			<title>删除子网</title>
+
+			<para>【页面显示】</para>
+
+			<para>在子网管理页面左侧节点树上选中子网,点击&lt;删除子网&gt;按钮，删除子网窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-删除子网">
+				<title>删除子网</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/delete_subnet.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将删除子网。</para>
+
+			<para>点击&lt;否&gt;，退出窗口且放弃删除操作。</para>
+
+		</section>
+
+		<section xml:id="节-划分子网">
+			<title>划分子网</title>
+
+			<para>【页面显示】</para>
+
+			<para>在子网管理页面左侧节点树上选中子网,点击&lt;划分子网&gt;按钮，右侧页面变为可编辑，如下图。</para>
+
+			<figure xml:id="图-划分子网">
+				<title>划分子网</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/subnetting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“子网名称”：选择的子网名称，不可编辑。</para>
+
+			<para>“子网路径”：选择的子网的路径，不可编辑。</para>
+
+			<para>“备注”：选择的子网的备注信息，不可编辑。</para>
+
+			<para>【功能说明】</para>
+
+			<para>划分选中的子网，为子网添加网元。</para>
+
+			<para>点击&lt;添加网元&gt;，新增网元窗口打开，如下所示。</para>
+
+			<figure xml:id="图-划分子网新增网元">
+				<title>新增网元</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/subnetting_add_ne.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;确定&gt;按钮，子网分组成功，弹出如下窗口。</para>
+
+			<figure xml:id="图-子网分组保存成功提示">
+				<title>子网分组保存成功提示</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/subnet_group_save_success.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;移动到&gt;按钮，移动到窗口弹出，如下所示。</para>
+
+			<figure xml:id="图-移动到">
+				<title>移动到</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/move_to.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>添加网元时，选择子网时，弹出提示窗口提示只能选择网元。</para>
+			</caution>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-设备资源管理">
+		<title>设备资源管理</title>
+
+		<para>【描述】</para>
+
+		<para>显示网元、子架、板卡、端口的资源信息列表，并且对设备资源进行查询、修改、显示方式批量修改、修改、导出等操作。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;接入&gt;→&lt;设备资源管理&gt;，设备资源管理页面将会打开，在节点树上选择节点列表（网管分组、网管或网元），选择查询类别（网元、子架、板卡或端口，默认选择网元），&lt;查询&gt;按下后，显示如下图。</para>
+
+		<figure xml:id="图-设备资源管理">
+			<title>设备资源管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/access/device_resource_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“节点树”：展开到网元级别,可多选。</para>
+
+		<para>网元：</para>
+
+		<para>“网管分组”：显示网管分组的名称。</para>
+
+		<para>“网管”：显示网管的名称。</para>
+
+		<para>“网元原始名称”：显示EMS原来的网元名称。</para>
+
+		<para>“网元自定义名称”：显示用户自定义的网元名称。</para>
+
+		<para>“显示方式”：指定网元的显示名称（原始名称/自定义名称）。</para>
+
+		<para>“区域”：显示区域信息。</para>
+
+		<para>“局站”：显示局站信息。</para>
+
+		<para>“厂家”：显示网元厂家信息。</para>
+
+		<para>“网元型号”：显示网元型号信息。</para>
+
+		<para>“网元版本”：显示网元版本信息。</para>
+
+		<para>“管理类别”：显示管理类别（维护、工程、不维护、退网），默认为维护。</para>
+
+		<para>“备注”：备注信息。</para>
+
+		<para>子架：</para>
+
+		<para>“网管分组”：显示网管分组的名称。</para>
+
+		<para>“网管”：显示网管的名称。</para>
+
+		<para>“网元原始名称”：显示EMS原来的网元名称。</para>
+
+		<para>“网元自定义名称”：显示用户自定义的网元名称。</para>
+
+		<para>“区域”：显示区域信息。</para>
+
+		<para>“局站”：显示局站信息。</para>
+
+		<para>“厂家”：显示网元厂家的信息。</para>
+
+		<para>“网元型号”：显示网元型号的信息。</para>
+
+		<para>“子架类型”：显示子架类型。</para>
+
+		<para>“子架原始名称”：显示网元版本信息。</para>
+
+		<para>“子架自定义名称”：显示子架自定义名称。</para>
+
+		<para>“显示方式”：指定子架的显示名称（原始名称/自定义名称）。</para>
+
+		<para>“管理类别”：显示管理类别（维护、工程、不维护、退网、默认为）。</para>
+
+		<para>“备注”：备注信息。</para>
+
+		<para>板卡：</para>
+
+		<para>“网管分组”：显示网管分组的名称。</para>
+
+		<para>“网管”：显示网管的名称。</para>
+
+		<para>“网元原始名称”：显示EMS原来的网元名称。</para>
+
+		<para>“网元自定义名称”：显示用户自定义的网元名称。</para>
+
+		<para>“区域”：显示区域信息。</para>
+
+		<para>“局站”：显示局站信息。</para>
+
+		<para>“厂家”：显示网元厂家的信息。</para>
+
+		<para>“所在槽道”：显示板卡所在的槽道。</para>
+
+		<para>“板卡版本”：显示板卡版本。</para>
+
+		<para>“板卡生产日期”：显示板卡生产日期。</para>
+
+		<para>“板卡图号”：显示板卡图号。</para>
+
+		<para>“板卡序列号”：显示板卡序列号。</para>
+
+		<para>“服务状态”：显示板卡服务状态（服务中等）。</para>
+
+		<para>“板卡原始名称”：显示板卡原始名称。</para>
+
+		<para>“板卡自定义名称”：显示板卡自定义名称。</para>
+
+		<para>“显示方式”：指定板卡的显示名称（原始名称/自定义名称）。</para>
+
+		<para>“备注”：备注信息。</para>
+
+		<para>端口：</para>
+
+		<para>“网管分组”：显示网管分组的名称。</para>
+
+		<para>“网管”：显示网管的名称。</para>
+
+		<para>“网元原始名称”：显示EMS原来的网元名称。</para>
+
+		<para>“网元自定义名称”：显示用户自定义的网元名称。</para>
+
+		<para>“区域”：显示区域信息。</para>
+
+		<para>“局站”：显示局站信息。</para>
+
+		<para>“厂家”：显示网元厂家的信息。</para>
+
+		<para>“网元型号”：显示网元型号信息。</para>
+
+		<para>“端口”：端口描述。</para>
+
+		<para>“业务类型”：显示端口业务类型。</para>
+
+		<para>“端口类型”：显示端口类型。</para>
+
+		<para>“衰耗器”：显示衰耗器。</para>
+
+		<para>“光模块”：显示光模块。</para>
+
+		<para>“ODF/DDF”：显示板卡序列号。</para>
+
+		<para>“端口原始名称”：显示端口原始名称。</para>
+
+		<para>“端口自定义名称”：显示端口自定义名称。</para>
+
+		<para>“显示方式”：指定端口的显示名称（原始名称/自定义名称）。</para>
+
+		<para>“备注”：备注信息。</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;显示方式&gt;按钮，设置网元的显示名称,参见<xref linkend="节-设置显示方式"/>。</para>
+
+		<para>点击&lt;修改&gt;按钮，将修改设备资源,参见<xref linkend="节-修改设备资源"/>。</para>
+
+		<para>点击&lt;导出&gt;按钮，将导出设备资源,参见<xref linkend="节-导出设备资源"/>。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>如果未在左侧节点树上选中网管、子网或网元，系统会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-设置显示方式">
+			<title>设置显示方式</title>
+
+			<para>【页面显示】</para>
+
+			<para>点击&lt;显示方式&gt;按钮，下拉框显示&lt;原始名称&gt;和&lt;自定义名称&gt;，如下图。</para>
+
+				<figure xml:id="图-设置显示方式">
+				<title>设置显示方式</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/display_mode_button.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>批量选择列表中的网元，点击&lt;原始名称&gt;或&lt;自定义名称&gt;，网元的显示方式将修改成功，并且弹出提示窗口，见下图。</para>
+
+			<figure xml:id="图-显示方式修改提示">
+				<title>显示方式修改提示</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/display_mode_change_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+		</section>
+
+		<section xml:id="节-修改设备资源">
+			<title>修改设备资源</title>
+
+			<para>【页面显示】</para>
+
+			<para>在设备资源管理页面,选择某一个网元（子架或板卡或端口），点击&lt;修改&gt;按钮，对应修改窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-网元修改">
+				<title>网元修改</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/ne_modification.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-子架修改">
+				<title>子架修改</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/shelf_modification.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-板卡修改">
+				<title>板卡修改</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/card_modification.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-端口修改">
+				<title>端口修改</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/port_modification.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>填写“子网名称”（子网的显示名称,必填项），酌情填写“备注”信息 (子网的备注信息)。</para>
+
+			<para>子网父路径只能查看不能修改（默认为分组名\EMS名称\子网名称）。</para>
+
+			<para>1：网元：</para>
+
+			<para>“网元原始名称”：默认不可编辑。</para>
+
+			<para>“网元自定义名称”：手动编辑网元自定义名称。</para>
+
+			<para>“显示方式”：下拉框选择网元显示方式（原始名称/自定义名称）。</para>
+
+			<para>“管理类别”：下拉框选择网元管理类别（维护/工程/退网）。</para>
+
+			<para>“备注”：酌情填写网元备注信息。</para>
+
+			<para>2：子架：</para>
+
+			<para>“网元原始名称”：默认不可编辑。</para>
+
+			<para>“子架原始名称”：默认不可编辑。</para>
+
+			<para>“子架自定义名称”：手动编辑子架自定义名称。</para>
+
+			<para>“显示方式”：下拉框选择子架显示方式（原始名称/自定义名称）。</para>
+
+			<para>“备注”：酌情填写子架备注信息。</para>
+
+			<para>3：板卡：</para>
+
+			<para>“网元原始名称”：默认不可编辑。</para>
+
+			<para>“所在槽道”：默认不可编辑。</para>
+
+			<para>“板卡原始名称”：默认不可编辑。</para>
+
+			<para>“板卡自定义名称”：手动编辑板卡自定义名称。</para>
+
+			<para>“显示方式”：下拉框选择板卡显示方式（原始名称/自定义名称）。</para>
+
+			<para>“备注”：酌情填写板卡备注信息。</para>
+
+			<para>4：端口：</para>
+
+			<para>“网元原始名称”：默认不可编辑。</para>
+
+			<para>“端口”：默认不可编辑。</para>
+
+			<para>“端口原始名称”：默认不可编辑。</para>
+
+			<para>“端口自定义名称”：手动编辑端口自定义名称。</para>
+
+			<para>“显示方式”：下拉框选择端口显示方式（原始名称/自定义名称）。</para>
+
+			<para>“备注”：酌情填写端口备注信息。</para>
+
+			<para>点击&lt;确认&gt;，网元、子架、板卡或端口资源信息修改成功。 </para>
+
+			<para>点击&lt;取消&gt;，退出窗口，并且放弃操作。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>同一个网管下子网不能重名。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-导出设备资源">
+			<title>导出设备资源</title>
+
+			<para>【页面显示】</para>
+
+			<para>在设备资原管理页面中，点击&lt;导出&gt;按钮，导出窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-导出设备资源">
+				<title>导出设备资源</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/access/export_device_resource.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要可以打开或者保存文件。</para>
+
+			<para>点击&lt;打开&gt;，将打开文件。</para>
+
+			<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+			<para>点击&lt;取消&gt;，将关闭窗口，并且放弃导出设备资原。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>若信息列表为空，则使用导出功能时会弹出错误信息对话框。</para>
+			</caution>
+
+		</section>
+
+	</section>
+
+</chapter>

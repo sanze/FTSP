@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook"
+	version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+	<info>
+		<title>宁夏电信传输综合网管</title>
+		<subtitle>用户操作手册</subtitle>
+		<copyright>
+			<year>2014</year>
+			<holder>江苏富士通通信技术有限公司</holder>
+		</copyright>
+		<issuenum>3.3</issuenum>
+		<address>
+			<city>南京市</city>
+		</address>
+		<org>
+			<orgname>江苏富士通通信技术有限公司南京分公司</orgname>
+			<address>
+				<country>中国</country>
+				<city>南京</city>
+				<street>雨花台区文竹路6号</street>
+				<postcode>210012</postcode>
+				<uri>http://www.fujitsu-jftt.com/</uri>
+				<phone>025-86884999</phone>
+				<fax>025-86884988</fax>
+				<email>ts@cn.fujitsu.com</email>
+			</address>
+		</org>
+	</info>
+	<preface>
+		<title>前言</title>
+
+		<section>
+			<title>版本说明</title>
+			<para>本手册对应的FTSP传输网络维护支撑平台产品版本为：V3.3</para>
+		</section>
+		
+		<xi:include href="相关手册.xml" />
+
+		<xi:include href="本书简介.xml" />
+
+		<xi:include href="读者对象.xml" />
+
+		<xi:include href="标识约定.xml" />
+
+		<xi:include href="界面及键盘操作术语约定.xml" />
+
+		<xi:include href="鼠标操作术语约定.xml" />
+	</preface>
+ 
+	<xi:include href="基本知识.xml" />
+
+	<xi:include href="系统.xml" />
+
+	<xi:include href="接入.xml" />
+
+	<xi:include href="视图.xml" />
+
+	<xi:include href="故障.xml" />
+
+	<xi:include href="性能.xml" />
+
+	<xi:include href="电路.xml"	 />
+
+	<xi:include href="统计.xml" />
+
+	<xi:include href="维护.xml" />
+
+</book>

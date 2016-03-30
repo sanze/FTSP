@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="GB18030"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.FaultStatisticsMapper">
+
+	<select id="getFaultStatisticsTotal" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		 sp_query_count_fault(#{param.start},#{param.end},#{param.projectIds},#{param.r_code})}
+	</select>
+	
+	<select id="getFaultStatisticsByType" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		 sp_query_count_fault_by_type(#{param.start},#{param.end},#{param.projectIds},#{param.r_code})}
+	</select>
+	
+	<select id="getFaultStatisticsByFactory" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		 sp_query_count_fault_by_factory(#{param.start},#{param.end},#{param.projectIds},#{param.r_code})}
+	</select>
+	
+	<select id="getFaultStatisticsByReason" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		 sp_query_count_fault_by_reason(#{param.start},#{param.end},#{param.projectIds},#{param.r_code})}
+	</select>
+	<select id="getFaultStatisticsByNe" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		 sp_query_count_fault_by_ne(#{param.start},#{param.end},#{param.projectIds},#{param.r_code})}
+	</select>
+	<select id="getFaultStatisticsByUnit" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		 sp_query_count_fault_by_unit(#{param.start},#{param.end},#{param.projectIds},#{param.r_code})}
+	</select>
+	<!-- 获取故障列表 -->
+	<select id="getFaultList" parameterType="com.fujitsu.manager.faultManager.model.FaultQueryCondition"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		 sp_query_fault(#{startDate},#{endDate},#{tranformSystemId},#{ds},#{limit},#{start},
+		 	#{count,mode=OUT,jdbcType=INTEGER},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+	<!-- 获取一级故障原因列表 -->
+	<select id="getFaultReason" resultType="hashmap">
+		select * from t_fault_reason where level = 1
+	</select>
+	<!--获取一级故障下的二级故障原因列表 -->
+	<select id="getSubFaultReason" parameterType="int" resultType="hashmap">
+		select * from t_fault_reason where level = 2 and parent_id=#{id}
+	</select>
+	<!-- 获取传输系统列表 -->
+	<select id="getTransformSystem" resultType="hashmap">
+		select base_subnet_id AS RESOURCE_PROJECTS_ID ,DISPLAY_NAME from t_base_subnet where IS_DEL = 0
+	</select>
+	<!-- 根据告警查询对象查询指定faultId信息下的告警数据 -->
+	<select id="getAlarmByFaultId" parameterType= "com.fujitsu.manager.faultManager.model.AlarmQueryCondition"
+		resultType="hashMap" statementType="CALLABLE">
+		{CALL
+		 sp_query_fault_alarm(#{faultId},
+		 	#{count,mode=OUT,jdbcType=INTEGER},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+	<!-- 根据传输系统查询对象获取台站 -->
+	<select id="getStateBySysId" parameterType= "com.fujitsu.manager.faultManager.model.StationQueryCondition"
+		resultType="hashMap" statementType="CALLABLE">
+		{CALL
+		 sp_query_fault_station(#{sysId},
+		 	#{count,mode=OUT,jdbcType=INTEGER},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+	<!-- 保存故障信息 -->
+	<select id="save" parameterType= "com.fujitsu.manager.faultManager.model.FaultInfoModel"
+		resultType="hashMap" statementType="CALLABLE">
+		{CALL
+		 sp_fault_save(#{faultId,mode=INOUT,jdbcType=INTEGER},
+		 	#{source},#{type},#{reasonFirst},
+		 	#{reasonSecond},#{sysName},#{emsName},#{stationName},
+		 	#{neName},#{unitName},#{unitId},
+		 	#{danwei},#{aStation},
+		 	#{zStation},#{nearStation},#{distance},
+		 	#{longitude},#{latitude},#{isBroken},
+		 	#{startTime},#{endTime},#{confirmTime},#{accuracy},
+		 	#{memo},#{status},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+	<!-- 故障处理 -->
+	<select id="faultProcess" parameterType= "com.fujitsu.manager.faultManager.model.FaultProcessModel"
+		resultType="hashMap" statementType="CALLABLE">
+		{CALL
+		 sp_fault_process(#{faultId},#{status},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+	<!--  删除故障下的告警 -->
+	<select id="alarmDelete" parameterType= "com.fujitsu.manager.faultManager.model.FaultAlarmModel"
+	resultType="hashMap" statementType="CALLABLE">
+		{CALL
+		 sp_fault_delete_alarm(#{faultId},#{alarmId},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+	<!-- 根据板卡Id获取设备名称 -->
+	<select id="getEquipName" parameterType= "com.fujitsu.manager.faultManager.model.EquipNameModel"
+	resultType="com.fujitsu.manager.faultManager.model.EquipNameModel" statementType="CALLABLE">
+		{CALL
+		 sp_fault_query_by_unit(#{unitId},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+	<!-- 删除故障记录 -->
+	<delete id="faultDelete" parameterType= "com.fujitsu.manager.faultManager.model.FaultInfoModel" statementType="CALLABLE">
+		{CALL
+		 sp_fault_delete(#{faultId},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</delete>
+	<select id="alarmAdd" parameterType = 'hashmap' statementType="CALLABLE">
+		{CALL
+		 sp_fault_add_alarm(#{param.faultId},#{param.alarmId},#{param.alarmName},#{param.severity},#{param.neName},#{param.startTime},
+		 #{param.clearTime},#{errorCode,mode=OUT,jdbcType=INTEGER})}
+	</select>
+</mapper>

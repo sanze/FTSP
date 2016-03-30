@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.FaultDiagnoseMapper" >
+
+    <!-- 按表名获取整表数据 -->
+    <select id="selectTable" resultType="hashmap" statementType="STATEMENT">
+        select *
+          from ${tableName}
+    </select>
+
+    <!-- 按id获取数据列表 -->
+    <select id="selectTableListById" resultType="hashmap" statementType="STATEMENT">
+        select *
+          from ${tableName}
+         where ${idName} = ${id}
+    </select>
+    
+    <!-- 按id获取一条数据 -->
+    <select id="selectTableById" resultType="hashmap" statementType="STATEMENT">
+        select *
+          from ${tableName}
+         where ${idName} = ${id}
+    </select>
+    
+    <!-- 获取接入服务参数 -->
+    <select id="selectSvcRecordByEmsconnectionId" resultType="hashmap" >
+    select r.*
+      from T_BASE_EMS_CONNECTION c, T_SYS_SVC_RECORD r
+     where c.BASE_EMS_CONNECTION_ID = #{emsConnectionId} 
+       and c.SVC_RECORD_ID = r.SYS_SVC_RECORD_ID
+    </select>
+    
+    <!-- 查询系统参数 -->
+    <select id="getSystemParam" resultType="hashmap">
+        select PARAM_VALUE from t_sys_param
+        where PARAM_KEY = #{paramKey}
+    </select>
+    
+    <!-- 获取特定网元与相邻网元间的Ptp -->
+    <select id="getLinkPtpByNeId" resultType="hashmap">
+        select Z_END_PTP PTP_ID from t_base_link where IS_DEL = 0 and A_NE_ID = #{neId} union
+            select A_END_PTP from t_base_link where IS_DEL = 0 and Z_NE_ID = #{neId}
+    </select>
+    
+    <!-- 获取指定网元所属传输系统网元 -->
+    <select id="getNeListFromTransSysByNeId" resultType="hashmap">
+        select NE_ID from t_resource_trans_sys_ne 
+        where RESOURCE_TRANS_SYS_ID in
+            (select RESOURCE_TRANS_SYS_ID from t_resource_trans_sys_ne where NE_ID = #{neId})
+            and NE_ID != #{neId}
+    </select>
+    
+    <!-- 获取特定板卡与相邻网元间的Ptp -->
+    <select id="getLinkPtpByUnitId" resultType="hashmap">
+        select Z_END_PTP PTP_ID from t_base_link where IS_DEL = 0 and A_END_PTP in 
+            (select BASE_PTP_ID from t_base_ptp where BASE_UNIT_ID = #{unitId}) union
+            select A_END_PTP from t_base_link where IS_DEL = 0 and Z_END_PTP in 
+                (select BASE_PTP_ID from t_base_ptp where BASE_UNIT_ID = #{unitId})
+    </select>
+    
+    <!-- 获取特定端口与相邻网元间的Ptp -->
+    <select id="getLinkPtpByPtpId" resultType="hashmap">
+        select Z_END_PTP PTP_ID from t_base_link where IS_DEL = 0 and A_END_PTP = #{ptpId} union
+            select A_END_PTP from t_base_link where IS_DEL = 0 and Z_END_PTP = #{ptpId} 
+    </select>
+    
+    <!-- 通过电路相关性查询获取网元/板卡/端口/通道相关电路的CTP -->
+    <select id="getCtpFromCircuit" resultType="hashmap">
+    <!-- SDH -->
+    <if test="neType == 1">
+        select  t1.a_end_ctp CTP_ID
+        from    t_base_sdh_crs t1,
+            t_cir_circuit_route  t2,
+            (select  tr.* 
+	            from    t_base_sdh_crs ts,
+	                t_cir_circuit_route  tr,
+	                t_cir_circuit tc
+	            where   tr.cir_circuit_id = tc.cir_circuit_id
+	               and tr.chain_type = 1
+	               and tr.chain_id = ts.BASE_SDH_CRS_ID
+	            <if test="neId != null">
+	               and ts.base_ne_id = #{neId}
+	            </if>
+	            <if test="unitId != null">
+	               and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                        ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+	            </if>
+	            <if test="ptpId != null">
+	               and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+                </if>
+                <if test="ctpId != null">
+                   and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+                </if>            
+	               and     ts.IS_DEL = 0) t3
+	    where t1.BASE_SDH_CRS_ID = t2.chain_id
+	       and t2.chain_type = 1
+	       and t2.cir_circuit_id = t3.cir_circuit_id
+        union 
+        select distinct t1.z_end_ctp 
+	    from    t_base_sdh_crs t1,
+	        t_cir_circuit_route  t2,
+	        (select  tr.* 
+	            from    t_base_sdh_crs ts,
+	                t_cir_circuit_route  tr,
+	                t_cir_circuit tc
+	            where   tr.cir_circuit_id = tc.cir_circuit_id
+	               and tr.chain_type = 1
+	               and     tr.chain_id = ts.BASE_SDH_CRS_ID
+	            <if test="neId != null">
+	               and ts.base_ne_id = #{neId}
+	            </if>
+	            <if test="unitId != null">
+	               and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                        ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+                </if>
+                <if test="ptpId != null">
+                    and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+                </if>
+                <if test="ctpId != null">
+                    and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+                </if>            
+                    and ts.IS_DEL = 0) t3
+	    where  t1.BASE_SDH_CRS_ID = t2.chain_id
+	       and t2.chain_type = 1
+	       and t2.cir_circuit_id = t3.cir_circuit_id
+    </if>
+    <!-- OTN -->
+    <if test="neType==3">
+		select t1.a_end_ctp CTP_ID
+		    from    t_base_otn_crs t1,
+		        t_cir_otn_circuit_route  t2,
+		        (select  tr.* 
+		            from    t_base_otn_crs ts,
+		                t_cir_otn_circuit_route  tr,
+		                t_cir_otn_circuit tc
+		            where tr.cir_otn_circuit_id = tc.cir_otn_circuit_id
+		              and tr.chain_type = 2
+		              and tr.chain_id = ts.BASE_OTN_CRS_ID
+		            <if test="neId != null">
+		              and ts.base_ne_id = #{neId}
+		            </if>
+		            <if test="unitId != null">
+		              and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                           ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+		            </if>
+		            <if test="ptpId != null">
+		              and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+		            </if>
+		            <if test="ctpId != null">
+		              and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+		            </if>           
+		              and ts.IS_DEL = 0) t3
+		    where t1.BASE_OTN_CRS_ID = t2.chain_id
+		      and t2.chain_type = 2
+		      and t2.cir_otn_circuit_id = t3.cir_otn_circuit_id
+		union 
+		select t1.z_end_ctp 
+		    from    t_base_otn_crs t1,
+		        t_cir_otn_circuit_route  t2,
+		        (select  tr.* 
+		            from    t_base_otn_crs ts,
+		                t_cir_otn_circuit_route  tr,
+		                t_cir_otn_circuit tc
+		            where  tr.cir_otn_circuit_id = tc.cir_otn_circuit_id
+		              and tr.chain_type = 2
+		              and tr.chain_id = ts.BASE_OTN_CRS_ID
+		            <if test="neId != null">
+		              and ts.base_ne_id = #{neId}
+		            </if>
+		            <if test="unitId != null">
+		              and (ts.A_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}) or 
+                           ts.Z_END_PTP in (select base_ptp_id from t_base_ptp where base_unit_id = #{unitId}))
+                    </if>
+                    <if test="ptpId != null">
+                      and (ts.A_END_PTP = #{ptpId} or ts.Z_END_PTP = #{ptpId})
+                    </if>
+                    <if test="ctpId != null">
+                      and (ts.A_END_CTP = #{ctpId} or ts.Z_END_CTP = #{ctpId})
+                    </if>	            
+		              and  ts.IS_DEL = 0) t3
+		    where  t1.BASE_OTN_CRS_ID = t2.chain_id
+		      and  t2.chain_type = 2
+		      and  t2.cir_otn_circuit_id = t3.cir_otn_circuit_id
+    </if>
+    </select>
+    
+    <!-- 更新指定故障诊断规则的启用状态 -->
+    <update id="updateFaultDiagnoseById">
+        update t_fault_diagnose
+        <set >
+            STATUS = #{status}
+        </set>
+        where DIAGNOSE_ID = #{ruleId}
+    </update>
+    
+    <!-- 获取特定端口的同缆端口 -->
+    <select id="getPeerCablePortByPtpId" resultType="hashmap">
+        select A_END_PTP as PTP_ID 
+        from t_resource_link 
+        where RESOURCE_FIBER_ID in
+            (select RESOURCE_FIBER_ID from t_resource_fiber where RESOURCE_CABLE_ID =
+                (select RESOURCE_CABLE_ID from t_resource_fiber where RESOURCE_FIBER_ID =
+                    (select RESOURCE_FIBER_ID from t_resource_link where Z_END_PTP = #{ptpId})
+                )
+            ) and A_END_PTP != #{ptpId}
+    </select>
+    
+    <!-- 获取特定端口的光缆ID -->
+    <select id="getPeerCableIdByPtpId" resultType="hashmap">
+        select RESOURCE_CABLE_ID from t_resource_fiber where RESOURCE_FIBER_ID =
+	        (select RESOURCE_FIBER_ID from t_resource_link where Z_END_PTP = #{ptpId})
+    </select>
+    
+    <!-- 获取同缆故障ID -->
+    <select id="getFaultIdByPeerCableId" resultType="hashmap">
+        select FAULT_ID from t_fault
+        where CABLE_ID = #{cableId} and SOURCE = 1 and (STATUS = 1 or STATUS = 2)<!-- 自动产生的未确认或处理中故障 -->
+    </select>
+    
+    <!-- 获取指定PTP端口的光口标准信息 -->
+    <select id="getPmStdOptPortByPtpId" resultType="hashmap" parameterType="int">
+        SELECT * FROM T_PM_STD_OPT_PORT opt 
+        WHERE opt.PM_STD_OPT_PORT_ID = 
+            (SELECT ptp.OPT_STD_ID FROM T_BASE_PTP ptp WHERE ptp.BASE_PTP_ID=#{ptpId})
+    </select>
+    
+    <!-- 通过指定端口获取其它额外信息（网元名/板卡名等） -->
+    <select id="getExtraInfoByPtpId" resultType="hashmap" parameterType="int">
+        SELECT ne.DISPLAY_NAME NE_NAME,u.UNIT_DESC UNIT_NAME,u.BASE_UNIT_ID UNIT_ID, ne.RESOURCE_ROOM_ID ROOM_ID
+        FROM (t_base_ptp p INNER JOIN t_base_ne ne ON p.BASE_NE_ID = ne.BASE_NE_ID)
+                INNER JOIN t_base_unit u ON p.BASE_UNIT_ID = u.BASE_UNIT_ID
+        WHERE p.BASE_PTP_ID = #{ptpId} 
+    </select>
+    
+    <select id="getCableInfoByPtpId" resultType="hashmap">
+        SELECT c.DISPLAY_NAME CABLE_NAME, cs.CABLE_NAME CABLE_SECTION_NAME, c.RESOURCE_CABLES_ID CABLE_ID
+        FROM t_resource_fiber f, t_resource_cable cs, t_resource_cables c
+        WHERE c.RESOURCE_CABLES_ID = cs.RESOURCE_CABLES_ID AND
+              cs.RESOURCE_CABLE_ID = f.RESOURCE_CABLE_ID AND
+              f.RESOURCE_FIBER_ID = (SELECT RESOURCE_FIBER_ID FROM t_resource_link WHERE A_END_PTP = #{ptpId})
+    </select>
+    
+    <!-- 通过机房ID获取局站信息 -->
+    <select id="getStationInfoByRoomId" resultType="hashmap">
+        SELECT sta.STATION_NAME
+        FROM t_resource_room room LEFT JOIN t_resource_station sta ON room.resource_station_id = sta.resource_station_id
+        WHERE room.resource_room_id = #{roomId}
+    </select>
+    
+    <!-- 获取指定网元的系统名称 -->
+    <select id="getSysNameByNeId" resultType="hashmap">
+	    SELECT sys.SYS_NAME
+	    FROM t_resource_trans_sys_ne ne LEFT JOIN t_resource_trans_sys sys ON ne.RESOURCE_TRANS_SYS_ID = sys.RESOURCE_TRANS_SYS_ID
+	    WHERE ne.NE_ID = #{neId}
+    </select>
+    
+    <!-- 插入故障记录并返回主键 -->
+    <insert id="addFault" parameterType="com.fujitsu.model.FaultModel" useGeneratedKeys="true" keyProperty="faultModel.id" >
+        insert t_fault (FAULT_NO,SERIAL_NO,REASON1_ID,SOURCE,TYPE,SYSTEM_NAME,EMS_NAME,STATION_NAME,NE_NAME,UNIT_NAME,UNIT_ID,FACTORY,CABLE_NAME,CABLE_SECTION_NAME,
+            CABLE_ID,A_STATION,Z_STATION,START_TIME,STATUS,MEMO,CREATE_TIME) 
+        values (#{faultModel.faultNo},#{faultModel.serialNo},#{faultModel.reason1},#{faultModel.source},#{faultModel.type},#{faultModel.sysName},#{faultModel.emsName},
+                #{faultModel.stationName},#{faultModel.neName},#{faultModel.unitDesc},#{faultModel.unitId},#{faultModel.factory},
+                #{faultModel.cableName},#{faultModel.fiberName},#{faultModel.cableId},#{faultModel.aStation},#{faultModel.zStation},
+                #{faultModel.startTime},#{faultModel.status},#{faultModel.memo},#{faultModel.createTime})
+    </insert>
+    
+    <!-- 插入故障告警信息 --> 
+    <insert id="addFaultAlarmInfo">
+        insert into T_FAULT_ALARM(FAULT_ID,ALARM_ID,CONVERGE_FLAG,ALARM_NAME,SEVERITY,NE_NAME,START_TIME) 
+        values 
+        <foreach collection="faultAlarmInfoList" item="item" index="index" separator=",">
+            (#{item.faultId},#{item.alarmId},#{item.convergeFlag},#{item.alarmName},
+             #{item.severity},#{item.neName},#{item.startTime})
+        </foreach>
+        ON DUPLICATE KEY UPDATE ALARM_ID=values(ALARM_ID);
+    </insert>
+    
+    <!-- 获取故障表最近的流水号 -->
+    <select id="getFaultSerialNo" resultType="hashmap">
+        select SERIAL_NO
+        from t_fault
+        where SOURCE = 1 and to_days(CREATE_TIME) = to_days(now())
+              order by CREATE_TIME desc
+    </select>
+</mapper>

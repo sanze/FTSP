@@ -1,0 +1,1318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+	<info>
+		<title>系统</title>
+	</info>
+
+	<section xml:id="节-用户">
+		<title>用户</title>
+
+		<section xml:id="节-用户管理">
+			<title>用户管理</title>
+
+			<para>【描述】</para>
+
+			<para>用户管理可以用来管理登录FTSP系统的用户，帮助你控制系统的安全级别。正确的配置将避免大部分的系统崩溃和外来攻击，保证系统的安全运行。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;系统&gt;→&lt;用户&gt;→&lt;用户管理&gt;，用户管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-用户管理">
+				<title>用户管理</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/system/user_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“姓名”：用户的实际姓名</para>
+
+			<para>“登录名”：用户的登录名，唯一</para>
+
+			<para>“工号”：用户的工号，唯一</para>
+
+			<para>“部门”：用户所属部门</para>
+
+			<para>“职务”：用户的职务</para>
+
+			<para>“组名”：用户的所属组</para>
+
+			<para>“创建时间”：用户的创建时间</para>
+
+			<para>“邮箱”：用户的邮箱</para>
+
+			<para>“手机号码”：用户的手机号码</para>
+
+			<para>“设备管理域”：用户的设备管理域</para>
+
+			<para>“权限管理域”：用户的权限管理域</para>
+
+			<para>“备注”：用户的信息备注</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;用户组&gt;后的下拉框，选择组名后，可自动显示对应组的数据。默认将显示全部用户的数据。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个新的用户，参见<xref linkend="节-增加用户"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的用户，参见<xref linkend="节-删除用户"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选用户的信息，参见<xref linkend="节-修改用户"/>。</para>
+
+			<para>点击&lt;详情&gt;按钮，将显示所选用户的详细信息，参见<xref linkend="节-用户详情"/>。</para>
+
+			<para>点击&lt;重置密码&gt;按钮，将所选用户的密码设置成初始密码，参见<xref linkend="节-重置密码"/>。</para>
+
+			<caution>
+			<title>[注意]：</title>
+
+			<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;详情&gt;和&lt;重置密码&gt;按钮前必须选择一个用户，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-增加用户">
+				<title>增加用户</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户管理页面点击&lt;新增&gt;按钮，新增用户窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增用户">
+					<title>新增用户</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/add_user.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>填写&lt;姓名&gt;、&lt;登录名&gt;、&lt;工号&gt;和&lt;手机号码&gt;（这四个内容是必填项），输入或选择所属&lt;部门&gt;和&lt;职务&gt;，&lt;邮编&gt;和&lt;备注&gt;信息酌情填写。</para>
+
+				<para>&lt;配置设备管理域&gt;：选择该用户所需管理的设备组。</para>
+
+				<para>&lt;配置权限管理域&gt;：选择该用户所能操作FTSP功能的权限。</para>
+
+				<para>点击&lt;确认&gt;，完成新增用户操作。</para>
+
+				<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口，并且放弃新增用户。</para>
+
+				<caution>
+					<title>[注意]：</title>
+	
+					<para>登录名、工号和手机号码将进行唯一性验证，三类数据相互之间都不可以相同。</para>
+
+					<para>所有新增用户将被赋予初始密码：888888，首次登录时将强制进行修改密码操作。</para>
+
+					<para>仅有超级管理员用户才能进行新增用户操作。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-修改用户">
+				<title>修改用户</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户管理页面选择一个用户点击&lt;修改&gt;按钮，修改用户窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改用户">
+					<title>修改用户</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/update_user.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据具体情况可以修改“登录名”、“手机号码”（这两个内容不能修改为空白）、“部门”、“职务”、“邮箱”和“备注”信息。</para>
+
+				<para>“配置设备管理域”：选择该用户所需管理的设备组。</para>
+
+				<para>“配置权限管理域”：选择该用户所能操作FTSP功能的权限。</para>
+
+				<para>点击&lt;修改密码&gt;按钮，将修改该用户的密码，参见<xref linkend="节-修改用户密码"/>。</para>
+
+				<para>点击&lt;确认&gt;按钮，完成修改用户操作。</para>
+
+				<para>点击&lt;重置&gt;按钮，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;取消&gt;按钮，退出窗口，并且放弃修改用户。</para>
+
+				<caution>
+					<title>[注意]</title>
+					<para>登录名、手机号码为必填项。</para>
+					<para>姓名和工号不可修改。</para>
+					<para>登录名，工号，手机号码三者不可重复。</para>
+					<para>邮箱修改后会进行格式验证。</para>
+				</caution>
+
+				<section xml:id="节-修改用户密码">
+					<title>修改用户密码</title>
+
+					<para>【页面显示】</para>
+
+					<para>在修改用户页面点击&lt;修改密码&gt;按钮，修改密码窗口将弹出，如下图。</para>
+
+					<figure xml:id="图-修改密码">
+						<title>修改密码</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/system/change_password.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>填写“原始密码”、“新密码”、“密码校验”，选择密码有效期类型。</para>
+
+					<para>“原始密码”：该用户的原始密码。</para>
+
+					<para>“新密码”：该用户的新密码。</para>
+
+					<para>“密码校验”：密码需要进行验证，密码校验和新密码输入需一致。</para>
+
+					<para>“密码有效期”：选择密码的有效期，分为3个月，6个月，12个月，长期四种类型。</para>
+
+					<para>点击&lt;是&gt;，完成修改密码操作。</para>
+
+					<para>点击&lt;否&gt;，退出窗口且放弃修改密码。</para>
+
+					<caution>
+						<title>[注意]</title>
+	
+						<para>所设置的密码必须为6～20位，可以为字母，数字，符号组合。</para>
+	
+						<para>首次登录后强制跳转到修改页面进行密码设置。</para>
+					</caution>
+
+				</section>
+
+			</section>
+
+			<section xml:id="节-删除用户">
+				<title>删除用户</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户管理页面选中一个用户点击&lt;删除&gt;按钮，删除用户窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除用户">
+					<title>删除用户</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/delete_user.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除用户操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口，并且放弃删除用户。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>仅有超级管理员用户才能进行删除用户操作。</para>
+
+				<para>超级管理员不可以删除自己。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-用户详情">
+				<title>用户详情</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户管理页面选中一用户点击&lt;详情&gt;按钮，用户详情窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-用户详情">
+					<title>用户详情</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/user_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>显示该用户的具体“姓名”、“登录名”、“工号”、“部门”、“手机号码”、“邮箱”、“职务”和“备注”信息。</para>
+
+				<para>“包含设备管理域”：显示该用户所需管理的设备组。</para>
+
+				<para>“包含权限管理域”：显示该用户所能操作FTSP功能的权限。</para>
+
+				<para>点击&lt;取消&gt;，完成查看用户详情操作并退出窗口。</para>
+
+			</section>
+
+			<section xml:id="节-重置密码">
+				<title>重置密码</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户管理页面选择一个用户点击&lt;重置密码&gt;按钮，重置密码窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-重置密码">
+					<title>重置密码</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/reset_password.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将用户密码恢复为初始密码。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃重置密码。</para>
+
+				<note>
+					<title>[说明]</title>
+	
+					<para>初始密码：888888。</para>
+				</note>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-用户组管理">
+			<title>用户组管理</title>
+
+			<para>【描述】</para>
+
+			<para>用户组是用户的集合，将相同属性的用户归属于一个用户组以便于管理。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;系统&gt;→&lt;用户&gt;→&lt;用户组管理&gt;，用户组管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-用户组管理">
+				<title>用户组管理</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/system/usergroup_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“用户组名”：用户组名称</para>
+
+			<para>“创建时间”：该组的创建时间</para>
+
+			<para>“描述”：对用户组的描述信息</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个新的用户组，参见<xref linkend="节-增加用户组"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的用户组，参见<xref linkend="节-删除用户组"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选用户组的信息，参见<xref linkend="节-修改用户组"/>。</para>
+
+			<para>点击&lt;详情&gt;按钮，将显示所选用户组的详细信息，参见<xref linkend="节-用户组详情"/>。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;删除&gt;、&lt;修改&gt;和&lt;详情&gt;按钮前必须选择一个用户组，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-增加用户组">
+				<title>增加用户组</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户组管理页面点击&lt;新增&gt;按钮，新增用户组窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增用户组">
+					<title>新增用户组</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/add_usergroup.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/add_usergroup.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>填写“组名”（此内容是必填项）、“描述”信息。</para>
+
+				<para>“配置用户”：选择该用户组所包含的用户。</para>
+
+				<para>点击&lt;确认&gt;，完成新增用户组操作。</para>
+
+				<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增用户组。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>组名为必填项，且唯一。</para>
+
+					<para>重置，即恢复至初始状态。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-修改用户组">
+				<title>修改用户组</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户组管理页面选择一个用户组点击&lt;修改&gt;按钮，修改用户组窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改用户组">
+					<title>修改用户组</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/update_usergroup.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/update_usergroup.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>组名不可修改，描述信息可以修改，配置用户信息可以选择修改。</para>
+
+				<para>点击&lt;确认&gt;，完成修改用户组操作。</para>
+
+				<para>点击&lt;重置&gt;，将信息恢复到修改前状态。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃修改用户组。</para>
+
+			</section>
+
+			<section xml:id="节-删除用户组">
+				<title>删除用户组</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户组管理页面选择一个用户组点击&lt;删除&gt;按钮，删除用户组窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除用户组">
+					<title>删除用户组</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/delete_usergroup.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除用户组操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除用户组。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>仅有超级管理员才可以进行删除操作。</para>
+
+					<para>将此用户组删除，但是不会删除该组所属用户。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-用户组详情">
+				<title>用户组详情</title>
+
+				<para>【页面显示】</para>
+
+				<para>在用户组管理页面选中一用户组点击&lt;详情&gt;按钮，用户组详情窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-用户组详情">
+					<title>用户组详情</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/usergroup_detail.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/usergroup_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>显示该用户组的具体“组名”、“描述”和“配置用户”信息。</para>
+
+				<para>“配置用户”：显示该用户组所包含的用户详细信息，如“登录名”、“姓名”、“工号”、“部门”和“手机号码”。</para>
+
+				<para>点击&lt;取消&gt;，完成用户组详情查询操作并退出窗口。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-设备域管理">
+			<title>设备域管理</title>
+
+			<para>【描述】</para>
+
+			<para>设备域管理指管理FTSP设备域信息，即给用户分配一定的设备区域。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;系统&gt;→&lt;用户&gt;→&lt;设备域管理&gt;，设备域管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-设备域管理">
+				<title>设备域管理</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/system/device_domain_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“设备域名称”：设备管理域名称</para>
+
+			<para>“描述”：对设备管理域的描述信息</para>
+
+			<para>【功能说明】</para>
+
+			<para>默认将显示全部设备域的数据。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个新的设备域，参见<xref linkend="节-新增设备域"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的设备域，参见<xref linkend="节-删除设备域"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选的设备域，参见<xref linkend="节-修改设备域"/>。</para>
+
+			<para>点击&lt;详情&gt;按钮，将显示所选的设备域的详细信息，参见<xref linkend="节-设备域详情"/>。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;删除&gt;、&lt;修改&gt;和&lt;详情&gt;按钮前必须选择一个设备域，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增设备域">
+				<title>新增设备域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在设备域管理页面点击&lt;新增&gt;按钮，新增设备域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增设备域">
+					<title>新增设备域窗口</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/add_device_domain.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>填写“设备管理域名”（必填项且不能重名），酌情填写“描述”（选填项），下拉选择“模板选择”，配置设备(单击按钮，即可将勾选设备移至右边，即为已选设备;反之单击按钮，即可将已选设备取消)。</para>
+
+				<para>点击&lt;确认&gt;，完成新增设备域操作。</para>
+
+				<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增设备域。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>设备管理域名为必填项且唯一。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-删除设备域">
+				<title>删除设备域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在设备域管理页面点击&lt;删除&gt;按钮，删除设备域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除设备域">
+					<title>删除设备域</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/delete_device_domain.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除设备域操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除设备域。</para>
+
+			</section>
+
+			<section xml:id="节-修改设备域">
+				<title>修改设备域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在设备域管理页面点击&lt;修改&gt;按钮，修改设备域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改设备域">
+					<title>修改设备域</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/update_device_domain.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增设备域操作。</para>
+
+				<para>点击&lt;确认&gt;，完成修改设备域操作。</para>
+
+				<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃修改设备域。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>设备管理域名不可修改。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-设备域详情">
+				<title>设备域详情</title>
+
+				<para>【页面显示】</para>
+
+				<para>在设备域管理页面点击&lt;详情&gt;按钮，设备域详情窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-设备域详情">
+					<title>设备域详情</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/device_domain_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>查看该设备管理域的信息详情。</para>
+
+				<para>点击&lt;关闭&gt;，完成设备管理域详情查询操作并退出窗口。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-操作域管理">
+			<title>操作域管理</title>
+
+			<para>【描述】</para>
+
+			<para>操作域管理指管理FTSP权限管理域信息，即给用户分配一定的权限。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;系统&gt;→&lt;用户&gt;→&lt;操作域管理&gt;，操作域管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-操作域管理">
+				<title>操作域管理</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/system/operate_domain_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“权限域名称”：权限管理域名称</para>
+
+			<para>“描述”：对权限管理域的描述信息</para>
+
+			<para>【功能说明】</para>
+
+			<para>默认将显示全部权限域的数据。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个新的权限域，参见<xref linkend="节-新增权限域"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选权限域，参见<xref linkend="节-删除权限域"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选权限域，参见<xref linkend="节-修改权限域"/>。</para>
+
+			<para>点击&lt;详情&gt;按钮，将显示所选权限域的详细信息，参见<xref linkend="节-操作域详情"/>。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;删除&gt;、&lt;修改&gt;和&lt;详情&gt;按钮前必须选择一个权限域，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增权限域">
+				<title>新增权限域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在操作域管理页面点击&lt;新增&gt;按钮，新增权限域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增权限域">
+					<title>新增权限域</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/add_operate_domain.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>填写“权限管理域名”（必填项且不能重名），酌情填写“描述”（选填项），下拉选择“模板选择”，配置设备(单击按钮，即可将勾选权限移至右边，即为已选权限;反之单击按钮，即可将已选权限取消)。</para>
+
+				<para>点击&lt;确认&gt;，完成新增权限域操作。</para>
+
+				<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增权限域。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>权限管理域名为必填项且唯一。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-删除权限域">
+				<title>删除权限域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在操作域管理页面，点击&lt;删除&gt;按钮，删除权限域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除权限域">
+					<title>删除权限域</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/delete_operate_domain.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除权限域操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除权限域。</para>
+
+			</section>
+
+			<section xml:id="节-修改权限域">
+				<title>修改权限域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在操作域管理页面点击&lt;修改&gt;按钮，修改操作域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改权限域">
+					<title>修改权限域</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/update_operate_domain.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/update_operate_domain.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增操作域操作。</para>
+
+				<para>点击&lt;确认&gt;，完成修改操作域操作。</para>
+
+				<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃修改操作域。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>权限管理域名不可修改。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-操作域详情">
+				<title>操作域详情</title>
+
+				<para>【页面显示】</para>
+
+				<para>在操作域管理页面点击&lt;详情&gt;按钮，操作域详情窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-操作域详情">
+					<title>操作域详情</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/operate_domain_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>查看该权限管理域的信息详情。</para>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-接口管理">
+		<title>接口管理</title>
+
+		<section xml:id="节-综告接口过滤器">
+			<title>综告接口过滤器</title>
+
+			<para>【描述】</para>
+
+			<para>可以设置综告接口过滤器，符合条件的告警将不会发送给综告接口。可以新增、删除、修改及启用或禁用综告接口过滤器。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;系统&gt;→&lt;接口管理&gt;→&lt;综告接口过滤器&gt;，综告接口过滤器页面将打开，如下图。</para>
+
+			<figure xml:id="图-综告接口过滤器">
+				<title>综告接口过滤器</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/system/composite_alarm_filter.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“过滤器名称”：过滤器的名称</para>
+
+			<para>“过滤器类型”：过滤器类型，分为自定义过滤器/割接过滤器</para>
+
+			<para>“有效时间”：割接过滤器有，自定义过滤器则无</para>
+
+			<para>“创建者”：创建者名称</para>
+
+			<para>“状态”：分为启用/禁用</para>
+
+			<para>“描述”：描述信息</para>
+
+			<para>【功能说明】</para>
+
+			<para>系统默认显示全部的综告接口过滤器的信息。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个综告接口过滤器，参见<xref linkend="节-新增综告接口过滤器"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除选择的综告接口过滤器，参见<xref linkend="节-删除综告接口过滤器"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改选择的综告接口过滤器，参见<xref linkend="节-修改综告接口过滤器"/>。</para>
+
+			<para>点击&lt;详情&gt;按钮，将查询到单选的综告接口过滤器的详情，参见<xref linkend="节-综告接口过滤器详情"/>。</para>
+
+			<para>点击&lt;启用&gt;按钮，将启用选中的综告接口过滤器，支持多选即可同时启用多个综告接口过滤器。</para>
+
+			<para>点击&lt;禁用&gt;按钮，将禁用选中的告警过滤器。支持多选，允许选择全部禁用（即综告接口告警不再过滤）。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;详情&gt;、&lt;启用&gt;和&lt;禁用&gt;按钮前必须选择一个过滤器，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增综告接口过滤器">
+				<title>新增综告接口过滤器</title>
+
+				<para>【页面显示】</para>
+
+				<para>在综告接口过滤器页面点击&lt;新增&gt;按钮，新增综告接口过滤器窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增综告接口过滤器">
+					<title>新增综告接口过滤器</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/add_composite_alarm_filter.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/add_composite_alarm_filter.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，选择相应的“告警名称”，“告警类型”，“级别”，“业务影响”，“告警源”，酌情填写“过滤器名称”（必填项）和“描述”。所有选中的条件为需要过滤掉的告警且所有条件之间逻辑上是与的关系。</para>
+
+				<para>“告警名称”：通过选择“厂家”下拉框，输入相应的告警名称（带联想功能），点击“&gt;&gt;”按钮把告警名称转移到右侧“已选告警名称”框内（反之点击“&lt;&lt;”按钮删除选择的告警名称）。</para>
+
+				<para>“告警类型”：分为通信/设备/处理/环境/服务/安全/连接，选择告警类型中的任何一个复选框，即作为过滤条件。</para>
+
+				<itemizedlist>
+					<listitem>
+						<para>“级别”：分为紧急/重要/次要/提示，选择级别中的任何一个复选框，即作为过滤条件。</para>
+					</listitem>
+					<listitem>
+						<para>“业务影响”：分为影响/不影响/未知。</para>
+					</listitem>
+					<listitem>
+						<para>“告警源设置”：参见<xref linkend="节-告警源设置"/>。</para>
+					</listitem>
+					<listitem>
+						<para>“过滤器名称”：过滤器名称。</para>
+					</listitem>
+					<listitem>
+						<para>“描述”：过滤器的说明/备注。</para>
+					</listitem>
+				</itemizedlist>
+
+				<para>点击&lt;确认&gt;，将完成新增过滤器操作。</para>
+
+				<para>点击&lt;重置&gt;，将恢复到初始状态。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口且放弃新增过滤器操作。</para>
+
+				<section xml:id="节-告警源设置">
+					<title>告警源设置</title>
+
+					<para>【页面显示】</para>
+
+					<para>在新增过滤器页面点击告警源设置后面的&lt;&gt;按钮，告警源设置窗口将弹出，如下图。</para>
+
+					<figure xml:id="图-告警源设置">
+						<title>告警源设置</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/system/alarm_source_setting.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>在左侧节点树上选择对象（可选节点为端口、板卡、网元、网管和网管分组），点击“&gt;&gt;”把对象移到右侧列表。在右侧列表，通过“网管分组”、“网管”下拉框选择对象，点击&lt;移除&gt;可将右侧选择对象删除。</para>
+
+					<itemizedlist>
+						<listitem>
+							<para>“网管分组”：网管分组名称。</para>
+						</listitem>
+						<listitem>
+							<para>“网管”：网管名称。</para>
+						</listitem>
+						<listitem>
+							<para>“网元”：网元名称。</para>
+						</listitem>
+						<listitem>
+							<para>“槽道”：机架-子架-槽道信息。</para>
+						</listitem>
+						<listitem>
+							<para>“板卡”：板卡名称。</para>
+						</listitem>
+						<listitem>
+							<para>“端口”：端口名称。</para>
+						</listitem>
+					</itemizedlist>
+
+					<para>点击&lt;确认&gt;，将完成告警源设置操作。</para>
+
+					<para>点击&lt;重置&gt;，将恢复到初始状态。</para>
+
+					<para>点击&lt;取消&gt;，将关闭窗口且放弃告警源设置操作。</para>
+
+				</section>
+
+			</section>
+
+			<section xml:id="节-删除综告接口过滤器">
+				<title>删除综告接口过滤器</title>
+
+				<para>【页面显示】</para>
+
+				<para>在综告接口过滤器页面选择模板点击&lt;删除&gt;按钮，删除综告接口过滤器窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除综告接口过滤器">
+					<title>删除综告接口过滤器</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/delete_composite_alarm_filter.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除综告接口过滤器操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除操作。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>支持多选。</para>
+
+				<para>若待删的模板正在启用状态，则系统提示“模板在启用状态，请先禁用”。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-修改综告接口过滤器">
+				<title>修改综告接口过滤器</title>
+
+				<para>【页面显示】</para>
+
+				<para>在综告接口过滤器页面选择模板点击&lt;修改&gt;按钮，修改综告接口过滤器窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改综告接口过滤器">
+					<title>修改综告接口过滤器</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/update_composite_alarm_filter.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/update_composite_alarm_filter.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增综告接口过滤器。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>不支持多选。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-综告接口过滤器详情">
+				<title>综告接口过滤器详情</title>
+
+				<para>【页面显示】</para>
+
+				<para>在综告接口过滤器页面选择模板点击&lt;详情&gt;按钮，综告接口过滤器详情窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-综告接口过滤器详情">
+					<title>综告接口过滤器详情</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/composite_alarm_filter_detail.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/composite_alarm_filter_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增综告接口过滤器。</para>
+
+				<caution>
+				<title>[注意]</title>
+
+				<para>不支持多选。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-资源关联设置">
+			<title>资源关联设置</title>
+
+			<para>【描述】</para>
+
+			<para>本功能模块主要是用于和资源系统进行对接，通过FTP系统交换资源文件，从资源系统获取资源区域、局站、机房定义信息及传输系统、传输段、传输网元、端口、传输电路和DDF/ODF端口及光路等无源资源数据，将其与传输综合网管的数据相关联。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;系统&gt;→&lt;接口管理&gt;→&lt;资源关联设置&gt;，资源关联设置页面将打开，如下图。</para>
+
+			<figure xml:id="图-资源关联设置">
+				<title>资源关联设置</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/system/resource_correlation_setting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“任务名称”：资源关联任务的名称</para>
+
+			<para>“描述”：资源关联任务的描述</para>
+
+			<para>“同步周期”：资源关联任务的执行周期</para>
+
+			<para>“状态”：资源关联的任务状态</para>
+
+			<para>“上次执行时间”：上次任务执行的时间</para>
+
+			<para>“上次执行结果”：上次任务执行的结果</para>
+
+			<para>“下次执行时间”：下一次任务将要执行的时间</para>
+
+			<para>【功能说明】</para>
+
+			<para>系统默认显示资源关联接口允许的资源关联任务。</para>
+
+			<para>点击&lt;任务状态&gt;按钮，将显示上次任务执行的详细状态，参见<xref linkend="节-资源关联任务状态"/>。</para>
+
+			<para>点击&lt;手动执行&gt;按钮，将手动执行选择的资源关联任务。</para>
+
+			<para>点击&lt;设置&gt;按钮，将修改选择的资源关联任务，参见<xref linkend="节-资源关联任务设置"/>。</para>
+
+			<para>点击&lt;启用&gt;按钮，将启用选中的资源关联任务。支持多选即可同时启用多个资源关联任务。</para>
+
+			<para>点击&lt;挂起&gt;按钮，将挂起选中的资源关联任务。支持多选即可同时挂起多个资源关联任务。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;任务状态&gt;、&lt;手动执行&gt;、&lt;设置&gt;、&lt;启用&gt;和&lt;挂起&gt;按钮前必须选择一个资源关联任务，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-资源关联任务状态">
+				<title>资源关联任务状态</title>
+
+				<para>【页面显示】</para>
+
+				<para>在资源关联设置页面选择某个任务，点击&lt;任务状态&gt;按钮，任务状态窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-资源关联任务状态">
+					<title>资源关联任务状态</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/system/resource_correlation_task_status.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/system/resource_correlation_task_status.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>任务状态窗口将默认显示资源关联任务当天的执行状态。</para>
+
+				<itemizedlist>
+					<listitem>
+						<para>“时间”：显示任务执行步骤的时间戳。</para>
+					</listitem>
+					<listitem>
+						<para>“执行记录”：显示资源关联任务执行步骤的记录。</para>
+					</listitem>
+				</itemizedlist>
+				
+				<para>点击&lt;关闭&gt;，将关闭窗口且返回到资源关联设置页面。</para>
+
+			</section>
+
+			<section xml:id="节-资源关联任务设置">
+				<title>资源关联任务设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在资源关联设置页面选择某个任务，点击&lt;设置&gt;按钮，任务设置窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-资源关联任务设置">
+					<title>资源关联任务设置</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/system/resource_correlation_task_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>任务设置窗口中仅能对任务的同步周期和状态进行设置。</para>
+
+				<itemizedlist>
+					<listitem>
+						<para>“资源关联任务名称”：显示资源关联任务的名称。</para>
+					</listitem>
+					<listitem>
+						<para>“描述”：资源关联任务的描述。</para>
+					</listitem>
+					<listitem>
+						<para>“同步周期”：资源关联任务的执行周期，默认每天执行一次，可以指定任务的开始时间。</para>
+					</listitem>
+					<listitem>
+						<para>“挂起”：设置任务的状态。选中则挂起任务，否则为启用任务。</para>
+					</listitem>
+					<listitem>
+						<para>“获取全部数据”：目前默认获取全部数据。</para>
+					</listitem>
+				</itemizedlist>
+
+				<para>点击&lt;确定&gt;，将保存设置并关闭窗口返回到资源关联设置页面。</para>
+
+				<para>点击&lt;取消&gt;，将放弃设置并关闭窗口返回到资源关联设置页面。</para>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-LOG管理">
+		<title>LOG管理</title>
+
+		<para>【描述】</para>
+
+		<para>LOG管理即日志管理，用来查询FTSP系统的使用日志。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;系统&gt;→&lt;LOG管理&gt;，LOG管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-LOG管理">
+			<title>LOG管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/system/log_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“组名”：组名</para>
+
+		<para>“用户名”：用户名</para>
+
+		<para>“事件发生时间”：事件发生的时间，如2014-02-01 08:01:30</para>
+
+		<para>“日志关键字”：日志的关键字</para>
+
+		<para>“日志描述”：日志的描述</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;查询&gt;按钮，根据查询条件查询日志。</para>
+
+		<para>点击&lt;导出&gt;按钮，将日志导出。</para>
+
+	</section>
+
+	<section xml:id="节-服务器监控">
+		<title>服务器监控</title>
+
+		<para>【描述】</para>
+
+		<para>服务器监控指对系统的各服务器的CPU、内存、磁盘和网络信息进行监控并记录。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;系统&gt;→&lt;服务器监控&gt;，服务器监控管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-服务器监控管理">
+			<title>服务器监控管理</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/system/server_monitor_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>点击主机图案，服务器详情页面打开，如下所示：</para>
+
+		<figure xml:id="图-服务器的CPU信息和内存信息">
+			<title>服务器的CPU信息和内存信息</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/system/server_cpu_mem_info.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<figure xml:id="图-服务器的磁盘信息和网络信息">
+			<title>服务器的磁盘信息和网络信息</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/system/server_disk_network_info.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>服务器详情页面，点击&lt;CPU/内存实时信息&gt;按钮，实时CPU/内存信息窗口弹出，如下图：</para>
+
+		<figure xml:id="图-CPU使用率和内存使用率">
+			<title>CPU使用率和内存使用率</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/system/cpu_mem_use_ratio.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+	</section>
+
+	<section xml:id="节-退出">
+		<title>退出</title>
+
+		<para>【描述】</para>
+
+		<para>退出指用户退出FTSP系统，控制系统的安全。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在系统页面点击&lt;退出&gt;按钮，退出系统窗口将弹出，如下图。</para>
+
+		<figure xml:id="图-退出系统">
+			<title>退出系统</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/system/logout.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;是&gt;，完成退出系统。</para>
+
+		<para>点击&lt;否&gt;，退出窗口且放弃退出系统。</para>
+
+	</section>
+	
+</chapter>

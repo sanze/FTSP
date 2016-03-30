@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ProcessModuleManageMapper">
+	
+	
+	<!--  查询t_sys_process_module表分页数据 -->
+	<select id="selectProcessModuleDataList" parameterType="hashmap" resultType="hashmap">
+   		select tsdd.ID,tsdd.MODULE_NAME,tsdd.MODULE_STATE 
+			from t_sys_process_module tsdd
+   		<if test="map.pageSize != null and map.pageSize > 0 and map.startNumber != null and map.startNumber >= 0">
+			LIMIT #{map.startNumber},#{map.pageSize}
+		</if>   
+  	</select>
+  	<select id="countProcessModuleDataList" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_process_module
+  	</select>
+  	<update id="updateState" parameterType="hashmap">
+  		update t_sys_process_module
+  		set MODULE_STATE=#{map.STATE}
+  		WHERE ID=#{map.ID}
+  	</update>
+  	
+     
+     
+	
+</mapper>

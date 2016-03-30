@@ -1,0 +1,415 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.fujitsu.dao.mysql.FaultManagementMapper">
+	
+	<!-- 查询故障数 -->
+	<select id="getFaultCount" resultType='int'>
+		select count(1) from (
+			select TF.*,TFR.REASON_NAME,TF.STATION_NAME as FAULT_LOCATION from T_FAULT TF 
+			left join T_FAULT_REASON TFR on TFR.REASON_ID = TF.REASON1_ID 
+			where TF.TYPE = 1 
+			union
+			select TF.*,case when TFR2.REASON_NAME is null then TFR1.REASON_NAME else concat(TFR1.REASON_NAME,'-',TFR2.REASON_NAME) end as REASON_NAME,
+			concat(TF.A_STATION,'-',TF.Z_STATION) as FAULT_LOCATION from T_FAULT TF 
+			left join T_FAULT_REASON TFR1 on TFR1.REASON_ID = TF.REASON1_ID 
+			left join T_FAULT_REASON TFR2 on TFR2.REASON_ID = TF.REASON2_ID 
+			where TF.TYPE = 2) T
+		<where>
+			1=1 
+			<if test="map.startTime != null">
+				and T.START_TIME <![CDATA[ >= ]]> #{map.startTime} 
+			</if>
+			<if test="map.endTime != null">
+				and T.START_TIME <![CDATA[ <= ]]> #{map.endTime} 
+			</if>
+			<if test="map.status != null">
+				and T.STATUS = #{map.status} 
+			</if>
+			<if test="map.faultGenerate != null">
+				and T.SOURCE = #{map.faultGenerate} 
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询故障记录 -->
+	<select id="getFaultList" resultType='hashmap'>
+		select T.*,time_format(timediff(T.END_TIME, T.START_TIME),'%H小时%i分钟') as FAULT_LAST,
+		time_format(timediff(T.ALM_CLEAR_TIME, T.START_TIME),'%H小时%i分钟') as ALARM_LAST from (
+		select TF.*,TFR.REASON_NAME,TF.STATION_NAME as FAULT_LOCATION from T_FAULT TF 
+		left join T_FAULT_REASON TFR on TFR.REASON_ID = TF.REASON1_ID 
+		where TF.TYPE = 1 
+		union
+		select TF.*,case when TFR2.REASON_NAME is null then TFR1.REASON_NAME else concat(TFR1.REASON_NAME,'-',TFR2.REASON_NAME) end as REASON_NAME,
+		concat(TF.A_STATION,'-',TF.Z_STATION) as FAULT_LOCATION from T_FAULT TF 
+		left join T_FAULT_REASON TFR1 on TFR1.REASON_ID = TF.REASON1_ID
+		left join T_FAULT_REASON TFR2 on TFR2.REASON_ID = TF.REASON2_ID 
+		where TF.TYPE = 2) T 
+		<where>
+			1=1 
+			<if test="map.startTime != null">
+				and T.START_TIME <![CDATA[ >= ]]> #{map.startTime} 
+			</if>
+			<if test="map.endTime != null">
+				and T.START_TIME <![CDATA[ <= ]]> #{map.endTime} 
+			</if>
+			<if test="map.status != null">
+				and T.STATUS = #{map.status} 
+			</if>
+			<if test="map.faultGenerate != null">
+				and T.SOURCE = #{map.faultGenerate} 
+			</if>
+		</where>
+		limit #{start}, #{limit}
+	</select>
+	
+	<!-- 通过faultId删除故障记录 -->
+	<delete id="deleteFaultByFaultId">
+		delete from T_FAULT where FAULT_ID = #{faultId}
+	</delete>
+	
+	<!-- 通过faultId删除与故障相关的告警 -->
+	<delete id="deleteFaultAlarmByFaultId">
+		delete from T_FAULT_ALARM where FAULT_ID = #{faultId}
+	</delete>
+	
+	<!-- 通过faultId获取设备故障 -->
+	<select id="getEqptFaultInfoById" resultType='hashmap'>
+		select TF.*,
+       		   TFR.REASON_NAME,
+			   (select max(TFA.CLEAN_TIME) from T_FAULT_ALARM TFA where TFA.CONVERGE_FLAG = 1 and TFA.FAULT_ID = TF.FAULT_ID) as ALARM_END_TIME 
+		from T_FAULT TF
+		left join T_FAULT_REASON TFR on TF.REASON1_ID = TFR.REASON_ID 
+		where TF.FAULT_ID = #{faultId} 
+	</select>
+	
+	<!-- 通过faultId获取线路故障 -->
+	<select id="getLineFaultInfoById" resultType='hashmap'>
+		select TF.*,
+			   TFR1.REASON_NAME as REASON_NAME1,
+			   TFR2.REASON_NAME as REASON_NAME2,
+ 			   (select max(TFA.CLEAN_TIME) from T_FAULT_ALARM TFA where TFA.CONVERGE_FLAG = 1 and TFA.FAULT_ID = TF.FAULT_ID) as ALARM_END_TIME 
+ 		from T_FAULT TF 
+		left join T_FAULT_REASON TFR1 on TFR1.REASON_ID = TF.REASON1_ID 
+		left join T_FAULT_REASON TFR2 on TFR2.REASON_ID = TF.REASON2_ID 
+		where TF.FAULT_ID = #{faultId}
+	</select>
+	
+	<!-- 获取与故障相关的告警数量 -->
+	<select id="getFaultAlarmCount"  resultType='int'>
+		select count(1) from T_FAULT_ALARM where FAULT_ID = #{faultId}
+	</select>
+	
+	<!-- 获取与故障相关的告警记录 -->
+	<select id="getFaultAlarmList" resultType='hashmap'>
+		select TFA.*,convert(TFA.START_TIME, char) START_TIME_STR,
+		convert(TFA.CLEAN_TIME,char) CLEAN_TIME_STR 
+		from T_FAULT_ALARM TFA 
+		where FAULT_ID = #{faultId} 
+		limit #{start}, #{limit}
+	</select>
+	
+	<!-- 获取所有的故障告警 -->
+	<select id="getAllFaultAlarm" resultType='hashmap'>
+		select TFA.*,convert(TFA.START_TIME, char) START_TIME_STR,
+		convert(TFA.CLEAN_TIME,char) CLEAN_TIME_STR 
+		from T_FAULT_ALARM TFA 
+		where FAULT_ID = #{faultId} 
+	</select>
+	
+	
+	<!-- 通过unitId获取传输系统名称 -->
+	<select id="getSysNameByUnitId" resultType='hashmap'>
+		select * from (
+			select PTP1.BASE_PTP_ID as PTP_ID1,PTP1.BASE_UNIT_ID as UNIT_ID1,
+				PTP2.BASE_PTP_ID as PTP_ID2,PTP2.BASE_UNIT_ID as UNIT_ID2,
+				SYS.SYS_NAME from T_BASE_LINK TL 
+			left join T_BASE_PTP PTP1 on TL.A_END_PTP = PTP1.BASE_PTP_ID 
+			left join T_BASE_PTP PTP2 on TL.A_END_PTP = PTP2.BASE_PTP_ID 
+			left join T_RESOURCE_TRANS_SYS SYS on TL.RESOURCE_TRANS_SYS_ID = SYS.RESOURCE_TRANS_SYS_ID 
+		) T 
+		where UNIT_ID1 = #{unitId} or UNIT_ID2 = #{unitId}
+	</select>
+	
+	<!-- 通过neId获取传输系统名称 -->
+	<select id="getSysNameByNeId" resultType='hashmap'>
+		select SYS.SYS_NAME from T_RESOURCE_TRANS_SYS_NE SYSNE 
+		left join T_RESOURCE_TRANS_SYS SYS on SYSNE.RESOURCE_TRANS_SYS_ID = SYS.RESOURCE_TRANS_SYS_ID 
+		where SYSNE.NE_ID = #{neId}
+	</select>
+	
+	<!-- 通过neId获取网元信息 -->
+	<select id="getNeInfoByNeId" resultType='hashmap'>
+		select NE.BASE_NE_ID,NE.FACTORY,STA.STATION_NAME from T_BASE_NE NE
+		left join T_RESOURCE_ROOM ROOM on NE.RESOURCE_ROOM_ID = ROOM.RESOURCE_ROOM_ID 
+		left join T_RESOURCE_STATION STA on ROOM.RESOURCE_STATION_ID = STA.RESOURCE_STATION_ID 
+		where NE.BASE_NE_ID = #{neId}
+	</select>
+	
+	<!-- 删除故障相关的告警 -->
+	<delete id="deleteFaultAlarmById">
+		delete from T_FAULT_ALARM where ALARM_ID = #{alarmId}
+	</delete>
+	
+	<!-- 增加故障相关的告警 -->
+	<insert id="addFaultAlarm">
+		insert into 
+		T_FAULT_ALARM(ALARM_ID,
+					  FAULT_ID, 
+					  CONVERGE_FLAG, 
+					  ALARM_NAME, 
+					  SEVERITY, 
+					  NE_NAME, 
+					  START_TIME, 
+					  CLEAN_TIME) 
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+   		  (#{item.alarmId},
+   		   #{faultId},
+   		   #{item.convergeFlag}, 
+   		   #{item.alarmName},
+   		   #{item.severity},
+   		   #{item.neName},
+   		   #{item.startTime},
+   		   #{item.cleanTime})
+   		</foreach>
+	</insert>
+	
+	<!-- 获取传输系统列表 -->
+	<select id="getTransformSystemList" resultType='hashmap'>
+		select * from T_RESOURCE_TRANS_SYS where IS_DEL = 0
+	</select>
+	
+	<!-- 获取光缆信息 -->
+	<select id="getCableList" resultType='hashmap'>
+		select * from T_RESOURCE_CABLES
+	</select>
+	
+	<!-- 获取光缆段信息 -->
+	<select id="getCableSectionList" resultType='hashmap'>
+		select TC.*,TS1.STATION_NAME A_END_NAME,TS2.STATION_NAME Z_END_NAME from T_RESOURCE_CABLE TC 
+		left join T_RESOURCE_STATION TS1 on TC.A_END = TS1.RESOURCE_STATION_ID 
+		left join T_RESOURCE_STATION TS2 on TC.Z_END = TS2.RESOURCE_STATION_ID 
+		where TC.RESOURCE_CABLES_ID = #{cablesId}
+	</select>
+	
+	<!-- 获取故障原因列表 -->
+	<select id="getFaultReasonList" resultType='hashmap'>
+		select * from T_FAULT_REASON 
+		<where>
+			1=1 
+			<if test="map.level != null">
+				and LEVEL = #{map.level} 
+			</if>
+			<if test="map.parentId != null">
+				and PARENT_ID = #{map.parentId} 
+			</if>
+			<if test="map.reasonType != null">
+				and REASON_TYPE = #{map.reasonType}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 更新故障信息 -->
+	<update id="updateFaultInfo">
+		update T_FAULT 
+		<set>
+			<if test="map.reasonId1 != null">
+				REASON1_ID = #{map.reasonId1},
+			</if>
+			<if test="map.reasonId2 != null">
+				REASON2_ID = #{map.reasonId2},
+			</if>
+			<if test="map.isBroken != null">
+				IS_BROKEN = #{map.isBroken},
+			</if>
+				START_TIME = #{map.startTime},
+				ALM_CLEAR_TIME = #{map.alarmClearTime},
+			<if test="map.systemName != null">
+				SYSTEM_NAME = #{map.systemName},
+			</if>
+			<if test="map.emsName != null">
+				EMS_NAME = #{map.emsName},
+			</if>
+			<if test="map.stationName != null">
+				STATION_NAME = #{map.stationName},
+			</if>
+			<if test="map.neName != null">
+				NE_NAME = #{map.neName},
+			</if>
+			<if test="map.unitName != null">
+				UNIT_NAME = #{map.unitName},
+			</if>
+			<if test="map.factory != null">
+				FACTORY = #{map.factory},
+			</if>
+			<if test="map.accuracy != null">
+				ACCURACY = #{map.accuracy},
+			</if>
+			<if test="map.description != null">
+				DESCRIPTION = #{map.description},
+			</if>
+			<if test="map.cableName != null">
+				CABLE_NAME = #{map.cableName},
+			</if>
+			<if test="map.cableSectionName != null">
+				CABLE_SECTION_NAME = #{map.cableSectionName},
+			</if>
+			<if test="map.maintenancer != null">
+				MAINTENANCER = #{map.maintenancer},
+			</if>
+			<if test="map.aStation != null">
+				A_STATION = #{map.aStation},
+			</if>
+			<if test="map.zStation != null">
+				Z_STATION = #{map.zStation},
+			</if>
+			<if test="map.nearStation != null">
+				NEAR_STATION = #{map.nearStation},
+			</if>
+			<if test="map.distance != null">
+				DISTANCE = #{map.distance},
+			</if>
+			<if test="map.longitude != null">
+				LONGITUDE = #{map.longitude},
+			</if>
+			<if test="map.latitude != null">
+				LATITUDE = #{map.latitude}
+			</if>
+		</set>
+		where FAULT_ID = #{map.faultId}
+	</update>
+	
+	<!-- 新增故障信息 -->
+	<insert id="addFaultInfo" parameterType="hashmap" keyProperty="map.faultId">
+		insert into T_FAULT(FAULT_NO, 
+							SERIAL_NO,
+							REASON1_ID,
+							REASON2_ID,
+							SOURCE,
+							TYPE,
+							SYSTEM_NAME,
+							EMS_NAME,
+							STATION_NAME,
+							NE_NAME,
+							UNIT_NAME,
+							FACTORY,
+							CABLE_NAME,
+							CABLE_SECTION_NAME,
+							MAINTENANCER,
+							A_STATION,
+							Z_STATION,
+							NEAR_STATION,
+							DISTANCE,
+							LONGITUDE,
+							LATITUDE,
+							IS_BROKEN,
+							START_TIME,
+							ALM_CLEAR_TIME,
+							ACCURACY,
+							STATUS,
+							MEMO,
+							DESCRIPTION,
+							CREATE_TIME) 
+					values(#{map.faultNo},
+						   #{map.serialNo},
+						   #{map.reasonId1},
+						   #{map.reasonId2},
+						   #{map.source},
+						   #{map.type},
+						   #{map.systemName},
+						   #{map.emsName},
+						   #{map.stationName},
+						   #{map.neName},
+						   #{map.unitName},
+						   #{map.factory},
+						   #{map.cableName},
+						   #{map.cableSectionName},
+						   #{map.maintenancer},
+						   #{map.aStation},
+						   #{map.zStation},
+						   #{map.nearStation},
+						   #{map.distance},
+						   #{map.longitude},
+						   #{map.latitude},
+						   #{map.isBroken},
+						   #{map.startTime},
+						   #{map.alarmClearTime},
+						   #{map.accuracy},
+						   #{map.status},
+						   #{map.memo},
+						   #{map.description},
+						   #{map.createTime})
+	</insert>
+	
+	<!-- 故障确认 -->
+	<update id="updateFaultStatus">
+		update T_FAULT set STATUS = #{status} where FAULT_ID = #{faultId}
+	</update>
+	
+	<!-- 获取故障的主告警 -->
+	<select id="getFaultMainAlarm" resultType='hashmap'>
+		select * from T_FAULT_ALARM where FAULT_ID = #{faultId} and CONVERGE_FLAG = 1
+	</select>
+	
+	<!-- 通过faultId获取故障信息 -->
+	<select id="getFaultInfoByFaultId" resultType='hashmap'>
+		select * from T_FAULT where FAULT_ID = #{faultId}
+	</select>
+	
+	<!-- 获取当天最大的人工故障序列号 -->
+	<select id="getMaxManualSerialNoToday" resultType='hashmap'>
+		select max(SERIAL_NO) MAX_SERIAL_NO from T_FAULT where CREATE_TIME <![CDATA[ >= ]]> #{from} 
+		and CREATE_TIME <![CDATA[ <= ]]> #{to}
+	</select>
+	
+	<!-- 获取所有未确认的故障 -->
+	<select id="getAllUnconfirmedFault" resultType='hashmap'>
+		select * from T_FAULT where STATUS = 1
+	</select>
+	
+	<!-- 通过alarmId获取故障相关的告警 -->
+	<select id="getFaultAlarmById" resultType='hashmap'>
+		select * from T_FAULT_ALARM where ALARM_ID = #{alarmId}
+	</select>
+	
+	<select id="getFaultAlarmByIds" resultType='hashmap'>
+		select * from T_FAULT_ALARM where ALARM_ID in 
+		<foreach collection="ids" index="index" item="id" open="(" close=")" separator=",">
+			  ${id}
+		</foreach>
+	</select>
+	
+	<!-- 通过ID获取用户信息 -->
+	<select id="getUserById" resultType='hashmap'>
+		select * from T_SYS_USER where SYS_USER_ID = #{userId}
+	</select>
+	
+	<!-- 故障信息中加入确认者名字 -->
+	<select id="addAckUser">
+		update T_FAULT set ACK_USER = #{userName} where FAULT_ID = #{faultId}
+	</select>
+	
+	<!-- 故障恢复 -->
+	<update id="faultRecovery">
+		update T_FAULT set STATUS = #{status}, 
+		END_TIME = #{recoveryTime} 
+		where FAULT_ID = #{faultId}
+	</update>
+	
+	<!-- 更新故障告警开始和结束时间 -->
+	<update id="updateAlarmStartAndEndTime">
+		update T_FAULT set START_TIME = #{time.START_TIME},
+		ALM_CLEAR_TIME = #{time.ALM_CLEAR_TIME} 
+		where FAULT_ID = #{faultId}
+	</update>
+	
+	
+	
+	
+	
+	
+	
+	
+		
+</mapper>

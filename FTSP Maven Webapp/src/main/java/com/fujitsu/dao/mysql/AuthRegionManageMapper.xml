@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.AuthRegionManageMapper">
+	
+	<!--  查询t_sys_auth_domain表分页数据 -->
+	<select id="selectAuthRegionDataList" parameterType="hashmap" resultType="hashmap">
+		select tsad.sys_auth_domain_id,tsad.name,tsad.note
+			from t_sys_auth_domain tsad
+   		<if test="map.pageSize != null and map.pageSize > 0 and map.startNumber != null and map.startNumber >= 0">
+			LIMIT #{map.startNumber},#{map.pageSize}
+		</if>   
+  	</select>
+  	<select id="countAuthRegionDataList" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_auth_domain
+  	</select>
+  	
+  	<select id="validateUserAuthDomainName" parameterType="string" resultType="int">
+   		select count(1) from t_sys_auth_domain where name=#{name}
+  	</select>
+  	
+  	<select id="getAuthTreeNodes" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion" resultType="hashmap">
+   		select t.sys_menu_id,t.menu_display_name,t.is_leaf
+			from t_sys_menu t
+			where t.menu_parent_id=#{authRegion.menuId}
+			and menu_display_name not in('-')
+  	</select>
+  	
+  	
+ 	 <select id="getMenuAuthByAuth" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion" resultType="string">
+   		select ts.auth_sequence
+			from t_sys_auth_domain_ref ts
+			where ts.sys_menu_id=#{authRegion.menuId}
+			and ts.sys_auth_domain_id=#{authRegion.id}
+			limit 1
+  	</select>
+  	
+  	
+  	<!-- 获取权限域对应的权限-->
+	 <select id="getMenuAuthsByAuthDomainId" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion" resultType="hashmap">
+   			select tsm.sys_menu_id,tsm.menu_display_name,tsm.menu_parent_id,ts.auth_sequence
+				from t_sys_auth_domain_ref ts
+				join t_sys_menu tsm on ts.sys_menu_id=tsm.sys_menu_id
+				where ts.sys_auth_domain_id=#{authRegion.id}
+  	</select>
+  	
+  	
+  	 	<!-- 获取父菜单-->
+	 <select id="getParentMenuByMenuId" parameterType="string" resultType="hashmap">
+   			select t.sys_menu_id,t.menu_parent_id,t.menu_display_name
+				from  t_sys_menu t
+				where t.sys_menu_id=#{parentMenuId}
+  	</select>
+  	
+  		<!-- 获取菜单是否叶子节点-->
+	 <select id="getIsLeafByMenuId" parameterType="string" resultType="string">
+   			select t.is_leaf
+				from  t_sys_menu t
+				where t.sys_menu_id=#{menuId}
+  	</select>
+  	
+  	<!-- 插入权限域数据并返回主键 -->
+   	<insert id="insert" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion" useGeneratedKeys="true" keyProperty="authRegion.id">
+		INSERT INTO t_sys_auth_domain(NAME,NOTE)
+			VALUES(#{authRegion.name},#{authRegion.note})
+     	  <selectKey resultType="string"   keyProperty="authRegion.id">  
+			        SELECT LAST_INSERT_ID() AS id
+    	</selectKey>  
+	</insert>
+	
+	<!-- 插入权限域关联的菜单-->
+   	<insert id="insertAuthRegionRefMenu" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion">
+		INSERT INTO t_sys_auth_domain_ref(SYS_AUTH_DOMAIN_ID,SYS_MENU_ID,AUTH_SEQUENCE)
+			VALUES(#{authRegion.id},#{authRegion.menuId},#{authRegion.authId})
+	</insert>
+	
+  		<!-- 修改 -->
+	<update id="update" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion">
+		update 
+			t_sys_auth_domain
+		set
+			NOTE=#{authRegion.note}
+		where
+			SYS_AUTH_DOMAIN_ID=#{authRegion.id}
+	</update>
+	
+	<!-- 删除权限域关联的菜单 -->
+	<delete id="deleteAuthRegionRefMenu" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion">
+     	delete from  
+     		t_sys_auth_domain_ref
+		where
+			SYS_AUTH_DOMAIN_ID=#{authRegion.id}
+     </delete>
+     
+     <!-- 删除用户关联的权限域-->
+	<delete id="deleUserRefAuthRegion" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion">
+     	delete from  
+     		t_sys_user_ref_auth
+		where
+			SYS_AUTH_DOMAIN_ID=#{authRegion.id}
+     </delete>
+	
+	 <delete id="delete" parameterType="com.fujitsu.manager.systemManager.model.AuthRegion">
+     	delete from  
+     		t_sys_auth_domain
+		where
+			SYS_AUTH_DOMAIN_ID=#{authRegion.id}
+     </delete>
+	
+</mapper>

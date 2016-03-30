@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	 <!-- mysql -->
+	 <bean id="dataSource-mysql" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" /> 
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- 属性类型是字符串，通过别名的方式配置扩展插件，
+		常用的插件有：
+		监控统计用的filter:stat 
+		日志用的filter:log4j
+		 防御sql注入的filter:wall -->
+		<property name="filters" value="stat" />  
+  		<!-- 最大连接池数量 -->
+        <property name="maxActive" value="${druid.maxActive}" />
+        <!-- 初始化时建立物理连接的个数 -->
+        <property name="initialSize" value="${druid.initialSize}" />
+        <!-- 最小连接池数量 -->
+        <property name="minIdle" value="${druid.minIdle}" />
+        <!-- 获取连接时最大等待时间 -->
+        <property name="maxWait" value="${druid.maxWait}" />
+		<!--   有两个含义：
+			1) Destroy线程会检测连接的间隔时间
+			2) testWhileIdle的判断依据，详细看testWhileIdle属性的说明 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>  
+        <property name="minEvictableIdleTimeMillis" value="300000" />  
+  		<!-- 用来检测连接是否有效的sql -->
+        <property name="validationQuery" value="SELECT 'x'" />  
+       	<!--  建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。 -->
+        <property name="testWhileIdle" value="true" />  
+        <!-- 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。 -->
+        <property name="testOnBorrow" value="false" />  
+        <!-- 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能 -->
+        <property name="testOnReturn" value="false" />  
+        <property name="maxOpenPreparedStatements"  value="20" />
+         <!-- 打开removeAbandoned功能  对于长时间不使用的连接强制关闭-->  
+        <property name="removeAbandoned" value="true" />
+        <!-- 超过120分钟开始关闭空闲连接-->    
+        <property name="removeAbandonedTimeout" value="7200" />  
+        <!-- 关闭abanded连接时输出错误日志 -->
+        <property name="logAbandoned" value="true" /> 
+	</bean>
+	
+</beans>

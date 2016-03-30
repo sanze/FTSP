@@ -1,0 +1,5126 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.DataCollectMapper" >
+
+
+
+	<select id="selectTable" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+	</select>
+
+	<select id="selectTableById" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${idName} = ${id}
+	</select>
+	
+	<select id="selectTableByColumn" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${columnName} = '${columnValue}'
+	</select>
+	
+	<select id="selectTableListById" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${idName} = ${id}
+	</select>
+	
+	<select id="selectEmsConnectionByIP" resultType="hashmap">
+	SELECT 
+	  *
+	FROM
+	  T_BASE_EMS_CONNECTION t
+	WHERE t.IP = #{ip}
+		 <if test="isDel != null"> 
+			 and t.IS_DEL = #{isDel}
+		</if>
+	</select>
+	
+	<select id="selectPtpNameAndNeNameByPtpId" resultType="hashmap" >
+		   select CONCAT(n.name, '::', t.name) as NE_PTP_NAME,
+		   		t.name as PTP_NAME,
+		   		t.base_ne_id as BASE_NE_ID
+			  from t_base_ptp t, t_base_ne n
+			 where t.base_ptp_id = #{ptpId}
+			   and t.base_ne_id = n.base_ne_id
+	</select>
+
+	<select id="selectDataListByEmsConnectionId" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName} t
+		 where t.BASE_EMS_CONNECTION_ID = ${emsConnectionId}
+		 <if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+		</if> 
+	</select>
+	
+	<select id="selectLinkListByEmsConnectionId" resultType="hashmap" >
+		select *
+		  from T_BASE_LINK t
+		 where t.A_EMS_CONNECTION_ID = #{emsConnectionId} 
+		  <if test="neId != null"> 
+			and t.A_NE_ID = #{neId} 
+		</if> 
+		 and t.LINK_TYPE in 
+		 <foreach item="item" index="index" collection="linkType" open="(" separator="," close=")">  
+			  #{item}   
+		</foreach>
+		 <if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+		</if> 
+	</select>
+	
+	<select id="selectDataListByNeId"  resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName} t
+		 where t.BASE_NE_ID = ${neId}
+		 <if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+		</if>
+	</select>
+	
+	<select id="selectEquipByEquipNo"  resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName} t
+		 where t.BASE_NE_ID = ${neId} 
+		 <if test="equipNo.rackNo != null"> 
+			and t.RACK_NO = '${equipNo.rackNo}' 
+		</if> 
+		<if test="equipNo.shelfNo != null"> 
+			and t.SHELF_NO = '${equipNo.shelfNo}' 
+		</if> 
+		<if test="equipNo.slotNo != null"> 
+			and t.SLOT_NO = '${equipNo.slotNo}' 
+		</if>
+		<if test="equipNo.subSlotNo != null"> 
+			and t.SUB_SLOT_NO = '${equipNo.subSlotNo}' 
+		</if>
+		<if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+		</if>
+	</select>
+	
+	<select id="selectUnitByNeIdAndName"  resultType="hashmap" >
+        select *
+            from T_BASE_UNIT p
+        where p.NAME = #{name}
+            and p.BASE_NE_ID = #{neId}
+            and p.IS_DEL = 0
+    </select>
+	
+	<select id="selectPtpListByNeId"  resultType="hashmap" >
+		select *
+		  from T_BASE_PTP t
+		 where t.BASE_NE_ID = #{neId}
+		 <if test="domain != null" >
+	        and t.DOMAIN in 
+	        <foreach item="item" index="index" collection="domain" open="(" separator="," close=")">  
+			  #{item}   
+			</foreach>
+	      </if>
+		 <if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+		</if>
+	</select>
+	
+	<select id="selectPtpByNeSerialNoAndPtpName"  resultType="hashmap" >
+		select *
+		  from T_BASE_PTP p
+		 where p.NAME = #{ptpName}
+		   and p.BASE_NE_ID = (select t.BASE_NE_ID
+		                         from T_BASE_NE t
+		                        where t.NAME = #{neName}
+		                          and t.BASE_EMS_CONNECTION_ID = #{emsConnectionId} and t.IS_DEL = 0) and p.IS_DEL = 0 
+	</select>
+	
+	<select id="selectPtnCtpByNeSerialNoAndCtpName"  resultType="hashmap" >
+		SELECT 
+		  * 
+		FROM
+		  T_BASE_PTN_CTP p 
+		WHERE p.NAME = #{ctpName}
+		  AND p.BASE_PTP_ID = 
+		  (SELECT 
+		    ptp.BASE_PTP_ID 
+		  FROM
+		    T_BASE_PTP ptp 
+		  WHERE ptp.NAME = #{ptpName} 
+		    AND ptp.BASE_EMS_CONNECTION_ID = #{emsConnectionId} 
+		    AND ptp.IS_DEL = 0 
+		    AND ptp.BASE_NE_ID = 
+		    (SELECT 
+		      ne.BASE_NE_ID 
+		    FROM
+		      T_BASE_NE ne 
+		    WHERE ne.NAME = #{neName}
+		      AND ne.BASE_EMS_CONNECTION_ID = #{emsConnectionId} 
+		      AND ne.IS_DEL = 0)) 
+		  AND p.IS_DEL = 0 
+		                    
+	</select>
+	
+	<select id="selectSdhCtp"  resultType="hashmap" >
+	select *
+	  from T_BASE_SDH_CTP p
+	 where p.NAME = #{ctpName}
+	   and p.BASE_NE_ID = #{neId}
+	   and p.BASE_PTP_ID =
+	       (select m.BASE_PTP_ID
+	          from T_BASE_PTP m
+	         where m.NAME = #{ptpName}
+	           and m.BASE_NE_ID = #{neId}
+	           and m.BASE_EMS_CONNECTION_ID =  #{emsConnectionId}
+	           and m.IS_DEL = 0)
+	   and p.IS_DEL = 0
+	   LIMIT 0, 1
+	</select>
+	
+	<select id="selectSdhCtpRelPtpIdAndRelPtpType"  resultType="hashmap" >
+	select *
+	  from T_BASE_SDH_CTP p
+	 where p.NAME = #{ctpName}
+	   and p.BASE_PTP_ID = #{ptpId}
+	   and p.REL_PTP_TYPE = #{relPtpType}
+	   and p.IS_DEL = 0
+	   LIMIT 0, 1
+	</select>
+	
+	<select id="selectOtnCtp"  resultType="hashmap" >
+	select *
+	  from T_BASE_OTN_CTP p
+	 where p.NAME = #{ctpName}
+	   and p.BASE_NE_ID = #{neId}
+	   and p.BASE_PTP_ID =
+	       (select m.BASE_PTP_ID
+	          from T_BASE_PTP m
+	         where m.NAME = #{ptpName}
+	           and m.BASE_NE_ID = #{neId}
+	           and m.BASE_EMS_CONNECTION_ID =  #{emsConnectionId}
+	           and m.IS_DEL = 0)
+	   and p.IS_DEL = 0
+	   LIMIT 0, 1
+	</select>
+	
+	<select id="selectCtpForE300"  resultType="hashmap" >
+	select *
+	  from T_BASE_OTN_CTP p
+	 where p.NAME = #{ctpName}
+	   and p.BASE_NE_ID = #{neId}
+	   and p.BASE_PTP_ID =
+	       (select m.BASE_PTP_ID
+	          from T_BASE_PTP m
+	         where m.DIRECTION = #{direction}
+			   and m.PTP_TYPE = #{ptpType}
+			   and m.RACK_NO = #{rackNo}
+			   and m.SHELF_NO = #{shelfNo}
+			   and m.SLOT_NO = #{slotNo}
+			   and m.PORT_NO = #{portNo}
+	           and m.BASE_NE_ID = #{neId}
+	           and m.BASE_EMS_CONNECTION_ID =  #{emsConnectionId}
+	           and m.IS_DEL = 0)
+	   and p.IS_DEL = 0
+	   LIMIT 0, 1
+	</select>
+	
+	<select id="selectOtnCtpIdTypeIsFtp"  resultType="int" >
+	select p.BASE_OTN_CTP_ID
+	  from T_BASE_OTN_CTP p
+	 where p.BASE_EMS_CONNECTION_ID = #{emsConnectionId}
+	   and p.BASE_PTP_ID = #{ptpId}
+	   and p.IS_CTP = 0
+	</select>
+	
+	<select id="selectPtpByNeIdAndPtpName"  resultType="hashmap" >
+		select *
+		  from T_BASE_PTP p
+		 where p.NAME = #{ptpName}
+		   and p.BASE_NE_ID = #{neId}
+		                          and p.IS_DEL = 0
+	</select>
+	
+	<select id="selectPtpForE300"  resultType="hashmap" >
+		select *
+		  from T_BASE_PTP p
+		 where p.DIRECTION = #{direction}
+		   and p.PTP_TYPE = #{ptpType}
+		   and p.RACK_NO = #{rackNo}
+		   and p.SHELF_NO = #{shelfNo}
+		   and p.SLOT_NO = #{slotNo}
+		   and p.PORT_NO = #{portNo}
+		   and p.BASE_NE_ID = #{neId}
+		    and p.IS_DEL = 0
+	</select>
+	<select id="selectPtpByProperties"  resultType="hashmap" >
+		select * from  T_BASE_PTP p
+		where p.BASE_NE_ID = #{neId}
+        <if test="properties != null and properties.size()>0">
+         	and
+	        <foreach item="item" index="index" collection="properties.keySet()" open="(" separator="and" close=")">  
+			  ${item}
+			  <choose>
+			  <when test="properties.get(item)==null"> IS NULL </when>
+			  <when test='"java.lang.String".equals(properties.get(item).getClass().getName()) and properties.get(item).matches("\\(.*\\)")'>
+			  	in ${colValues[index]}
+			  </when>
+			  <when test='"java.lang.String".equals(properties.get(item).getClass().getName()) and properties.get(item).matches("(\\%.*)|(.*\\%)")'>
+			  	like "${colValues[index]}"
+			  </when>
+			  <otherwise> = #{properties.${item}}</otherwise>
+			  </choose>
+			</foreach>
+        </if>
+		LIMIT 0, 1
+	</select>
+	
+	<select id="selectPtpVirtualMinId"  resultType="Integer" >
+		SELECT 
+		  MIN(t.`BASE_PTP_ID`) 
+		FROM
+		  T_BASE_PTP_VIRTUAL t 
+	</select>
+	
+	<select id="selectPtpVirtualForZTE"  resultType="hashmap" >
+		select *
+		  from T_BASE_PTP_VIRTUAL p
+		 where p.PTP_TYPE = #{ptpType}
+		   and p.RACK_NO = #{rackNo}
+		   and p.SHELF_NO = #{shelfNo}
+		   and p.SLOT_NO = #{slotNo}
+		   and p.PORT_NO = #{portNo}
+		   and p.BASE_NE_ID = #{neId}
+		    and p.IS_DEL = 0
+	</select>
+	
+	<select id="selectPortDescByIds"  resultType="string" >
+		SELECT 
+		  CONCAT(
+	    rack.`DISPLAY_NAME`,
+		    '-',
+	    shelf.`DISPLAY_NAME`,
+		    '-',
+	    slot.`DISPLAY_NAME`,
+	    '(',
+	    unit.`DISPLAY_NAME`,
+	    ')'
+		  ) AS `display_name` 
+		FROM
+	  t_base_rack rack,
+	  t_base_shelf shelf,
+	  t_base_slot slot,
+	  t_base_unit unit 
+  	WHERE rack.`BASE_RACK_ID` = #{rackId}
+	  AND shelf.`BASE_SHELF_ID` = #{shelfId}
+	  AND slot.`BASE_SLOT_ID` = #{slotId}
+	  AND unit.`BASE_UNIT_ID` = #{unitId}
+	</select>
+
+	<select id="selectNeByNeName" resultType="hashmap" parameterType="int">
+		select *
+		  from T_BASE_NE t
+		 where t.BASE_EMS_CONNECTION_ID = #{emsConnectionId}
+		   and t.NAME = #{neName}
+	</select>
+	
+	<select id="selectPtpForSyncCtp" resultType="hashmap" >
+		select *
+		  from t_base_ptp p, t_base_ems_connection c, t_base_ne n, t_base_unit u
+		 where p.PTP_TYPE = #{ptpType}
+		   <if test="domain != null" >
+	        and p.DOMAIN in 
+			<foreach item="item" index="index" collection="domain" open="(" separator="," close=")">  
+			  #{item}   
+			</foreach>
+	      </if>
+		   and p.BASE_EMS_CONNECTION_ID = c.BASE_EMS_CONNECTION_ID
+		   and p.BASE_NE_ID = n.BASE_NE_ID
+		   and p.BASE_UNIT_ID = u.BASE_UNIT_ID
+		   and c.TYPE = #{emsType}
+		   and n.PRODUCT_NAME = #{productName}
+		   and u.UNIT_NAME = #{unitName}
+		   and p.IS_SYNC_CTP = 1
+		LIMIT 0, 1
+	</select>
+	
+	<select id="selectProductMapping" resultType="hashmap" >
+		select *
+		  from T_BASE_PRODUCT_MAPPING t
+		 where t.PRODUCT_NAME = #{productName} 
+		 	and t.FACTORY = #{factory}
+	</select>
+	
+	<select id="selectPmStdIndexByAll" resultType="hashmap" >
+        select *
+          from T_PM_STD_INDEX
+	</select>
+	
+	<select id="selectSdhCrsListByNeId" resultType="hashmap" >
+        select *
+		  from T_BASE_SDH_CRS t
+		 where t.BASE_NE_ID = #{neId} 
+		 	and t.IS_VIRTUAL = #{isVirtual}
+		 	<if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+			</if>
+	</select>
+	
+	<select id="selectOtnCrsListByNeId" resultType="hashmap" >
+        select *
+		  from T_BASE_OTN_CRS t
+		 where t.BASE_NE_ID = #{neId} 
+		 	and t.IS_VIRTUAL = #{isVirtual}
+		 	and t.IS_FROM_ROUTE = #{isFromRoute} 
+		 	<if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+			</if>
+	</select>
+	
+	<select id="selectOtnCrsListFromRoute" resultType="hashmap" >
+        select *
+		  from T_BASE_OTN_CRS t
+		 where t.IS_FROM_ROUTE = #{isFromRoute} 
+		 	<if test="isDel != null"> 
+			 and t.IS_DEL = ${isDel}
+			</if>
+	</select>
+	
+	<select id="selectEmsListByIpAndPort" resultType="hashmap" >
+        SELECT 
+		  * 
+		FROM
+		  `t_base_ems_connection` t 
+		WHERE t.`IS_DEL` = 0 AND t.`SVC_RECORD_ID` IN 
+		  (SELECT 
+		    r.`SYS_SVC_RECORD_ID` 
+		  FROM
+		    `t_sys_svc_record` r
+		  WHERE r.`IP` = #{ip}
+		    AND r.`PORT` = #{port}
+		    )
+	</select>
+
+	<select id="selectPmTemplateInfoByAll" resultType="hashmap">
+	    select * from T_PM_TEMPLATE_INFO
+	</select>
+	
+	<select id="selectPmStdOptPortByAll" resultType="hashmap">
+        select * from T_PM_STD_OPT_PORT
+    </select>
+	
+	<select id="selectPmCompareByTargetIdAndTypeAndStdIndex" resultType="hashmap">
+	    select *
+	       from T_PM_COMPARE t
+	    where
+           <if test="unitId != null">
+               t.BASE_UNIT_ID = #{unitId} and
+           </if>	    
+	       <if test="ptpId != null">
+	           t.BASE_PTP_ID = #{ptpId} and
+	       </if>
+	       <if test="sdhCtpId != null">
+	           t.BASE_SDH_CTP_ID = #{sdhCtpId} and
+	       </if>
+	       <if test="otnCtpId != null">
+	           t.BASE_OTN_CTP_ID = #{otnCtpId} and
+	       </if>
+	       t.TARGET_TYPE = #{targetType}
+	       and t.PM_STD_INDEX = #{pmStdIndex}
+	</select>
+
+    <select id="selectExcCountByPtpCtpIdAndStdIndexAndTime" resultType="hashmap">
+        select *
+           from ${tableName} t
+        where
+           <if test="unitId != null">
+                t.BASE_UNIT_ID = #{unitId} and
+           </if> 
+           <if test="ptpId != null">
+                t.BASE_PTP_ID = #{ptpId} and
+           </if> 
+           <if test="otnCtpId != null">
+                t.BASE_OTN_CTP_ID = #{otnCtpId} and
+           </if>
+           <if test="sdhCtpId != null">
+                t.BASE_SDH_CTP_ID = #{sdhCtpId} and
+           </if>
+           t.PM_STD_INDEX = #{pmStdIndex}
+           and t.LOCATION = #{location}
+           and t.RETRIEVAL_TIME between #{beginTime} and #{endTime}
+        order by t.RETRIEVAL_TIME
+    </select>
+    
+    <update id="updatePmCompare" parameterType="hashmap">
+        update T_PM_COMPARE
+        <set>
+            <if test="PM_COMPARE_ID != null">
+                PM_COMPARE_ID = #{PM_COMPARE_ID},
+            </if>
+            <if test="TARGET_TYPE != null">
+                TARGET_TYPE = #{TARGET_TYPE},
+            </if>
+            <if test="PM_STD_INDEX != null">
+                PM_STD_INDEX = #{PM_STD_INDEX},
+            </if>
+            <if test="PM_DESCRIPTION != null">
+                PM_DESCRIPTION = #{PM_DESCRIPTION},
+            </if>
+            <if test="PM_COMPARE_VALUE != null">
+                PM_COMPARE_VALUE = #{PM_COMPARE_VALUE},
+            </if>
+            <if test="BASE_OTN_CTP_ID != null">
+                BASE_OTN_CTP_ID = #{BASE_OTN_CTP_ID},
+            </if>
+            <if test="BASE_SDH_CTP_ID != null">
+                BASE_SDH_CTP_ID = #{BASE_SDH_CTP_ID},
+            </if>
+            <if test="BASE_PTP_ID != null">
+                BASE_PTP_ID = #{BASE_PTP_ID},
+            </if>
+            <if test="BASE_UNIT_ID != null">
+                BASE_UNIT_ID = #{BASE_UNIT_ID},
+            </if>
+            <if test="BASE_NE_ID != null">
+                BASE_NE_ID = #{BASE_NE_ID},
+            </if>
+            <if test="DISPLAY_CTP != null">
+                DISPLAY_CTP = #{DISPLAY_CTP},
+            </if>
+            <if test="UPDATE_TIME != null">
+                UPDATE_TIME = #{UPDATE_TIME},
+            </if>
+        </set>
+         where PM_COMPARE_ID = #{PM_COMPARE_ID}
+    </update>
+    
+    <insert id="insertPmCompare" parameterType="hashmap">
+        insert into T_PM_COMPARE
+        (PM_COMPARE_ID,
+		TARGET_TYPE,
+		PM_STD_INDEX,
+		PM_DESCRIPTION,
+		PM_COMPARE_VALUE,
+		BASE_OTN_CTP_ID,
+		BASE_SDH_CTP_ID,
+		BASE_PTP_ID,
+		BASE_UNIT_ID,
+		BASE_NE_ID,
+		DISPLAY_CTP,
+		UPDATE_TIME
+        )values
+            (
+            #{PM_COMPARE_ID},
+			#{TARGET_TYPE},
+			#{PM_STD_INDEX},
+			#{PM_DESCRIPTION},
+			#{PM_COMPARE_VALUE},
+			#{BASE_OTN_CTP_ID},
+			#{BASE_SDH_CTP_ID},
+			#{BASE_PTP_ID},
+			#{BASE_UNIT_ID},
+			#{BASE_NE_ID},
+			#{DISPLAY_CTP},
+			#{UPDATE_TIME}
+            )
+    </insert>
+    
+    <select id="getPmTableExistance" resultType="Integer">
+        SELECT 
+            count(1)
+        FROM
+            INFORMATION_SCHEMA.TABLES t
+        WHERE
+            t.table_name = #{tableName}
+                AND t.table_schema = #{schemaName}
+    </select>
+    
+    <select id="selectAreaNameAndStationNameByNeId" resultType="hashmap">
+        select a.AREA_NAME, s.STATION_NAME
+            from T_RESOURCE_AREA a, T_RESOURCE_STATION s, T_RESOURCE_ROOM r, T_BASE_NE n
+        where n.BASE_NE_ID = ${neId}
+            and r.RESOURCE_ROOM_ID = n.RESOURCE_ROOM_ID
+            and s.RESOURCE_STATION_ID = r.RESOURCE_STATION_ID
+            and a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID
+    </select>
+
+	<update id="updateEmsConnectionByIP" parameterType="hashmap" >
+	    update T_BASE_EMS_CONNECTION
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_EMS_GROUP_ID != null" >
+	        BASE_EMS_GROUP_ID = #{BASE_EMS_GROUP_ID},
+	      </if>
+	      <if test="IP != null" >
+	        IP = #{IP},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="USER_NAME != null" >
+	        USER_NAME = #{USER_NAME},
+	      </if>
+	      <if test="PASSWORD != null" >
+	        PASSWORD = #{PASSWORD},
+	      </if>
+	      <if test="TYPE != null" >
+	        TYPE = #{TYPE},
+	      </if>
+	      <if test="CONNECTION_MODE != null" >
+	        CONNECTION_MODE = #{CONNECTION_MODE},
+	      </if>
+	      <if test="CONNETION_TYPE != null" >
+	        CONNETION_TYPE = #{CONNETION_TYPE},
+	      </if>
+	      <if test="PORT != null" >
+	        PORT = #{PORT},
+	      </if>
+	      <if test="EMS_NAME != null" >
+	        EMS_NAME = #{EMS_NAME},
+	      </if>
+	      <if test="INTERNAL_EMS_NAME != null" >
+	        INTERNAL_EMS_NAME = #{INTERNAL_EMS_NAME},
+	      </if>
+	      <if test="ENCODE != null" >
+	        ENCODE = #{ENCODE},
+	      </if>
+	      <if test="EMS_VERSION != null" >
+	        EMS_VERSION = #{EMS_VERSION},
+	      </if>
+	      <if test="IDL_VERSION != null" >
+	        IDL_VERSION = #{IDL_VERSION},
+	      </if>
+	      <if test="EXCEPTION_REASON != null" >
+	        EXCEPTION_REASON = #{EXCEPTION_REASON},
+	      </if>
+	      <if test="INTERVAL_TIME != null" >
+	        INTERVAL_TIME = #{INTERVAL_TIME},
+	      </if>
+	      <if test="TIME_OUT != null" >
+	        TIME_OUT = #{TIME_OUT},
+	      </if>
+	      <if test="COLLEC_START_TIME != null" >
+	        COLLEC_START_TIME = #{COLLEC_START_TIME},
+	      </if>
+	      <if test="COLLEC_END_TIME != null" >
+	        COLLEC_END_TIME = #{COLLEC_END_TIME},
+	      </if>
+	      <if test="FACTORY != null" >
+	        FACTORY = #{FACTORY},
+	      </if>
+	      <if test="CONNECT_STATUS != null" >
+	        CONNECT_STATUS = #{CONNECT_STATUS},
+	      </if>
+	      <if test="GATEWAY_NE_ID != null" >
+	        GATEWAY_NE_ID = #{GATEWAY_NE_ID},
+	      </if>
+	      <if test="SYNC_PERIOD != null" >
+	        SYNC_PERIOD = #{SYNC_PERIOD},
+	      </if>
+	      <if test="SYNC_PERIOD_DISPLAY != null" >
+	        SYNC_PERIOD_DISPLAY = #{SYNC_PERIOD_DISPLAY},
+	      </if>
+	      <if test="LATEST_SYNC_TIME != null" >
+	        LATEST_SYNC_TIME = #{LATEST_SYNC_TIME},
+	      </if>
+	      <if test="NEXT_SYNC_TIME != null" >
+	        NEXT_SYNC_TIME = #{NEXT_SYNC_TIME},
+	      </if>
+	      <if test="SVC_RECORD_ID != null" >
+	        SVC_RECORD_ID = #{SVC_RECORD_ID},
+	      </if>
+	      <if test="COLLECT_STATUS != null" >
+	        COLLECT_STATUS = #{COLLECT_STATUS},
+	      </if>
+	      <if test="COLLECT_SOURCE != null" >
+	        COLLECT_SOURCE = #{COLLECT_SOURCE},
+	      </if>
+	      <if test="FORBIDDEN_TIME_LIMIT != null" >
+	        FORBIDDEN_TIME_LIMIT = #{FORBIDDEN_TIME_LIMIT},
+	      </if>
+	      <if test="LINK_SYNC_STATUS != null" >
+	        LINK_SYNC_STATUS = #{LINK_SYNC_STATUS},
+	      </if>
+	      <if test="LINK_SYNC_TIME != null" >
+	        LINK_SYNC_TIME = #{LINK_SYNC_TIME},
+	      </if>
+	      <if test="LINK_SYNC_RESULT != null" >
+	        LINK_SYNC_RESULT = #{LINK_SYNC_RESULT},
+	      </if>
+	      <if test="POSITION_X != null" >
+	        POSITION_X = #{POSITION_X},
+	      </if>
+	      <if test="POSITION_Y != null" >
+	        POSITION_Y = #{POSITION_Y},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where IP = #{IP}
+	  </update>
+	
+	
+	<update id="updateNeById" parameterType="hashmap" >
+	    update t_base_ne
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_SUBNET_ID != null" >
+	        BASE_SUBNET_ID = #{BASE_SUBNET_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="NATIVE_EMS_NAME_ORI != null" >
+	        NATIVE_EMS_NAME_ORI = #{NATIVE_EMS_NAME_ORI},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="LOCATION != null" >
+	        LOCATION = #{LOCATION},
+	      </if>
+	      <if test="VERSION != null" >
+	        VERSION = #{VERSION},
+	      </if>
+	      <if test="PRODUCT_NAME != null" >
+	        PRODUCT_NAME = #{PRODUCT_NAME},
+	      </if>
+	      <if test="COMMUNICATION_STATE != null" >
+	        COMMUNICATION_STATE = #{COMMUNICATION_STATE},
+	      </if>
+	      <if test="EMS_IN_SYNC_STATE != null" >
+	        EMS_IN_SYNC_STATE = #{EMS_IN_SYNC_STATE},
+	      </if>
+	      <if test="SUPORT_RATES != null" >
+	        SUPORT_RATES = #{SUPORT_RATES},
+	      </if>
+	      <if test="TYPE != null" >
+	        TYPE = #{TYPE},
+	      </if>
+	      <if test="OPERATIONAL_STATUS != null" >
+	        OPERATIONAL_STATUS = #{OPERATIONAL_STATUS},
+	      </if>
+	      <if test="ALARM_STATUS != null" >
+	        ALARM_STATUS = #{ALARM_STATUS},
+	      </if>
+	      <if test="DESCRIPTION_INFO != null" >
+	        DESCRIPTION_INFO = #{DESCRIPTION_INFO},
+	      </if>
+	      <if test="ME_TYPE != null" >
+	        ME_TYPE = #{ME_TYPE},
+	      </if>
+	      <if test="NET_ADDRESS != null" >
+	        NET_ADDRESS = #{NET_ADDRESS},
+	      </if>
+	      <if test="PTN_ROUTE_ID != null" >
+	        PTN_ROUTE_ID = #{PTN_ROUTE_ID},
+	      </if>
+	      <if test="RESOURCE_ROOM_ID != null" >
+	        RESOURCE_ROOM_ID = #{RESOURCE_ROOM_ID},
+	      </if>
+	      <if test="FACTORY != null" >
+	        FACTORY = #{FACTORY},
+	      </if>
+	      <if test="USER_NAME != null" >
+	        USER_NAME = #{USER_NAME},
+	      </if>
+	      <if test="PASSWORD != null" >
+	        PASSWORD = #{PASSWORD},
+	      </if>
+	      <if test="CONNECTION_MODE != null" >
+	        CONNECTION_MODE = #{CONNECTION_MODE},
+	      </if>
+	      <if test="BASIC_SYNC_STATUS != null" >
+	        BASIC_SYNC_STATUS = #{BASIC_SYNC_STATUS},
+	      </if>
+	      <if test="BASIC_SYNC_TIME != null" >
+	        BASIC_SYNC_TIME = #{BASIC_SYNC_TIME},
+	      </if>
+	      <if test="BASIC_SYNC_RESULT != null" >
+	        BASIC_SYNC_RESULT = #{BASIC_SYNC_RESULT},
+	      </if>
+	      <if test="MSTP_SYNC_STATUS != null" >
+	        MSTP_SYNC_STATUS = #{MSTP_SYNC_STATUS},
+	      </if>
+	      <if test="MSTP_SYNC_TIME != null" >
+	        MSTP_SYNC_TIME = #{MSTP_SYNC_TIME},
+	      </if>
+	      <if test="MSTP_SYNC_RESULT != null" >
+	        MSTP_SYNC_RESULT = #{MSTP_SYNC_RESULT},
+	      </if>
+	      <if test="CRS_SYNC_STATUS != null" >
+	        CRS_SYNC_STATUS = #{CRS_SYNC_STATUS},
+	      </if>
+	      <if test="CRS_SYNC_TIME != null" >
+	        CRS_SYNC_TIME = #{CRS_SYNC_TIME},
+	      </if>
+	      <if test="CRS_SYNC_RESULT != null" >
+	        CRS_SYNC_RESULT = #{CRS_SYNC_RESULT},
+	      </if>
+	      <if test="NE_LEVEL != null" >
+	        NE_LEVEL = #{NE_LEVEL},
+	      </if>
+	      <if test="COLLECT_RESULT != null" >
+	        COLLECT_RESULT = #{COLLECT_RESULT},
+	      </if>
+	      <if test="COLLECT_INTERVAL != null" >
+	        COLLECT_INTERVAL = #{COLLECT_INTERVAL},
+	      </if>
+	      <if test="LAST_COLLECT_TIME != null" >
+	        LAST_COLLECT_TIME = #{LAST_COLLECT_TIME},
+	      </if>
+	      <if test="IS_VIRTUAL_NE != null" >
+	        IS_VIRTUAL_NE = #{IS_VIRTUAL_NE},
+	      </if>
+	      <if test="COLLECT_NUMBIC != null" >
+	        COLLECT_NUMBIC = #{COLLECT_NUMBIC},
+	      </if>
+	      <if test="COLLECT_PHYSICAL != null" >
+	        COLLECT_PHYSICAL = #{COLLECT_PHYSICAL},
+	      </if>
+	      <if test="COLLECT_CTP != null" >
+	        COLLECT_CTP = #{COLLECT_CTP},
+	      </if>
+	      <if test="POSITION_X != null" >
+	        POSITION_X = #{POSITION_X},
+	      </if>
+	      <if test="POSITION_Y != null" >
+	        POSITION_Y = #{POSITION_Y},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_NE_ID = #{BASE_NE_ID}
+	  </update>
+	  
+	  <update id="updateSncById" parameterType="hashmap" >
+	    update T_BASE_PTN_SNC
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="SUBNETWORK_NAME != null" >
+	        SUBNETWORK_NAME = #{SUBNETWORK_NAME},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="A_END_PTP != null" >
+	        A_END_PTP = #{A_END_PTP},
+	      </if>
+	      <if test="A_END_CTP != null" >
+	        A_END_CTP = #{A_END_CTP},
+	      </if>
+	      <if test="Z_END_PTP != null" >
+	        Z_END_PTP = #{Z_END_PTP},
+	      </if>
+	      <if test="Z_END_CTP != null" >
+	        Z_END_CTP = #{Z_END_CTP},
+	      </if>
+	      <if test="STATIC_PRO_LV != null" >
+	        STATIC_PRO_LV = #{STATIC_PRO_LV},
+	      </if>
+	      <if test="SNC_TYPE != null" >
+	        SNC_TYPE = #{SNC_TYPE},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="SNC_STATE != null" >
+	        SNC_STATE = #{SNC_STATE},
+	      </if>
+	      <if test="ALARM_STATUS != null" >
+	        ALARM_STATUS = #{ALARM_STATUS},
+	      </if>
+	      <if test="RATE != null" >
+	        RATE = #{RATE},
+	      </if>
+	      <if test="LSP_TYPE != null" >
+	        LSP_TYPE = #{LSP_TYPE},
+	      </if>
+	      <if test="SERVICE_STATE != null" >
+	        SERVICE_STATE = #{SERVICE_STATE},
+	      </if>
+	      <if test="BELONG_SNC != null" >
+	        BELONG_SNC = #{BELONG_SNC},
+	      </if>
+	      <if test="EMS_CREATE_TIME != null" >
+	        EMS_CREATE_TIME = #{EMS_CREATE_TIME},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_PTN_SNC_ID = #{BASE_PTN_SNC_ID}
+	  </update>
+	  
+	  <update id="updateRouteById" parameterType="hashmap" >
+	    update T_BASE_PTN_ROUTE
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="A_END_PTP != null" >
+	        A_END_PTP = #{A_END_PTP},
+	      </if>
+	      <if test="A_END_CTP != null" >
+	        A_END_CTP = #{A_END_CTP},
+	      </if>
+	      <if test="Z_END_PTP != null" >
+	        Z_END_PTP = #{Z_END_PTP},
+	      </if>
+	      <if test="Z_END_CTP != null" >
+	        Z_END_CTP = #{Z_END_CTP},
+	      </if>
+	      <if test="SEQUENCE != null" >
+	        SEQUENCE = #{SEQUENCE},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_PTN_ROUTE_ID = #{BASE_PTN_ROUTE_ID}
+	  </update>
+	  
+	  
+	  <update id="updateFdfrById" parameterType="hashmap" >
+	    update T_BASE_PTN_FDFR
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="FD_NAME != null" >
+	        FD_NAME = #{FD_NAME},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="LAYER_RATE != null" >
+	        LAYER_RATE = #{LAYER_RATE},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="SERVICE_STATE != null" >
+	        SERVICE_STATE = #{SERVICE_STATE},
+	      </if>
+	      <if test="NETWORK_ACCESS_DOMAIN != null" >
+	        NETWORK_ACCESS_DOMAIN = #{NETWORK_ACCESS_DOMAIN},
+	      </if>
+	      <if test="FDFR_STATE != null" >
+	        FDFR_STATE = #{FDFR_STATE},
+	      </if>
+	      <if test="FDFR_TYPE != null" >
+	        FDFR_TYPE = #{FDFR_TYPE},
+	      </if>
+	      <if test="SERVICE_TYPE != null" >
+	        SERVICE_TYPE = #{SERVICE_TYPE},
+	      </if>
+	      <if test="TRAFFIC_TYPE != null" >
+	        TRAFFIC_TYPE = #{TRAFFIC_TYPE},
+	      </if>
+	      <if test="ADMINISTRATIVE_STATE != null" >
+	        ADMINISTRATIVE_STATE = #{ADMINISTRATIVE_STATE},
+	      </if>
+	      <if test="OAM_ENABLED != null" >
+	        OAM_ENABLED = #{OAM_ENABLED},
+	      </if>
+	      <if test="COMMENTS != null" >
+	        COMMENTS = #{COMMENTS},
+	      </if>
+	      <if test="CUSTOMER != null" >
+	        CUSTOMER = #{CUSTOMER},
+	      </if>
+	      <if test="IGMP_SNOOPING_STATE != null" >
+	        IGMP_SNOOPING_STATE = #{IGMP_SNOOPING_STATE},
+	      </if>
+	      <if test="FLEXIBLE != null" >
+	        FLEXIBLE = #{FLEXIBLE},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_PTN_FD_ID = #{BASE_PTN_FD_ID}
+	  </update>
+	  
+	  
+	  <update id="updateLinkOfFdfrsById" parameterType="hashmap" >
+	    update T_BASE_PTN_FDFR_LINK
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="FD_NAME != null" >
+	        FD_NAME = #{FD_NAME},
+	      </if>
+	      <if test="FDFR_NAME != null" >
+	        FDFR_NAME = #{FDFR_NAME},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="LAYER_RATE != null" >
+	        LAYER_RATE = #{LAYER_RATE},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="UNDERLYING_TYPE != null" >
+	        UNDERLYING_TYPE = #{UNDERLYING_TYPE},
+	      </if>
+	      <if test="PROTOCOL_TYPE != null" >
+	        PROTOCOL_TYPE = #{PROTOCOL_TYPE},
+	      </if>
+	      <if test="FDFR_STATE != null" >
+	        FDFR_STATE = #{FDFR_STATE},
+	      </if>
+	      <if test="SERVER_OBJ != null" >
+	        SERVER_OBJ = #{SERVER_OBJ},
+	      </if>
+	      <if test="SERVICE_TYPE != null" >
+	        SERVICE_TYPE = #{SERVICE_TYPE},
+	      </if>
+	      <if test="A_END_NE != null" >
+	        A_END_NE = #{A_END_NE},
+	      </if>
+	      <if test="A_END_PTP != null" >
+	        A_END_PTP = #{A_END_PTP},
+	      </if>
+	      <if test="A_END_CTP != null" >
+	        A_END_CTP = #{A_END_CTP},
+	      </if>
+	      <if test="Z_END_NE != null" >
+	        Z_END_NE = #{Z_END_NE},
+	      </if>
+	      <if test="Z_END_PTP != null" >
+	        Z_END_PTP = #{Z_END_PTP},
+	      </if>
+	      <if test="Z_END_CTP != null" >
+	        Z_END_CTP = #{Z_END_CTP},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_PTN_FDFR_LINK_ID = #{BASE_PTN_FDFR_LINK_ID}
+	  </update>
+	  
+	  <update id="initNeSyncStatusByEmsConnectionId" >
+	    update t_base_ne
+	    <set >
+	      <if test="syncStatus != null" >
+	        BASIC_SYNC_STATUS = #{syncStatus},
+	      </if>
+	    </set>
+	    where BASE_EMS_CONNECTION_ID = #{emsConnectionId} and BASIC_SYNC_STATUS = 5
+	  </update>
+	  
+	  <update id="updateRackById" parameterType="hashmap" >
+	    update t_base_rack
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="ALARM_REPORTING_INDICATOR != null" >
+	        ALARM_REPORTING_INDICATOR = #{ALARM_REPORTING_INDICATOR},
+	      </if>
+	      <if test="HOLDER_STATE != null" >
+	        HOLDER_STATE = #{HOLDER_STATE},
+	      </if>
+	      <if test="HARD_WARE_VERSION != null" >
+	        HARD_WARE_VERSION = #{HARD_WARE_VERSION},
+	      </if>
+	      <if test="SERIAL_NO != null" >
+	        SERIAL_NO = #{SERIAL_NO},
+	      </if>
+	      <if test="RACK_NO != null" >
+	        RACK_NO = #{RACK_NO},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_RACK_ID = #{BASE_RACK_ID}
+	  </update>
+	  
+	 <update id="updateShelfById" parameterType="hashmap" >
+	    update t_base_shelf
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_RACK_ID != null" >
+	        BASE_RACK_ID = #{BASE_RACK_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="ALARM_REPORTING_INDICATOR != null" >
+	        ALARM_REPORTING_INDICATOR = #{ALARM_REPORTING_INDICATOR},
+	      </if>
+	      <if test="HOLDER_STATE != null" >
+	        HOLDER_STATE = #{HOLDER_STATE},
+	      </if>
+	      <if test="LOCATION != null" >
+	        LOCATION = #{LOCATION},
+	      </if>
+	      <if test="VENDOR_NAME != null" >
+	        VENDOR_NAME = #{VENDOR_NAME},
+	      </if>
+	      <if test="HARD_WARE_VERSION != null" >
+	        HARD_WARE_VERSION = #{HARD_WARE_VERSION},
+	      </if>
+	      <if test="SHELF_TYPE != null" >
+	        SHELF_TYPE = #{SHELF_TYPE},
+	      </if>
+	      <if test="SERIAL_NO != null" >
+	        SERIAL_NO = #{SERIAL_NO},
+	      </if>
+	      <if test="RACK_NO != null" >
+	        RACK_NO = #{RACK_NO},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_SHELF_ID = #{BASE_SHELF_ID}
+	  </update>
+	  
+	  <update id="updateSlotById" parameterType="hashmap" >
+	    update t_base_slot
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_RACK_ID != null" >
+	        BASE_RACK_ID = #{BASE_RACK_ID},
+	      </if>
+	      <if test="BASE_SHELF_ID != null" >
+	        BASE_SHELF_ID = #{BASE_SHELF_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="ALARM_REPORTING_INDICATOR != null" >
+	        ALARM_REPORTING_INDICATOR = #{ALARM_REPORTING_INDICATOR},
+	      </if>
+	      <if test="HOLDER_STATE != null" >
+	        HOLDER_STATE = #{HOLDER_STATE},
+	      </if>
+	      <if test="HARD_WARE_VERSION != null" >
+	        HARD_WARE_VERSION = #{HARD_WARE_VERSION},
+	      </if>
+	      <if test="SERIAL_NO != null" >
+	        SERIAL_NO = #{SERIAL_NO},
+	      </if>
+	      <if test="RACK_NO != null" >
+	        RACK_NO = #{RACK_NO},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	      <if test="SLOT_NO != null" >
+	        SLOT_NO = #{SLOT_NO},
+	      </if>
+	      <if test="ACCEPT_EQPT_TYPE != null" >
+	        ACCEPT_EQPT_TYPE = #{ACCEPT_EQPT_TYPE},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_SLOT_ID = #{BASE_SLOT_ID}
+	  </update>
+	  
+	  <update id="updateSubSlotById" parameterType="hashmap" >
+	    update t_base_sub_slot
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_SLOT_ID != null" >
+	        BASE_SLOT_ID = #{BASE_SLOT_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="ALARM_REPORTING_INDICATOR != null" >
+	        ALARM_REPORTING_INDICATOR = #{ALARM_REPORTING_INDICATOR},
+	      </if>
+	      <if test="HOLDER_STATE != null" >
+	        HOLDER_STATE = #{HOLDER_STATE},
+	      </if>
+	      <if test="HARD_WARE_VERSION != null" >
+	        HARD_WARE_VERSION = #{HARD_WARE_VERSION},
+	      </if>
+	      <if test="SERIAL_NO != null" >
+	        SERIAL_NO = #{SERIAL_NO},
+	      </if>
+	      <if test="RACK_NO != null" >
+	        RACK_NO = #{RACK_NO},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	      <if test="SLOT_NO != null" >
+	        SLOT_NO = #{SLOT_NO},
+	      </if>
+	      <if test="SUB_SLOT_NO != null" >
+	        SUB_SLOT_NO = #{SUB_SLOT_NO},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_SUB_SLOT_ID = #{BASE_SUB_SLOT_ID}
+	  </update>
+	  
+	 <update id="updateUnitById" parameterType="hashmap" >
+	    update t_base_unit
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_RACK_ID != null" >
+	        BASE_RACK_ID = #{BASE_RACK_ID},
+	      </if>
+	      <if test="BASE_SHELF_ID != null" >
+	        BASE_SHELF_ID = #{BASE_SHELF_ID},
+	      </if>
+	      <if test="BASE_SLOT_ID != null" >
+	        BASE_SLOT_ID = #{BASE_SLOT_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="ALARM_REPORTING_INDICATOR != null" >
+	        ALARM_REPORTING_INDICATOR = #{ALARM_REPORTING_INDICATOR},
+	      </if>
+	      <if test="SERVICE_STATE != null" >
+	        SERVICE_STATE = #{SERVICE_STATE},
+	      </if>
+	      <if test="EXPECTED_EQUIP_OBJ_TYPE != null" >
+	        EXPECTED_EQUIP_OBJ_TYPE = #{EXPECTED_EQUIP_OBJ_TYPE},
+	      </if>
+	      <if test="INSTALLED_EQUIP_OBJ_TYPE != null" >
+	        INSTALLED_EQUIP_OBJ_TYPE = #{INSTALLED_EQUIP_OBJ_TYPE},
+	      </if>
+	      <if test="INSTALLED_PART_NUMBER != null" >
+	        INSTALLED_PART_NUMBER = #{INSTALLED_PART_NUMBER},
+	      </if>
+	      <if test="INSTALLED_SERIAL_NUMBER != null" >
+	        INSTALLED_SERIAL_NUMBER = #{INSTALLED_SERIAL_NUMBER},
+	      </if>
+	      <if test="HARD_WARE_VERSION != null" >
+	        HARD_WARE_VERSION = #{HARD_WARE_VERSION},
+	      </if>
+	      <if test="SOFT_WARE_VERSION != null" >
+	        SOFT_WARE_VERSION = #{SOFT_WARE_VERSION},
+	      </if>
+	      <if test="HAS_PROTECTION != null" >
+	        HAS_PROTECTION = #{HAS_PROTECTION},
+	      </if>
+	      <if test="MANUFACTURE != null" >
+	        MANUFACTURE = #{MANUFACTURE},
+	      </if>
+	      <if test="UNIT_NAME != null" >
+	        UNIT_NAME = #{UNIT_NAME},
+	      </if>
+	      <if test="UNIT_DESC != null">
+	        UNIT_DESC = #{UNIT_DESC},
+	      </if>
+	      <if test="SFP_INFO != null" >
+	        SFP_INFO = #{SFP_INFO},
+	      </if>
+	      <if test="RACK_NO != null" >
+	        RACK_NO = #{RACK_NO},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	      <if test="SLOT_NO != null" >
+	        SLOT_NO = #{SLOT_NO},
+	      </if>
+	      <if test="IS_TRANSPARENCY != null" >
+	        IS_TRANSPARENCY = #{IS_TRANSPARENCY},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_UNIT_ID = #{BASE_UNIT_ID}
+	  </update>
+	  
+	  <update id="updateSubUnitById" parameterType="hashmap" >
+	    update T_BASE_SUB_UNIT
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_SUB_SLOT_ID != null" >
+	        BASE_SUB_SLOT_ID = #{BASE_SUB_SLOT_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="ALARM_REPORTING_INDICATOR != null" >
+	        ALARM_REPORTING_INDICATOR = #{ALARM_REPORTING_INDICATOR},
+	      </if>
+	      <if test="SERVICE_STATE != null" >
+	        SERVICE_STATE = #{SERVICE_STATE},
+	      </if>
+	      <if test="EXPECTED_EQUIP_OBJ_TYPE != null" >
+	        EXPECTED_EQUIP_OBJ_TYPE = #{EXPECTED_EQUIP_OBJ_TYPE},
+	      </if>
+	      <if test="INSTALLED_EQUIP_OBJ_TYPE != null" >
+	        INSTALLED_EQUIP_OBJ_TYPE = #{INSTALLED_EQUIP_OBJ_TYPE},
+	      </if>
+	      <if test="INSTALLED_PART_NUMBER != null" >
+	        INSTALLED_PART_NUMBER = #{INSTALLED_PART_NUMBER},
+	      </if>
+	      <if test="INSTALLED_SERIAL_NUMBER != null" >
+	        INSTALLED_SERIAL_NUMBER = #{INSTALLED_SERIAL_NUMBER},
+	      </if>
+	      <if test="HARD_WARE_VERSION != null" >
+	        HARD_WARE_VERSION = #{HARD_WARE_VERSION},
+	      </if>
+	      <if test="SOFT_WARE_VERSION != null" >
+	        SOFT_WARE_VERSION = #{SOFT_WARE_VERSION},
+	      </if>
+	      <if test="HAS_PROTECTION != null" >
+	        HAS_PROTECTION = #{HAS_PROTECTION},
+	      </if>
+	      <if test="MANUFACTURE != null" >
+	        MANUFACTURE = #{MANUFACTURE},
+	      </if>
+	      <if test="RACK_NO != null" >
+	        RACK_NO = #{RACK_NO},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	      <if test="SLOT_NO != null" >
+	        SLOT_NO = #{SLOT_NO},
+	      </if>
+	      <if test="SUB_SLOT_NO != null" >
+	        SUB_SLOT_NO = #{SUB_SLOT_NO},
+	      </if>
+	      <if test="DISPLAY_MODE != null" >
+	        DISPLAY_MODE = #{DISPLAY_MODE},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_SUB_UNIT_ID = #{BASE_SUB_UNIT_ID}
+	  </update>
+	  
+	<update id="updatePtpById" parameterType="hashmap" >
+	    update t_base_ptp
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_RACK_ID != null" >
+	        BASE_RACK_ID = #{BASE_RACK_ID},
+	      </if>
+	      <if test="BASE_SHELF_ID != null" >
+	        BASE_SHELF_ID = #{BASE_SHELF_ID},
+	      </if>
+	      <if test="BASE_SLOT_ID != null" >
+	        BASE_SLOT_ID = #{BASE_SLOT_ID},
+	      </if>
+	      <if test="BASE_SUB_SLOT_ID != null" >
+	        BASE_SUB_SLOT_ID = #{BASE_SUB_SLOT_ID},
+	      </if>
+	      <if test="BASE_UNIT_ID != null" >
+	        BASE_UNIT_ID = #{BASE_UNIT_ID},
+	      </if>
+	      <if test="BASE_SUB_UNIT_ID != null" >
+	        BASE_SUB_UNIT_ID = #{BASE_SUB_UNIT_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="PTP_FTP != null" >
+	        PTP_FTP = #{PTP_FTP},
+	      </if>
+	      <if test="CONNECTION_STATE != null" >
+	        CONNECTION_STATE = #{CONNECTION_STATE},
+	      </if>
+	      <if test="TP_MAPPING_MODE != null" >
+	        TP_MAPPING_MODE = #{TP_MAPPING_MODE},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="TP_PROTECTION_ASSOCIATION != null" >
+	        TP_PROTECTION_ASSOCIATION = #{TP_PROTECTION_ASSOCIATION},
+	      </if>
+	      <if test="EDGE_POINT != null" >
+	        EDGE_POINT = #{EDGE_POINT},
+	      </if>
+	      <if test="PORT_TYPE != null" >
+	        PORT_TYPE = #{PORT_TYPE},
+	      </if>
+	      <if test="LAYER_RATE != null" >
+	        LAYER_RATE = #{LAYER_RATE},
+	      </if>
+	      <if test="DOMAIN != null" >
+	        DOMAIN = #{DOMAIN},
+	      </if>
+	      <if test="PTP_TYPE != null" >
+	        PTP_TYPE = #{PTP_TYPE},
+	      </if>
+	      <if test="RATE != null" >
+	        RATE = #{RATE},
+	      </if>
+	      <if test="MSTP_VB != null" >
+	        MSTP_VB = #{MSTP_VB},
+	      </if>
+	      <if test="TYPE != null" >
+	        TYPE = #{TYPE},
+	      </if>
+	      <if test="ATT != null" >
+	        ATT = #{ATT},
+	      </if>
+	      <if test="DDF_ODF != null" >
+	        DDF_ODF = #{DDF_ODF},
+	      </if>
+	      <if test="OPT_MODEL != null" >
+	        OPT_MODEL = #{OPT_MODEL},
+	      </if>
+	      <if test="OPT_STD_ID != null" >
+	        OPT_STD_ID = #{OPT_STD_ID},
+	      </if>
+	      <if test="RACK_NO != null" >
+	        RACK_NO = #{RACK_NO},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	      <if test="SLOT_NO != null" >
+	        SLOT_NO = #{SLOT_NO},
+	      </if>
+	      <if test="SUB_SLOT_NO != null" >
+	        SUB_SLOT_NO = #{SUB_SLOT_NO},
+	      </if>
+	      <if test="PORT_NO != null" >
+	        PORT_NO = #{PORT_NO},
+	      </if>
+	      <if test="PTN_PWID != null" >
+	        PTN_PWID = #{PTN_PWID},
+	      </if>
+	      <if test="PTN_PWMODE != null" >
+	        PTN_PWMODE = #{PTN_PWMODE},
+	      </if>
+	      <if test="PTN_PWTYPE != null" >
+	        PTN_PWTYPE = #{PTN_PWTYPE},
+	      </if>
+	      <if test="PTN_INLABEL != null" >
+	        PTN_INLABEL = #{PTN_INLABEL},
+	      </if>
+	      <if test="PTN_OUTLABEL != null" >
+	        PTN_OUTLABEL = #{PTN_OUTLABEL},
+	      </if>
+	      <if test="PTN_PSNTYPE != null" >
+	        PTN_PSNTYPE = #{PTN_PSNTYPE},
+	      </if>
+	      <if test="PTN_VCID != null" >
+	        PTN_VCID = #{PTN_VCID},
+	      </if>
+	      <if test="PORT_DESC != null" >
+	        PORT_DESC = #{PORT_DESC},
+	      </if>
+	      <if test="IS_PROTECTED != null" >
+	        IS_PROTECTED = #{IS_PROTECTED},
+	      </if>
+	      <if test="IS_SYNC_CTP != null" >
+	        IS_SYNC_CTP = #{IS_SYNC_CTP},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_PTP_ID = #{BASE_PTP_ID}
+	  </update>
+	  
+	  <update id="updateLinkById" parameterType="hashmap" >
+	    update t_base_link
+	    <set >
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="A_EMS_CONNECTION_ID != null" >
+	        A_EMS_CONNECTION_ID = #{A_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="A_NE_ID != null" >
+	        A_NE_ID = #{A_NE_ID},
+	      </if>
+	      <if test="A_END_PTP != null" >
+	        A_END_PTP = #{A_END_PTP},
+	      </if>
+	      <if test="Z_EMS_CONNECTION_ID != null" >
+	        Z_EMS_CONNECTION_ID = #{Z_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="Z_NE_ID != null" >
+	        Z_NE_ID = #{Z_NE_ID},
+	      </if>
+	      <if test="Z_END_PTP != null" >
+	        Z_END_PTP = #{Z_END_PTP},
+	      </if>
+	      <if test="SEND_OP != null" >
+	        SEND_OP = #{SEND_OP},
+	      </if>
+	      <if test="REC_OP != null" >
+	        REC_OP = #{REC_OP},
+	      </if>
+	      <if test="ATT != null" >
+	        ATT = #{ATT},
+	      </if>
+	      <if test="LINK_TYPE != null" >
+	        LINK_TYPE = #{LINK_TYPE},
+	      </if>
+	      <if test="CHANGE_STATE != null" >
+	        CHANGE_STATE = #{CHANGE_STATE},
+	      </if>
+	      <if test="IS_MANUAL != null" >
+	        IS_MANUAL = #{IS_MANUAL},
+	      </if>
+	      <if test="IS_MAIN != null" >
+	        IS_MAIN = #{IS_MAIN},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_LINK_ID = #{BASE_LINK_ID}
+	  </update>
+	  
+	  
+	  <update id="updateClockSourceById" parameterType="hashmap" >
+	    update T_BASE_CLOCK
+	    <set >
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="PRIORITY != null" >
+	        PRIORITY = #{PRIORITY},
+	      </if>
+	      <if test="IS_CURRENT != null" >
+	        IS_CURRENT = #{IS_CURRENT},
+	      </if>
+	      <if test="TIMING_MODE != null" >
+	        TIMING_MODE = #{TIMING_MODE},
+	      </if>
+	      <if test="IS_FRAME != null" >
+	        IS_FRAME = #{IS_FRAME},
+	      </if>
+	      <if test="IS_SSM != null" >
+	        IS_SSM = #{IS_SSM},
+	      </if>
+	      <if test="QUALITY != null" >
+	        QUALITY = #{QUALITY},
+	      </if>
+	      <if test="WORKING_MODE != null" >
+	        WORKING_MODE = #{WORKING_MODE},
+	      </if>
+	      <if test="SYNC_STATUS != null" >
+	        SYNC_STATUS = #{SYNC_STATUS},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_CLOCK_ID = #{BASE_CLOCK_ID}
+	  </update>
+	  
+	  <update id="updateEthServiceById" parameterType="hashmap" >
+	    update T_BASE_ETH_SVC
+	    <set >
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="SERVICE_TYPE != null" >
+	        SERVICE_TYPE = #{SERVICE_TYPE},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="ACTIVE_STATE != null" >
+	        ACTIVE_STATE = #{ACTIVE_STATE},
+	      </if>
+	      <if test="A_END_POINT != null" >
+	        A_END_POINT = #{A_END_POINT},
+	      </if>
+	      <if test="A_END_VLAN_ID != null" >
+	        A_END_VLAN_ID = #{A_END_VLAN_ID},
+	      </if>
+	      <if test="A_END_TUNNEL != null" >
+	        A_END_TUNNEL = #{A_END_TUNNEL},
+	      </if>
+	      <if test="A_END_VC != null" >
+	        A_END_VC = #{A_END_VC},
+	      </if>
+	      <if test="A_END_POINT_TYPE != null" >
+	        A_END_POINT_TYPE = #{A_END_POINT_TYPE},
+	      </if>
+	      <if test="Z_END_POINT != null" >
+	        Z_END_POINT = #{Z_END_POINT},
+	      </if>
+	      <if test="Z_END_VLAN_ID != null" >
+	        Z_END_VLAN_ID = #{Z_END_VLAN_ID},
+	      </if>
+	      <if test="Z_END_TUNNEL != null" >
+	        Z_END_TUNNEL = #{Z_END_TUNNEL},
+	      </if>
+	      <if test="Z_END_VC != null" >
+	        Z_END_VC = #{Z_END_VC},
+	      </if>
+	      <if test="Z_END_POINT_TYPE != null" >
+	        Z_END_POINT_TYPE = #{Z_END_POINT_TYPE},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_ETH_SVC_ID = #{BASE_ETH_SVC_ID}
+	  </update>
+	  
+	  <update id="updateEProtectionGroupById" parameterType="hashmap" >
+	    update T_BASE_E_PRO_GROUP
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="EPGP_GROUP != null" >
+	        EPGP_GROUP = #{EPGP_GROUP},
+	      </if>
+	      <if test="EPGP_LOCATION != null" >
+	        EPGP_LOCATION = #{EPGP_LOCATION},
+	      </if>
+	      <if test="E_PROTECTION_GROUP_TYPE != null" >
+	        E_PROTECTION_GROUP_TYPE = #{E_PROTECTION_GROUP_TYPE},
+	      </if>
+	      <if test="PROTECTION_SCHEMA_STATE != null" >
+	        PROTECTION_SCHEMA_STATE = #{PROTECTION_SCHEMA_STATE},
+	      </if>
+	      <if test="REVERSION_MODE != null" >
+	        REVERSION_MODE = #{REVERSION_MODE},
+	      </if>
+	      <if test="TYPE != null" >
+	        TYPE = #{TYPE},
+	      </if>
+	      <if test="WTR_TIME != null" >
+	        WTR_TIME = #{WTR_TIME},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_E_PRO_GROUP_ID = #{BASE_E_PRO_GROUP_ID}
+	  </update>
+	  
+	  <update id="updateProtectionGroupById" parameterType="hashmap" >
+	    update T_BASE_PRO_GROUP
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="PGP_GROUP != null" >
+	        PGP_GROUP = #{PGP_GROUP},
+	      </if>
+	      <if test="PGP_LOCATION != null" >
+	        PGP_LOCATION = #{PGP_LOCATION},
+	      </if>
+	      <if test="PROTECTION_GROUP_TYPE != null" >
+	        PROTECTION_GROUP_TYPE = #{PROTECTION_GROUP_TYPE},
+	      </if>
+	      <if test="PROTECTION_SCHEMA_STATE != null" >
+	        PROTECTION_SCHEMA_STATE = #{PROTECTION_SCHEMA_STATE},
+	      </if>
+	      <if test="REVERSION_MODE != null" >
+	        REVERSION_MODE = #{REVERSION_MODE},
+	      </if>
+	      <if test="RATE != null" >
+	        RATE = #{RATE},
+	      </if>
+	      <if test="SWITCH_MODE != null" >
+	        SWITCH_MODE = #{SWITCH_MODE},
+	      </if>
+	      <if test="WTR_TIME != null" >
+	        WTR_TIME = #{WTR_TIME},
+	      </if>
+	      <if test="HOLD_OFF_TIME != null" >
+	        HOLD_OFF_TIME = #{HOLD_OFF_TIME},
+	      </if>
+	      <if test="LOD_NUM_SWITCHES != null" >
+	        LOD_NUM_SWITCHES = #{LOD_NUM_SWITCHES},
+	      </if>
+	      <if test="LOD_DURATION != null" >
+	        LOD_DURATION = #{LOD_DURATION},
+	      </if>
+	      <if test="SPRING_PROTOCOL != null" >
+	        SPRING_PROTOCOL = #{SPRING_PROTOCOL},
+	      </if>
+	      <if test="SPRING_NODE_ID != null" >
+	        SPRING_NODE_ID = #{SPRING_NODE_ID},
+	      </if>
+	      <if test="SWITCH_POSITION != null" >
+	        SWITCH_POSITION = #{SWITCH_POSITION},
+	      </if>
+	      <if test="NON_PRE_EMPTIBLE_TRAFFIC != null" >
+	        NON_PRE_EMPTIBLE_TRAFFIC = #{NON_PRE_EMPTIBLE_TRAFFIC},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_PRO_GROUP_ID = #{BASE_PRO_GROUP_ID}
+	  </update>
+	  
+	  <update id="updateWdmProtectionGroupById" parameterType="hashmap" >
+	    update T_BASE_WDM_PRO_GROUP
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="WDM_PGP_GROUP != null" >
+	        WDM_PGP_GROUP = #{WDM_PGP_GROUP},
+	      </if>
+	      <if test="WDM_PGP_LOCATION != null" >
+	        WDM_PGP_LOCATION = #{WDM_PGP_LOCATION},
+	      </if>
+	      <if test="PROTECTION_GROUP_TYPE != null" >
+	        PROTECTION_GROUP_TYPE = #{PROTECTION_GROUP_TYPE},
+	      </if>
+	      <if test="PROTECTION_SCHEMA_STATE != null" >
+	        PROTECTION_SCHEMA_STATE = #{PROTECTION_SCHEMA_STATE},
+	      </if>
+	      <if test="REVERSION_MODE != null" >
+	        REVERSION_MODE = #{REVERSION_MODE},
+	       </if>
+	      <if test="WTR_TIME != null" >
+	        WTR_TIME = #{WTR_TIME},
+	      </if>
+	      <if test="HOLD_OFF_TIME != null" >
+	        HOLD_OFF_TIME = #{HOLD_OFF_TIME},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_WDM_PRO_GROUP_ID = #{BASE_WDM_PRO_GROUP_ID}
+	  </update>
+	  
+	  <update id="updateSdhCrsById" parameterType="hashmap" >
+	    update T_BASE_SDH_CRS
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="ACTIVE != null" >
+	        ACTIVE = #{ACTIVE},
+	      </if>
+	      <if test="CC_TYPE != null" >
+	        CC_TYPE = #{CC_TYPE},
+	      </if>
+	      <if test="CC_NAME != null" >
+	        CC_NAME = #{CC_NAME},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="A_END_PTP != null" >
+	        A_END_PTP = #{A_END_PTP},
+	      </if>
+	      <if test="A_END_CTP != null" >
+	        A_END_CTP = #{A_END_CTP},
+	      </if>
+	      <if test="Z_END_PTP != null" >
+	        Z_END_PTP = #{Z_END_PTP},
+	      </if>
+	      <if test="Z_END_CTP != null" >
+	        Z_END_CTP = #{Z_END_CTP},
+	      </if>
+	      <if test="RATE != null" >
+	        RATE = #{RATE},
+	      </if>
+	      <if test="PARENT_ID != null" >
+	        PARENT_ID = #{PARENT_ID},
+	      </if>
+	      <if test="IS_IN_CIRCUIT != null" >
+	        IS_IN_CIRCUIT = #{IS_IN_CIRCUIT},
+	      </if>
+	      <if test="CHANGE_STATE != null" >
+	        CHANGE_STATE = #{CHANGE_STATE},
+	      </if>
+	      <if test="CIRCUIT_COUNT != null" >
+	        CIRCUIT_COUNT = #{CIRCUIT_COUNT},
+	      </if>
+	      <if test="IS_USE_CREATE != null" >
+	        IS_USE_CREATE = #{IS_USE_CREATE},
+	      </if>
+	      <if test="IS_VIRTUAL != null" >
+	        IS_VIRTUAL = #{IS_VIRTUAL},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_SDH_CRS_ID = #{BASE_SDH_CRS_ID}
+	  </update>
+	  
+	  <update id="updateOtnCrsById" parameterType="hashmap" >
+	    update T_BASE_OTN_CRS
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="ACTIVE != null" >
+	        ACTIVE = #{ACTIVE},
+	      </if>
+	      <if test="CC_TYPE != null" >
+	        CC_TYPE = #{CC_TYPE},
+	      </if>
+	      <if test="CC_NAME != null" >
+	        CC_NAME = #{CC_NAME},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="A_END_PTP != null" >
+	        A_END_PTP = #{A_END_PTP},
+	      </if>
+	      <if test="A_END_CTP != null" >
+	        A_END_CTP = #{A_END_CTP},
+	      </if>
+	      <if test="A_OS != null" >
+	        A_OS = #{A_OS},
+	      </if>
+	      <if test="A_OTS != null" >
+	        A_OTS = #{A_OTS},
+	      </if>
+	      <if test="A_OMS != null" >
+	        A_OMS = #{A_OMS},
+	      </if>
+	      <if test="A_OCH != null" >
+	        A_OCH = #{A_OCH},
+	      </if>
+	      <if test="A_ODU0 != null" >
+	        A_ODU0 = #{A_ODU0},
+	      </if>
+	      <if test="A_ODU1 != null" >
+	        A_ODU1 = #{A_ODU1},
+	      </if>
+	      <if test="A_ODU2 != null" >
+	        A_ODU2 = #{A_ODU2},
+	      </if>
+	      <if test="A_ODU3 != null" >
+	        A_ODU3 = #{A_ODU3},
+	      </if>
+	      <if test="A_OTU0 != null" >
+	        A_OTU0 = #{A_OTU0},
+	      </if>
+	      <if test="A_OTU1 != null" >
+	        A_OTU1 = #{A_OTU1},
+	      </if>
+	      <if test="A_OTU2 != null" >
+	        A_OTU2 = #{A_OTU2},
+	      </if>
+	      <if test="A_OTU3 != null" >
+	        A_OTU3 = #{A_OTU3},
+	      </if>
+	      <if test="A_DSR != null" >
+	        A_DSR = #{A_DSR},
+	      </if>
+	      <if test="A_OAC_TYPE != null" >
+	        A_OAC_TYPE = #{A_OAC_TYPE},
+	      </if>
+	      <if test="A_OAC_VALUE != null" >
+	        A_OAC_VALUE = #{A_OAC_VALUE},
+	      </if>
+	      <if test="A_TYPE != null" >
+	        A_TYPE = #{A_TYPE},
+	      </if>
+	      <if test="Z_END_PTP != null" >
+	        Z_END_PTP = #{Z_END_PTP},
+	      </if>
+	      <if test="Z_END_CTP != null" >
+	        Z_END_CTP = #{Z_END_CTP},
+	      </if>
+	      <if test="Z_OS != null" >
+	        Z_OS = #{Z_OS},
+	      </if>
+	      <if test="Z_OTS != null" >
+	        Z_OTS = #{Z_OTS},
+	      </if>
+	      <if test="Z_OMS != null" >
+	        Z_OMS = #{Z_OMS},
+	      </if>
+	      <if test="Z_OCH != null" >
+	        Z_OCH = #{Z_OCH},
+	      </if>
+	      <if test="Z_ODU0 != null" >
+	        Z_ODU0 = #{Z_ODU0},
+	      </if>
+	      <if test="Z_ODU1 != null" >
+	        Z_ODU1 = #{Z_ODU1},
+	      </if>
+	      <if test="Z_ODU2 != null" >
+	        Z_ODU2 = #{Z_ODU2},
+	      </if>
+	      <if test="Z_ODU3 != null" >
+	        Z_ODU3 = #{Z_ODU3},
+	      </if>
+	      <if test="Z_OTU0 != null" >
+	        Z_OTU0 = #{Z_OTU0},
+	      </if>
+	      <if test="Z_OTU1 != null" >
+	        Z_OTU1 = #{Z_OTU1},
+	      </if>
+	      <if test="Z_OTU2 != null" >
+	        Z_OTU2 = #{Z_OTU2},
+	      </if>
+	      <if test="Z_OTU3 != null" >
+	        Z_OTU3 = #{Z_OTU3},
+	      </if>
+	       <if test="Z_DSR != null" >
+	        Z_DSR = #{Z_DSR},
+	      </if>
+	      <if test="Z_OAC_TYPE != null" >
+	        Z_OAC_TYPE = #{Z_OAC_TYPE},
+	      </if>
+	      <if test="Z_OAC_VALUE != null" >
+	        Z_OAC_VALUE = #{Z_OAC_VALUE},
+	      </if>
+	      <if test="Z_TYPE != null" >
+	        Z_TYPE = #{Z_TYPE},
+	      </if>
+	      <if test="CLIENT_TYPE != null" >
+	        CLIENT_TYPE = #{CLIENT_TYPE},
+	      </if>
+	      <if test="CLIENT_RATE != null" >
+	        CLIENT_RATE = #{CLIENT_RATE},
+	      </if>
+	      <if test="RATE != null" >
+	        RATE = #{RATE},
+	      </if>
+	      <if test="PARENT_ID != null" >
+	        PARENT_ID = #{PARENT_ID},
+	      </if>
+	      <if test="IS_IN_CIRCUIT != null" >
+	        IS_IN_CIRCUIT = #{IS_IN_CIRCUIT},
+	      </if>
+	      <if test="CHANGE_STATE != null" >
+	        CHANGE_STATE = #{CHANGE_STATE},
+	      </if>
+	      <if test="CIRCUIT_COUNT != null" >
+	        CIRCUIT_COUNT = #{CIRCUIT_COUNT},
+	      </if>
+	      <if test="IS_VIRTUAL != null" >
+	        IS_VIRTUAL = #{IS_VIRTUAL},
+	      </if>
+	      <if test="IS_FIX != null" >
+	        IS_FIX = #{IS_FIX},
+	      </if>
+	      <if test="IS_FROM_ROUTE != null" >
+	        IS_FROM_ROUTE = #{IS_FROM_ROUTE},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_OTN_CRS_ID = #{BASE_OTN_CRS_ID}
+	  </update>
+	  
+	  <update id="updateSdhCtpById" parameterType="hashmap" >
+	    update T_BASE_SDH_CTP
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_PTP_ID != null" >
+	        BASE_PTP_ID = #{BASE_PTP_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="CONNECTION_STATE != null" >
+	        CONNECTION_STATE = #{CONNECTION_STATE},
+	      </if>
+	      <if test="TP_MAPPING_MODE != null" >
+	        TP_MAPPING_MODE = #{TP_MAPPING_MODE},
+	      </if>
+	      <if test="DIRECTION != null" >
+	        DIRECTION = #{DIRECTION},
+	      </if>
+	      <if test="TP_PROTECTION_ASSOCIATION != null" >
+	        TP_PROTECTION_ASSOCIATION = #{TP_PROTECTION_ASSOCIATION},
+	      </if>
+	      <if test="EDGE_POINT != null" >
+	        EDGE_POINT = #{EDGE_POINT},
+	      </if>
+	      <if test="TOP_CTP != null" >
+	        TOP_CTP = #{TOP_CTP},
+	      </if>
+	      <if test="CTP_VALUE != null" >
+	        CTP_VALUE = #{CTP_VALUE},
+	      </if>
+	      <if test="CTP_64C != null" >
+	        CTP_64C = #{CTP_64C},
+	      </if>
+	      <if test="CTP_16C != null" >
+	        CTP_16C = #{CTP_16C},
+	      </if>
+	      <if test="CTP_8C != null" >
+	        CTP_8C = #{CTP_8C},
+	      </if>
+	      <if test="CTP_4C != null" >
+	        CTP_4C = #{CTP_4C},
+	      </if>
+	      <if test="CTP_J_ORIGINAL != null" >
+	        CTP_J_ORIGINAL = #{CTP_J_ORIGINAL},
+	      </if>
+	      <if test="CTP_J != null" >
+	        CTP_J = #{CTP_J},
+	      </if>
+	      <if test="CTP_K != null" >
+	        CTP_K = #{CTP_K},
+	      </if>
+	      <if test="CTP_L != null" >
+	        CTP_L = #{CTP_L},
+	      </if>
+	      <if test="CTP_M != null" >
+	        CTP_M = #{CTP_M},
+	      </if>
+	      <if test="CONNECTION_TYPE != null" >
+	        CONNECTION_TYPE = #{CONNECTION_TYPE},
+	      </if>
+	      <if test="CONNECT_RATE != null" >
+	        CONNECT_RATE = #{CONNECT_RATE},
+	      </if>
+	      <if test="IS_ETH != null" >
+	        IS_ETH = #{IS_ETH},
+	      </if>
+	      <if test="IS_SEPARATE != null" >
+	        IS_SEPARATE = #{IS_SEPARATE},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_SDH_CTP_ID = #{BASE_SDH_CTP_ID}
+	  </update>
+	
+	  
+	 <update id="updateVBById" parameterType="hashmap" >
+	    update T_BASE_VB
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="VID != null" >
+	        VID = #{VID},
+	      </if>
+	      <if test="STP_MOD != null" >
+	        STP_MOD = #{STP_MOD},
+	      </if>
+	      <if test="BRIDGE_PRIORITY != null" >
+	        BRIDGE_PRIORITY = #{BRIDGE_PRIORITY},
+	      </if>
+	      <if test="MAC_AGING != null" >
+	        MAC_AGING = #{MAC_AGING},
+	      </if>
+	      <if test="HELLO_TIME != null" >
+	        HELLO_TIME = #{HELLO_TIME},
+	      </if>
+	      <if test="MAX_AGE != null" >
+	        MAX_AGE = #{MAX_AGE},
+	      </if>
+	      <if test="FOREARD_DELAY != null" >
+	        FOREARD_DELAY = #{FOREARD_DELAY},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_VB_ID = #{BASE_VB_ID}
+	  </update>
+	
+	<insert id="insertNeBatch" parameterType="java.util.List" >
+        insert into T_BASE_NE  
+        (BASE_NE_ID,BASE_EMS_CONNECTION_ID,BASE_SUBNET_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,NATIVE_EMS_NAME_ORI,DISPLAY_NAME,
+        OWNER,LOCATION,VERSION,PRODUCT_NAME,COMMUNICATION_STATE,
+        EMS_IN_SYNC_STATE,SUPORT_RATES,TYPE,OPERATIONAL_STATUS,
+        ALARM_STATUS,DESCRIPTION_INFO,ME_TYPE,NET_ADDRESS,PTN_ROUTE_ID,
+        RESOURCE_ROOM_ID,FACTORY,USER_NAME,PASSWORD,
+        CONNECTION_MODE,BASIC_SYNC_STATUS,BASIC_SYNC_TIME,BASIC_SYNC_RESULT,
+        MSTP_SYNC_STATUS,MSTP_SYNC_TIME,MSTP_SYNC_RESULT,
+        CRS_SYNC_STATUS,CRS_SYNC_TIME,CRS_SYNC_RESULT,
+        NE_LEVEL,COLLECT_RESULT,COLLECT_INTERVAL,
+        LAST_COLLECT_TIME,IS_VIRTUAL_NE,
+        COLLECT_NUMBIC,COLLECT_PHYSICAL,COLLECT_CTP,
+        POSITION_X,POSITION_Y,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_NE_ID}, #{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_SUBNET_ID},
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},#{item.NATIVE_EMS_NAME_ORI},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, #{item.LOCATION}, #{item.VERSION}, #{item.PRODUCT_NAME},
+            #{item.COMMUNICATION_STATE}, #{item.EMS_IN_SYNC_STATE}, #{item.SUPORT_RATES}, #{item.TYPE}, 
+            #{item.OPERATIONAL_STATUS},
+            #{item.ALARM_STATUS}, #{item.DESCRIPTION_INFO}, #{item.ME_TYPE}, #{item.NET_ADDRESS}, #{item.PTN_ROUTE_ID},
+            #{item.RESOURCE_ROOM_ID},#{item.FACTORY},#{item.USER_NAME},
+            #{item.PASSWORD},#{item.CONNECTION_MODE},
+            #{item.BASIC_SYNC_STATUS},#{item.BASIC_SYNC_TIME},#{item.BASIC_SYNC_RESULT},
+            #{item.MSTP_SYNC_STATUS}, #{item.MSTP_SYNC_TIME}, #{item.MSTP_SYNC_RESULT}, 
+            #{item.CRS_SYNC_STATUS}, #{item.CRS_SYNC_TIME}, #{item.CRS_SYNC_RESULT}, 
+            #{item.CRS_SYNC_STATUS}, #{item.COLLECT_RESULT}, #{item.COLLECT_INTERVAL},
+            #{item.LAST_COLLECT_TIME}, #{item.IS_VIRTUAL_NE}, 
+            #{item.COLLECT_NUMBIC}, #{item.COLLECT_PHYSICAL}, #{item.COLLECT_CTP},
+            #{item.POSITION_X}, #{item.POSITION_Y},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertSncBatch" parameterType="java.util.List" >
+        insert into T_BASE_PTN_SNC
+        (BASE_PTN_SNC_ID,
+        BASE_EMS_CONNECTION_ID,
+        SUBNETWORK_NAME,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        A_END_PTP,
+        A_END_CTP,
+        Z_END_PTP,
+        Z_END_CTP,
+        STATIC_PRO_LV,
+        SNC_TYPE,
+        DIRECTION,
+        SNC_STATE,
+        RATE,
+        LSP_TYPE,
+        SERVICE_STATE,
+        BELONG_SNC,
+        EMS_CREATE_TIME,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">
+            (
+            #{item.BASE_PTN_SNC_ID}, 
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.SUBNETWORK_NAME}, 
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.OWNER}, 
+            #{item.A_END_PTP}, 
+            #{item.A_END_CTP}, 
+            #{item.Z_END_PTP}, 
+            #{item.Z_END_CTP}, 
+            #{item.STATIC_PRO_LV},
+            #{item.SNC_TYPE},
+            #{item.DIRECTION},
+            #{item.SNC_STATE},
+            #{item.RATE},
+            #{item.LSP_TYPE},
+            #{item.SERVICE_STATE},
+            #{item.BELONG_SNC},
+            #{item.EMS_CREATE_TIME},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+        <insert id="insertRouteBatch" parameterType="java.util.List" >
+        insert into T_BASE_PTN_ROUTE
+        (BASE_PTN_ROUTE_ID,
+        BASE_EMS_CONNECTION_ID,
+        NAME,
+        A_END_PTP,
+        A_END_CTP,
+        Z_END_PTP,
+        Z_END_CTP,
+        SEQUENCE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">
+            (
+            #{item.BASE_PTN_ROUTE_ID}, 
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.NAME}, 
+            #{item.A_END_PTP}, 
+            #{item.A_END_CTP}, 
+            #{item.Z_END_PTP}, 
+            #{item.Z_END_CTP}, 
+            #{item.SEQUENCE},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    
+    <insert id="insertFdfrBatch" parameterType="java.util.List" >
+        insert into T_BASE_PTN_FDFR
+        (BASE_PTN_FD_ID,
+        BASE_EMS_CONNECTION_ID,
+        FD_NAME,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        LAYER_RATE,
+        DIRECTION,
+        SERVICE_STATE,
+        NETWORK_ACCESS_DOMAIN,
+        FDFR_STATE,
+        FDFR_TYPE,
+        SERVICE_TYPE,
+        TRAFFIC_TYPE,
+        ADMINISTRATIVE_STATE,
+        OAM_ENABLED,
+        COMMENTS,
+        CUSTOMER,
+        IGMP_SNOOPING_STATE,
+        FLEXIBLE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">
+            (
+            #{item.BASE_PTN_FD_ID}, 
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.FD_NAME}, 
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.OWNER}, 
+            #{item.LAYER_RATE}, 
+            #{item.DIRECTION}, 
+            #{item.SERVICE_STATE}, 
+            #{item.NETWORK_ACCESS_DOMAIN}, 
+            #{item.FDFR_STATE},
+            #{item.FDFR_TYPE},
+            #{item.SERVICE_TYPE},
+            #{item.TRAFFIC_TYPE},
+            #{item.ADMINISTRATIVE_STATE},
+            #{item.OAM_ENABLED},
+            #{item.COMMENTS},
+            #{item.CUSTOMER},
+            #{item.IGMP_SNOOPING_STATE},
+            #{item.FLEXIBLE},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertFdfr" parameterType="hashmap"   keyProperty="BASE_PTN_FD_ID">
+        insert into T_BASE_PTN_FDFR
+        (BASE_PTN_FD_ID,
+        BASE_EMS_CONNECTION_ID,
+        FD_NAME,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        LAYER_RATE,
+        DIRECTION,
+        SERVICE_STATE,
+        NETWORK_ACCESS_DOMAIN,
+        FDFR_STATE,
+        FDFR_TYPE,
+        SERVICE_TYPE,
+        TRAFFIC_TYPE,
+        ADMINISTRATIVE_STATE,
+        OAM_ENABLED,
+        COMMENTS,
+        CUSTOMER,
+        IGMP_SNOOPING_STATE,
+        FLEXIBLE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_PTN_FD_ID}, 
+            #{BASE_EMS_CONNECTION_ID},
+            #{FD_NAME}, 
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME},
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{LAYER_RATE}, 
+            #{DIRECTION}, 
+            #{SERVICE_STATE}, 
+            #{NETWORK_ACCESS_DOMAIN}, 
+            #{FDFR_STATE},
+            #{FDFR_TYPE},
+            #{SERVICE_TYPE},
+            #{TRAFFIC_TYPE},
+            #{ADMINISTRATIVE_STATE},
+            #{OAM_ENABLED},
+            #{COMMENTS},
+            #{CUSTOMER},
+            #{IGMP_SNOOPING_STATE},
+            #{FLEXIBLE},
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+    </insert>
+    
+    <insert id="insertFdfrListBatch" parameterType="java.util.List" >
+        insert into T_BASE_PTN_FDFR_LIST
+        (BASE_PTN_FDFR_LIST_ID,
+        BASE_PTN_FD_ID,
+        A_OR_Z,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        PTP_NAME,
+        LAYER_RATE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">
+            (
+            #{item.BASE_PTN_FDFR_LIST_ID}, 
+            #{item.BASE_PTN_FD_ID}, 
+            #{item.A_OR_Z}, 
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.BASE_NE_ID}, 
+            #{item.BASE_PTP_ID}, 
+            #{item.PTP_NAME}, 
+            #{item.LAYER_RATE},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertLinkOfFdfrsBatch" parameterType="java.util.List" >
+        insert into T_BASE_PTN_FDFR_LINK
+        (BASE_PTN_FDFR_LINK_ID,
+        BASE_EMS_CONNECTION_ID,
+        FD_NAME,
+        FDFR_NAME,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        DIRECTION,
+        LAYER_RATE,
+        UNDERLYING_TYPE,
+        PROTOCOL_TYPE,
+        SERVER_OBJ,
+        A_END_NE,
+        A_END_PTP,
+        A_END_CTP,
+        Z_END_NE,
+        Z_END_PTP,
+        Z_END_CTP,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">
+            (
+            #{item.BASE_PTN_FDFR_LINK_ID}, 
+            #{item.BASE_EMS_CONNECTION_ID}, 
+            #{item.FD_NAME}, 
+            #{item.FDFR_NAME},
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME}, 
+            #{item.DISPLAY_NAME},
+            #{item.OWNER},
+            #{item.DIRECTION},
+            #{item.LAYER_RATE},
+            #{item.UNDERLYING_TYPE},
+            #{item.PROTOCOL_TYPE},
+            #{item.SERVER_OBJ},
+            #{item.A_END_NE},
+            #{item.A_END_PTP},
+            #{item.A_END_CTP},
+            #{item.Z_END_NE},
+            #{item.Z_END_PTP},
+            #{item.Z_END_CTP},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertRackBatch" parameterType="java.util.List">
+        insert into T_BASE_RACK 
+        (BASE_RACK_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,
+        OWNER,ALARM_REPORTING_INDICATOR,
+        HOLDER_STATE,HARD_WARE_VERSION,SERIAL_NO,RACK_NO,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_RACK_ID}, #{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_NE_ID},
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, 
+            #{item.ALARM_REPORTING_INDICATOR}, 
+            #{item.HOLDER_STATE},
+            #{item.HARD_WARE_VERSION},
+            #{item.SERIAL_NO},#{item.RACK_NO},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertShelfBatch" parameterType="java.util.List" >
+        insert into T_BASE_SHELF
+        (BASE_SHELF_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,BASE_RACK_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,
+        OWNER,ALARM_REPORTING_INDICATOR,
+        HOLDER_STATE,LOCATION,VENDOR_NAME,
+        HARD_WARE_VERSION,SHELF_TYPE,SERIAL_NO,RACK_NO,SHELF_NO,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">
+            (
+            #{item.BASE_SHELF_ID}, #{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_NE_ID},#{item.BASE_RACK_ID},
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, 
+            #{item.ALARM_REPORTING_INDICATOR}, 
+            #{item.HOLDER_STATE},#{item.LOCATION},#{item.VENDOR_NAME},
+            #{item.HARD_WARE_VERSION},
+            #{item.SHELF_TYPE},
+            #{item.SERIAL_NO},#{item.RACK_NO},#{item.SHELF_NO},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertSlotBatch" parameterType="java.util.List">
+        insert into T_BASE_SLOT
+        (BASE_SLOT_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,BASE_RACK_ID,BASE_SHELF_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,
+        OWNER,ALARM_REPORTING_INDICATOR,
+        HOLDER_STATE,
+        HARD_WARE_VERSION,SERIAL_NO,RACK_NO,SHELF_NO,SLOT_NO,
+        ACCEPT_EQPT_TYPE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_SLOT_ID}, #{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_NE_ID},#{item.BASE_RACK_ID},#{item.BASE_SHELF_ID},
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, 
+            #{item.ALARM_REPORTING_INDICATOR}, 
+            #{item.HOLDER_STATE},
+            #{item.HARD_WARE_VERSION},
+            #{item.SERIAL_NO},#{item.RACK_NO},#{item.SHELF_NO},#{item.SLOT_NO},
+            #{item.ACCEPT_EQPT_TYPE},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertSubSlotBatch" parameterType="java.util.List">
+        insert into T_BASE_SUB_SLOT
+        (BASE_SUB_SLOT_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,BASE_SLOT_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,
+        OWNER,ALARM_REPORTING_INDICATOR,
+        HOLDER_STATE,
+        HARD_WARE_VERSION,SERIAL_NO,RACK_NO,SHELF_NO,SLOT_NO,SUB_SLOT_NO,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_SLOT_ID},#{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_NE_ID},#{item.BASE_SLOT_ID}, 
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, 
+            #{item.ALARM_REPORTING_INDICATOR}, 
+            #{item.HOLDER_STATE},
+            #{item.HARD_WARE_VERSION},
+            #{item.SERIAL_NO},#{item.RACK_NO},#{item.SHELF_NO},#{item.SLOT_NO},#{item.SUB_SLOT_NO},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+     <insert id="insertUnitBatch" parameterType="java.util.List">
+        insert into T_BASE_UNIT
+        (BASE_UNIT_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,BASE_RACK_ID,BASE_SHELF_ID,BASE_SLOT_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,
+        OWNER,ALARM_REPORTING_INDICATOR,
+        SERVICE_STATE,EXPECTED_EQUIP_OBJ_TYPE,INSTALLED_EQUIP_OBJ_TYPE,
+        INSTALLED_PART_NUMBER,INSTALLED_SERIAL_NUMBER,
+        HARD_WARE_VERSION,SOFT_WARE_VERSION,
+        HAS_PROTECTION,MANUFACTURE,UNIT_NAME,
+        SFP_INFO,
+		RACK_NO,SHELF_NO,SLOT_NO,
+		IS_TRANSPARENCY,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_UNIT_ID}, #{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_NE_ID},#{item.BASE_RACK_ID},#{item.BASE_SHELF_ID},#{item.BASE_SLOT_ID},
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, 
+            #{item.ALARM_REPORTING_INDICATOR}, 
+            #{item.SERVICE_STATE},#{item.EXPECTED_EQUIP_OBJ_TYPE},#{item.INSTALLED_EQUIP_OBJ_TYPE},
+            #{item.INSTALLED_PART_NUMBER},#{item.INSTALLED_SERIAL_NUMBER},
+            #{item.HARD_WARE_VERSION},#{item.SOFT_WARE_VERSION},
+            #{item.HAS_PROTECTION},#{item.MANUFACTURE},
+            #{item.UNIT_NAME},#{item.SFP_INFO},
+            #{item.RACK_NO},#{item.SHELF_NO},#{item.SLOT_NO},
+            #{item.IS_TRANSPARENCY}, 
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertSubUnitBatch" parameterType="java.util.List">
+        insert into T_BASE_SUB_UNIT
+        (BASE_SUB_UNIT_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,BASE_SUB_SLOT_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,
+        OWNER,ALARM_REPORTING_INDICATOR,
+        SERVICE_STATE,EXPECTED_EQUIP_OBJ_TYPE,INSTALLED_EQUIP_OBJ_TYPE,
+        INSTALLED_PART_NUMBER,INSTALLED_SERIAL_NUMBER,
+        HARD_WARE_VERSION,SOFT_WARE_VERSION,
+        HAS_PROTECTION,MANUFACTURE,
+		RACK_NO,SHELF_NO,SLOT_NO,SUB_SLOT_NO,
+		DISPLAY_MODE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_SUB_UNIT_ID}, #{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_NE_ID},#{item.BASE_SUB_SLOT_ID}, 
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, 
+            #{item.ALARM_REPORTING_INDICATOR}, 
+            #{item.SERVICE_STATE},#{item.EXPECTED_EQUIP_OBJ_TYPE},#{item.INSTALLED_EQUIP_OBJ_TYPE},
+            #{item.INSTALLED_PART_NUMBER},#{item.INSTALLED_SERIAL_NUMBER},
+            #{item.HARD_WARE_VERSION},#{item.SOFT_WARE_VERSION},
+            #{item.HAS_PROTECTION},#{item.MANUFACTURE},
+            #{item.RACK_NO},#{item.SHELF_NO},#{item.SLOT_NO},#{item.SUB_SLOT_NO},
+            <choose>
+            <when test="item.DISPLAY_MODE!=null">#{item.DISPLAY_MODE},</when>
+            <otherwise>1,</otherwise>
+            </choose>
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertPtpBatch" parameterType="java.util.List">
+        insert into T_BASE_PTP
+        (BASE_PTP_ID,BASE_EMS_CONNECTION_ID,BASE_NE_ID,
+        BASE_RACK_ID,BASE_SHELF_ID,BASE_SLOT_ID,BASE_SUB_SLOT_ID,
+        BASE_UNIT_ID,BASE_SUB_UNIT_ID,PM_TEMPLATE_ID,
+        NAME,USER_LABEL,NATIVE_EMS_NAME,DISPLAY_NAME,OWNER,
+        PTP_FTP,CONNECTION_STATE,TP_MAPPING_MODE,
+        DIRECTION,TP_PROTECTION_ASSOCIATION,
+        EDGE_POINT,PORT_TYPE,LAYER_RATE,
+        DOMAIN,PTP_TYPE,RATE,
+        MSTP_VB,TYPE,ATT,DDF_ODF,OPT_MODEL,OPT_STD_ID,
+		RACK_NO,SHELF_NO,SLOT_NO,SUB_SLOT_NO,PORT_NO,
+		PTN_PWID,PTN_PWMODE,PTN_PWTYPE,
+		PTN_INLABEL,PTN_OUTLABEL,PTN_PSNTYPE,PTN_VCID,
+		PORT_DESC,IS_PROTECTED,IS_SYNC_CTP,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_PTP_ID}, #{item.BASE_EMS_CONNECTION_ID}, #{item.BASE_NE_ID},
+            #{item.BASE_RACK_ID},#{item.BASE_SHELF_ID},#{item.BASE_SLOT_ID},
+            #{item.BASE_SUB_SLOT_ID},#{item.BASE_UNIT_ID},#{item.BASE_SUB_UNIT_ID},
+            #{item.PM_TEMPLATE_ID},
+            #{item.NAME}, #{item.USER_LABEL}, #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, #{item.OWNER}, 
+            #{item.PTP_FTP}, 
+            #{item.CONNECTION_STATE},#{item.TP_MAPPING_MODE},#{item.DIRECTION},
+            #{item.TP_PROTECTION_ASSOCIATION},#{item.EDGE_POINT},
+            #{item.PORT_TYPE},#{item.LAYER_RATE},
+            #{item.DOMAIN},#{item.PTP_TYPE},
+            #{item.RATE},#{item.MSTP_VB},
+            #{item.TYPE},#{item.ATT},#{item.DDF_ODF},
+            #{item.OPT_MODEL},#{item.OPT_STD_ID},
+            #{item.RACK_NO},#{item.SHELF_NO},#{item.SLOT_NO},
+            #{item.SUB_SLOT_NO},#{item.PORT_NO},
+            #{item.PTN_PWID},#{item.PTN_PWMODE},#{item.PTN_PWTYPE},
+            #{item.PTN_INLABEL},#{item.PTN_OUTLABEL},#{item.PTN_PSNTYPE},#{item.PTN_VCID},
+            #{item.PORT_DESC},
+            #{item.IS_PROTECTED},
+            #{item.IS_SYNC_CTP},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+     <insert id="insertLinkBatch" parameterType="java.util.List">
+        insert into T_BASE_LINK
+        (BASE_LINK_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        DIRECTION,
+        A_EMS_CONNECTION_ID,
+        A_NE_ID,
+        A_END_PTP,
+        Z_EMS_CONNECTION_ID,
+        Z_NE_ID,
+        Z_END_PTP,
+        LINK_TYPE,
+        CHANGE_STATE,
+        IS_MAIN,
+<!--         IS_MANUAL, -->
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_LINK_ID},
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.OWNER}, 
+            #{item.DIRECTION}, 
+            #{item.A_EMS_CONNECTION_ID},
+            #{item.A_NE_ID},
+            #{item.A_END_PTP},
+            #{item.Z_EMS_CONNECTION_ID},
+            #{item.Z_NE_ID},
+            #{item.Z_END_PTP},
+            #{item.LINK_TYPE},
+            #{item.CHANGE_STATE},
+            #{item.IS_MAIN},
+<!--             #{item.IS_MANUAL},  -->
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertClockSourceBatch" parameterType="java.util.List">
+        insert into T_BASE_CLOCK
+        (BASE_CLOCK_ID,
+        BASE_NE_ID,
+        NAME,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        PRIORITY,
+        IS_CURRENT,
+        TIMING_MODE,
+        IS_FRAME,
+        IS_SSM,
+        QUALITY,
+        WORKING_MODE,
+        SYNC_STATUS,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_CLOCK_ID},
+            #{item.BASE_NE_ID}, 
+            #{item.NAME}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.PRIORITY}, 
+            #{item.IS_CURRENT}, 
+            #{item.TIMING_MODE},
+            #{item.IS_FRAME},
+            #{item.IS_SSM},
+            #{item.QUALITY},
+            #{item.WORKING_MODE},
+            #{item.SYNC_STATUS},
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>  
+    </insert>
+    
+    <insert id="insertEthServiceBatch" parameterType="java.util.List">
+        insert into T_BASE_ETH_SVC
+        (BASE_ETH_SVC_ID,
+        BASE_NE_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        SERVICE_TYPE,
+        DIRECTION,
+        ACTIVE_STATE,
+        A_END_POINT,
+        A_END_VLAN_ID,
+        A_END_TUNNEL,
+        A_END_VC,
+        A_END_POINT_TYPE,
+        Z_END_POINT,
+        Z_END_VLAN_ID,
+        Z_END_TUNNEL,
+        Z_END_VC,
+        Z_END_POINT_TYPE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_ETH_SVC_ID},
+            #{item.BASE_NE_ID}, 
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.OWNER}, 
+            
+            #{item.SERVICE_TYPE}, 
+            #{item.DIRECTION}, 
+            #{item.ACTIVE_STATE}, 
+            #{item.A_END_POINT}, 
+            #{item.A_END_VLAN_ID}, 
+            #{item.A_END_TUNNEL}, 
+            #{item.A_END_VC}, 
+            #{item.A_END_POINT_TYPE}, 
+            #{item.Z_END_POINT}, 
+            #{item.Z_END_VLAN_ID}, 
+            #{item.Z_END_TUNNEL}, 
+            #{item.Z_END_VC}, 
+            #{item.Z_END_POINT_TYPE}, 
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>
+    </insert>
+    
+    <insert id="insertBindingPathBatch" parameterType="java.util.List">
+        insert into T_BASE_BINDING_PATH
+        (BASE_BINDING_PATH_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        BASE_PTP_NAME,
+        VCG_PTP_ID,
+        VCG_PTP_NAME,
+        DIRECTION,
+        BINDING_PTP_ID,
+        BINDING_PTP_NAME,
+        BASE_SDH_CTP_ID,
+        BASE_OTN_CTP_ID,
+        TYPE
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_BINDING_PATH_ID},
+            #{item.BASE_NE_ID}, 
+            #{item.BASE_PTP_ID}, 
+            #{item.BASE_PTP_NAME}, 
+            #{item.VCG_PTP_ID}, 
+            #{item.VCG_PTP_NAME}, 
+            #{item.DIRECTION}, 
+            #{item.BINDING_PTP_ID}, 
+            #{item.BINDING_PTP_NAME}, 
+            #{item.BASE_SDH_CTP_ID}, 
+            #{item.BASE_OTN_CTP_ID},
+            #{item.TYPE}
+            )
+        </foreach>
+    </insert>
+    
+    
+    <insert id="insertEProtectionGroup" parameterType="hashmap"   keyProperty="BASE_E_PRO_GROUP_ID">
+        insert into T_BASE_E_PRO_GROUP
+        (BASE_E_PRO_GROUP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        EPGP_GROUP,
+        EPGP_LOCATION,
+        E_PROTECTION_GROUP_TYPE,
+        PROTECTION_SCHEMA_STATE,
+        REVERSION_MODE,
+        TYPE,
+        WTR_TIME,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_E_PRO_GROUP_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID}, 
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME},
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{EPGP_GROUP}, 
+            #{EPGP_LOCATION}, 
+            #{E_PROTECTION_GROUP_TYPE}, 
+            #{PROTECTION_SCHEMA_STATE}, 
+            #{REVERSION_MODE}, 
+            #{TYPE}, 
+            #{WTR_TIME}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+            )
+    </insert>
+    
+    <insert id="insertProtectionGroup" parameterType="hashmap"   keyProperty="BASE_PRO_GROUP_ID">
+        insert into T_BASE_PRO_GROUP
+        (BASE_PRO_GROUP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        PGP_GROUP,
+        PGP_LOCATION,
+        PROTECTION_GROUP_TYPE,
+        PROTECTION_SCHEMA_STATE,
+        REVERSION_MODE,
+        RATE,
+        SWITCH_MODE,
+        WTR_TIME,
+        HOLD_OFF_TIME,
+        LOD_NUM_SWITCHES,
+        LOD_DURATION,
+        SPRING_PROTOCOL,
+        SPRING_NODE_ID,
+        SWITCH_POSITION,
+        NON_PRE_EMPTIBLE_TRAFFIC,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_PRO_GROUP_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID}, 
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME},
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{PGP_GROUP}, 
+            #{PGP_LOCATION}, 
+            #{PROTECTION_GROUP_TYPE}, 
+            #{PROTECTION_SCHEMA_STATE}, 
+            #{REVERSION_MODE}, 
+            #{RATE}, 
+            #{SWITCH_MODE}, 
+            #{WTR_TIME}, 
+            #{HOLD_OFF_TIME}, 
+            #{LOD_NUM_SWITCHES}, 
+            #{LOD_DURATION}, 
+            #{SPRING_PROTOCOL}, 
+            #{SPRING_NODE_ID}, 
+            #{SWITCH_POSITION}, 
+            #{NON_PRE_EMPTIBLE_TRAFFIC}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+            )
+    </insert>
+    
+    <insert id="insertWdmProtectionGroup" parameterType="hashmap"   keyProperty="BASE_WDM_PRO_GROUP_ID">
+        insert into T_BASE_WDM_PRO_GROUP 
+        (BASE_WDM_PRO_GROUP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        WDM_PGP_GROUP,
+        WDM_PGP_LOCATION,
+        PROTECTION_GROUP_TYPE,
+        PROTECTION_SCHEMA_STATE,
+        REVERSION_MODE,
+        WTR_TIME,
+        HOLD_OFF_TIME,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_WDM_PRO_GROUP_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID}, 
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME},
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{WDM_PGP_GROUP}, 
+            #{WDM_PGP_LOCATION}, 
+            #{PROTECTION_GROUP_TYPE}, 
+            #{PROTECTION_SCHEMA_STATE}, 
+            #{REVERSION_MODE}, 
+            #{WTR_TIME}, 
+            #{HOLD_OFF_TIME}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+            )
+    </insert>
+    
+    <insert id="insertProtectUnit" parameterType="hashmap"   keyProperty="BASE_E_PGP_TP_LIST_ID">
+        insert into T_BASE_E_PGP_TP_LIST
+        (BASE_E_PGP_TP_LIST_ID,
+        BASE_E_PRO_GROUP_ID,
+        BASE_UNIT_ID,
+        TYPE
+        )values
+            (
+            #{BASE_E_PGP_TP_LIST_ID},
+            #{BASE_E_PRO_GROUP_ID},
+            #{BASE_UNIT_ID}, 
+            #{TYPE}
+            )
+    </insert>
+    
+    <insert id="insertProtectPtp" parameterType="hashmap"   keyProperty="BASE_PRO_LIST_ID">
+        insert into T_BASE_PRO_LIST
+        (BASE_PRO_LIST_ID,
+        BASE_PRO_GROUP_ID,
+        BASE_PTP_ID,
+        BASE_SDH_CTP_ID,
+        BASE_OTN_CTP_ID,
+        NEED_UPDATE_CRS
+        )values
+            (
+            #{BASE_PRO_LIST_ID},
+            #{BASE_PRO_GROUP_ID},
+            #{BASE_PTP_ID},
+            #{BASE_SDH_CTP_ID},
+            #{BASE_OTN_CTP_ID},
+            #{NEED_UPDATE_CRS}
+            )
+    </insert>
+    
+    <insert id="insertWdmProtectPtp" parameterType="hashmap"   keyProperty="BASE_WDM_PGP_TP_LIST_ID">
+        insert into T_BASE_WDM_PGP_TP_LIST
+        (BASE_WDM_PGP_TP_LIST_ID,
+        BASE_WDM_PRO_GROUP_ID,
+        BASE_PTP_ID
+        )values
+            (
+            #{BASE_WDM_PGP_TP_LIST_ID},
+            #{BASE_WDM_PRO_GROUP_ID},
+            #{BASE_PTP_ID}
+            )
+    </insert>
+    
+    <insert id="insertEProtectionGroupBatch" parameterType="java.util.List">
+        insert into T_BASE_E_PRO_GROUP
+        (BASE_E_PRO_GROUP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        EPGP_GROUP,
+        EPGP_LOCATION,
+        E_PROTECTION_GROUP_TYPE,
+        PROTECTION_SCHEMA_STATE,
+        REVERSION_MODE,
+        TYPE,
+        WTR_TIME,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_E_PRO_GROUP_ID},
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.BASE_NE_ID}, 
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.OWNER},    
+            #{item.EPGP_GROUP}, 
+            #{item.EPGP_LOCATION}, 
+            #{item.E_PROTECTION_GROUP_TYPE}, 
+            #{item.PROTECTION_SCHEMA_STATE}, 
+            #{item.REVERSION_MODE}, 
+            #{item.TYPE}, 
+            #{item.WTR_TIME}, 
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>
+    </insert>
+    
+    <insert id="insertPtpVirtual" parameterType="hashmap"   keyProperty="BASE_PTP_ID">
+        insert ignore into T_BASE_PTP_VIRTUAL
+        (BASE_PTP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_RACK_ID,
+        BASE_SHELF_ID,
+        BASE_SLOT_ID,
+        BASE_SUB_SLOT_ID,
+        BASE_UNIT_ID,
+        BASE_SUB_UNIT_ID,
+        PTP_TYPE,
+        RACK_NO,
+        SHELF_NO,
+        SLOT_NO,
+        SUB_SLOT_NO,
+        PORT_NO,
+        PORT_DESC,
+        NOTE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_PTP_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID},
+            #{BASE_RACK_ID},
+            #{BASE_SHELF_ID}, 
+            #{BASE_SLOT_ID}, 
+            #{BASE_SUB_SLOT_ID},
+            #{BASE_UNIT_ID}, 
+            #{BASE_SUB_UNIT_ID}, 
+            #{PTP_TYPE}, 
+            #{RACK_NO}, 
+            #{SHELF_NO}, 
+            #{SLOT_NO}, 
+            #{SUB_SLOT_NO}, 
+            #{PORT_NO}, 
+            #{PORT_DESC}, 
+            #{NOTE}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+            )
+    </insert>
+    
+    <insert id="insertSdhCtp" parameterType="hashmap"   keyProperty="BASE_SDH_CTP_ID">
+        insert ignore into T_BASE_SDH_CTP
+        (BASE_SDH_CTP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        REL_PTP_TYPE,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        CONNECTION_STATE,
+        TP_MAPPING_MODE,
+        DIRECTION,
+        TP_PROTECTION_ASSOCIATION,
+        EDGE_POINT,
+        TOP_CTP,
+        CTP_VALUE,
+        CTP_64C,
+        CTP_16C,
+        CTP_8C,
+        CTP_4C,
+        CTP_J_ORIGINAL,
+        CTP_J,
+        CTP_K,
+        CTP_L,
+        CTP_M,
+        CONNECTION_TYPE,
+        CONNECT_RATE,
+        LAYER_RATE,
+        IS_ETH,
+        IS_SEPARATE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_SDH_CTP_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID},
+            #{BASE_PTP_ID},
+            #{REL_PTP_TYPE},
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME},
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{CONNECTION_STATE}, 
+            #{TP_MAPPING_MODE}, 
+            #{DIRECTION}, 
+            #{TP_PROTECTION_ASSOCIATION}, 
+            #{EDGE_POINT}, 
+            #{TOP_CTP}, 
+            #{CTP_VALUE}, 
+            #{CTP_64C}, 
+            #{CTP_16C}, 
+            #{CTP_8C}, 
+            #{CTP_4C}, 
+            #{CTP_J_ORIGINAL}, 
+            #{CTP_J}, 
+            #{CTP_K}, 
+            #{CTP_L}, 
+            #{CTP_M}, 
+            #{CONNECTION_TYPE}, 
+            #{CONNECT_RATE},
+            #{LAYER_RATE}, 
+            #{IS_ETH},
+            #{IS_SEPARATE}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+            )
+    </insert>
+    
+    
+    <insert id="insertOtnCtp" parameterType="hashmap"   keyProperty="BASE_OTN_CTP_ID">
+        insert ignore into T_BASE_OTN_CTP
+        (BASE_OTN_CTP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        CONNECTION_STATE,
+        TP_MAPPING_MODE,
+        DIRECTION,
+        TP_PROTECTION_ASSOCIATION,
+        EDGE_POINT,
+        CTP_VALUE,
+        IS_CTP,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_OTN_CTP_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID},
+            #{BASE_PTP_ID},
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME},
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{CONNECTION_STATE}, 
+            #{TP_MAPPING_MODE}, 
+            #{DIRECTION}, 
+            #{TP_PROTECTION_ASSOCIATION}, 
+            #{EDGE_POINT}, 
+            #{CTP_VALUE}, 
+            #{IS_CTP}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+            )
+    </insert>
+    
+    <insert id="insertSdhCtpBatch" parameterType="java.util.List">
+        insert ignore  into T_BASE_SDH_CTP 
+        (BASE_SDH_CTP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        CONNECTION_STATE,
+        TP_MAPPING_MODE,
+        DIRECTION,
+        TP_PROTECTION_ASSOCIATION,
+        EDGE_POINT,
+        TOP_CTP,
+        CTP_VALUE,
+        CTP_64C,
+        CTP_16C,
+        CTP_8C,
+        CTP_4C,
+        CTP_J_ORIGINAL,
+        CTP_J,
+        CTP_K,
+        CTP_L,
+        CTP_M,
+        CONNECTION_TYPE,
+        CONNECT_RATE,
+        LAYER_RATE,
+        IS_ETH,
+        IS_SEPARATE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_SDH_CTP_ID},
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.BASE_NE_ID},
+            #{item.BASE_PTP_ID},
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.OWNER}, 
+            #{item.CONNECTION_STATE}, 
+            #{item.TP_MAPPING_MODE}, 
+            #{item.DIRECTION}, 
+            #{item.TP_PROTECTION_ASSOCIATION}, 
+            #{item.EDGE_POINT}, 
+            #{item.TOP_CTP}, 
+            #{item.CTP_VALUE}, 
+            #{item.CTP_64C}, 
+            #{item.CTP_16C}, 
+            #{item.CTP_8C}, 
+            #{item.CTP_4C}, 
+            #{item.CTP_J_ORIGINAL}, 
+            #{item.CTP_J}, 
+            #{item.CTP_K}, 
+            #{item.CTP_L}, 
+            #{item.CTP_M}, 
+            #{item.CONNECTION_TYPE}, 
+            #{item.CONNECT_RATE}, 
+            #{item.LAYER_RATE}, 
+            #{item.IS_ETH},
+            #{item.IS_SEPARATE}, 
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>
+    </insert>
+    
+    
+    <insert id="insertOtnCtpParamBatch" parameterType="java.util.List">
+        insert  into T_BASE_OTN_CTP_PARAM 
+        (BASE_OTN_CTP_PARAM_ID,
+        BASE_OTN_CTP_ID,
+        TRANS_LAYER,
+        TRANS_CLIENT_RATE,
+        TRANS_MAX_CLIENT_RATE,
+        TRANS_MIN_CLIENT_RATE,
+        TRANS_CLIENT_TYPE,
+        TRANS_FREQUENCY,
+        TRANS_FREQUENCY_LIST,
+        TRANS_REG_TYPE,
+        TRANS_MAX_NUMBER_OCH,
+        TRANS_FREQUENCY_SPACING
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_OTN_CTP_PARAM_ID},
+            #{item.BASE_OTN_CTP_ID},
+            #{item.TRANS_LAYER},
+            #{item.TRANS_CLIENT_RATE},
+            #{item.TRANS_MAX_CLIENT_RATE}, 
+            #{item.TRANS_MIN_CLIENT_RATE}, 
+            #{item.TRANS_CLIENT_TYPE},
+            #{item.TRANS_FREQUENCY}, 
+            #{item.TRANS_FREQUENCY_LIST}, 
+            #{item.TRANS_REG_TYPE}, 
+            #{item.TRANS_MAX_NUMBER_OCH}, 
+            #{item.TRANS_FREQUENCY_SPACING}
+            )
+        </foreach>
+    </insert>
+    
+    <insert id="insertSdhCtpBatchTxt" >
+      		LOAD DATA local INFILE #{filePath} INTO TABLE t_base_sdh_ctp Fields Terminated By #{terminatedSymbol};
+    </insert>
+    
+    <insert id="insertSdhCrsBatch" parameterType="java.util.List">
+        insert into T_BASE_SDH_CRS
+        (BASE_SDH_CRS_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        ACTIVE,
+        CC_TYPE,
+        CC_NAME,
+        DIRECTION,
+        A_END_PTP,
+        A_END_CTP,
+        Z_END_PTP,
+        Z_END_CTP,
+        RATE,
+        PARENT_ID,
+        IS_IN_CIRCUIT,
+        CHANGE_STATE,
+        CIRCUIT_COUNT,
+        IS_USE_CREATE,
+        IS_VIRTUAL,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_SDH_CRS_ID},
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.BASE_NE_ID},
+            #{item.ACTIVE},
+            #{item.CC_TYPE}, 
+            #{item.CC_NAME}, 
+            #{item.DIRECTION},
+            #{item.A_END_PTP}, 
+            #{item.A_END_CTP}, 
+            #{item.Z_END_PTP}, 
+            #{item.Z_END_CTP}, 
+            #{item.RATE}, 
+            #{item.PARENT_ID}, 
+            #{item.IS_IN_CIRCUIT}, 
+            #{item.CHANGE_STATE}, 
+            #{item.CIRCUIT_COUNT}, 
+            #{item.IS_USE_CREATE}, 
+            #{item.IS_VIRTUAL}, 
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>
+    </insert>
+    
+    <insert id="insertOtnCrsBatch" parameterType="java.util.List">
+        insert into T_BASE_OTN_CRS
+        (BASE_OTN_CRS_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        ACTIVE,
+        CC_TYPE,
+        CC_NAME,
+        DIRECTION,
+        A_END_PTP,
+        A_END_CTP,
+        A_OS,
+        A_OTS,
+        A_OMS,
+        A_OCH,
+        A_ODU0,
+        A_ODU1,
+        A_ODU2,
+        A_ODU3,
+        A_OTU0,
+        A_OTU1,
+        A_OTU2,
+        A_OTU3,
+        A_DSR,
+        A_OAC_TYPE,
+        A_OAC_VALUE,
+        A_TYPE,
+        Z_END_PTP,
+        Z_END_CTP,
+        Z_OS,
+        Z_OTS,
+        Z_OMS,
+        Z_OCH,
+        Z_ODU0,
+        Z_ODU1,
+        Z_ODU2,
+        Z_ODU3,
+        Z_OTU0,
+        Z_OTU1,
+        Z_OTU2,
+        Z_OTU3,
+        Z_DSR,
+        Z_OAC_TYPE,
+        Z_OAC_VALUE,
+        Z_TYPE,
+        CLIENT_TYPE,
+        CLIENT_RATE,
+        RATE,
+        PARENT_ID,
+        IS_IN_CIRCUIT,
+        CHANGE_STATE,
+        CIRCUIT_COUNT,
+        IS_VIRTUAL,
+        IS_FIX,
+        IS_FROM_ROUTE,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_OTN_CRS_ID},
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.BASE_NE_ID},
+            #{item.ACTIVE},
+            #{item.CC_TYPE}, 
+            #{item.CC_NAME}, 
+            #{item.DIRECTION},
+            #{item.A_END_PTP}, 
+            #{item.A_END_CTP}, 
+            #{item.A_OS}, 
+            #{item.A_OTS}, 
+            #{item.A_OMS}, 
+            #{item.A_OCH}, 
+            #{item.A_ODU0}, 
+            #{item.A_ODU1}, 
+            #{item.A_ODU2}, 
+            #{item.A_ODU3}, 
+            #{item.A_OTU0}, 
+            #{item.A_OTU1}, 
+            #{item.A_OTU2}, 
+            #{item.A_OTU3}, 
+            #{item.A_DSR}, 
+            #{item.A_OAC_TYPE}, 
+            #{item.A_OAC_VALUE}, 
+            #{item.A_TYPE}, 
+            #{item.Z_END_PTP}, 
+            #{item.Z_END_CTP}, 
+            #{item.Z_OS}, 
+            #{item.Z_OTS}, 
+            #{item.Z_OMS}, 
+            #{item.Z_OCH}, 
+            #{item.Z_ODU0}, 
+            #{item.Z_ODU1}, 
+            #{item.Z_ODU2}, 
+            #{item.Z_ODU3}, 
+            #{item.Z_OTU0}, 
+            #{item.Z_OTU1}, 
+            #{item.Z_OTU2}, 
+            #{item.Z_OTU3}, 
+            #{item.Z_DSR}, 
+            #{item.Z_OAC_TYPE}, 
+            #{item.Z_OAC_VALUE}, 
+            #{item.Z_TYPE}, 
+            #{item.CLIENT_TYPE}, 
+            #{item.CLIENT_RATE}, 
+            #{item.RATE}, 
+            #{item.PARENT_ID}, 
+            #{item.IS_IN_CIRCUIT}, 
+            #{item.CHANGE_STATE}, 
+            #{item.CIRCUIT_COUNT}, 
+            #{item.IS_VIRTUAL}, 
+            #{item.IS_FIX}, 
+            #{item.IS_FROM_ROUTE}, 
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>
+    </insert>
+    
+    
+    <insert id="insertOrUpdatePtnCtp" >
+	  <selectKey keyProperty="count" resultType="int" order="BEFORE">
+	    select count(*) from T_BASE_PTN_CTP where BASE_PTP_ID = #{BASE_PTP_ID} and NAME = #{NAME}
+	  </selectKey>
+	  <if test="count > 0">
+	    update T_BASE_PTN_CTP
+	    <set >
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{BASE_NE_ID},
+	      </if>
+	      <if test="BASE_PTP_ID != null" >
+	        BASE_PTP_ID = #{BASE_PTP_ID},
+	      </if>
+	      <if test="NAME != null" >
+	        NAME = #{NAME},
+	      </if>
+	      <if test="USER_LABEL != null" >
+	        USER_LABEL = #{USER_LABEL},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{NATIVE_EMS_NAME},
+	      </if>
+	      <if test="DISPLAY_NAME != null" >
+	        DISPLAY_NAME = #{DISPLAY_NAME},
+	      </if>
+	      <if test="OWNER != null" >
+	        OWNER = #{OWNER},
+	      </if>
+	      <if test="LAYER_RATE != null" >
+	        LAYER_RATE = #{LAYER_RATE},
+	      </if>
+	      <if test="TUNNEL_ID != null" >
+	        TUNNEL_ID = #{TUNNEL_ID},
+	      </if>
+	      <if test="PW_ID != null" >
+	        PW_ID = #{PW_ID},
+	      </if>
+	      <if test="PW_TYPE != null" >
+	        PW_TYPE = #{PW_TYPE},
+	      </if>
+	      <if test="LSP_TYPE != null" >
+	        LSP_TYPE = #{LSP_TYPE},
+	      </if>
+	      <if test="SRC_IN_LABEL != null" >
+	        SRC_IN_LABEL = #{SRC_IN_LABEL},
+	      </if>
+	      <if test="SRC_OUT_LABEL != null" >
+	        SRC_OUT_LABEL = #{SRC_OUT_LABEL},
+	      </if>
+	      <if test="DEST_IN_LABEL != null" >
+	        DEST_IN_LABEL = #{DEST_IN_LABEL},
+	      </if>
+	      <if test="DEST_OUT_LABEL != null" >
+	        DEST_OUT_LABEL = #{DEST_OUT_LABEL},
+	      </if>
+	      <if test="SRC_IP != null" >
+	        SRC_IP = #{SRC_IP},
+	      </if>
+	      <if test="DEST_IP != null" >
+	        DEST_IP = #{DEST_IP},
+	      </if>
+	      <if test="BELONGED_TRAIL != null" >
+	        BELONGED_TRAIL = #{BELONGED_TRAIL},
+	      </if>
+	      <if test="IS_DEL != null" >
+	        IS_DEL = #{IS_DEL},
+	      </if>
+	      <if test="CREATE_TIME != null" >
+	        CREATE_TIME = #{CREATE_TIME},
+	      </if>
+	      <if test="UPDATE_TIME != null" >
+	        UPDATE_TIME = #{UPDATE_TIME},
+	      </if>
+	    </set>
+	    where BASE_PTP_ID = #{BASE_PTP_ID} and NAME = #{NAME}
+	  </if>
+	  <if test="count==0">
+	     insert into T_BASE_PTN_CTP
+        (BASE_PTN_CTP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        LAYER_RATE,
+        TUNNEL_ID,
+        PW_ID,
+        PW_TYPE,
+        LSP_TYPE,
+        SRC_IN_LABEL,
+        SRC_OUT_LABEL,
+        DEST_IN_LABEL,
+        DEST_OUT_LABEL,
+        SRC_IP,
+        DEST_IP,
+        BELONGED_TRAIL,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values(
+            #{BASE_PTN_CTP_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID},
+            #{BASE_PTP_ID},
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME},
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{LAYER_RATE}, 
+            #{TUNNEL_ID}, 
+            #{PW_ID}, 
+            #{PW_TYPE}, 
+            #{LSP_TYPE}, 
+            #{SRC_IN_LABEL}, 
+            #{SRC_OUT_LABEL}, 
+            #{DEST_IN_LABEL}, 
+            #{DEST_OUT_LABEL}, 
+            #{SRC_IP}, 
+            #{DEST_IP}, 
+            #{BELONGED_TRAIL}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+<!--             #{item.UPDATE_TIME} -->
+            )
+	  </if>
+	</insert>
+    
+    
+<!--     <insert id="insertPtnCtpBatch" parameterType="java.util.List">
+        insert into T_BASE_PTN_CTP
+        (BASE_PTN_CTP_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        LAYER_RATE,
+        TUNNEL_ID,
+        PW_ID,
+        PW_TYPE,
+        LSP_TYPE,
+        SRC_IN_LABEL,
+        SRC_OUT_LABEL,
+        DEST_IN_LABEL,
+        DEST_OUT_LABEL,
+        SRC_IP,
+        DEST_IP,
+        BELONGED_TRAIL,
+        IS_DEL,
+        CREATE_TIME
+        UPDATE_TIME
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_PTN_CTP_ID},
+            #{item.BASE_EMS_CONNECTION_ID},
+            #{item.BASE_NE_ID},
+            #{item.BASE_PTP_ID},
+            #{item.NAME}, 
+            #{item.USER_LABEL}, 
+            #{item.NATIVE_EMS_NAME},
+            #{item.DISPLAY_NAME}, 
+            #{item.OWNER}, 
+            #{item.LAYER_RATE}, 
+            #{item.TUNNEL_ID}, 
+            #{item.PW_ID}, 
+            #{item.PW_TYPE}, 
+            #{item.LSP_TYPE}, 
+            #{item.SRC_IN_LABEL}, 
+            #{item.SRC_OUT_LABEL}, 
+            #{item.DEST_IN_LABEL}, 
+            #{item.DEST_OUT_LABEL}, 
+            #{item.SRC_IP}, 
+            #{item.DEST_IP}, 
+            #{item.BELONGED_TRAIL}, 
+            #{item.IS_DEL}, 
+            #{item.CREATE_TIME}
+            #{item.UPDATE_TIME}
+            )
+        </foreach>
+    </insert> -->
+
+    <insert id="insertOtnCtpBatchTxt" >
+      		LOAD DATA local INFILE #{filePath} INTO TABLE t_base_otn_ctp Fields Terminated By #{terminatedSymbol};
+    </insert>
+    
+    <insert id="insertOtnCtpParamBatchTxt" >
+      		LOAD DATA local INFILE #{filePath} INTO TABLE T_BASE_OTN_CTP_PARAM Fields Terminated By #{terminatedSymbol};
+    </insert>
+    
+    <insert id="insertPtnCtpBatchTxt" >
+      		LOAD DATA local INFILE #{filePath} INTO TABLE t_base_ptn_ctp Fields Terminated By #{terminatedSymbol};
+    </insert>
+    
+    <insert id="insertProductMapping" parameterType="hashmap"   keyProperty="BASE_PRODUCT_MAPPING_ID">
+        insert into T_BASE_PRODUCT_MAPPING
+        (BASE_PRODUCT_MAPPING_ID,
+        PRODUCT_NAME,
+        TYPE,
+        FACTORY
+        )values
+            (
+            #{BASE_PRODUCT_MAPPING_ID},
+            #{PRODUCT_NAME},
+            #{TYPE},
+            #{FACTORY}
+            )
+    </insert>
+    
+    <insert id="insertAlarmTransfer" parameterType="hashmap" >
+        insert into T_ALARM_TRANSFER
+        (ALARM_CODE,
+        PROBABLE_CAUSE,
+        NATIVE_PROBABLE_CAUSE,
+        FACTORY
+        )values
+            (
+            #{ALARM_CODE},
+            #{PROBABLE_CAUSE},
+            #{NATIVE_PROBABLE_CAUSE},
+            #{FACTORY}
+            )
+    </insert>
+    
+    <insert id="insertTcaData" parameterType="hashmap" >
+        insert into T_ALARM_TCA
+        (FILTER_FOR_CLEAR,
+        BASE_EMS_GROUP_ID,
+        BASE_SUBNET_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        BASE_RACK_ID,
+        BASE_SHELF_ID,
+        BASE_SLOT_ID,
+        BASE_SUB_SLOT_ID,
+        BASE_UNIT_ID,
+        BASE_SUB_UNIT_ID,
+        BASE_PTP_ID,
+        BASE_SDH_CTP_ID,
+        BASE_OTN_CTP_ID,
+        EMS_GROUP_NAME,
+        SUBNET_NAME,
+        EMS_NAME,
+        NE_NAME,
+        SLOT_NAME,
+        UNIT_NAME,
+        PORT_NAME,
+        CTP_NAME,
+        PRODUCT_NAME,
+        NATIVE_EMS_NAME,
+        TARGET_TYPE,
+        LAYER_RATE,
+        DOMAIN,
+        PTP_TYPE,
+        RATE,
+        PERCEIVED_SEVERITY,
+        PM_STD_INDEX,
+        PM_INDEX,
+        PM_VALUE,
+        TYPE,
+        PM_DESCRIPTION,
+        LOCATION,
+        UNIT,
+        GRANULARITY,
+        THRESHOLD_TYPE,
+        CLEAR_STATUS,
+        IS_CLEARABLE,
+        EMS_TIME,
+        ARISES_TIME,
+        SAVE_TIME,
+        CLEAR_TIME
+        )values
+            (
+            #{FILTER_FOR_CLEAR},
+            #{BASE_EMS_GROUP_ID},
+            #{BASE_SUBNET_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{NE_ID},
+            #{RACK_ID},
+            #{SHELF_ID},
+            #{SLOT_ID},
+            #{BASE_SUB_SLOT_ID},
+            #{UNIT_ID},
+            #{BASE_SUB_UNIT_ID},
+            #{PTP_ID},
+            #{BASE_SDH_CTP_ID},
+            #{BASE_OTN_CTP_ID},
+            #{EMS_GROUP_NAME},
+            #{BASE_SUBNET_NAME},
+            #{EMS_NAME},
+            #{NE_NAME},
+            #{SLOT_DISPLAY_NAME},
+            #{UNIT_NAME},
+            #{PORT_NAME},
+            #{CTP_NAME},
+            #{PRODUCT_NAME},
+            #{NATIVE_EMS_NAME},
+            #{TARGET_TYPE},
+            #{LAYER_RATE},
+            #{DOMAIN},
+            #{PTP_TYPE},
+            #{INTERFACE_RATE},
+            #{PERCEIVED_SEVERITY},
+            #{PM_STD_INDEX},
+            #{PM_INDEX},
+            #{PM_VALUE},
+            #{TYPE},
+            #{PM_DESCRIPTION},
+            #{LOCATION},
+            #{UNIT},
+            #{GRANULARITY},
+            #{THRESHOLD_TYPE},
+            #{CLEAR_STATUS},
+            #{IS_CLEARABLE},
+            #{EMS_TIME},
+            #{ARISES_TIME},
+            #{SAVE_TIME},
+            #{CLEAR_TIME}
+            )
+    </insert>
+    
+    <insert id="insertProtectionSwitchData" parameterType="hashmap" >
+        insert into T_ALARM_PRO_SWITCH
+        (BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        NOTIFICATION_ID,
+        EMS_TIME,
+        NE_TIME,
+        PROTECT_TYPE,
+        PROTECT_TYPE_ORI,
+        PROTECT_CATEGORY,
+        SWITCH_RESON,
+        LAYER_RATE,
+        GROUP_NAME,
+        TARGET_TYPE,
+        PROTECTED_TP,
+        PROTECTED_TP_DESC,
+        SWITCH_AWAY_FROM_TP,
+        SWITCH_AWAY_FROM_TP_DESC,
+        SWITCH_TO_TP,
+        SWITCH_TO_TP_DESC,
+        NATIVE_EMS_NAME,
+        CREATE_TIME
+        )values
+            (
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID},
+            #{NOTIFICATION_ID},
+            #{EMS_TIME},
+            #{NE_TIME},
+            #{PROTECT_TYPE},
+            #{PROTECT_TYPE_ORI},
+            #{PROTECT_CATEGORY},
+            #{SWITCH_RESON},
+            #{LAYER_RATE},
+            #{GROUP_NAME},
+            #{TARGET_TYPE},
+            #{PROTECTED_TP},
+            #{PROTECTED_TP_DESC},
+            #{SWITCH_AWAY_FROM_TP},
+            #{SWITCH_AWAY_FROM_TP_DESC},
+            #{SWITCH_TO_TP},
+            #{SWITCH_TO_TP_DESC},
+            #{NATIVE_EMS_NAME},
+            #{CREATE_TIME}
+            )
+    </insert>
+    
+    <insert id="insertVB" parameterType="hashmap"   keyProperty="BASE_VB_ID">
+        insert into T_BASE_VB
+        (
+        BASE_VB_ID,
+        BASE_EMS_CONNECTION_ID,
+        BASE_NE_ID,
+        NAME,
+        USER_LABEL,
+        NATIVE_EMS_NAME,
+        DISPLAY_NAME,
+        OWNER,
+        VID,
+        STP_MOD,
+        BRIDGE_PRIORITY,
+        MAC_AGING,
+        HELLO_TIME,
+        MAX_AGE,
+        FOREARD_DELAY,
+        IS_DEL,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{BASE_VB_ID},
+            #{BASE_EMS_CONNECTION_ID},
+            #{BASE_NE_ID}, 
+            #{NAME}, 
+            #{USER_LABEL}, 
+            #{NATIVE_EMS_NAME}, 
+            #{DISPLAY_NAME}, 
+            #{OWNER}, 
+            #{VID}, 
+            #{STP_MOD}, 
+            #{BRIDGE_PRIORITY}, 
+            #{MAC_AGING}, 
+            #{HELLO_TIME}, 
+            #{MAX_AGE}, 
+            #{FOREARD_DELAY}, 
+            #{IS_DEL}, 
+            #{CREATE_TIME}
+            )
+    </insert>
+    
+    <insert id="insertVBPtpBatch" parameterType="java.util.List">
+        insert into T_BASE_VB_LIST
+        (
+        BASE_VB_LIST_ID,
+        BASE_VB_ID,
+        BASE_NE_ID,
+        BASE_PTP_ID,
+        PTP_NAME,
+        PTN_PWID,
+        TP_MAPPING_MODE
+<!--         UPDATE_TIME -->
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.BASE_VB_LIST_ID},
+            #{item.BASE_VB_ID},
+            #{item.BASE_NE_ID},
+            #{item.BASE_PTP_ID}, 
+            #{item.PTP_NAME},
+            #{item.PTN_PWID},
+            #{item.TP_MAPPING_MODE}
+<!--             #{item.UPDATE_TIME} -->
+            )
+        </foreach>
+    </insert>
+    
+   	<update id="updateTcaDataByKey" parameterType="hashmap" >
+	    update T_ALARM_TCA
+	    <set >
+	    	<if test="FILTER_FOR_CLEAR != null" >
+	        FILTER_FOR_CLEAR = #{FILTER_FOR_CLEAR},
+	      </if>
+	      <if test="BASE_EMS_GROUP_ID != null" >
+	        BASE_EMS_GROUP_ID = #{BASE_EMS_GROUP_ID},
+	      </if>
+	      <if test="BASE_SUBNET_ID != null" >
+	        BASE_SUBNET_ID = #{BASE_SUBNET_ID},
+	      </if>
+	      <if test="BASE_EMS_CONNECTION_ID != null" >
+	        BASE_EMS_CONNECTION_ID = #{BASE_EMS_CONNECTION_ID},
+	      </if>
+	      <if test="BASE_NE_ID != null" >
+	        BASE_NE_ID = #{NE_ID},
+	      </if>
+	      <if test="BASE_RACK_ID != null" >
+	        BASE_RACK_ID = #{RACK_ID},
+	      </if>
+	      <if test="BASE_SHELF_ID != null" >
+	        BASE_SHELF_ID = #{SHELF_ID},
+	      </if>
+	      <if test="BASE_SLOT_ID != null" >
+	        BASE_SLOT_ID = #{SLOT_ID},
+	      </if>
+	      <if test="BASE_SUB_SLOT_ID != null" >
+	        BASE_SUB_SLOT_ID = #{BASE_SUB_SLOT_ID},
+	      </if>
+	      <if test="BASE_UNIT_ID != null" >
+	        BASE_UNIT_ID = #{UNIT_ID},
+	      </if>
+	      <if test="BASE_SUB_UNIT_ID != null" >
+	        BASE_SUB_UNIT_ID = #{BASE_SUB_UNIT_ID},
+	      </if>
+	      <if test="BASE_PTP_ID != null" >
+	        BASE_PTP_ID = #{PTP_ID},
+	      </if>
+	      <if test="BASE_SDH_CTP_ID != null" >
+	        BASE_SDH_CTP_ID = #{BASE_SDH_CTP_ID},
+	      </if>
+	      <if test="BASE_OTN_CTP_ID != null" >
+	        BASE_OTN_CTP_ID = #{BASE_OTN_CTP_ID},
+	      </if>
+	      <if test="EMS_GROUP_NAME != null" >
+	        EMS_GROUP_NAME = #{EMS_GROUP_NAME},
+	      </if>
+	      <if test="SUBNET_NAME != null" >
+	        SUBNET_NAME = #{BASE_SUBNET_NAME},
+	      </if>
+	      <if test="EMS_NAME != null" >
+	        EMS_NAME = #{EMS_NAME},
+	      </if>
+	      <if test="NE_NAME != null" >
+	        NE_NAME = #{NE_NAME},
+	      </if>
+	      <if test="SLOT_NAME != null" >
+	        SLOT_NAME = #{SLOT_DISPLAY_NAME},
+	      </if>
+	      <if test="UNIT_NAME != null" >
+	        UNIT_NAME = #{UNIT_NAME},
+	      </if>
+	      <if test="PORT_NAME != null" >
+	        PORT_NAME = #{PORT_NAME},
+	      </if>
+	      <if test="CTP_NAME != null" >
+	        CTP_NAME = #{CTP_NAME},
+	      </if>
+	      <if test="PRODUCT_NAME != null" >
+	        PRODUCT_NAME = #{PRODUCT_NAME},
+	      </if>
+	      <if test="NATIVE_EMS_NAME != null" >
+	        NATIVE_EMS_NAME = #{TARGET_TYPE},
+	      </if>
+	      <if test="TARGET_TYPE != null" >
+	        TARGET_TYPE = #{TARGET_TYPE},
+	      </if>
+	      <if test="LAYER_RATE != null" >
+	        LAYER_RATE = #{LAYER_RATE},
+	      </if>
+	      <if test="DOMAIN != null" >
+	        DOMAIN = #{DOMAIN},
+	      </if>
+	      <if test="PTP_TYPE != null" >
+	        PTP_TYPE = #{PTP_TYPE},
+	      </if>
+	      <if test="RATE != null" >
+	        RATE = #{RATE},
+	      </if>
+	      <if test="PERCEIVED_SEVERITY != null" >
+	        PERCEIVED_SEVERITY = #{PERCEIVED_SEVERITY},
+	      </if>
+	      <if test="PM_STD_INDEX != null" >
+	        PM_STD_INDEX = #{PM_VALUE},
+	      </if>
+	      <if test="PM_INDEX != null" >
+	        PM_INDEX = #{PM_VALUE},
+	      </if>
+	      <if test="PM_VALUE != null" >
+	        PM_VALUE = #{PM_VALUE},
+	      </if>
+	      <if test="TYPE != null" >
+	        TYPE = #{TYPE},
+	      </if>
+	      <if test="PM_DESCRIPTION != null" >
+	        PM_DESCRIPTION = #{PM_DESCRIPTION},
+	      </if>
+	      <if test="LOCATION != null" >
+	        LOCATION = #{LOCATION},
+	      </if>
+	      <if test="UNIT != null" >
+	        UNIT = #{UNIT},
+	      </if>
+	      <if test="GRANULARITY != null" >
+	        GRANULARITY = #{GRANULARITY},
+	      </if>
+	      <if test="THRESHOLD_TYPE != null" >
+	        THRESHOLD_TYPE = #{CLEAR_STATUS},
+	      </if>
+	      <if test="CLEAR_STATUS != null" >
+	        CLEAR_STATUS = #{CLEAR_STATUS},
+	      </if>
+	      <if test="IS_CLEARABLE != null" >
+	        IS_CLEARABLE = #{IS_CLEARABLE},
+	      </if>
+	      <if test="EMS_TIME != null" >
+	        EMS_TIME = #{CLEAR_TIME},
+	      </if>
+	      <if test="ARISES_TIME != null" >
+	        ARISES_TIME = #{CLEAR_TIME},
+	      </if>
+	      <if test="SAVE_TIME != null" >
+	        SAVE_TIME = #{CLEAR_TIME},
+	      </if>
+	      <if test="CLEAR_TIME != null" >
+	        CLEAR_TIME = #{CLEAR_TIME},
+	      </if>
+	    </set>
+	    where ID = #{ID}
+	  </update>
+    
+    <delete id="deleteProtectUnitByEProtectionGroupId">
+        delete from T_BASE_E_PGP_TP_LIST where BASE_E_PRO_GROUP_ID = #{eProtectionGroupId}
+    </delete>
+    
+    <delete id="deleteProtectPtpByProtectionGroupId">
+        delete from T_BASE_PRO_LIST where BASE_PRO_GROUP_ID = #{protectionGroupId}
+    </delete>
+    
+    <delete id="deleteWdmProtectPtpByProtectionGroupId">
+        delete from T_BASE_WDM_PGP_TP_LIST where BASE_WDM_PRO_GROUP_ID = #{wdmProtectionGroupId}
+    </delete>
+    
+    <delete id="deleteBindingPathByPtpId">
+        delete from T_BASE_BINDING_PATH where BASE_PTP_ID = #{ptpId}
+    </delete>
+    
+    <delete id="deleteBindingPathByNeIdPtpName">
+        delete from T_BASE_BINDING_PATH where BASE_NE_ID = #{neId} and BASE_PTP_NAME = #{ptpName}
+    </delete>
+
+    <delete id="deletePtpByVbId">
+        delete from T_BASE_VB_LIST where BASE_VB_ID = #{vbId}
+    </delete>
+    
+    <delete id="deletePtnFdfrListByEmsConnectionId">
+        delete from T_BASE_PTN_FDFR_LIST where BASE_EMS_CONNECTION_ID = #{emsConnectionId}
+    </delete>
+
+    <!-- 通用查询法 -->
+	<select id="getByParameter" resultType="hashmap"
+		parameterType="hashmap">
+		select *
+		from  ${map.NAME}
+		<where>
+			<if test="map.ID_NAME != null ">
+				${map.ID_NAME} = #{map.ID_VALUE}
+			</if>
+			<if test="map.ID_NAME_2 != null " >
+				AND ${map.ID_NAME_2} = #{map.ID_VALUE_2}
+			</if>
+			<if test="map.ID_NAME_3 != null">
+				AND ${map.ID_NAME_3}=#{map.ID_VALUE_3}
+			</if>
+		</where>
+	</select>
+	
+        <!-- 查询包机人相关信息 -->
+	<select id="getInspect" resultType="hashmap"
+		parameterType="hashmap">
+		select 	te.NAME,
+				te.INSPECT_ENGINEER_ID
+		from 	t_inspect_engineer_info ti,
+			 	t_inspect_engineer  te
+		where ti.INSPECT_ENGINEER_ID = te.INSPECT_ENGINEER_ID
+			<if test="map.ID_NAME != null ">
+				AND ti.${map.ID_NAME} = #{map.ID_VALUE}
+			</if>
+			<if test="map.ID_NAME_2 != null " >
+				AND ti.${map.ID_NAME_2} = #{map.ID_VALUE_2}
+			</if>	
+	</select>
+	
+        <!-- 查询所有子网的包机人信息 -->
+	<select id="getInspectSubnet" resultType="hashmap"
+		parameterType="hashmap">
+		select 	te.NAME,
+				te.INSPECT_ENGINEER_ID
+		from 	t_inspect_engineer_info ti,
+			 	t_inspect_engineer  te
+		where ti.INSPECT_ENGINEER_ID = te.INSPECT_ENGINEER_ID
+			<if test="map.ID_NAME != null ">
+				AND ti.${map.ID_NAME} = #{map.ID_VALUE}
+			</if>
+				AND  ti.${map.ID_NAME_2} in 
+			<foreach collection="map.ID_VALUE_2" index="index" item="item" open="("
+				separator="," close=")">
+				${item}
+			</foreach>
+	</select>
+	
+		<!-- 查询告警屏蔽规则 -->
+<!--  	<select id="judgeIsNeedShield" resultType="hashmap" parameterType="hashmap">
+		select * from t_alarm_shield_detail as A
+		left join t_alarm_shield_relation as B
+		on A.SHIELD_ID = B.SHIELD_ID
+		left join t_alarm_shield_type_relation as C
+		on A.SHIELD_ID = C.SHIELD_ID
+		left join t_alarm_shield_level_relation as D
+		on A.SHIELD_ID = D.SHIELD_ID
+		left join t_alarm_shield_affecting_relation as E
+		on A.SHIELD_ID = E.SHIELD_ID
+		left join t_alarm_shield_source_relation as F
+		on A.SHIELD_ID = F.SHIELD_ID
+		where A.STATUS = ${map.status} and B.FACTORY = ${map.factory}
+		and B.NATIVE_PROBABLE_CAUSE = #{map.alarmName} and C.ALARM_TYPE = ${map.alarmType}
+		and D.ALARM_LEVEL = ${map.alarmLv} and E.ALARM_AFFECTING = ${map.alarmAffect}
+		and F.DEVICE_ID = ${map.neId}
+	</select>-->
+	<!-- 告警屏蔽查询规则更改 -->
+	<select id="judgeIsNeedShield" resultType="hashmap" parameterType="hashmap">
+        select F.DEVICE_TYPE,F.DEVICE_ID,B.FACTORY,B.NATIVE_PROBABLE_CAUSE,C.ALARM_TYPE,D.ALARM_LEVEL,E.ALARM_AFFECTING
+        from t_alarm_shield_detail as A
+        left join t_alarm_shield_relation as B
+        on A.SHIELD_ID = B.SHIELD_ID
+        left join t_alarm_shield_type_relation as C
+        on A.SHIELD_ID = C.SHIELD_ID
+        left join t_alarm_shield_level_relation as D
+        on A.SHIELD_ID = D.SHIELD_ID
+        left join t_alarm_shield_affecting_relation as E
+        on A.SHIELD_ID = E.SHIELD_ID
+        left join t_alarm_shield_source_relation as F
+        on A.SHIELD_ID = F.SHIELD_ID
+        where A.STATUS = ${map.status} and F.DEVICE_ID = ${map.deviceId} and F.DEVICE_TYPE = ${map.deviceType}
+    </select>
+	
+		<!-- 查询告警重定义规则 -->
+	<select id="judgeIsNeedRedefine" resultType="hashmap" parameterType="hashmap">
+		select NEW_ALARM_LEVEL from t_alarm_redefine
+		where STATUS = ${map.status} and NATIVE_PROBABLE_CAUSE = #{map.alarmName} and EMS_ID = ${map.emsId} and ALARM_LEVEL = ${map.alarmLv}
+	</select>
+	
+		<!-- 查询告警归一化规则 -->
+	<select id="judgeIsNeedNormalized" resultType="hashmap" parameterType="hashmap">
+		select REDEFINE_PROBABLE_CAUSE from t_alarm_normalized
+		where FACTORY_ID = ${map.factory} and NATIVE_PROBABLE_CAUSE = #{map.alarmName} <!-- BUG#2189 and NORM_PROBABLE_CAUSE = #{map.normalAlarmName} -->
+	</select>
+	
+		<!-- 查询告警自动确认规则 -->
+	<select id="judgeIsNeedConfirm" resultType="hashmap" parameterType="hashmap">
+		select PS_CRITICAL_CONFIRM,PS_MAJOR_CONFIRM,PS_MINOR_CONFIRM,PS_WARNING_CONFIRM from t_alarm_auto_confirm
+		where BASE_EMS_CONNECTION_ID = ${emsId}
+	</select>
+	
+		<!-- 查询系统参数 -->
+	<select id="getSystemParam" resultType="hashmap" parameterType="hashmap">
+		select PARAM_VALUE from t_sys_param
+		where PARAM_KEY = #{paramKey}
+	</select>
+
+    <!-- 获取指定单元盘信息 -->
+    <select id="getUnitByManyParam" resultType="hashmap">
+        select *
+            from T_BASE_UNIT t
+        where
+            t.BASE_EMS_CONNECTION_ID = #{emsConnectionId}
+			<if test="neId != null">
+			    and t.BASE_NE_ID = #{neId}
+			</if>
+			<if test="rackNo != null">
+			    and t.RACK_NO = #{rackNo}
+			</if>
+			<if test="shelfNo != null">
+			    and t.SHELF_NO = #{shelfNo}
+			</if>
+			<if test="slotNo != null">
+                and t.SLOT_NO = #{slotNo}
+            </if>
+    </select>
+	
+	<!-- 告警屏蔽查询规则更改 -->
+	<select id="judgeIsNeedShieldByNULL" resultType="hashmap" parameterType="hashmap">
+        SELECT F.DEVICE_TYPE,F.DEVICE_ID,B.FACTORY,B.NATIVE_PROBABLE_CAUSE,C.ALARM_TYPE,D.ALARM_LEVEL,E.ALARM_AFFECTING
+        FROM ( SELECT SHIELD_ID,STATUS
+        FROM t_alarm_shield_detail
+        WHERE SHIELD_ID NOT IN(SELECT DISTINCT SHIELD_ID FROM t_alarm_shield_source_relation)) AS A
+        LEFT JOIN t_alarm_shield_relation AS B
+        ON A.SHIELD_ID = B.SHIELD_ID
+        LEFT JOIN t_alarm_shield_type_relation AS C
+        ON A.SHIELD_ID = C.SHIELD_ID
+        LEFT JOIN t_alarm_shield_level_relation AS D
+        ON A.SHIELD_ID = D.SHIELD_ID
+        LEFT JOIN t_alarm_shield_affecting_relation AS E
+        ON A.SHIELD_ID = E.SHIELD_ID
+        LEFT JOIN t_alarm_shield_source_relation AS F
+        ON A.SHIELD_ID = F.SHIELD_ID
+        WHERE A.status= ${map.status}
+    </select>
+    
+    <!-- 告警入库附加信息获取 -->
+    <!-- 获取特定的网管分组及网管信息 -->
+    <select id="getEmsObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME
+        FROM t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID
+        WHERE ems.BASE_EMS_CONNECTION_ID = #{emsId}
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定网元的网管、网元及子网信息 -->
+    <select id="getNeObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.base_subnet_id = sub.base_subnet_id,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.base_ems_group_id = emsgrp.base_ems_group_id
+        WHERE ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            ne.NAME = #{neSerialNo} AND
+            ne.IS_DEL = 0
+        LIMIT 0,1
+    </select>
+    
+        <!-- 获取特定网元的网管、网元及子网信息 -->
+    <select id="getNeObjInfoByNativeNameForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.base_subnet_id = sub.base_subnet_id,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.base_ems_group_id = emsgrp.base_ems_group_id
+        WHERE ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            (ne.NATIVE_EMS_NAME_ORI = #{nativeEmsName} OR ne.USER_LABEL = #{nativeEmsName}) AND
+            ne.IS_DEL = 0
+        LIMIT 0,1
+    </select>
+    
+    <!-- 通过机房ID获取机房和局站信息 -->
+    <select id="getRoomAndStationInfoByRoomId" resultType="hashmap">
+        SELECT room.ROOM_NAME,sta.resource_station_id STATION_ID,sta.STATION_NAME,sta.RESOURCE_AREA_ID
+        FROM t_resource_room room LEFT JOIN t_resource_station sta ON room.resource_station_id = sta.resource_station_id
+        WHERE room.resource_room_id = #{roomId}
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定链路的网管分组、网管、子网及网元信息 -->
+    <select id="getLinkObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            l.BASE_LINK_ID
+        FROM t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.base_ems_group_id = emsgrp.base_ems_group_id,
+            t_base_link l
+        WHERE   ems.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            l.NAME = #{linkName} AND
+            l.A_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            l.Z_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ems.IS_DEL = 0 AND l.IS_DEL = 0 AND IS_MAIN = 1
+        LIMIT 0,1
+    </select>
+    
+    <!-- 通过网元序列号及ptp名获取网管、网元、子网及端口信息 -->
+    <select id="getPtpObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            ptp.RACK_NO,rack.DISPLAY_NAME RACK_DISPLAY_NAME,rack.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,rack.USER_LABEL RACK_USER_LABEL,
+            shelf.NATIVE_EMS_NAME SHELF_NATIVE_EMS_NAME, shelf.USER_LABEL SHELF_USER_LABEL, ptp.BASE_SHELF_ID SHELF_ID,ptp.SHELF_NO,
+            shelf.DISPLAY_NAME SHELF_DISPLAY_NAME,ptp.SLOT_NO,slot.display_name SLOT_DISPLAY_NAME,
+            slot.native_ems_name SLOT_NATIVE_EMS_NAME,slot.user_label SLOT_USER_LABEL,ptp.base_unit_id UNIT_ID,
+            ptp.base_sub_unit_id SUB_UNIT_ID,unit.UNIT_DESC,unit.display_name UNIT_NAME,unit.native_ems_name UNIT_NATIVE_EMS_NAME,
+            unit.user_label UNIT_USER_LABEL,ptp.base_ptp_id PTP_ID,ptp.PORT_NO,ptp.display_name PORT_NAME,
+            ptp.native_ems_name PTP_NATIVE_EMS_NAME,ptp.user_label PTP_USER_LABEL,ptp.PTP_TYPE,ptp.rate INTERFACE_RATE,ptp.DOMAIN,
+            ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID,
+            (((t_base_ptp ptp INNER JOIN t_base_slot slot ON ptp.BASE_SLOT_ID = slot.BASE_SLOT_ID) INNER JOIN t_base_unit unit ON ptp.BASE_UNIT_ID = unit.BASE_UNIT_ID)
+                INNER JOIN t_base_shelf shelf ON ptp.BASE_SHELF_ID = shelf.BASE_SHELF_ID)
+                    INNER JOIN t_base_rack rack ON ptp.BASE_RACK_ID = rack.BASE_RACK_ID
+        WHERE ne.NAME = #{neSerialNo} AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            ptp.NAME = #{ptpName} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.BASE_NE_ID = ptp.BASE_NE_ID AND
+            ptp.IS_DEL = 0 AND
+            ne.IS_DEL = 0
+        LIMIT 0,1
+    </select>
+    
+    <!-- 通过网元序列号及ptp名获取网管、网元、子网及端口信息（E300专用） -->
+    <select id="getPtpObjInfoForAlmE300" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            ptp.RACK_NO,rack.DISPLAY_NAME RACK_DISPLAY_NAME,rack.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,rack.USER_LABEL RACK_USER_LABEL,
+            shelf.NATIVE_EMS_NAME SHELF_NATIVE_EMS_NAME, shelf.USER_LABEL SHELF_USER_LABEL, ptp.BASE_SHELF_ID SHELF_ID,ptp.SHELF_NO,
+            shelf.DISPLAY_NAME SHELF_DISPLAY_NAME,ptp.SLOT_NO,slot.display_name SLOT_DISPLAY_NAME,
+            slot.native_ems_name SLOT_NATIVE_EMS_NAME,slot.user_label SLOT_USER_LABEL,ptp.base_unit_id UNIT_ID,
+            ptp.base_sub_unit_id SUB_UNIT_ID,unit.UNIT_DESC,unit.display_name UNIT_NAME,unit.native_ems_name UNIT_NATIVE_EMS_NAME,
+            unit.user_label UNIT_USER_LABEL,ptp.base_ptp_id PTP_ID,ptp.PORT_NO,ptp.display_name PORT_NAME,
+            ptp.native_ems_name PTP_NATIVE_EMS_NAME,ptp.user_label PTP_USER_LABEL,ptp.PTP_TYPE,ptp.rate INTERFACE_RATE,ptp.DOMAIN,
+            ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID,
+            (((t_base_ptp ptp INNER JOIN t_base_slot slot ON ptp.BASE_SLOT_ID = slot.BASE_SLOT_ID) INNER JOIN t_base_unit unit ON ptp.BASE_UNIT_ID = unit.BASE_UNIT_ID)
+                INNER JOIN t_base_shelf shelf ON ptp.BASE_SHELF_ID = shelf.BASE_SHELF_ID)
+                    INNER JOIN t_base_rack rack ON ptp.BASE_RACK_ID = rack.BASE_RACK_ID
+        WHERE ne.NAME = #{neSerialNo} AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.BASE_NE_ID = ptp.BASE_NE_ID AND
+            ptp.DIRECTION = #{direction} AND
+            ptp.PTP_TYPE = #{ptpType} AND
+            ptp.RACK_NO = #{rackNo} AND
+            ptp.SHELF_NO = #{shelfNo} AND
+            ptp.SLOT_NO = #{slotNo} AND
+            ptp.PORT_NO = #{portNo} AND
+            ptp.IS_DEL = 0 AND
+            ne.IS_DEL = 0
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定机架的相关网管分组、网管、子网、网元及机架信息 -->
+    <select id="getRackObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            r.RACK_NO,r.DISPLAY_NAME RACK_DISPLAY_NAME,r.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,r.USER_LABEL RACK_USER_LABEL,
+            ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM (t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID) LEFT JOIN t_base_rack r
+                ON ne.BASE_NE_ID = r.BASE_NE_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID
+        WHERE ne.NAME = #{neSerialNo} AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            r.NAME = #{rackObjName} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.IS_DEL = 0 AND r.IS_DEL = 0       
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定子架的相关网管分组、网管、子网、网元及子架信息 -->
+    <select id="getShelfObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            sh.RACK_NO,r.DISPLAY_NAME RACK_DISPLAY_NAME,r.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,r.USER_LABEL RACK_USER_LABEL,
+            sh.NATIVE_EMS_NAME SHELF_NATIVE_EMS_NAME, sh.USER_LABEL SHELF_USER_LABEL, sh.BASE_SHELF_ID SHELF_ID,sh.SHELF_NO,
+            sh.DISPLAY_NAME SHELF_DISPLAY_NAME,ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM (t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID) LEFT JOIN t_base_shelf sh
+                ON ne.BASE_NE_ID = sh.BASE_NE_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID,
+            t_base_rack r
+        WHERE ne.NAME = #{neSerialNo} AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            sh.NAME = #{shelfObjName} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.IS_DEL = 0 AND sh.IS_DEL = 0 AND
+            sh.BASE_RACK_ID = r.BASE_RACK_ID
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定槽道的相关网管分组、网管、子网、网元及槽道信息 -->
+    <select id="getSlotObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            slot.RACK_NO,r.DISPLAY_NAME RACK_DISPLAY_NAME,r.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,r.USER_LABEL RACK_USER_LABEL,
+            sh.NATIVE_EMS_NAME SHELF_NATIVE_EMS_NAME, sh.USER_LABEL SHELF_USER_LABEL,slot.BASE_SHELF_ID SHELF_ID,
+            slot.SHELF_NO,sh.DISPLAY_NAME SHELF_DISPLAY_NAME, slot.SLOT_NO,slot.display_name SLOT_DISPLAY_NAME,
+            slot.native_ems_name SLOT_NATIVE_EMS_NAME,slot.user_label SLOT_USER_LABEL,ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM (t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID) LEFT JOIN t_base_slot slot
+                ON ne.BASE_NE_ID = slot.BASE_NE_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID,
+            t_base_shelf sh,t_base_rack r
+        WHERE ne.NAME = #{neSerialNo} AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            slot.NAME = #{slotObjName} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.IS_DEL = 0 AND slot.IS_DEL = 0 AND
+            slot.BASE_SHELF_ID = sh.BASE_SHELF_ID AND
+            slot.BASE_RACK_ID = r.BASE_RACK_ID
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定板卡的相关网管分组、网管、子网、网元及板卡信息 -->
+    <select id="getUnitObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            unit.RACK_NO,r.DISPLAY_NAME RACK_DISPLAY_NAME,r.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,r.USER_LABEL RACK_USER_LABEL,
+            sh.NATIVE_EMS_NAME SHELF_NATIVE_EMS_NAME, sh.USER_LABEL SHELF_USER_LABEL, unit.BASE_SHELF_ID SHELF_ID,unit.SHELF_NO,
+            sh.DISPLAY_NAME SHELF_DISPLAY_NAME,unit.SLOT_NO,slot.display_name SLOT_DISPLAY_NAME,
+            slot.native_ems_name SLOT_NATIVE_EMS_NAME,slot.user_label SLOT_USER_LABEL,unit.base_unit_id UNIT_ID,
+            unit.UNIT_DESC,unit.display_name UNIT_NAME,unit.native_ems_name UNIT_NATIVE_EMS_NAME,
+            unit.user_label UNIT_USER_LABEL,ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM ((t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID) INNER JOIN t_base_slot slot
+                ON ne.BASE_NE_ID = slot.BASE_NE_ID) INNER JOIN t_base_unit unit ON ne.BASE_NE_ID = unit.BASE_NE_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID,
+            t_base_shelf sh, t_base_rack r
+        WHERE ne.NAME = #{neSerialNo} AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            unit.NAME = #{unitObjName} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            slot.BASE_SLOT_ID = unit.BASE_SLOT_ID AND
+            ne.IS_DEL = 0 AND slot.IS_DEL = 0 AND unit.IS_DEL = 0 AND
+            unit.BASE_SHELF_ID = sh.BASE_SHELF_ID AND
+            unit.BASE_RACK_ID = r.BASE_RACK_ID
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定保护组的网管分组、网管、子网及网元信息 -->
+    <select id="getProtectObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            ne.RESOURCE_ROOM_ID,p.BASE_PRO_GROUP_ID,sub.PARENT_SUBNET
+        FROM t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.base_subnet_id = sub.base_subnet_id,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.base_ems_group_id = emsgrp.base_ems_group_id,
+            t_base_pro_group p
+        WHERE ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            ne.NAME = #{neSerialNo} AND
+            p.NAME = #{protectName} AND
+            ne.BASE_NE_ID = p.BASE_NE_ID AND
+            ne.IS_DEL = 0 AND p.IS_DEL = 0
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取特定AID的相关网管分组、网管、子网、网元及板卡信息 -->
+    <select id="getAidObjInfoForAlm" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            unit.RACK_NO,r.DISPLAY_NAME RACK_DISPLAY_NAME,r.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,r.USER_LABEL RACK_USER_LABEL,
+            sh.NATIVE_EMS_NAME SHELF_NATIVE_EMS_NAME, sh.USER_LABEL SHELF_USER_LABEL,unit.BASE_SHELF_ID SHELF_ID,unit.SHELF_NO,
+            sh.DISPLAY_NAME SHELF_DISPLAY_NAME, unit.SLOT_NO,slot.display_name SLOT_DISPLAY_NAME,
+            slot.native_ems_name SLOT_NATIVE_EMS_NAME,slot.user_label SLOT_USER_LABEL,unit.base_unit_id UNIT_ID,
+            unit.UNIT_DESC,unit.display_name UNIT_NAME,unit.native_ems_name UNIT_NATIVE_EMS_NAME,
+            unit.user_label UNIT_USER_LABEL,ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM ((t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID) INNER JOIN t_base_slot slot
+                ON ne.BASE_NE_ID = slot.BASE_NE_ID) INNER JOIN t_base_unit unit ON ne.BASE_NE_ID = unit.BASE_NE_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID,
+            t_base_shelf sh, t_base_rack r
+        WHERE ne.NAME = #{neSerialNo} AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            r.RACK_NO = #{rackNo} AND
+            sh.SHELF_NO = #{shelfNo} AND
+            unit.SLOT_NO = #{slotNo} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            slot.BASE_SLOT_ID = unit.BASE_SLOT_ID AND
+            ne.IS_DEL = 0 AND slot.IS_DEL = 0 AND unit.IS_DEL = 0 AND
+            r.BASE_RACK_ID = unit.BASE_RACK_ID AND
+            sh.BASE_SHELF_ID = unit.BASE_SHELF_ID
+        LIMIT 0,1
+    </select>
+    
+    <!-- 获取用于贝尔AID级告警的相关网管分组、网管、子网、网元及板卡信息 -->
+    <select id="getAidObjInfoForAlu" resultType="hashmap">
+        SELECT emsgrp.group_name EMS_GROUP_NAME,ems.BASE_EMS_GROUP_ID,ems.display_name EMS_NAME,
+            ne.base_subnet_id SUBNET_ID,sub.display_name SUBNET_NAME,ne.base_ne_id NE_ID,ne.display_name NE_NAME,
+            ne.native_ems_name NE_NATIVE_EMS_NAME,ne.user_label NE_USER_LABEL,ne.type NE_TYPE,ne.PRODUCT_NAME,
+            unit.RACK_NO,r.DISPLAY_NAME RACK_DISPLAY_NAME,r.NATIVE_EMS_NAME RACK_NATIVE_EMS_NAME,r.USER_LABEL RACK_USER_LABEL,
+            sh.NATIVE_EMS_NAME SHELF_NATIVE_EMS_NAME, sh.USER_LABEL SHELF_USER_LABEL,unit.BASE_SHELF_ID SHELF_ID,unit.SHELF_NO,
+            sh.DISPLAY_NAME SHELF_DISPLAY_NAME, unit.SLOT_NO,slot.display_name SLOT_DISPLAY_NAME,
+            slot.native_ems_name SLOT_NATIVE_EMS_NAME,slot.user_label SLOT_USER_LABEL,unit.base_unit_id UNIT_ID,
+            unit.UNIT_DESC,unit.display_name UNIT_NAME,unit.native_ems_name UNIT_NATIVE_EMS_NAME,
+            unit.user_label UNIT_USER_LABEL,ne.RESOURCE_ROOM_ID,sub.PARENT_SUBNET
+        FROM ((t_base_ne ne LEFT JOIN t_base_subnet sub ON ne.BASE_SUBNET_ID = sub.BASE_SUBNET_ID) INNER JOIN t_base_slot slot
+                ON ne.BASE_NE_ID = slot.BASE_NE_ID) INNER JOIN t_base_unit unit ON ne.BASE_NE_ID = unit.BASE_NE_ID,
+            t_base_ems_connection ems LEFT JOIN t_base_ems_group emsgrp ON ems.BASE_EMS_GROUP_ID = emsgrp.BASE_EMS_GROUP_ID,
+            t_base_shelf sh, t_base_rack r
+        WHERE (ne.NATIVE_EMS_NAME_ORI = #{nativeEmsNameOri} OR ne.USER_LABEL = #{nativeEmsNameOri}) AND
+            ne.BASE_EMS_CONNECTION_ID = #{emsId} AND
+            r.RACK_NO = #{rackNo} AND
+            sh.SHELF_NO = #{shelfNo} AND
+            unit.SLOT_NO = #{slotNo} AND
+            ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID AND
+            slot.BASE_SLOT_ID = unit.BASE_SLOT_ID AND
+            ne.IS_DEL = 0 AND slot.IS_DEL = 0 AND unit.IS_DEL = 0 AND
+            r.BASE_RACK_ID = unit.BASE_RACK_ID AND
+            sh.BASE_SHELF_ID = unit.BASE_SHELF_ID
+        LIMIT 0,1
+    </select>
+       
+    <!-- 获取对端端口信息 -->
+    <select id="getAffectTpsByPtpId" resultType="hashmap">
+        (SELECT 
+	        ems.DISPLAY_NAME as EMS_NAME,
+	        ne.DISPLAY_NAME as NE_NAME,
+	        concat(
+	        	rack.DISPLAY_NAME,'-',
+	        	shelf.DISPLAY_NAME,'-',
+	        	slot.DISPLAY_NAME) as SLOT_DISPLAY_NAME,
+	        unit.DISPLAY_NAME as UNIT_NAME,
+	        ptp.DISPLAY_NAME as PORT_NAME
+        FROM t_base_link l
+        	left join t_base_ems_connection ems on l.Z_EMS_CONNECTION_ID=ems.BASE_EMS_CONNECTION_ID
+        	left join t_base_ne ne on l.Z_NE_ID=ne.BASE_NE_ID
+        	left join t_base_ptp ptp on l.Z_END_PTP=ptp.BASE_PTP_ID and l.Z_EMS_CONNECTION_ID=ptp.BASE_EMS_CONNECTION_ID
+        	left join t_base_rack rack on ptp.BASE_RACK_ID=rack.BASE_RACK_ID
+        	left join t_base_shelf shelf on ptp.BASE_SHELF_ID=shelf.BASE_SHELF_ID
+        	left join t_base_slot slot on ptp.BASE_SLOT_ID=slot.BASE_SLOT_ID
+        	left join t_base_unit unit on ptp.BASE_UNIT_ID=unit.BASE_UNIT_ID
+        WHERE 
+        l.A_END_PTP = #{ptpId}
+        and IS_MAIN = 1
+		<if test="linkType != null"> 
+			and l.LINK_TYPE in 
+			<foreach item="item" index="index" collection="linkType" open="(" separator="," close=")">  
+				#{item}   
+			</foreach>
+		</if>
+		<if test="isDel != null"> 
+			and l.IS_DEL = ${isDel}
+		</if>) union 
+		(SELECT 
+	        ems.DISPLAY_NAME as EMS_NAME,
+	        ne.DISPLAY_NAME as NE_NAME,
+	        concat(
+	        	rack.DISPLAY_NAME,'-',
+	        	shelf.DISPLAY_NAME,'-',
+	        	slot.DISPLAY_NAME) as SLOT_DISPLAY_NAME,
+	        unit.DISPLAY_NAME as UNIT_NAME,
+	        ptp.DISPLAY_NAME as PORT_NAME
+        FROM t_base_link l
+        	left join t_base_ems_connection ems on l.A_EMS_CONNECTION_ID=ems.BASE_EMS_CONNECTION_ID
+        	left join t_base_ne ne on l.A_NE_ID=ne.BASE_NE_ID
+        	left join t_base_ptp ptp on l.A_END_PTP=ptp.BASE_PTP_ID and l.Z_EMS_CONNECTION_ID=ptp.BASE_EMS_CONNECTION_ID
+        	left join t_base_rack rack on ptp.BASE_RACK_ID=rack.BASE_RACK_ID
+        	left join t_base_shelf shelf on ptp.BASE_SHELF_ID=shelf.BASE_SHELF_ID
+        	left join t_base_slot slot on ptp.BASE_SLOT_ID=slot.BASE_SLOT_ID
+        	left join t_base_unit unit on ptp.BASE_UNIT_ID=unit.BASE_UNIT_ID
+        WHERE 
+        l.Z_END_PTP = #{ptpId}
+        and IS_MAIN = 1
+		<if test="linkType != null"> 
+			and l.LINK_TYPE in 
+			<foreach item="item" index="index" collection="linkType" open="(" separator="," close=")">  
+				#{item}   
+			</foreach>
+		</if>
+		<if test="isDel != null"> 
+			and l.IS_DEL = ${isDel}
+		</if>)
+    </select>
+       
+    <!-- 通过网管分组、网管、子网及网元查询包机人信息 -->
+    <select id="getInspectInfoForAlm" resultType="hashmap" parameterType="hashmap">
+        SELECT te.NAME, te.INSPECT_ENGINEER_ID
+        FROM t_inspect_engineer_info ti INNER JOIN t_inspect_engineer te 
+            ON ti.INSPECT_ENGINEER_ID = te.INSPECT_ENGINEER_ID
+        <where>
+            <if test="map.emsGrpId != null">
+                ti.TARGET_TYPE = 1 and ti.TARGET_ID = #{map.emsGrpId}
+            </if>
+            <if test="map.emsId != null">
+                or (ti.TARGET_TYPE = 2 and ti.TARGET_ID = #{map.emsId})
+            </if>
+            <if test="map.subnetIdList != null">
+                or (ti.TARGET_TYPE = 3 and ti.TARGET_ID in
+                    <foreach item="item" index="index" collection="map.subnetIdList" open="("
+                        separator="," close=")">
+                        #{item}
+                    </foreach>)
+            </if>
+            <if test="map.neId != null">
+                or (ti.TARGET_TYPE = 4 and ti.TARGET_ID = #{map.neId})
+            </if>
+        </where> 
+    </select>
+    
+	<!-- 万能删除法 -->
+	<delete id="deleteByParameter"  parameterType="hashMap"> 
+		  delete from ${map.NAME}
+		  <where>
+		  <if test="map.ID_NAME != null">
+					${map.ID_NAME} = #{map.ID_VALUE}
+				</if>
+				<if test="map.ID_NAME_2 != null">
+					AND ${map.ID_NAME_2} = #{map.ID_VALUE_2}
+				</if>
+				<if test="map.ID_NAME_3 != null">
+					AND ${map.ID_NAME_3} = #{map.ID_VALUE_3}
+				</if>
+		</where>
+	</delete>
+	<!-- 万能更新法 -->
+	<update id="updateByParameter"  parameterType="hashMap" >
+	  	update  ${map.NAME}
+		  <set>			
+			<if test="map.ID_NAME_2 != null">
+			 ${map.ID_NAME_2} = #{map.ID_VALUE_2},
+			</if>
+			<if test="map.ID_NAME_3 != null">
+			 ${map.ID_NAME_3} = #{map.ID_VALUE_3},
+			</if>
+			<if test="map.ID_NAME_4 != null">
+			 ${map.ID_NAME_4} = #{map.ID_VALUE_4},
+			</if>
+			<if test="map.ID_NAME_5 != null">
+			 ${map.ID_NAME_5} = #{map.ID_VALUE_5},
+			</if>
+			<if test="map.ID_NAME_6 != null">
+			 ${map.ID_NAME_6} = #{map.ID_VALUE_6},
+			</if>
+			<if test="map.ID_NAME_7 != null">
+			 ${map.ID_NAME_7} = #{map.ID_VALUE_7},
+			</if>
+			<if test="map.ID_NAME_8 != null">
+			 ${map.ID_NAME_8} = #{map.ID_VALUE_8},
+			</if>
+		</set>
+		<where>
+			<if test="map.ID_NAME != null">
+			 ${map.ID_NAME} = #{map.ID_VALUE}
+			 </if>
+			 <if test="map.ID_NAME_ != null">
+			 AND ${map.ID_NAME_} = #{map.ID_VALUE_}
+			 </if>
+		</where>
+	</update>
+	
+	<insert id="insertUnitTypeDefineBatch" >
+        INSERT IGNORE INTO T_NWA_UNIT_TYPE_DEFINE 
+        (FACTORY,UNIT_NAME,
+        CREATE_TIME
+        )values
+        <foreach collection="data.unitTypeList" item="item" index="index"  separator=",">  
+            (
+            #{data.factory}, #{item}, #{data.createTime}
+            )
+        </foreach>  
+    </insert>
+</mapper>

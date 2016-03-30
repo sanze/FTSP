@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<title>标识约定</title>
+	<para>本手册中带标识的文字表示了某些特殊的信息。标识含义如下表所示：</para>
+	<informaltable>
+		<tgroup cols="2">
+			<colspec colwidth="3*" />
+			<colspec colwidth="7*" />
+			<tbody>
+				<row>
+					<entry>格式</entry>
+					<entry>含义</entry>
+				</row>
+				<row>
+					<entry>[说明]：</entry>
+					<entry>文字以这种方式出现，表示对操作步骤的补充说明或对系统的功能解释</entry>
+				</row>
+				<row>
+					<entry>[注意]：</entry>
+					<entry>文字以这种方式出现，表示对一般安全事项的提示。若忽视，有可能发生伤害、损坏设备或影响业务的事故。</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</informaltable>
+
+</section>

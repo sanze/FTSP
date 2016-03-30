@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.SysInterfaceManageMapper">
+	
+	
+	<!--  查询t_sys_interface表分页数据 -->
+	<select id="selectInterfaceDataList" parameterType="hashmap" resultType="hashmap">
+   		select * 
+			from t_sys_interface tsdd
+   		<if test="map.pageSize != null and map.pageSize > 0 and map.startNumber != null and map.startNumber >= 0">
+			LIMIT #{map.startNumber},#{map.pageSize}
+		</if>   
+  	</select>
+  	<select id="countInterfaceDataList" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_interface
+  	</select>
+  	
+  	
+  	<!-- 新增接口 -->
+	<insert id="addInterface" parameterType="hashmap">
+		insert t_sys_interface (INTERFACE_NAME,OWN_IP,PORT,PEER_IP,USERNAME,PASSWORD,REMARK,CREATE_TIME) 
+		values (#{map.INTERFACE_NAME}, #{map.OWN_IP},#{map.PORT},#{map.PEER_IP},#{map.USERNAME},#{map.PASSWORD},#{map.REMARK},#{map.CREATE_TIME})
+	</insert>
+  	<!-- 更新接口设置设置-->
+	<update id="modifyInterface" parameterType="hashmap">
+		update t_sys_interface
+		<set>
+			INTERFACE_NAME = #{map.INTERFACE_NAME},
+			OWN_IP = #{map.OWN_IP},
+			PORT = #{map.PORT},
+			PEER_IP = #{map.PEER_IP},
+			USERNAME = #{map.USERNAME},
+			PASSWORD = #{map.PASSWORD},
+			REMARK = #{map.REMARK},
+			UPDATE_TIME = now()
+		</set>
+		where ID = #{map.ID}
+	</update>
+     <!-- 查询详情 -->
+     <select id="getDetailById" parameterType="hashmap" resultType="hashmap">
+   		select * 
+			from t_sys_interface
+		where ID=#{id}
+  	</select>
+	<!-- 删除接口 -->
+	<delete id="deleteInterface">
+		delete from t_sys_interface
+		where ID = #{id}
+	</delete>
+	
+	
+	<select id="checkConnection" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_interface
+   		where PEER_IP = #{map.PEER_IP} and	USERNAME = #{map.USERNAME} and PASSWORD = #{map.PASSWORD}
+  	</select>
+  	
+  	<select id="checkInterfaceName" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_interface
+   		where INTERFACE_NAME = #{map.INTERFACE_NAME} 
+   		<if test="map.ID!=null">
+   			and ID &lt;&gt; #{map.ID}
+   		</if>
+  	</select>
+  	
+  	<select id="checkInterfaceIPPort" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_interface
+   		where OWN_IP = #{map.OWN_IP} and PORT = #{map.PORT}
+   		<if test="map.ID!=null">
+   			and ID &lt;&gt; #{map.ID}
+   		</if>
+  	</select>
+  	
+  	<select id="checkInterfacePeer" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_interface
+   		where PEER_IP = #{map.PEER_IP}
+   		<if test="map.ID!=null">
+   			and ID &lt;&gt; #{map.ID}
+   		</if>
+  	</select>
+</mapper>

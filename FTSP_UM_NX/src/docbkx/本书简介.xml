@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<title>本书简介</title>
+	<para>本书为《宁夏电信传输综合网管用户操作手册》，手册内容简介如下：</para>
+	<informaltable>
+		<tgroup cols="2">
+			<colspec colwidth="3*" />
+			<colspec colwidth="7*" />
+			<tbody>
+				<row>
+					<entry>模块名称</entry>
+					<entry>内容简介</entry>
+				</row>
+				<row>
+					<entry>第1章 基本知识</entry>
+					<entry>本章简单介绍传输综合网管系统的定义概念，包括：系统介绍、登录系统、注销系统、主菜单。</entry>
+				</row>
+				<row>
+					<entry>第2章 系统</entry>
+					<entry>本章介绍系统用户，接口管理，LOG管理，服务器监控和退出。</entry>
+				</row>
+				<row>
+					<entry>第3章 接入</entry>
+					<entry>本章介绍南向连接管理，接入服务器管理，网管分组管理，网元管理，链路管理，网管同步，子网管理，设备资源管理。
+					</entry>
+				</row>
+				<row>
+					<entry>第4章 视图</entry>
+					<entry>本章介绍网络拓扑图。</entry>
+				</row>
+				<row>
+					<entry>第5章 故障</entry>
+					<entry>本章介绍当前告警，历史告警和告警设置。</entry>
+				</row>
+				<row>
+					<entry>第6章 性能</entry>
+					<entry>本章介绍SDH当前/历史性能查询，WDM当前/历史性能查询, 性能采集管理，光口设置管理，性能分析管理。
+					</entry>
+				</row>
+				<row>
+					<entry>第7章 电路</entry>
+					<entry>本章介绍电路的自动/手动生成，电路的端到端/相关性查询，交叉连接查询。</entry>
+				</row>
+				<row>
+					<entry>第8章 统计</entry>
+					<entry>本章介绍槽道可用率，端口可用率，时隙可用率，时隙可用率拓扑，板卡分类自定义和板卡类别名称自定义。</entry>
+				</row>
+				<row>
+					<entry>第9章 维护</entry>
+					<entry>本章介绍区域管理，区域资源，割接，光放单元管理，自动作业计划和定制作业计划。</entry>
+				</row>
+				<row>
+					<entry>附录</entry>
+					<entry>
+						<para>附录A:介绍获取 license和安装 license的方法。</para>
+						<para>附录 B：缩略语。</para>
+					</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</informaltable>
+
+</section>

@@ -1,0 +1,454 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.KeyAccountMapper">
+	<!-- 根据客户Id获取客户联系人 -->
+	<select id="selectContact" resultType="com.fujitsu.dao.mysql.bean.Contact" parameterType="Integer">
+		select ID as id,
+			   CONTACT_NAME as name,
+			   TEL as tel,
+			   DEPARTMENT as department,
+			   STAFF_NO as staffNo,
+			   EMAIL as email,
+			   NOTE as note,
+			   CLIENT_NAME as clientName
+			   from t_vip_contact 
+			   <!-- where SYS_USER_ID = #{accountId} -->
+		<if test = "start != null and limit != null">
+				limit #{start},#{limit}
+		</if>
+	</select>
+	<!-- 根据客户Id获取客户联系人总数 -->
+	<select id="selectContactTotal" resultType="int" parameterType="Integer">
+		select count(*) as total from t_vip_contact 
+		<!-- where SYS_USER_ID = #{accountId} -->
+	</select>
+	<!-- 查询24小时内电路的设备性能越限数据的数量 -->
+	<select id="selectTcaCount" resultType="int" parameterType="hashmap">
+		select count(1) as total from t_alarm_tca tca
+		    where tca.ARISES_TIME &gt;= str_to_date(#{map.oneDayAgoTime}, '%Y-%m-%d %H:%i:%s')
+		        and (tca.BASE_PTP_ID in 
+		        	 <foreach collection="map.ptpIdList" item="item" index="index" open="(" separator="," close=")">
+					   #{item}
+					</foreach>
+					<if test = "map.circuitType==1">
+					or tca.BASE_SDH_CTP_ID in
+		        	<foreach collection="map.ctpIdList" item="item" index="index" open="(" separator="," close=")">
+					   #{item}
+					</foreach>
+					</if>
+		        	<if test = "map.circuitType==2">
+		        	or tca.BASE_OTN_CTP_ID in
+		        	<foreach collection="map.ctpIdList" item="item" index="index" open="(" separator="," close=")">
+					   #{item}
+					</foreach>
+					</if>
+		        )
+	</select>
+	
+	<!-- 查询大客户 -->
+	<select id="getVIPInfo" resultType="HashMap" parameterType="Integer">
+		SELECT
+		  ta.CLIENT_NAME,ta.SERVICE_LEVEL
+		FROM (SELECT DISTINCT
+		        t1.CLIENT_NAME,t1.SERVICE_LEVEL
+		      FROM t_cir_circuit_info t1
+		      WHERE t1.USER_TYPE = 1
+		           OR t1.USER_TYPE = 2 
+		      UNION 
+		           SELECT DISTINCT
+                      t2.CLIENT_NAME,t2.SERVICE_LEVEL
+                    FROM t_cir_otn_circuit_info t2
+                    WHERE t2.USER_TYPE = 1
+                         OR t2.USER_TYPE = 2) ta
+		
+	</select>
+	<!-- 查询大客户总数 -->
+	<select id="getVIPInfoCount" resultType="int" >
+		SELECT
+		  count(1)
+		FROM (SELECT DISTINCT
+		        t1.CLIENT_NAME,t1.SERVICE_LEVEL
+		      FROM t_cir_circuit_info t1
+		      WHERE t1.USER_TYPE = 1
+		           OR t1.USER_TYPE = 2 
+		      UNION 
+		           SELECT DISTINCT
+                      t2.CLIENT_NAME,t2.SERVICE_LEVEL
+                    FROM t_cir_otn_circuit_info t2
+                    WHERE t2.USER_TYPE = 1
+                         OR t2.USER_TYPE = 2) ta
+	</select>
+	
+	<!-- 分页查询大客户名称对应的电路信息-->
+	<select id="getCircuitInfo" resultType="HashMap" parameterType="Integer">
+		SELECT
+		  '1'                 AS CIRCUIT_TYPE,
+		  CIR_CIRCUIT_INFO_ID AS CIR_CIRCUIT_INFO_ID,
+		  CIR_NO,
+		  CIR_NAME,
+		  BUSINESS_LEVEL,
+		  SVC_TYPE,
+		  A_ROOM,
+		  Z_ROOM
+		FROM t_cir_circuit_info t1
+		WHERE t1.client_name = #{clientName} 
+		UNION ALL 
+		SELECT
+		  '2'                     AS CIRCUIT_TYPE,
+		  CIR_OTN_CIRCUIT_INFO_ID AS CIR_CIRCUIT_INFO_ID,
+		  CIR_NO,
+		  CIR_NAME,
+		  BUSINESS_LEVEL,
+		  SVC_TYPE,
+		  A_ROOM,
+		  Z_ROOM
+		FROM t_cir_otn_circuit_info t2
+		WHERE t2.client_name = #{clientName}
+		<if test = "start != null and limit != null and start!=-1 and limit!=-1">
+				limit #{start},#{limit}
+		</if>
+	</select>
+	<!-- 查询大客户名称对应的电路总数-->
+	<select id="getCircuitInfoCount" resultType="int" >
+		SELECT
+		  count(1)
+		FROM (SELECT
+		  '1'                 AS CIRCUIT_TYPE,
+		  CIR_CIRCUIT_INFO_ID AS CIR_CIRCUIT_INFO_ID,
+		  CIR_NAME,
+		  BUSINESS_LEVEL,
+		  SVC_TYPE,
+		  A_ROOM,
+		  Z_ROOM
+		FROM t_cir_circuit_info t1
+		WHERE t1.client_name = #{clientName} 
+		UNION ALL 
+		SELECT
+		  '2'                     AS CIRCUIT_TYPE,
+		  CIR_OTN_CIRCUIT_INFO_ID AS CIR_CIRCUIT_INFO_ID,
+		  CIR_NAME,
+		  BUSINESS_LEVEL,
+		  SVC_TYPE,
+		  A_ROOM,
+		  Z_ROOM
+		FROM t_cir_otn_circuit_info t2
+		WHERE t2.client_name = #{clientName}) ta
+	</select>
+	<!-- 查询电路经过的ptpId-->
+	<select id="queryPtpInCircuit" resultType="int">
+		SELECT
+		  t4.A_END_PTP PTP
+		FROM t_cir_circuit_info t1,
+		  t_cir_circuit t2,
+		  (SELECT
+		     CIR_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_circuit_route
+		   WHERE chain_type = 1) t3,
+		  t_base_sdh_crs t4
+		WHERE t1.CIR_CIRCUIT_INFO_ID = t2.CIR_CIRCUIT_INFO_ID
+		    AND t2.CIR_CIRCUIT_ID = t3.CIR_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_SDH_CRS_ID
+		    AND t1.CIR_CIRCUIT_INFO_ID = #{circuitInfoId}
+		
+		UNION
+    
+		SELECT
+		  t4.Z_END_PTP PTP
+		FROM t_cir_circuit_info t1,
+		  t_cir_circuit t2,
+		  (SELECT
+		     CIR_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_circuit_route
+		   WHERE chain_type = 1) t3,
+		  t_base_sdh_crs t4
+		WHERE t1.CIR_CIRCUIT_INFO_ID = t2.CIR_CIRCUIT_INFO_ID
+		    AND t2.CIR_CIRCUIT_ID = t3.CIR_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_SDH_CRS_ID
+		    AND t1.CIR_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	
+	<!-- 查询电路经过的ctpId-->
+	<select id="queryCtpInCircuit" resultType="int">
+		SELECT
+		  t4.A_END_CTP CTP
+		FROM t_cir_circuit_info t1,
+		  t_cir_circuit t2,
+		  (SELECT
+		     CIR_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_circuit_route
+		   WHERE chain_type = 1) t3,
+		  t_base_sdh_crs t4
+		WHERE t1.CIR_CIRCUIT_INFO_ID = t2.CIR_CIRCUIT_INFO_ID
+		    AND t2.CIR_CIRCUIT_ID = t3.CIR_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_SDH_CRS_ID
+		    AND t1.CIR_CIRCUIT_INFO_ID = #{circuitInfoId}
+		
+		UNION
+    	
+		SELECT
+		  t4.Z_END_CTP CTP
+		FROM t_cir_circuit_info t1,
+		  t_cir_circuit t2,
+		  (SELECT
+		     CIR_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_circuit_route
+		   WHERE chain_type = 1) t3,
+		  t_base_sdh_crs t4
+		WHERE t1.CIR_CIRCUIT_INFO_ID = t2.CIR_CIRCUIT_INFO_ID
+		    AND t2.CIR_CIRCUIT_ID = t3.CIR_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_SDH_CRS_ID
+		    AND t1.CIR_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	<!-- 查询电路经过的网元Id-->
+	<select id="queryNeInCircuit" resultType="int">
+		SELECT DISTINCT
+		  t4.BASE_NE_ID    NE
+		FROM t_cir_circuit_info t1,
+		  t_cir_circuit t2,
+		  (SELECT
+		     CIR_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_circuit_route
+		   WHERE chain_type = 1) t3,
+		  t_base_sdh_crs t4
+		WHERE t1.CIR_CIRCUIT_INFO_ID = t2.CIR_CIRCUIT_INFO_ID
+		    AND t2.CIR_CIRCUIT_ID = t3.CIR_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_SDH_CRS_ID
+		    AND t1.CIR_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	
+	
+	<!-- 查询电路经过的板卡Id-->
+	<select id="queryEquipInCircuit" resultType="int">
+		SELECT
+		  t5.BASE_UNIT_ID
+		  
+		FROM t_cir_circuit_info t1,
+		  t_cir_circuit t2,
+		  (SELECT
+		     CIR_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_circuit_route
+		   WHERE chain_type = 1) t3,
+		  t_base_sdh_crs t4,
+		  t_base_ptp t5
+		WHERE t1.CIR_CIRCUIT_INFO_ID = t2.CIR_CIRCUIT_INFO_ID
+		    AND t2.CIR_CIRCUIT_ID = t3.CIR_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_SDH_CRS_ID
+		    AND t4.A_END_PTP = t5.BASE_PTP_ID
+		    AND t1.CIR_CIRCUIT_INFO_ID = #{circuitInfoId}
+		    
+		UNION
+		    
+		SELECT
+		  t5.BASE_UNIT_ID
+		FROM t_cir_circuit_info t1,
+		  t_cir_circuit t2,
+		  (SELECT
+		     CIR_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_circuit_route
+		   WHERE chain_type = 1) t3,
+		  t_base_sdh_crs t4,
+		t_base_ptp t5
+		WHERE t1.CIR_CIRCUIT_INFO_ID = t2.CIR_CIRCUIT_INFO_ID
+		    AND t2.CIR_CIRCUIT_ID = t3.CIR_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_SDH_CRS_ID
+		    AND t4.Z_END_PTP = t5.BASE_PTP_ID
+		    AND t1.CIR_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	
+		<!-- 查询otn电路经过的ptpId-->
+	<select id="queryPtpInOtnCircuit" resultType="int">
+		SELECT
+		  t4.A_END_PTP PTP
+		FROM t_cir_otn_circuit_info t1,
+		  t_cir_otn_circuit t2,
+		  (SELECT
+		     CIR_OTN_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_otn_circuit_route
+		   WHERE chain_type = 2) t3,
+		  t_base_otn_crs t4
+		WHERE t1.CIR_OTN_CIRCUIT_INFO_ID = t2.CIR_OTN_CIRCUIT_INFO_ID
+		    AND t2.CIR_OTN_CIRCUIT_ID = t3.CIR_OTN_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_OTN_CRS_ID
+		    AND t1.CIR_OTN_CIRCUIT_INFO_ID = #{circuitInfoId}
+		
+		UNION
+    
+		SELECT
+		  t4.Z_END_PTP PTP
+		FROM t_cir_otn_circuit_info t1,
+		  t_cir_otn_circuit t2,
+		  (SELECT
+		     CIR_OTN_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_otn_circuit_route
+		   WHERE chain_type = 2) t3,
+		  t_base_otn_crs t4
+		WHERE t1.CIR_OTN_CIRCUIT_INFO_ID = t2.CIR_OTN_CIRCUIT_INFO_ID
+		    AND t2.CIR_OTN_CIRCUIT_ID = t3.CIR_OTN_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_OTN_CRS_ID
+		    AND t1.CIR_OTN_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	
+	<!-- 查询otn电路经过的ctpId-->
+	<select id="queryCtpInOtnCircuit" resultType="int">
+		SELECT
+		  t4.A_END_CTP CTP
+		FROM t_cir_otn_circuit_info t1,
+		  t_cir_otn_circuit t2,
+		  (SELECT
+		     CIR_OTN_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_otn_circuit_route
+		   WHERE chain_type = 2) t3,
+		  t_base_otn_crs t4
+		WHERE t1.CIR_OTN_CIRCUIT_INFO_ID = t2.CIR_OTN_CIRCUIT_INFO_ID
+		    AND t2.CIR_OTN_CIRCUIT_ID = t3.CIR_OTN_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_OTN_CRS_ID
+		    AND t1.CIR_OTN_CIRCUIT_INFO_ID = #{circuitInfoId}
+		
+		UNION
+    	
+		SELECT
+		  t4.Z_END_CTP CTP
+		FROM t_cir_otn_circuit_info t1,
+		  t_cir_otn_circuit t2,
+		  (SELECT
+		     CIR_OTN_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_otn_circuit_route
+		   WHERE chain_type = 2) t3,
+		  t_base_otn_crs t4
+		WHERE t1.CIR_OTN_CIRCUIT_INFO_ID = t2.CIR_OTN_CIRCUIT_INFO_ID
+		    AND t2.CIR_OTN_CIRCUIT_ID = t3.CIR_OTN_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_OTN_CRS_ID
+		    AND t1.CIR_OTN_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	<!-- 查询otn电路经过的网元Id-->
+	<select id="queryNeInOtnCircuit" resultType="int">
+		SELECT DISTINCT
+		  t4.BASE_NE_ID    NE
+		FROM t_cir_otn_circuit_info t1,
+		  t_cir_otn_circuit t2,
+		  (SELECT
+		     CIR_OTN_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_otn_circuit_route
+		   WHERE chain_type = 2) t3,
+		  t_base_otn_crs t4
+		WHERE t1.CIR_OTN_CIRCUIT_INFO_ID = t2.CIR_OTN_CIRCUIT_INFO_ID
+		    AND t2.CIR_OTN_CIRCUIT_ID = t3.CIR_OTN_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_OTN_CRS_ID
+		    AND t1.CIR_OTN_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	
+	
+	<!-- 查询otn电路经过的板卡Id-->
+	<select id="queryEquipInOtnCircuit" resultType="int">
+		SELECT
+		  t5.BASE_UNIT_ID
+		FROM t_cir_otn_circuit_info t1,
+		  t_cir_otn_circuit t2,
+		  (SELECT
+		     CIR_OTN_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_otn_circuit_route
+		   WHERE chain_type = 2) t3,
+		  t_base_otn_crs t4,
+		  t_base_ptp t5
+		WHERE t1.CIR_OTN_CIRCUIT_INFO_ID = t2.CIR_OTN_CIRCUIT_INFO_ID
+		    AND t2.CIR_OTN_CIRCUIT_ID = t3.CIR_OTN_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_OTN_CRS_ID
+		    AND t4.A_END_PTP = t5.BASE_PTP_ID
+		    AND t1.CIR_OTN_CIRCUIT_INFO_ID = #{circuitInfoId}  
+		
+		UNION
+		    
+		SELECT
+		  t5.BASE_UNIT_ID
+		FROM t_cir_otn_circuit_info t1,
+		  t_cir_otn_circuit t2,
+		  (SELECT
+		     CIR_OTN_CIRCUIT_ID,
+		     CHAIN_ID
+		   FROM t_cir_otn_circuit_route
+		   WHERE chain_type = 2) t3,
+		  t_base_otn_crs t4,
+		  t_base_ptp t5
+		WHERE t1.CIR_OTN_CIRCUIT_INFO_ID = t2.CIR_OTN_CIRCUIT_INFO_ID
+		    AND t2.CIR_OTN_CIRCUIT_ID = t3.CIR_OTN_CIRCUIT_ID
+		    AND t3.CHAIN_ID = t4.BASE_OTN_CRS_ID
+		    AND t4.Z_END_PTP = t5.BASE_PTP_ID
+		    AND t1.CIR_OTN_CIRCUIT_INFO_ID = #{circuitInfoId}
+	</select>
+	
+	<select id="getGroupedCircuitsByVIPName" resultType="HashMap">
+		SELECT
+		  COUNT(t2.RATE)    NUM,
+		  t2.RATE
+		FROM t_cir_circuit_info t1,
+		  (SELECT
+		     BASE_PTP_ID,
+		     rate
+		   FROM t_base_ptp
+		   WHERE rate IS NOT NULL
+		       AND rate != '') t2
+		WHERE t1.A_END_PTP = t2.BASE_PTP_ID
+		    AND t1.CLIENT_NAME = #{clientName}
+		GROUP BY t2.rate 
+		
+		UNION 
+		
+		SELECT
+		 COUNT(1) AS NUM,
+		 'OTN'    AS RATE
+		FROM t_cir_otn_circuit_info
+		WHERE client_name = #{clientName}
+	</select>
+<!-- 	查询大客户相关的电路id及大客户的名称 -->
+	<select id="searchVIPWithCircuitInfo" resultType="HashMap">
+		SELECT
+		  t.CIR_CIRCUIT_INFO_ID CIR_CIRCUIT_INFO_ID,
+		  t.SVC_TYPE,
+		  t.CLIENT_NAME,
+		  '1'                   AS CIR_TYPE
+		FROM t_cir_circuit_info t
+		WHERE t.USER_TYPE = 1
+		     OR t.USER_TYPE = 2 
+		UNION 
+		SELECT
+		  t.CIR_OTN_CIRCUIT_INFO_ID CIR_CIRCUIT_INFO_ID,
+		  t.SVC_TYPE,
+		  t.CLIENT_NAME,
+		  '2'                   AS CIR_TYPE
+		FROM t_cir_otn_circuit_info t
+		WHERE t.USER_TYPE = 1
+		   OR t.USER_TYPE = 2 
+	</select>
+<!-- 	查询割接任务相关的电路以及割接任务的名称，起止时间 -->
+	<select id="searchCutoverTaskWithCircuitInfo" resultType="HashMap">
+		SELECT t1.TASK_NAME,
+			DATE_FORMAT(t1.START_TIME,'%Y-%m-%d %H:%i:%s')    START_TIME_ESTIMATE,
+			DATE_FORMAT(t1.END_TIME,'%Y-%m-%d %H:%i:%s')    END_TIME_ESTIMATE,
+			t3.CIRCUIT_ID CIR_CIRCUIT_INFO_ID,
+			t3.CIRCUIT_TYPE
+			FROM T_sys_task t1,
+			t_sys_task_param t2,
+			t_cutover_circuit t3
+			WHERE t1.task_type = 10
+			  AND t1.sys_task_id = t2.sys_task_id
+			  AND t2.param_name = '任务状态'
+			  AND t2.param_value != 3
+			  AND t2.param_value != 7
+			  AND t2.param_value != 8
+			  AND t1.sys_task_id = t3.CUTOVER_TASK_ID
+  
+  
+	</select>
+</mapper>

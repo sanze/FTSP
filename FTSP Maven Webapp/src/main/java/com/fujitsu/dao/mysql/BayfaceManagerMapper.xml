@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.BayfaceManagerMapper">
+
+	<select id="getUnitAttribute" resultType="hashmap" parameterType="java.lang.String">
+		select * from  T_BASE_UNIT where BASE_UNIT_ID = #{unitId}
+	</select> 
+	
+	<select id="getBayfaceDataFromNE" resultType="hashmap" parameterType="java.lang.String">
+		select T.BASE_NE_ID,T.DISPLAY_NAME,T.PRODUCT_NAME,T.TYPE  from  T_BASE_NE T
+		where T.BASE_NE_ID = #{neId}
+	</select> 
+	
+	<select id="getBayfaceDataFromShelf" resultType="hashmap" parameterType="java.lang.String">
+	 	select T.BASE_SHELF_ID,T.RACK_NO,T.SHELF_NO,T.DISPLAY_NAME,T.VENDOR_NAME,T.SHELF_TYPE
+	 	from  T_BASE_SHELF T
+		where T.BASE_NE_ID = #{neId}
+	</select> 
+	 
+	<select id="getBayfaceDataFromUnit" resultType="hashmap" parameterType="hashmap">
+	 	select T.BASE_UNIT_ID,T.UNIT_NAME,T.SLOT_NO from  T_BASE_UNIT T
+		where T.BASE_NE_ID = #{map.BASE_NE_ID} and T.BASE_SHELF_ID = #{map.BASE_SHELF_ID}
+		  and T.IS_DEL = 0
+	</select> 
+	
+	<select id="getPortDomain" resultType="hashmap" parameterType="hashmap">
+	 	select T.BASE_PTP_ID,T.DOMAIN  from T_BASE_PTP T
+	 	<where>
+			T.BASE_NE_ID = #{map.neId} and T.RACK_NO  = #{map.rackNo} and 
+			T.SHELF_NO = #{map.shelfNo} and T.SLOT_NO = #{map.slotNo} and
+			T.PORT_NO = #{map.portNo}
+		</where>
+	</select> 
+	
+	<select id="getBayfaceUintId" resultType="hashmap" parameterType="hashmap">
+	 	select T.BASE_UNIT_ID from T_BASE_UNIT T
+	 	<where>
+			T.BASE_NE_ID = #{map.neId} and T.RACK_NO  = #{map.rackNo} and 
+			T.SHELF_NO = #{map.shelfNo} and T.SLOT_NO = #{map.slotNo} and T.IS_DEL = 0
+		</where>
+	</select>  
+		
+	<select id="getEmsId" resultType="String" parameterType="String">
+	 	select T.BASE_EMS_CONNECTION_ID from T_BASE_NE T
+	 	<where>
+			T.BASE_NE_ID = #{neId} 
+		</where>
+	</select> 
+	
+	<select id="getEmsGroupId" resultType="String" parameterType="String">
+	 	select T.BASE_EMS_GROUP_ID from T_BASE_EMS_CONNECTION T
+	 	<where> 
+			T.BASE_EMS_CONNECTION_ID = #{emsId}  
+		</where>
+	</select> 
+	
+	<select id ="getDetailPTP" resultType = "hashmap" parameterType = "String">
+		select T.DOMAIN from T_BASE_PTP T
+		<where>
+			T.BASE_UNIT_ID = #{unitId}
+		</where> 
+	</select> 
+</mapper>

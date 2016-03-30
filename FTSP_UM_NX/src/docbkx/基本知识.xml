@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xml:id="basic" xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook"
+	xmlns:xl="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:ns5="http://www.w3.org/2000/svg" xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns3="http://www.w3.org/1999/xhtml" xmlns:ns="http://docbook.org/ns/docbook">
+
+	<title>基本知识</title>
+
+	<section xml:id="introduction" >
+		<title>介绍</title>
+
+		<section>
+			<title>功能说明</title>
+
+			<para>FTSP（Fujitsu Transmission Support
+				Platform）中文名称为：传输综合网管。FTSP通过传输专业网管（EMS）的北向接口，实现对传输网络的跨厂家监控和管理。
+			</para>
+		</section>
+
+		<section>
+			<title>网络定位</title>
+
+			<para>FTSP就是传输综合网管，采集监控EMS或者网元，并且可以和OSS域内其它系统进行互联。</para>
+
+			<figure xml:id="figure.network_position">
+				<title>网络定位</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/basic/network_position.png" align="center"
+							scalefit="0" width="100%" />
+					</imageobject>
+				</mediaobject>
+			</figure>
+		</section>
+
+		<section>
+			<title>系统结构</title>
+
+			<para>FTSP系统由FTSP平台、DCN网络、EMS/NE和客户端组成。</para>
+
+			<para>其中，FTSP平台可以分为：</para>
+
+			<itemizedlist>
+				<listitem>
+					<para>数据库服务器</para>
+				</listitem>
+
+				<listitem>
+					<para>应用服务器</para>
+				</listitem>
+
+				<listitem>
+					<para>接入服务器</para>
+				</listitem>
+
+				<listitem>
+					<para>接口服务器</para>
+				</listitem>
+			</itemizedlist>
+
+			<figure xml:id="figure.network_architecture">
+				<title>网络架构</title>
+
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/basic/network_architecture.png" align="center"
+							scalefit="0" width="100%" />
+					</imageobject>
+				</mediaobject>
+			</figure>
+		</section>
+	</section>
+
+	<section xml:id="logon">
+		<title>登录FTSP系统</title>
+
+		<section>
+			<title>登录准备</title>
+
+			<procedure>
+				<step>
+					<para>登录客户端，安装有“Internet Explore”（建议：IE8），并安装好Adobe
+						FLASH，用来显示图形结果。使用FTSP系统的最佳分辨率为1280*800，分辨率不低于1024*768。
+					</para>
+				</step>
+
+				<step>
+					<para>传输综合网管系统能正确显示拓扑图，IE浏览器必须支持安装Flash13版本。</para>
+				</step>
+
+				<step>
+					<para>输入平台网址：“http://IP address:8080/FTSP”显示登录界面如下：</para>
+
+					<figure xml:id="figure.login_ui">
+						<title>登录界面</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/basic/login_ui.png" align="center"
+									scalefit="1" width="100%" />
+							</imageobject>
+						</mediaobject>
+					</figure>
+				</step>
+
+				<step>
+					<para>加入“受信任的站点”（否则可能影响图形化显示功能），并且启用Active控件和插件：</para>
+
+					<para>第一步：点击IE的“设置”，选择“Internet 选项”。</para>
+
+					<figure xml:id="figure.select_internet_option">
+						<title>选择Internet选项</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/basic/select_internet_option.png"
+									align="center" scalefit="0" width="100%" />
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>第二步：选择“安全”，“受信任的站点”，点击“站点”。</para>
+
+					<figure xml:id="figure.trusted_site">
+						<title>受信任站点</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/basic/trusted_site.png" align="center"
+									scalefit="0" width="100%" />
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>第三步：把FTSP网址加入安全区域：</para>
+
+					<para>确定网址、去掉“对该区域中的所有站点要求服务器验证”勾选、点击“添加”。</para>
+
+					<figure xml:id="figure.add_ftsp_to_safe_region">
+						<title>添加FTSP到安全区域</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/basic/add_ftsp_to_safe_region.png"
+									align="center" scalefit="0" width="100%" />
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>第四步：浏览器启用ActiveX控件和插件，选择“安全”，“Internet”，点击“自定义级别(C)…”。</para>
+
+					<figure xml:id="figure.internet_option">
+						<title>Internet选项</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/basic/internet_option.png"
+									align="center" scalefit="0" width="100%" />
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>第五步：将ActiveX控件和插件相关选项全部选为“启用”。</para>
+
+					<figure xml:id="figure.security_setting">
+						<title>安全设置窗口</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/basic/security_setting.png" align="center"
+									scalefit="0" width="100%" />
+							</imageobject>
+						</mediaobject>
+					</figure>
+				</step>
+			</procedure>
+		</section>
+
+		<section>
+			<title>登录</title>
+
+			<para>输入“用户名”和“密码”，点击&lt;登录&gt;，页面跳转到FTSP主页，详见
+				<xref linkend="figure.main_page" xrefstyle="template:图 %n" />
+				。
+			</para>
+		</section>
+
+		<section>
+			<title>首页/主界面</title>
+
+			<figure xml:id="figure.main_page">
+				<title>首页</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/basic/main_page.png" align="center"
+							scalefit="1" width="100%" />
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>FTSP首页主要显示：</para>
+
+			<itemizedlist>
+				<listitem>
+					<para>系统摘要：显示系统时间和登录时南向连接情况；</para>
+				</listitem>
+
+				<listitem>
+					<para>任务情况：显示登录时，自动执行的任务情况；</para>
+				</listitem>
+
+				<listitem>
+					<para>性能：显示登录时,性能采集的情况和异常性能数量；</para>
+				</listitem>
+
+				<listitem>
+					<para>告警：显示登录时，告警的总体情况；</para>
+				</listitem>
+
+				<listitem>
+					<para>快捷功能区：快捷显示网络拓扑、当前告警、等等功能。</para>
+				</listitem>
+			</itemizedlist>
+		</section>
+	</section>
+
+	<section xml:id="log-off">
+		<title>注销FTSP系统</title>
+
+		<para>方法一：点击右上角&lt;退出&gt;，进行安全退出。如图。</para>
+
+		<figure xml:id="figure.logout_method1">
+			<title>退出方法一</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/basic/logout_method1.png" align="center"
+						scalefit="0" width="100%" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>方法二：点击&lt;系统&gt;→&lt;退出&gt;，安全退出。如图。</para>
+
+		<figure xml:id="figure.logout_method2">
+			<title>退出方法二</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/basic/logout_method2.png" align="center"
+						scalefit="0" width="100%" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>方法三：FTSP系统采用登陆超时锁定的措施来保证系统安全，每个用户可以设置自己的超时时长。在规定的时间范围内若用户没有对FTSP页面进行操作，则会被自动锁定，需要重新输入密码点击解锁方可继续使用，或者点击注销来退出系统。为了安全，建议用户及时退出，如图。
+		</para>
+
+		<figure xml:id="figure.logout_method3">
+			<title>退出方法三</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/basic/logout_method3.png" align="center"
+						scalefit="1" width="100%" />
+				</imageobject>
+			</mediaobject>
+		</figure>
+	</section>
+
+	<!-- 链接的FTSP主菜单描述段落 -->
+
+	<xi:include href="主菜单.xml">
+		<xi:fallback>XINCLUDE-ERROR</xi:fallback>
+	</xi:include>
+</chapter>

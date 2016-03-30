@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.test.nocCompareData.oldData.OldDataCompare" >
+
+	<select id="selectNeList_OLA" resultType="hashmap" >
+		select *
+		  from t_ne t
+		 where t.EMS_CONNECTION_ID = #{emsConnectionId} 
+		 and t.NE_MODEL  = #{neModel}
+	</select>
+	
+	<select id="selectTableById" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${idName} = ${id}
+	</select>
+	
+	<select id="selectTableListById" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${idName} = ${id}
+	</select>
+	
+	<update id="updateNeById" parameterType="hashmap" >
+	    update T_NE
+	    <set >
+	      <if test="NE_NAME != null" >
+	        NE_NAME = #{NE_NAME},
+	      </if>
+	      <if test="NE_TYPE != null" >
+	        NE_TYPE = #{NE_TYPE},
+	      </if>
+	      <if test="SUPORT_RATES != null" >
+	        SUPORT_RATES = #{SUPORT_RATES},
+	      </if>
+	    </set>
+	    where NE_ID = #{NE_ID}
+	  </update>
+	  
+	  <update id="updateShelfById" parameterType="hashmap" >
+	    update T_SHELF
+	    <set >
+	      <if test="SHELF_NAME != null" >
+	        SHELF_NAME = #{SHELF_NAME},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	    </set>
+	    where SHELF_ID = #{SHELF_ID}
+	  </update>
+	  
+	  <update id="updateSlotById" parameterType="hashmap" >
+	    update T_SLOT
+	    <set >
+	      <if test="SLOT_NAME != null" >
+	        SLOT_NAME = #{SLOT_NAME},
+	      </if>
+	      <if test="SLOT_DISPLAY_NAME != null" >
+	        SLOT_DISPLAY_NAME = #{SLOT_DISPLAY_NAME},
+	      </if>
+	    </set>
+	    where SLOT_ID = #{SLOT_ID}
+	  </update>
+	  
+	   <update id="updateEquipById" parameterType="hashmap" >
+	    update T_EQUIP
+	    <set >
+	      <if test="EQUIP_NAME != null" >
+	        EQUIP_NAME = #{EQUIP_NAME},
+	      </if>
+	    </set>
+	    where EQUIP_ID = #{EQUIP_ID}
+	  </update>
+	  
+	  <update id="updatePtpById" parameterType="hashmap" >
+	    update T_PTP
+	    <set >
+	      <if test="PTP_NAME != null" >
+	        PTP_NAME = #{PTP_NAME},
+	      </if>
+	      <if test="SHELF_NO != null" >
+	        SHELF_NO = #{SHELF_NO},
+	      </if>
+	    </set>
+	    where PTP_ID = #{PTP_ID}
+	  </update>
+	  
+	  
+	  <insert id="insertNode" parameterType="hashmap">
+        insert into T_NODE
+        (NODE_ID,
+        EMS_CONNECTION_ID,
+        NODE_NAME,
+        NODE_DISPLAYNAME,
+        NODE_TYPE,
+        NODE_PARENT_ID,
+        NODE_PROPERTY,
+        SYNC_STATUS,
+        SYNC_TIME,
+        HREF,
+        NEED_DISPALY,
+        IS_LEAF,
+        POSITION_X,
+        POSITION_Y
+        )values
+            (
+            #{NODE_ID},
+            #{EMS_CONNECTION_ID}, 
+            #{NODE_NAME}, 
+            #{NODE_DISPLAYNAME}, 
+            #{NODE_TYPE}, 
+            #{NODE_PARENT_ID},
+            #{NODE_PROPERTY}, 
+            #{SYNC_STATUS}, 
+            #{SYNC_TIME}, 
+            #{HREF},
+            #{NEED_DISPALY},
+            #{IS_LEAF},
+            #{POSITION_X},
+            #{POSITION_Y}
+            )
+    </insert>
+
+	  <insert id="insertNodeBatch" parameterType="java.util.List">
+        insert into T_NODE
+        (NODE_ID,
+        EMS_CONNECTION_ID,
+        NODE_NAME,
+        NODE_DISPLAYNAME,
+        NODE_TYPE,
+        NODE_PARENT_ID,
+        NODE_PROPERTY,
+        SYNC_STATUS,
+        SYNC_TIME,
+        HREF,
+        NEED_DISPALY,
+        IS_LEAF,
+        POSITION_X,
+        POSITION_Y
+        )values
+        <foreach collection="list" item="item" index="index"  separator=",">
+            (
+            #{item.NODE_ID},
+            #{item.EMS_CONNECTION_ID}, 
+            #{item.NODE_NAME}, 
+            #{item.NODE_DISPLAYNAME}, 
+            #{item.NODE_TYPE}, 
+            #{item.NODE_PARENT_ID},
+            #{item.NODE_PROPERTY}, 
+            #{item.SYNC_STATUS}, 
+            #{item.SYNC_TIME}, 
+            #{item.HREF},
+            #{item.NEED_DISPALY},
+            #{item.IS_LEAF},
+            #{item.POSITION_X},
+            #{item.POSITION_Y}
+            )
+        </foreach>  
+    </insert>
+	
+</mapper>

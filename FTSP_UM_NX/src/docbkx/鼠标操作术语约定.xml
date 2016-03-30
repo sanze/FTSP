@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" 
+	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+	<title>鼠标操作术语约定</title>
+	<informaltable>
+		<tgroup cols="2">
+			<colspec colwidth="3*" />
+			<colspec colwidth="7*" />
+			<tbody>
+				<row>
+					<entry>名称</entry>
+					<entry>含义</entry>
+				</row>
+				<row>
+					<entry>单击</entry>
+					<entry>按一下鼠标的左键，并放开。</entry>
+				</row>
+				<row>
+					<entry>双击</entry>
+					<entry>快速地连续按两下鼠标的左键，并放开。</entry>
+				</row>
+				<row>
+					<entry>拖动</entry>
+					<entry>按下鼠标的左键（或中键）不放，移动鼠标到指定的位置松开。</entry>
+				</row>
+				<row>
+					<entry>选择</entry>
+					<entry>单击或拖动鼠标激活主菜单或弹出菜单，选择一项菜单条目，或者单击菜单工具条上的一个快捷按钮，以执行相应的菜单动作。
+					</entry>
+				</row>
+				<row>
+					<entry>指向</entry>
+					<entry>移动鼠标直到光标的头部停在某个界面对象上</entry>
+				</row>
+				<row>
+					<entry>选中</entry>
+					<entry>通过单击鼠标左键，将某个界面对象标记出来</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</informaltable>
+	<para>说明：</para>
+	<para>上表中的鼠标约定是针对右手习惯的鼠标操作。因此，如无特别说明，手册中单击、双击或拖动均是指使用鼠标左键。如需要使用右键，文中会特别指出。
+	</para>
+</section>

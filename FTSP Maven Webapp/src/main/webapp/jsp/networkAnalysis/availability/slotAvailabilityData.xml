@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="GBK"?>
+<chart yAxisName="可用率" caption="各类端口可用率" bgColor="3DDF89" bgAlpha="0" numberSuffix="%" showBorder="0" imageSave="http://www.fusioncharts.com/ExportHandlers/PHP/_FCExporter.php"><set label="STM-64" value="2"/></chart>

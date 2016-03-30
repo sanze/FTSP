@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- bean懒加载 -->
+<beans default-lazy-init="true"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+									http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+									http://www.springframework.org/schema/context  
+						           http://www.springframework.org/schema/context/spring-context-2.5.xsd  
+						           http://www.springframework.org/schema/aop  
+						           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd  
+						           http://www.springframework.org/schema/tx   
+						           http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+						           http://cxf.apache.org/jaxws 
+    							   http://cxf.apache.org/schemas/jaxws.xsd">
+    							   
+<!--     导入cxf需要配置文件
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/> -->
+	<!-- 配置文件地址 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	        <property name="ignoreResourceNotFound" value="true" />
+	        <property name="locations">
+	            <list>
+	                <value> classpath:resourceConfig/springConfig/config.properties</value>
+	                <value>file:../conf/config.properties</value>
+	                <value>file:../../conf/config.properties</value>
+	            </list>
+	        </property>
+	</bean>
+	
+	<!-- ********************************** -->
+    <!-- 自动为配置@aspectJ切面的bean创建代理织入切面 -->
+    <aop:aspectj-autoproxy />					     
+	<!-- 开启注解驱动支持 -->
+	<context:annotation-config/>
+	
+	<bean id="transactionManager-mysql"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="globalRollbackOnParticipationFailure" value="false" />
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="transactionManager-mysql"/>
+
+	
+	<bean id="sqlSessionFactory-mysql" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="configLocation"
+			value="classpath:resourceConfig/mybatisConfig/mybatisConfig-mysql.xml" />
+	</bean>
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory-mysql" />
+	</bean>
+	
+     
+    
+    <!-- 华为采集实现类 -->
+   <bean id="hwDataCollectService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.HWCorba.HWServiceImpl"  scope="prototype">
+    </bean>
+    <!-- 中兴E300采集实现类  使用u31实现类 -->
+<!--     <bean id="zteDataCollectService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.ZTECorba.ZTEServiceImpl"  scope="prototype">
+    </bean> -->
+    <!-- 中兴U31采集实现类 -->
+    <bean id="zteU31DataCollectService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.ZTEU31Corba.ZTEU31ServiceImpl"  scope="prototype">
+    </bean>
+    <!--  朗讯采集实现类-->
+    <bean id="lucentDataCollectService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.LUCENTCorba.LUCENTServiceImpl"  scope="prototype">
+    </bean>
+  	<!-- 烽火采集实现类-->
+    <bean id="fimDataCollectService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.FIMCorba.FIMServiceImpl"  scope="prototype">
+    </bean>
+    <!-- 贝尔采集实现类-->
+    <bean id="aluDataCollectService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.ALUCorba.ALUServiceImpl"  scope="prototype">
+    </bean>
+    <!-- 富士通采集实现类
+    <bean id="fujitsuDataCollectService" class="com.fujitsu.dataCollect.serviceImpl.FUJITSU.FUJITSUServiceImpl" >
+    </bean>
+    虚拟网管采集实现类
+    <bean id="vemsDataCollectService" class="com.fujitsu.dataCollect.serviceImpl.VEMS.VEMSServiceImpl" >
+    </bean> -->
+    <!-- 告警处理实现类 -->
+    <bean id="faultManagerService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.FaultManagerServiceImpl" >
+    </bean>
+    <!-- mongo处理实现类 -->
+    <bean id="mongodbCommonService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.MongodbCommonServiceImpl" >
+    </bean>
+    
+    <!-- jms相关配置connectionFactory -->  
+    <bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory"  
+        destroy-method="stop">  
+        <property name="connectionFactory">  
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">  
+                <property name="brokerURL">  
+                    <value>${jms.url}</value>
+                </property>
+            </bean>
+        </property>  
+    </bean>
+    
+    <bean id="destination" class="org.apache.activemq.command.ActiveMQTopic">  
+        <!-- 设置消息队列的名字 -->  
+        <constructor-arg index="0" value="subject" />  
+    </bean>
+    <!-- Spring JMS Template -->  
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">  
+        <property name="connectionFactory">  
+            <ref local="jmsFactory" />  
+        </property>  
+        <property name="defaultDestination" ref="destination" />  
+        <!-- 区别它采用的模式为false是p2p为true是订阅 -->  
+        <property name="pubSubDomain" value="true" />  
+    </bean>
+    
+    <!-- 消息监听     -->
+    <bean id="jmsReceiver" class="com.fujitsu.activeMq.JMSReceiver">  
+    </bean>
+    <!-- 7.队列监听器的容器 数据采集不需要接收消息 -->  
+<!--     <bean id="QueueReceiverContainer"  
+        class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
+        <property name="concurrentConsumers" value="1" />  
+        <property name="connectionFactory" ref="jmsFactory" />  
+        <property name="destination" ref="destination" />  
+        <property name="messageListener" ref="jmsReceiver" />  
+        <property name="pubSubNoLocal" value="false"/>     
+    </bean> -->
+    
+    
+    <bean id="dataCollectService" class="com.fujitsu.manager.dataCollectManager.serviceImpl.DataCollectServiceImpl" >
+    </bean>
+    
+     <bean name="service" class="org.springframework.remoting.rmi.RmiServiceExporter">
+       <property name="service" ref="dataCollectService"/>
+       <property name="serviceName" value="dataCollectService"/>
+       <property name="serviceInterface" value="com.fujitsu.IService.IDataCollectService"/>
+       <property name="registryPort" value="1021"/>
+     </bean>
+     
+<!--      <bean id="inLoggingInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+ 
+	<bean id="outLoggingInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+    
+    整合服务器端 注意下面的address，这里的address的名称就是访问的WebService的name
+	<jaxws:server id="service" serviceClass="com.fujitsu.IService.IDataCollectService" address="/DataCollectService">
+	    <jaxws:serviceBean>
+	        要暴露的 bean 的引用
+	        <ref bean="dataCollectService"/>
+	    </jaxws:serviceBean>
+		<jaxws:inInterceptors>
+	        <ref bean="inLoggingInterceptor"/>
+	    </jaxws:inInterceptors>
+	    <jaxws:outInterceptors>
+	        <ref bean="outLoggingInterceptor"/>
+	    </jaxws:outInterceptors>
+	</jaxws:server> -->
+	
+<!-- 	<jaxws:client id="commonService" serviceClass="com.fujitsu.IService.IDataCollectService" 
+        address="http://localhost:8080/CommonService/CommonService"/> -->
+   
+</beans>

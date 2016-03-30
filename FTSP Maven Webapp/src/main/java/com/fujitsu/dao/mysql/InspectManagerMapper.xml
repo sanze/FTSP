@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.InspectManagerMapper">
+	
+	<!-- 定义T_INSPECT_ENGINEER表的字段 -->
+	<sql id="inspectEngineer">
+		INSPECT_ENGINEER_ID,RESOURCE_AREA_ID,JOB_NO,NAME,OFFICE,TELEPHONE,ROLE,NOTE
+	</sql>
+	<!-- 定义T_INSPECT_ENGINEER_INFO表的字段 -->
+	<sql id="inspectEquip">
+		INSPECT_ENGINEER_INFO_ID,INSPECT_ENGINEER_ID,TARGET_TYPE,TARGET_ID
+	</sql>
+	
+	<!-- 定义T_SYS_TASK表的字段 -->
+	<sql id="task">
+		SYS_TASK_ID,TASK_NAME,TASK_TYPE,PARENT_TASK,TASK_DESCRIPTION,PERIOD_TYPE,PERIOD,
+		START_TIME,END_TIME,TASK_STATUS,NEXT_TIME,CREATE_PERSON,IS_DEL,CREATE_TIME,UPDATE_TIME
+	</sql>
+	<!-- 定义T_SYS_TASK_INFO表的字段 -->
+	<sql id="taskInfo">
+		SYS_TASK_INFO_ID,SYS_TASK_ID,TARGET_TYPE,TARGET_ID,IS_SUCCESS,IS_COMPLETE
+	</sql>
+	<!-- 定义T_SYS_TASK_PARAM表的字段 -->
+	<sql id="taskParam">
+		SYS_TASK_PARAM_ID,SYS_TASK_ID,PARAM_NAME,PARAM_VALUE
+	</sql>
+	<!-- 定义T_SYS_TASK_RUN_DETAIL表的字段 -->
+	<sql id="taskRunDetial">
+		SYS_TASK_RUN_DETAIL_ID,SYS_TASK_ID,TARGET_NAME,RUN_RESULT,DETAIL_INFO,CREATE_TIME
+	</sql>
+	<select id="selectEngineerList" parameterType="hashmap" resultType="hashmap">
+   		select engineer.*,area.*
+        from T_INSPECT_ENGINEER as engineer
+        left join T_RESOURCE_AREA as area 
+        on engineer.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+        limit  #{map.start},#{map.limit} 
+  	</select>
+  	<select id="countEngineerList" parameterType="hashmap" resultType="int">
+   		select count(*) from T_INSPECT_ENGINEER
+  	</select>
+  	<select id="selectAreaList" parameterType="int" resultType="hashmap">
+   		select * from T_RESOURCE_AREA 
+   		where AREA_PARENT_ID = ${level}
+  	</select>
+  	<!-- 根据包机人工号获取包机人信息 -->
+  	<select id="getJobNoExitList" parameterType="hashmap" resultType="hashmap">
+   		select * from T_INSPECT_ENGINEER
+   		where JOB_NO = #{map.JobNo}
+   		and INSPECT_ENGINEER_ID != #{map.engineerId}
+  	</select>
+  	
+  	
+  	<insert id="storeInspectEngineer" parameterType="hashmap" keyProperty="map.engineerId">
+  	    insert into T_INSPECT_ENGINEER( <include refid="inspectEngineer" /> ) 
+	    values(
+	    <choose>
+			<when test="map.engineerId != null">#{map.engineerId}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.thirdLevelCombo != null">#{map.thirdLevelCombo}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.JobNo != null">#{map.JobNo}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.engineerName != null">#{map.engineerName}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.department != null">#{map.department}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.telephone != null">#{map.telephone}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.role != null">#{map.role}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.note != null">#{map.note}</when>
+			<otherwise>null</otherwise>
+		</choose>
+	    )
+  	</insert>
+  	
+  	<insert id="storeInspectEquip">
+	    insert into T_INSPECT_ENGINEER_INFO ( <include refid="inspectEquip" /> ) 
+	    values 
+	    <foreach collection="list" item="item" index="index" separator=",">
+	        (<choose>
+				<when test="item.inspectEngineerInfoId != null">#{item.inspectEngineerInfoId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.inspectEngineerId != null">#{item.inspectEngineerId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.equipType != null">#{item.equipType}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.equipId != null">#{item.equipId}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+    </insert> 
+    
+    <select id="getInspectEquipList" parameterType="int" resultType="hashmap">
+   		select * from T_INSPECT_ENGINEER_INFO 
+   		where INSPECT_ENGINEER_ID = ${engineerId}
+  	</select>
+  	<select id="getResourceAreaInfo" parameterType="int" resultType="hashmap">
+   		select * from T_RESOURCE_AREA 
+   		where RESOURCE_AREA_ID = ${resourceId}
+  	</select>
+  	<select id="getInspectEngineerInfo" parameterType="int" resultType="hashmap">
+   		select * from T_INSPECT_ENGINEER 
+   		where INSPECT_ENGINEER_ID = ${engineerId}
+  	</select>
+  	
+  	
+  	<update id="updateInspectEngineer" parameterType="hashmap">
+		update T_INSPECT_ENGINEER
+		<set>
+			<if test="map.engineerId != null">INSPECT_ENGINEER_ID = #{map.engineerId},</if>
+			<if test="map.thirdLevelCombo != null">RESOURCE_AREA_ID = #{map.thirdLevelCombo},</if>
+			<if test="map.JobNo != null">JOB_NO = #{map.JobNo},</if>
+			<if test="map.engineerName != null">NAME = #{map.engineerName},</if>
+			<if test="map.department != null">OFFICE = #{map.department},</if>
+			<if test="map.telephone != null">TELEPHONE = #{map.telephone},</if>
+			<if test="map.role != null">ROLE = #{map.role},</if>
+			<if test="map.note != null">NOTE = #{map.note}</if>			
+		</set>
+		where INSPECT_ENGINEER_ID = #{map.engineerId}
+	</update>
+	<delete id="deleteInspectEngineerEquip" parameterType="hashmap">
+        delete from T_INSPECT_ENGINEER_INFO 
+   		where INSPECT_ENGINEER_ID in 
+   		<foreach collection="map.engineerIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+    </delete>
+    <delete id="deleteInspectEngineer" parameterType="hashmap">
+        delete from T_INSPECT_ENGINEER 
+   		where INSPECT_ENGINEER_ID in 
+   		<foreach collection="map.engineerIdList" item="item" index="index" open="(" separator="," close=")">
+   		#{item}
+   		</foreach>
+    </delete>
+    <!-- 巡检包机人导出 -->
+    <select id="selectEngineerListByIdList" parameterType="hashmap" resultType="hashmap">
+   		select engineer.*,area.*
+        from T_INSPECT_ENGINEER as engineer
+        left join T_RESOURCE_AREA as area 
+        on engineer.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+        where engineer.INSPECT_ENGINEER_ID in 
+   		<foreach collection="map.engineerIdList" item="item" index="index" open="(" separator="," close=")">
+   		#{item}
+   		</foreach>
+  	</select>
+    <!--******************************************巡检报告*************************************************-->
+    <!-- 巡检报告年份列表获取 -->
+    <select id="selectYearListFromReport" resultType="hashmap">
+   		select distinct(year(CREATE_TIME)) as year  
+   		from T_INSPECT_REPORT 
+        order by year DESC
+        limit 0,3
+  	</select>
+    <!-- 当前登录用户组信息获取 -->
+    <select id="getUserGroupId" parameterType="int" resultType="hashmap">
+   		select * from T_SYS_USER_REF_GROUP 
+        where SYS_USER_ID = #{userId}
+  	</select>
+  	<!-- 巡检报告列表获取 -->
+  	<select id="selectReportList" parameterType="hashmap" resultType="hashmap">
+   		select report.* 
+   		from T_INSPECT_REPORT as report
+   		left join T_SYS_USER as user
+   		on report.CREATE_USER = user.SYS_USER_ID
+        <where>
+        	    1=1            
+            <if test="map.taskName != null">
+				AND report.REPORT_NAME like #{map.taskName}
+			</if>
+			<if test="map.inspector != null">
+				AND user.USER_NAME like #{map.inspector}
+			</if>
+			<if test="map.inspectTimeFrom != null">
+				AND report.CREATE_TIME 
+				BETWEEN #{map.inspectTimeFrom} AND #{map.currentTimeTo}
+			</if>
+			<!-- <if test="map.groupIdList != null">
+				GROUP_ARRAY like #{map.groupId}
+			</if> -->
+			
+			<if test="map.groupIdList != null">
+			AND(
+				<foreach collection="map.groupIdList" index="index" item="list"
+						open="( report.GROUP_ARRAY like" close=")" separator="OR report.GROUP_ARRAY like">
+						#{list}
+			    </foreach>
+			OR report.CREATE_USER = #{map.loginUser}
+			)
+			</if>	
+		</where>
+		order by report.CREATE_TIME DESC
+		limit  #{map.start},#{map.limit}
+  	</select>
+  	<!-- 巡检报告列表个数获取 -->
+  	<select id="countReportList" parameterType="hashmap" resultType="int">
+   		select count(*) from T_INSPECT_REPORT 
+        <where> 
+            
+            <if test="map.taskName != null">
+				REPORT_NAME like #{map.taskName}
+			</if>
+			<if test="map.inspector != null">
+				AND CREATE_USER like #{map.inspector}
+			</if>
+			<if test="map.inspectTimeFrom != null">
+				AND CREATE_TIME 
+				BETWEEN #{map.inspectTimeFrom} AND #{map.currentTimeTo}
+			</if>
+			<!-- <if test="map.groupIdList != null">
+				GROUP_ARRAY like #{map.groupId}
+			</if> -->
+			<if test="map.groupIdList != null">
+				<foreach collection="map.groupIdList" index="index" item="list"
+						open="AND ( GROUP_ARRAY like" close=")" separator="OR GROUP_ARRAY like">
+						#{list}
+			    </foreach>
+			</if>
+		</where>
+  	</select>
+  	
+  	<delete id="deleteInspectReport" parameterType="hashmap">
+        delete from T_INSPECT_REPORT 
+   		where INSPECT_REPORT_ID in 
+   		<foreach collection="map.reportIdList" item="item" index="index" open="(" separator="," close=")">
+   		#{item}
+   		</foreach>
+    </delete>
+
+  	<select id="insertInspectReport" parameterType="java.lang.Integer">
+   		insert into T_INSPECT_REPORT 
+   			  ( REPORT_NAME,NOTE, RESULT, GROUP_ARRAY, CREATE_USER, CREATE_TIME ) 
+	    values( #{map.REPORT_NAME},#{map.NOTE}, #{map.RESULT}, 
+	    	#{map.GROUP_ARRAY}, #{map.CREATE_USER}, #{map.CREATE_TIME} )
+  	</select>
+  	<select id="selectReport" parameterType="java.lang.Integer" resultType="hashmap">
+   		select * from T_INSPECT_REPORT 
+        <where> 
+        INSPECT_REPORT_ID=#{reportId}
+        </where>
+  	</select>
+  	
+  	<!-- 巡检报告创建者信息获取 -->
+    <select id="getUserInfo" parameterType="int" resultType="hashmap">
+   		select * from T_SYS_USER
+        where SYS_USER_ID = #{userId}
+  	</select>
+  	
+    <!--******************************************巡检任务*************************************************-->
+    <!-- 巡检任务列表获取 -->
+    <select id="selectTaskList" parameterType="hashmap" resultType="hashmap">
+   		select task.*,user.USER_NAME
+        from T_SYS_TASK as task
+        left join T_SYS_USER as user
+        on task.CREATE_PERSON = user.SYS_USER_ID
+        where TASK_TYPE = #{map.taskType}
+        and TASK_STATUS != #{map.taskStatus}
+        limit  #{map.start},#{map.limit}
+  	</select>
+  	<select id="countTaskList" parameterType="hashmap" resultType="int">
+   		select count(*) from T_SYS_TASK
+   		where TASK_TYPE = #{map.taskType}
+        and TASK_STATUS != #{map.taskStatus}
+  	</select>
+  	
+  	<!-- 操作权限组获取 -->
+  	<select id="getPrivilegeList" resultType="hashmap">
+   		select *
+        from T_SYS_USER_GROUP
+  	</select>
+  	
+  	<!-- 获取当前登录用户所在组ID -->
+  	<select id="getCurrentUserGroup" parameterType="int" resultType="hashmap">
+   		select *
+        from T_SYS_USER_REF_GROUP 
+        where SYS_USER_ID = ${userId}
+  	</select>
+  	
+  	<!-- 根据巡检任务名获取巡检任务信息 -->
+  	<select id="getInspectTaskExitList" parameterType="hashmap" resultType="hashmap">
+   		select * from T_SYS_TASK
+   		where TASK_NAME = #{map.taskName}
+   		and SYS_TASK_ID != #{map.taskId}
+   		and TASK_TYPE = 11
+   		and TASK_STATUS != 3
+  	</select>
+  	
+  	<!-- 巡检任务新增保存 -->
+  	<insert id="storeInspectTask" parameterType="hashmap" keyProperty="map.taskId">
+  	    insert into T_SYS_TASK( <include refid="task" /> ) 
+	    values(
+	    <choose>
+			<when test="map.taskId != null">#{map.taskId}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.taskName != null">#{map.taskName}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.taskType != null">#{map.taskType}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.parentTask != null">#{map.parentTask}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.taskDescription != null">#{map.taskDescription}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.periodType != null">#{map.periodType}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.period != null">#{map.period}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.startTime != null">#{map.startTime}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.endTime != null">#{map.endTime}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.taskStatus != null">#{map.taskStatus}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.nextTime != null">#{map.nextTime}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.createPerson != null">#{map.createPerson}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.isDel != null">#{map.isDel}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.createTime != null">#{map.createTime}</when>
+			<otherwise>null</otherwise>
+		</choose>,
+		<choose>
+			<when test="map.updateTime != null">#{map.updateTime}</when>
+			<otherwise>null</otherwise>
+		</choose>
+	    )
+  	</insert>
+  	<insert id="storeTaskInfo">
+	    insert into T_SYS_TASK_INFO ( <include refid="taskInfo" /> ) 
+	    values 
+	    <foreach collection="list" item="item" index="index" separator=",">
+	        (<choose>
+				<when test="item.taskInfoId != null">#{item.taskInfoId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.taskId != null">#{item.taskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.equipType != null">#{item.equipType}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.equipId != null">#{item.equipId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.isSuccess != null">#{item.isSuccess}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.isComplete != null">#{item.isComplete}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+    </insert>   
+    <insert id="storeTaskParam">
+	    insert into T_SYS_TASK_PARAM ( <include refid="taskParam" /> ) 
+	    values 
+	    <foreach collection="list" item="item" index="index" separator=",">
+	        (<choose>
+				<when test="item.taskParamId != null">#{item.taskParamId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.taskId != null">#{item.taskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.paramName != null">#{item.paramName}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.paramValue != null">#{item.paramValue}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+    </insert>
+    <!-- 巡检任务巡检设备初始化 -->
+    <select id="getInspectTaskInfo" parameterType="int" resultType="hashmap">
+   		select * from T_SYS_TASK_INFO 
+   		where SYS_TASK_ID = ${inspectTaskId}
+  	</select>
+    <!-- 巡检任务修改更新 -->
+    <update id="updateInspectTask" parameterType="hashmap">
+		update T_SYS_TASK
+		<set>
+			<if test="map.taskId != null">SYS_TASK_ID= #{map.taskId},</if>
+			<if test="map.taskName != null">TASK_NAME = #{map.taskName},</if>
+			<if test="map.taskType != null">TASK_TYPE = #{map.taskType},</if>
+			<if test="map.parentTask != null">PARENT_TASK = #{map.parentTask},</if>
+			<if test="map.taskDescription != null">TASK_DESCRIPTION = #{map.taskDescription},</if>
+			<if test="map.periodType != null">PERIOD_TYPE = #{map.periodType},</if>
+			<if test="map.period != null">PERIOD = #{map.period},</if>
+			<if test="map.startTime != null">START_TIME = #{map.startTime},</if>
+			<if test="map.endTime != null">END_TIME = #{map.endTime},</if>
+			<if test="map.taskStatus != null">TASK_STATUS = #{map.taskStatus},</if>
+			<if test="map.nextTime != null">NEXT_TIME = #{map.nextTime},</if>
+			<if test="map.createPerson != null">CREATE_PERSON = #{map.createPerson},</if>
+			<if test="map.isDel != null">IS_DEL = #{map.isDel},</if>
+			<!--<if test="map.createTime != null">CREATE_TIME = #{map.createTime},</if>  -->
+			<if test="map.updateTime != null">UPDATE_TIME = #{map.updateTime}</if>		
+		</set>
+		where SYS_TASK_ID = #{map.taskId}
+	</update>
+	<!-- 巡检任务操作权限组、巡检项目修改更新 -->
+    <update id="updateTaskParam" parameterType="hashmap">
+		update T_SYS_TASK_PARAM
+		<set>
+			<if test="map.paramValue != null">PARAM_VALUE = #{map.paramValue}</if>	
+		</set>
+		where SYS_TASK_PARAM_ID = #{map.taskParamId}
+	</update>
+	
+    <select id="getInspectTask" parameterType="int" resultType="hashmap">
+   		select * from T_SYS_TASK 
+   		where SYS_TASK_ID = ${inspectTaskId}
+  	</select>
+  	<select id="getInspectTaskParam" parameterType="int" resultType="hashmap">
+   		select * from T_SYS_TASK_PARAM 
+   		where SYS_TASK_ID = ${inspectTaskId}
+  	</select>
+    
+    <!-- 删除巡检任务 -->
+    <delete id="deleteTaskRunDetial" parameterType="hashmap">
+        delete from T_SYS_TASK_RUN_DETAIL
+   		where SYS_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+    </delete>
+    <delete id="deleteTaskParam" parameterType="hashmap">
+        delete from T_SYS_TASK_PARAM 
+   		where SYS_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+    </delete>
+    <delete id="deleteTaskInfo" parameterType="hashmap">
+        delete from T_SYS_TASK_INFO 
+   		where SYS_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+    </delete>
+    <delete id="deleteTask" parameterType="hashmap">
+        delete from T_SYS_TASK 
+   		where SYS_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+    </delete>
+    
+    <select id="getInspectTaskList" resultType="hashmap">
+   		select *
+        from T_SYS_TASK
+        where SYS_TASK_ID in 
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+  	</select>
+  	<!-- 巡检任务更新状态 -->
+    <update id="updateTaskStatus" parameterType="hashmap">
+		update T_SYS_TASK
+		<set>
+			<if test="map.TASK_STATUS != null">TASK_STATUS = #{map.TASK_STATUS}</if>	
+		</set>
+		where SYS_TASK_ID = #{map.SYS_TASK_ID};
+	</update>
+	<!-- 巡检任务执行情况 -->
+	<select id="getInspectTaskItem" resultType="hashmap">
+   		select *
+        from T_SYS_TASK_RUN_DETAIL
+        where SYS_TASK_ID = ${inspectTaskId}
+  	</select>
+  	<select id="countInspectEquip" parameterType="int" resultType="int">
+   		select count(*)
+        from T_SYS_TASK_INFO
+        where SYS_TASK_ID = ${inspectTaskId}
+  	</select>
+  	<select id="countCompletedEquip" parameterType="int" resultType="int">
+   		select count(*)
+        from T_SYS_TASK_INFO
+        where SYS_TASK_ID = ${inspectTaskId}
+        and IS_COMPLETE = 1
+  	</select>
+  	<!-- 根据网元ID获取网元信息 -->
+  	<select id="getNeByNeId" parameterType="int" resultType="hashmap">
+   		select * from T_BASE_NE 
+   		where BASE_NE_ID = ${neId}
+  	</select>
+  	<!-- 根据网管组ID获取网元信息 -->
+  	<select id="getNeByEMSGroupId" parameterType="int" resultType="hashmap">
+   		select ne.*,ems.*
+        from T_BASE_NE as ne
+        left join T_BASE_EMS_CONNECTION as ems 
+        on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+        where ems.T_BASE_EMS_GROUP = ${emsGroupId}
+  	</select>
+  	<!-- 根据网管ID获取网元信息 -->
+  	<select id="getNeByEMSId" parameterType="int" resultType="hashmap">
+   		select * from T_BASE_NE 
+   		where BASE_EMS_CONNECTION_ID = ${emsId}
+  	</select>
+  	<!-- 查询1星期之内的历史性能数据 -->
+  	<select id="getHistoryPMData" parameterType="hashmap" resultType="hashmap">
+   		select * from T_PM_TEMP_HISTORY_DATA
+   		where  BASE_NE_ID = #{map.neId}
+   		AND RETRIEVAL_TIME
+   		BETWEEN #{map.timeFrom} AND #{map.timeTo}
+  	</select>
+  	
+	<select id="getProtectGroups" parameterType="hashmap" resultType="hashmap">
+   		select *
+        from T_BASE_PRO_GROUP
+        where BASE_NE_ID = #{neId}
+        <if test="SCHEMA_STATE!=null and !SCHEMA_STATE.isEmpty()">
+        <foreach collection="SCHEMA_STATE" item="item" index="index" open="and PROTECTION_SCHEMA_STATE in (" separator="," close=")">
+   		   #{item}
+   		</foreach>
+   		</if>
+   		and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+  	</select>
+	<select id="getEProtectGroups" parameterType="hashmap" resultType="hashmap">
+   		select *
+        from T_BASE_E_PRO_GROUP
+        where BASE_NE_ID = #{neId}
+        <if test="SCHEMA_STATE!=null and !SCHEMA_STATE.isEmpty()">
+        <foreach collection="SCHEMA_STATE" item="item" index="index" open="and PROTECTION_SCHEMA_STATE in (" separator="," close=")">
+   		   #{item}
+   		</foreach>
+   		</if>
+   		and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+  	</select>
+  	<select id="getWDMProtectGroups" parameterType="hashmap" resultType="hashmap">
+   		select *
+        from T_BASE_WDM_PRO_GROUP
+        where BASE_NE_ID = #{neId}
+        <if test="SCHEMA_STATE!=null and !SCHEMA_STATE.isEmpty()">
+        <foreach collection="SCHEMA_STATE" item="item" index="index" open="and PROTECTION_SCHEMA_STATE in (" separator="," close=")">
+   		   #{item}
+   		</foreach>
+   		</if>
+   		and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+  	</select>
+  	<select id="getProtectedList" parameterType="hashmap" resultType="hashmap">
+   		<choose>
+   		  <when test="category==Define.CATEGORY_PROTECTION">
+   		  select tp.* , p.BASE_PRO_LIST_ID , p.BASE_PRO_GROUP_ID , p.BASE_SDH_CTP_ID , p.BASE_OTN_CTP_ID
+   		  from t_base_pro_list p left join t_base_ptp tp on p.BASE_PTP_ID=tp.BASE_PTP_ID
+   		  where BASE_PRO_GROUP_ID = #{pgId}
+   		  </when>
+   		  <when test="category==Define.CATEGORY_EPROTECTION">
+   		  select tp.* , p.BASE_E_PGP_TP_LIST_ID , p.BASE_E_PRO_GROUP_ID, p.TYPE
+   		  from t_base_e_pgp_tp_list p left join t_base_unit tp on p.BASE_UNIT_ID=tp.BASE_UNIT_ID
+   		  where BASE_E_PRO_GROUP_ID = #{pgId}
+   		  </when>
+   		  <when test="category==Define.CATEGORY_WDMPROTECTION">
+   		  select tp.* , p.BASE_WDM_PGP_TP_LIST_ID , p.BASE_WDM_PRO_GROUP_ID
+   		  from t_base_wdm_pgp_tp_list p left join t_base_ptp tp on p.BASE_PTP_ID=tp.BASE_PTP_ID
+   		  where BASE_WDM_PRO_GROUP_ID = #{pgId}
+   		  </when>
+        </choose>
+  	</select>
+  	<select id="getClockSources" parameterType="hashmap" resultType="hashmap">
+   		select *
+        from T_BASE_CLOCK
+        where BASE_NE_ID = #{neId}
+        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+  	</select>
+  	<select id="getResourceInfoByRoom" parameterType="int" resultType="hashmap">
+   		select ta.*,
+   		  ts.STATION_NAME,
+   		  ts.ADDRESS as STATION_ADDRESS,
+   		  ts.MANAGEMENT as STATION_MANAGEMENT,
+   		  ts.PHONE as STATION_PHONE,
+   		  ts.NOTE as STATION_NOTE,
+   		  tr.*
+        from T_RESOURCE_ROOM tr, T_RESOURCE_STATION ts, T_RESOURCE_AREA ta
+        where ts.RESOURCE_AREA_ID = ta.RESOURCE_AREA_ID
+        and tr.RESOURCE_STATION_ID = ts.RESOURCE_STATION_ID
+        and tr.RESOURCE_ROOM_ID = #{roomId}
+        limit 0,1
+  	</select>
+  	<select id="getEngineerByNodes" parameterType="hashmap" resultType="hashmap">
+   		select te.*
+        from T_INSPECT_ENGINEER_INFO tei,T_INSPECT_ENGINEER te
+        where 
+        tei.INSPECT_ENGINEER_ID = te.INSPECT_ENGINEER_ID
+        and 
+        <foreach collection="nodes" item="item" index="index" open="(" separator=" or " close=")">
+   		   (tei.TARGET_TYPE = #{item.nodeLevel} and tei.TARGET_ID = #{item.nodeId})
+   		</foreach>
+  	</select>
+  	<select id="getPtpTypeByNe" parameterType="hashmap" resultType="hashmap">
+   		select distinct PTP_TYPE
+        from T_BASE_PTP
+        where BASE_NE_ID = #{neId}
+        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+  	</select>
+  	<select id="CountNePtpByType" parameterType="hashmap" resultType="int">
+   		select count(1)
+        from T_BASE_PTP
+        where 
+        PTP_TYPE = #{ptpType}
+        and BASE_NE_ID = #{neId}
+        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+  	</select>
+  	<select id="CountNePtpHasCrs" parameterType="hashmap" resultType="int">
+   		select distinct count(*)
+   		from
+	   		(select distinct A_END_PTP as id
+	        from T_BASE_SDH_CRS
+	        where (NOT ISNULL(A_END_PTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+	        union
+	        select distinct Z_END_PTP as id
+	        from T_BASE_SDH_CRS
+	        where (NOT ISNULL(Z_END_PTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})
+	        union
+	        select distinct A_END_PTP as id
+	        from T_BASE_OTN_CRS
+	        where (NOT ISNULL(A_END_PTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})
+	        union
+	        select distinct Z_END_PTP as id
+	        from T_BASE_OTN_CRS
+	        where (NOT ISNULL(Z_END_PTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})) t 
+  	</select>
+  	<select id="CountNePtp" parameterType="hashmap" resultType="int">
+   		select count(1)
+        from T_BASE_PTP
+        where 
+        BASE_NE_ID = #{neId}
+        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+  	</select>
+  	<select id="CountNeCtpHasCrs" parameterType="hashmap" resultType="int">
+   		select distinct count(*)
+   		from
+	   		(select distinct A_END_CTP as id
+	        from T_BASE_SDH_CRS
+	        where (NOT ISNULL(A_END_CTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE}) 
+	        union
+	        select distinct Z_END_CTP as id
+	        from T_BASE_SDH_CRS
+	        where (NOT ISNULL(Z_END_CTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})
+	        union
+	        select distinct A_END_CTP as id
+	        from T_BASE_OTN_CRS
+	        where (NOT ISNULL(A_END_CTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})
+	        union
+	        select distinct Z_END_CTP as id
+	        from T_BASE_OTN_CRS
+	        where (NOT ISNULL(Z_END_CTP))
+	        and BASE_NE_ID = #{neId}
+	        and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})) t 
+  	</select>
+  	<select id="CountNeCtp" parameterType="hashmap" resultType="int">
+   		select sdh.count+otn.count from (select count(1) as count from T_BASE_SDH_CTP
+   		  where BASE_NE_ID = #{neId} and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})) sdh,
+        (select count(1) as count from T_BASE_OTN_CTP
+   		  where BASE_NE_ID = #{neId} and (ISNULL(IS_DEL) OR IS_DEL = #{Define.FALSE})) otn
+  	</select>
+  	
+  	<!-- 巡检任务执行时，任务状态更新 -->
+    <update id="updateTaskInfo" parameterType="hashmap">
+		update T_SYS_TASK
+		<set>
+			<if test="map.taskName != null">TASK_NAME = #{map.taskName},</if>
+			<if test="map.taskType != null">TASK_TYPE = #{map.taskType},</if>
+			<if test="map.parentTask != null">PARENT_TASK = #{map.parentTask},</if>
+			<if test="map.taskDescription != null">TASK_DESCRIPTION = #{map.taskDescription},</if>
+			<if test="map.periodType != null">PERIOD_TYPE = #{map.periodType},</if>
+			<if test="map.period != null">PERIOD = #{map.period},</if>
+			<if test="map.startTime != null">START_TIME = #{map.startTime},</if>
+			<if test="map.endTime != null">END_TIME = #{map.endTime},</if>
+			<if test="map.taskStatus != null">TASK_STATUS = #{map.taskStatus},</if>
+			<if test="map.nextTime != null">NEXT_TIME = #{map.nextTime},</if>
+			<if test="map.result != null">RESULT = #{map.result},</if>
+			<if test="map.createPerson != null">CREATE_PERSON = #{map.createPerson},</if>
+			<if test="map.isDel != null">IS_DEL = #{map.isDel},</if>
+			<!--<if test="map.createTime != null">CREATE_TIME = #{map.createTime},</if>  -->
+			<if test="map.updateTime != null">UPDATE_TIME = #{map.updateTime},</if>	
+			SYS_TASK_ID= #{map.taskId}	
+		</set>
+		where SYS_TASK_ID = #{map.taskId}
+	</update>
+	<!-- 巡检任务详情新增保存 -->
+  	<insert id="addInspectItemStatus">
+  	    insert into T_SYS_TASK_RUN_DETAIL( <include refid="taskRunDetial" /> ) 
+	    values
+	    <foreach collection="list" item="map" index="index" separator=",">
+		    (<choose>
+				<when test="map.taskRunDetialId != null">#{map.taskRunDetialId}</when>
+				<otherwise>null</otherwise>
+			</choose>,
+		    <choose>
+				<when test="map.taskId != null">#{map.taskId}</when>
+				<otherwise>null</otherwise>
+			</choose>,
+			<choose>
+				<when test="map.targetName != null">#{map.targetName}</when>
+				<otherwise>null</otherwise>
+			</choose>,
+			<choose>
+				<when test="map.runResult != null">#{map.runResult}</when>
+				<otherwise>null</otherwise>
+			</choose>,
+			<choose>
+				<when test="map.detialInfo != null">#{map.detialInfo}</when>
+				<otherwise>null</otherwise>
+			</choose>,
+			<choose>
+				<when test="map.createTime != null">#{map.createTime}</when>
+				<otherwise>null</otherwise>
+			</choose>)
+	    </foreach>
+  	</insert>
+  	<!-- 巡检任务详情状态更新 -->
+    <update id="updateInspectItemStatus" parameterType="hashmap">
+		update T_SYS_TASK_RUN_DETAIL
+		<set>
+			<if test="map.targetName != null">TARGET_NAME = #{map.targetName},</if>	
+			<if test="map.runResult != null">RUN_RESULT = #{map.runResult},</if>	
+			<if test="map.detialInfo != null">DETAIL_INFO = #{map.detialInfo},</if>	
+			<if test="map.createTime != null">CREATE_TIME = #{map.createTime},</if>	
+			TARGET_NAME = #{map.targetName}
+		</set>
+		where 
+		<choose>
+			<when test="map.taskRunDetialId != null">
+				SYS_TASK_RUN_DETAIL_ID=#{map.taskRunDetialId}
+			</when>
+			<otherwise>
+				SYS_TASK_ID = #{map.taskId}
+				and TARGET_NAME = #{map.targetName}
+			</otherwise>
+		</choose>
+	</update>
+	<delete id="delInspectItemStatus" parameterType="hashmap">
+		delete from T_SYS_TASK_RUN_DETAIL
+		where SYS_TASK_RUN_DETAIL_ID in
+		<foreach collection="list" item="map" index="index" separator="," open="(" close=")">
+			#{map.SYS_TASK_RUN_DETAIL_ID}
+		</foreach>
+	</delete>
+	<!-- 巡检任务详情状态更新 -->
+	<update id="initAllEquipStatus" parameterType="hashmap">
+		update T_SYS_TASK_INFO
+		<set>
+			<if test="map.isSuccess != null">IS_SUCCESS = #{map.isSuccess},</if>	
+			<if test="map.isComplete != null">IS_COMPLETE = #{map.isComplete},</if>	
+		</set>
+		where SYS_TASK_ID = #{map.taskId}
+		and TARGET_TYPE = #{map.targetType}
+		and TARGET_ID = #{map.targetId}
+	</update>
+    <update id="updateEquipStatus" parameterType="hashmap">
+		update T_SYS_TASK_INFO
+		<set>
+			<if test="map.isSuccess != null">IS_SUCCESS = #{map.isSuccess},</if>	
+			<if test="map.isComplete != null">IS_COMPLETE = #{map.isComplete},</if>	
+			SYS_TASK_ID = #{map.taskId}
+		</set>
+		where SYS_TASK_ID = #{map.taskId}
+			<if test="map.targetType != null">
+				and TARGET_TYPE = #{map.targetType}
+			</if>
+			<if test="map.targetId != null">
+				and TARGET_ID = #{map.targetId}
+			</if>
+	</update>
+</mapper>

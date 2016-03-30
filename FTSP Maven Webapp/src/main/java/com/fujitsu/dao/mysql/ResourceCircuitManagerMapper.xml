@@ -1,0 +1,399 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.fujitsu.dao.mysql.ResourceCircuitManagerMapper">
+
+	<!--  查询资源网元总数 -->
+	<select id="getResourceNeTotal" resultType="hashmap"
+		parameterType="hashmap">
+		select count(1) as total from t_resource_ne
+		<where>
+			<if test="map.RESOURCE_NE_NAME != null and !map.RESOURCE_NE_NAME.isEmpty()">
+				RESOURCE_NE_NAME like "%"#{map.RESOURCE_NE_NAME}"%"
+			</if>
+			<if test="map.FTSP_NE_NAME != null and !map.FTSP_NE_NAME.isEmpty()">
+				AND FTSP_NE_NAME like "%"#{map.FTSP_NE_NAME}"%"
+			</if>
+		</where> 
+	</select>
+
+	<!--  查询资源网元 -->
+	<select id="getResourceNe" resultType="hashmap"
+		parameterType="hashmap">
+		select * from t_resource_ne
+		<where>
+			<if test="map.RESOURCE_NE_NAME != null and !map.RESOURCE_NE_NAME.isEmpty()">
+				RESOURCE_NE_NAME like "%"#{map.RESOURCE_NE_NAME}"%"
+			</if>
+			<if test="map.FTSP_NE_NAME != null and !map.FTSP_NE_NAME.isEmpty()">
+				AND FTSP_NE_NAME like "%"#{map.FTSP_NE_NAME}"%"
+			</if>
+		</where>
+		limit #{start},#{limit}
+	</select>
+
+	<!--  修改网元对应表 -->
+	<update id="updateResourceNe" parameterType="hashmap">
+		update t_resource_ne
+		<set>
+			<if test="map.RESOURCE_NE_NAME != null">
+				RESOURCE_NE_NAME = #{map.RESOURCE_NE_NAME},
+			</if>
+			<if test="map.FTSP_NE_NAME != null">
+				FTSP_NE_NAME = #{map.FTSP_NE_NAME},
+			</if>
+			<if test="map.NE_NAME != null">
+				NE_NAME = #{map.NE_NAME},
+			</if>
+		</set>
+		<where>
+			<if test="map.RESOURCE_NE_ID != null">
+				RESOURCE_NE_ID = #{map.RESOURCE_NE_ID}
+			</if>
+		</where>
+
+	</update>
+
+	<!--  删除网元对应表 -->
+	<delete id="deleteResourceNe" parameterType="hashmap">
+		delete from t_resource_ne where RESOURCE_NE_ID =
+		#{map.RESOURCE_NE_ID}
+
+	</delete>
+
+	<insert id="addResourceNe" parameterType="hashmap" >
+		insert into t_resource_ne(
+		RESOURCE_NE_ID,RESOURCE_NE_NAME,FTSP_NE_NAME,NE_NAME ) values (
+		<choose>
+			<when test="map.RESOURCE_NE_ID != null">
+				#{map.RESOURCE_NE_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.RESOURCE_NE_NAME != null">
+				#{map.RESOURCE_NE_NAME}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.FTSP_NE_NAME != null">
+				#{map.FTSP_NE_NAME}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="map.NE_NAME != null">#{map.NE_NAME}</when>
+			<otherwise>null</otherwise>
+		</choose>
+
+		)
+	</insert>
+ 
+ 	<!--  查询资源电路的数目 -->
+	<select id="getResourceCircuitTotal" resultType="Integer">
+		select count(1) as total from t_resource_cir
+		<where>
+			<if test="name != null and !name.isEmpty()">
+				RESOURCE_CIR_NAME like "%"#{name}"%"
+			</if>
+		</where>
+	</select>
+ 
+ 
+ 	<!--  查询资源电路 -->
+	<select id="getResourceCircuit" resultType="hashmap">
+		select * from t_resource_cir
+		<where>
+			<if test="name != null and !name.isEmpty()">
+				RESOURCE_CIR_NAME like "%"#{name}"%"
+			</if>
+		</where>
+		limit #{start},#{limit}
+	</select>
+ 
+ 	<!-- 资源稽核统计 -->
+	<select id="getCount" resultType="hashmap">
+		select 	count(1) as num,  
+				concat(count(1) / tr.total * 100, '%') as perc , 
+				tc.COMPARE_RESULT as re_name
+  		from 	t_resource_cir tc, 
+				(select count(1) as total from t_resource_cir) tr
+ 		group by tc.COMPARE_RESULT
+		union
+		select 	count(1) as num , 
+			'100%'as perc, 
+			'3' as re_name  
+		from 	t_resource_cir
+	</select>
+	
+ 	<!--  根据id查询出ftsp电路的路径数 -->
+	<select id="getFtspRouteNumber" resultType="hashmap">
+		select 	tcc.CIR_CIRCUIT_ID 
+		from 	t_resource_compare trc,
+				t_cir_circuit tcc
+		where	trc.CIR_CIRCUIT_INFO_ID = tcc.CIR_CIRCUIT_INFO_ID
+		and	tcc.IS_MAIN_CIR = 1
+		and 	trc.RESOURCE_CIR_ID = #{resCirId}
+		
+	</select>
+
+	<!--  根据组合条件关联查询出时隙id -->
+	<select id="getCtpId" resultType="hashmap">
+		select 	tc.BASE_SDH_CTP_ID 
+		from 	t_base_ptp tp,
+				t_base_sdh_ctp tc
+		where	tp.BASE_PTP_ID = tc.BASE_PTP_ID
+		<if test="map.CTP_J_ORIGINAL != null">
+		and		tc.CTP_J_ORIGINAL = #{map.CTP_J_ORIGINAL}
+		</if>
+		<if test="map.CTP_K != null">
+		and		tc.CTP_K = #{map.CTP_K}
+		</if>
+		<if test="map.CTP_L != null">
+		and		tc.CTP_L = #{map.CTP_L}
+		</if>	
+		<if test="map.CTP_M != null">
+		and		tc.CTP_M = #{map.CTP_M}
+		</if>
+		<if test="map.PORT_NO != null">
+		and		tp.PORT_NO = #{map.PORT_NO}
+		</if>
+		<if test="map.UNIT_NO != null">
+		and		tp.SLOT_NO = #{map.UNIT_NO}
+		</if>
+		<if test="map.BASE_NE_ID != null">
+		and		tp.BASE_NE_ID = #{map.BASE_NE_ID}
+		</if>
+	</select>
+	
+	<!--  根据组合条件关联查询出时隙id -->
+	<insert id="insertResCompare" >
+		insert into t_resource_compare(
+			RESOURCE_COMPARE_ID,
+			RESOURCE_CIR_ID,
+			ROUTE_NUMBER,
+			CIR_CIRCUIT_INFO_ID
+			)
+		values(
+			null
+			,
+			<choose>
+				<when test="map.RESOURCE_CIR_ID != null">
+					#{map.RESOURCE_CIR_ID}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			null
+			,
+			<choose>
+				<when test="map.CIR_CIRCUIT_INFO_ID != null">
+					#{map.CIR_CIRCUIT_INFO_ID}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+		
+		
+		)
+	</insert>
+
+	<!--  更新稽核电路表 -->
+	<update id="updateResCir" >
+		update t_resource_cir 
+		<set>
+			<if test="map.COMPARE_RESULT != null" >
+				COMPARE_RESULT = #{map.COMPARE_RESULT},
+			</if>
+			<if test="map.COMPARE_REASON != null" >
+				COMPARE_REASON = #{map.COMPARE_REASON},
+			</if>
+			<if test="map.DIFF_ROUTE_ID != null" >
+				DIFF_ROUTE_ID = #{map.DIFF_ROUTE_ID},
+			</if>
+			<if test="map.ROUTE_NAME != null" >
+				ROUTE_NAME = #{map.ROUTE_NAME},
+			</if>
+			<if test="map.CLIENT_NAME != null" >
+				CLIENT_NAME = #{map.CLIENT_NAME},
+			</if>
+			<if test="map.USED_FOR != null" >
+				USED_FOR = #{map.USED_FOR},
+			</if>
+			<if test="map.CIR_TYPE != null" >
+				CIR_TYPE = #{map.CIR_TYPE},
+			</if>
+			<if test="map.CIR_MODEL != null" >
+				CIR_MODEL = #{map.CIR_MODEL},
+			</if>
+			<if test="map.A_PORT != null" >
+				A_PORT = #{map.A_PORT},
+			</if>
+			<if test="map.Z_PORT != null" >
+				Z_PORT = #{map.Z_PORT},
+			</if>
+			<if test="map.A_USER != null" >
+				A_USER = #{map.A_USER},
+			</if>
+			<if test="map.Z_USER != null" >
+				Z_USER = #{map.Z_USER},
+			</if>
+		</set>
+		where RESOURCE_CIR_ID = #{map.RESOURCE_CIR_ID}
+	</update>
+
+	<!--  向比对路由表中插入信息 -->
+	<insert id="insertResRoute" >
+		insert into t_resource_cir_route(
+			RESOURCE_CIR_ROUTE_ID,
+			CTP_VALUE,
+			PORT_VALUE,
+			CTP_ORGI_VALUE,
+			PORT_ORGI_VALUE,
+			UNIT_NAME,
+			UNIT_NO,
+			NE_INTERNAL_NAME,
+			NE_NAME,
+			RESOURCE_CIR_ID,
+			BASE_NE_ID,
+			ROUTE_NO,
+			IS_COMPARE
+			)
+		values(
+			null
+			,
+			<choose>
+				<when test="map.CTP_VALUE != null">
+					#{map.CTP_VALUE}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PORT_VALUE != null">
+					#{map.PORT_VALUE}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.CTP_ORGI_VALUE != null">
+					#{map.CTP_ORGI_VALUE}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.PORT_ORGI_VALUE != null">
+					#{map.PORT_ORGI_VALUE}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.UNIT_NAME != null">
+					#{map.UNIT_NAME}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.UNIT_NO != null">
+					#{map.UNIT_NO}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.NE_INTERNAL_NAME != null">
+					#{map.NE_INTERNAL_NAME}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.NE_NAME != null">
+					#{map.NE_NAME}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.RESOURCE_CIR_ID != null">
+					#{map.RESOURCE_CIR_ID}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.BASE_NE_ID != null">
+					#{map.BASE_NE_ID}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.ROUTE_NO != null">
+					#{map.ROUTE_NO}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="map.IS_COMPARE != null">
+					#{map.IS_COMPARE}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+		
+		)
+	</insert>
+	
+	<!--  资源电路表 -->
+	<insert id="insertResCir" >
+		insert into t_resource_cir(
+			RESOURCE_CIR_ID,
+			RESOURCE_CIR_NAME
+			)
+		values(
+			null
+			,
+			<choose>
+				<when test="map.RESOURCE_CIR_NAME != null">
+					#{map.RESOURCE_CIR_NAME}
+				</when>
+				<otherwise>null</otherwise>
+			</choose>
+		)
+	</insert>
+	
+	<!-- 根据网元名称获取网元Id -->
+	<select id="getNeIdByName" resultType = "int" parameterType = "String">
+		select ne.BASE_NE_ID from t_base_ne ne 
+		left join t_base_ems_connection ems on ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+		where ne.display_name=#{neName} and ems.IP = #{emsIp};
+	</select>
+	<!-- 更新资源信息 -->
+	<update id="updateCircuitResource" parameterType = "hashmap">
+		update t_cir_circuit_info 
+		<set>
+			<if test="map.SOURCE_NO != null">
+				SOURCE_NO = #{map.SOURCE_NO},
+			</if>
+			<if test="map.USED_FOR != null">
+				USED_FOR = #{map.USED_FOR},
+			</if>
+			<if test="map.CLIENT_NAME != null">
+				CLIENT_NAME = #{map.CLIENT_NAME},
+			</if>
+		</set>
+		<where>
+				CIR_CIRCUIT_INFO_ID = #{map.cirInfoId}
+		</where>
+	</update>
+	
+
+</mapper>

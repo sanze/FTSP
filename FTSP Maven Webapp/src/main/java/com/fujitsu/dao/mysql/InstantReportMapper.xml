@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.InstantReportMapper">
+
+
+<sql id = "searchPM4BitErrReportySQL">
+	<foreach collection="tableNodesList" item="tableNodes"	open="(" 
+				close=")" separator=")union all(">
+		select
+			pm.DISPLAY_NE as ne,
+			pm.DISPLAY_PORT_DESC as portDesc,
+			pm.PM_DESCRIPTION as pmDesc,
+			date_format(pm.RETRIEVAL_TIME,'%Y-%m-%d') as retrievalTime,
+			pm.BASE_PTP_ID as ptpId,
+			pm.PM_VALUE as pmValue,
+			pm.PM_STD_INDEX as pmStdIndex,
+			pm.TARGET_TYPE as targetType,
+			pm.TYPE as pmType,
+			pm.BASE_NE_ID as neId,
+			CONCAT(date_format(pm.RETRIEVAL_TIME,'%Y-%m-%d'),pm.PM_STD_INDEX) as tag
+		from
+		${tableNodes.tableName} pm
+		<where>
+		pm.TARGET_TYPE = 7
+		and
+		pm.PM_STD_INDEX in
+		('RS_ES','RS_SES','RS_UAS','RS_BBE','MS_ES','MS_SES','MS_UAS','MS_BBE')
+		<if test="map.tpLevel!=null and map.tpLevel!=''">
+		and
+		pm.PTP_TYPE in (${map.tpLevel})
+		</if>
+		and
+			(1=2
+			<if test="tableNodes.NODE_EMS!=null and tableNodes.NODE_EMS!=''">
+			OR pm.BASE_EMS_CONNECTION_ID IN (${tableNodes.NODE_EMS})
+			</if>
+			<if test="tableNodes.NODE_NE!=null and tableNodes.NODE_NE!=''">
+			OR pm.BASE_NE_ID IN (${tableNodes.NODE_NE})
+			</if>
+			<if test="tableNodes.NODE_PTP!=null and tableNodes.NODE_PTP!=''">
+			OR pm.BASE_PTP_ID IN (${tableNodes.NODE_PTP})
+			</if>
+			)
+		and
+		substring(pm.RETRIEVAL_TIME,1,10) in 
+			<foreach collection="tableNodes.timeCond" item="day" open="(" 
+				close=")" separator=",">
+				#{day}
+			</foreach>
+		</where>
+	</foreach>
+</sql>
+<!-- 误码报表查询  -->
+<select id="searchPM4BitErrReporty" resultType="hashmap">
+	<include refid="searchPM4BitErrReportySQL" />
+	order by
+	neId,ptpId
+	<if test="start>=0">
+	limit
+	#{start},1000
+	</if>
+</select>
+<!-- 误码报表count -->
+<select id="searchPM4BitErrReportyCount" resultType="int">
+	select count(1)
+	from
+	(
+	<include refid="searchPM4BitErrReportySQL" />
+	) t
+</select>
+
+
+
+<select id="getNeUnderThisNode" resultType="hashmap">
+		SELECT
+		ne.BASE_NE_ID as nodeId,
+		#{TREE.NODE_NE} as nodeLevel,
+		ne.BASE_EMS_CONNECTION_ID as emsId
+		FROM
+		t_base_ne ne
+		left join
+		t_base_subnet subnet ON (
+		ne.BASE_SUBNET_ID
+		= subnet.BASE_SUBNET_ID
+		and
+		ne.IS_DEL != #{Define.TRUE}
+		and
+		subnet.IS_DEL != #{Define.TRUE})
+		<where>
+		(
+			1=2
+			<if test="conditionMap.NODE_NE!=null and conditionMap.NODE_NE!=''">
+				OR ne.BASE_NE_ID in (${conditionMap.NODE_NE})
+			</if>
+			<if test="conditionMap.NODE_SUBNET!=null and conditionMap.NODE_SUBNET!=''">
+				OR subnet.BASE_SUBNET_ID in (${conditionMap.NODE_SUBNET})
+			</if>
+			<if test="conditionMap.NODE_EMS!=null and conditionMap.NODE_EMS!=''">
+				OR ne.BASE_EMS_CONNECTION_ID in
+				(${conditionMap.NODE_EMS})
+			</if>
+		)
+		<if test="conditionMap.neType!=null">
+		and
+		ne.TYPE = #{conditionMap.neType}
+		</if>
+		</where>
+	</select>
+
+
+<sql id = "generateSDHLightPowerReport">
+	<foreach collection="tableNodesList" item="tableNodes"	open="(" 
+				close=")" separator=")union all(">
+		select
+			pm.DISPLAY_NE as ne,
+			pm.DISPLAY_PORT_DESC as portDesc,
+			pm.PM_DESCRIPTION as pmDesc,
+			date_format(pm.RETRIEVAL_TIME,'%Y-%m-%d') as retrievalTime,
+			pm.BASE_PTP_ID as ptpId,
+			pm.PM_VALUE as pmValue,
+			pm.PM_STD_INDEX as pmStdIndex,
+			pm.TARGET_TYPE as targetType,
+			pm.TYPE as pmType,
+			pm.BASE_NE_ID as neId,
+			CONCAT(date_format(pm.RETRIEVAL_TIME,'%Y-%m'),pm.PM_STD_INDEX) as tag
+		from
+		${tableNodes.tableName} pm
+		<where>
+		pm.TARGET_TYPE = 7
+		and
+		pm.PM_STD_INDEX in
+		(${map.pmStdIndex})
+		<if test="map.tpLevel!=null and map.tpLevel!=''">
+		and
+		pm.PTP_TYPE in (${map.tpLevel})
+		</if>
+		and
+			(1=2
+			<if test="tableNodes.NODE_EMS!=null and tableNodes.NODE_EMS!=''">
+			OR pm.BASE_EMS_CONNECTION_ID IN (${tableNodes.NODE_EMS})
+			</if>
+			<if test="tableNodes.NODE_NE!=null and tableNodes.NODE_NE!=''">
+			OR pm.BASE_NE_ID IN (${tableNodes.NODE_NE})
+			</if>
+			<if test="tableNodes.NODE_PTP!=null and tableNodes.NODE_PTP!=''">
+			OR pm.BASE_PTP_ID IN (${tableNodes.NODE_PTP})
+			</if>
+			)
+		and
+		substring(pm.RETRIEVAL_TIME,9,2) = #{map.pmDate} 
+		</where>
+	</foreach>
+</sql>
+
+<select id='generateSDHLightPowerReport' resultType="hashmap">
+	select
+	t.*,comp.PM_COMPARE_VALUE as compValue
+	from(
+	<include refid="generateSDHLightPowerReport" />
+	) t
+	left join
+	`t_pm_compare` comp
+	on(
+	t.ptpId = comp.BASE_PTP_ID
+	AND
+	t.pmStdIndex = comp.PM_STD_INDEX
+	)
+</select>
+</mapper>

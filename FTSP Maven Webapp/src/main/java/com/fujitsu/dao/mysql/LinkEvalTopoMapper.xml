@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.LinkEvalTopoMapper">
+
+	<!-- 按网络级别获取传输系统信息 -->
+    <select id="getTransmissionSystemByNetlevel" resultType="hashmap">
+        SELECT * FROM T_RESOURCE_TRANS_SYS
+        <where>
+        	<if test="netLevel != 0">
+        	   NET_LEVEL = #{netLevel}
+        	</if>
+        </where>
+    </select>
+    
+    <!-- 获取传输系统网元信息 -->
+    <select id="getTansSysNeById" resultType="hashmap">
+        select * from t_resource_trans_sys_ne where RESOURCE_TRANS_SYS_ID in
+            <foreach collection="sysIdList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+    </select>
+    
+    <!--  获取指定的传输系统内的网元节点数据 -->
+    <select id="getTransSysNeBySysId" resultType="hashmap">
+        SELECT sysne.NE_ID, ne.DISPLAY_NAME NE_NAME,ne.TYPE NE_TYPE, sysne.POSITION_X,sysne.POSITION_Y,
+            (SELECT sta.`STATION_NAME` FROM t_resource_room room, t_resource_station sta
+             WHERE room.RESOURCE_ROOM_ID = ne.RESOURCE_ROOM_ID AND
+                   room.RESOURCE_STATION_ID = sta.RESOURCE_STATION_ID) STATION_NAME
+        FROM t_resource_trans_sys_ne sysne, t_base_ne ne
+        WHERE sysne.RESOURCE_TRANS_SYS_ID = #{sysId} AND
+            sysne.NE_ID = ne.BASE_NE_ID 
+    </select>
+    
+    <!-- 获取指定传输系统内的Link信息 -->
+    <select id="getTransSysLinkBySysId" resultType="hashmap">
+        SELECT l.BASE_LINK_ID LINK_ID, l.A_NE_ID FROM_NODE,
+                (SELECT TYPE FROM t_base_ne WHERE base_ne_id = FROM_NODE) FROM_NODE_TYPE, l.Z_NE_ID TO_NODE,
+                (SELECT TYPE FROM t_base_ne WHERE base_ne_id = TO_NODE) TO_NODE_TYPE,
+                IF((SELECT TYPE FROM t_base_ne WHERE base_ne_id = FROM_NODE) = 2 AND
+                   (SELECT TYPE FROM t_base_ne WHERE base_ne_id = TO_NODE) = 2, "wdm","sdh") LINE_TYPE
+        FROM t_base_link l
+        WHERE l.RESOURCE_TRANS_SYS_ID = #{sysId} AND l.is_del = 0
+    </select>
+    
+    <!-- 保存网元坐标 -->
+    <select id="saveNePosition" resultType="hashmap">
+        update t_resource_trans_sys_ne set POSITION_X = #{position_X}, POSITION_Y = #{position_Y}
+        where NE_ID = #{neId}
+    </select>
+</mapper>

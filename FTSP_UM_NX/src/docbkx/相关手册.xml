@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<title>相关手册</title>
+	<informaltable>
+		<tgroup cols="2">
+			<colspec colwidth="3*" />
+			<colspec colwidth="7*" />
+			<tbody>
+				<row>
+					<entry>手册名称</entry>
+					<entry>用途</entry>
+				</row>
+				<row>
+					<entry>《宁夏电信传输综合网管用户操作手册》</entry>
+					<entry>介绍了FTSP的具体操作相关</entry>
+				</row>
+				<row>
+					<entry>《FTSP3.1工程手册》</entry>
+					<entry>介绍了FTSP的工程相关</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</informaltable>
+
+</section>

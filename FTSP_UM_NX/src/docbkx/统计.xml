@@ -1,0 +1,997 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+	<info>
+		<title>统计</title>
+	</info>
+
+	<section xml:id="节-资源统计">
+		<title>资源统计</title>
+
+		<section xml:id="节-槽道可用率">
+			<title>槽道可用率</title>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;统计&gt;→&lt;资源统计&gt;→&lt;槽道可用率&gt;，槽道可用率页面将会打开，如下图。</para>
+
+			<figure xml:id="图-槽道可用率">
+				<title>槽道可用率</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/statistics/slot_availability.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/statistics/slot_availability.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“预警等级”：预警等级名称，如全部、重要预警、次要预警、一般预警</para>
+
+			<para>“预警设置”：设置可用率在多少百分比范围内时为何等级预警</para>
+
+			<para>“网管分组”：网管分组名称，如ZTE-U31</para>
+
+			<para>“所属网管”：网管名称，如U31-SDH</para>
+
+			<para>“网元”：网元名称，如大武口S385</para>
+
+			<para>“网元型号”：网元型号，如ZXMP S385</para>
+
+			<para>“区域”：区域，如宁夏</para>
+
+			<para>“厂家”：厂家，如中兴</para>
+
+			<para>“综合”：查询对象的综合槽道可用率</para>
+
+			<para>“SDH-1”：自定义类型为SDH-1的板卡的槽道可用率</para>
+
+			<para></para>
+
+			<para>【功能说明】</para>
+
+			<para>先点击&lt;网管分组&gt;前的加号，选择相应的网管分组、网管、子网或网元（参见<xref linkend="节-网元树_槽道"/>），再点击&lt;&gt;&gt;&gt;按钮，执行查询操作并显示查询结果（即在页面下方显示列表数据，上方显示可用率图）（参见<xref linkend="节-槽道可用率图"/>）。</para>
+
+			<para>点击&lt;数据抽取&gt;按钮，将实现数据抽取功能。</para>
+
+			<para>点击&lt;导出&gt;按钮，将实现导出功能，参见<xref linkend="节-导出_槽道"/>。</para>
+
+			<section xml:id="节-网元树_槽道">
+				<title>网元树</title>
+
+				<para>【页面显示】</para>
+
+				<para>在页面的左侧为网元树选择页面，如下图。</para>
+
+				<figure xml:id="图-网元树_槽道">
+					<title>网元树</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/ne_tree.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/ne_tree.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>待选择的对象以树状结构的方式来展现，支持多选。</para>
+
+				<para>“搜索”：搜索栏，分为网管分组、网管、子网和网元（通过左边下拉框选择）。具体的网管分组、网管、子网和网元可以在后面的文本框中输入对象名或者通过下拉框选择。</para>
+
+				<para>点击&lt;筛选&gt;，筛选或全部显示。</para>
+
+				<para>点击&lt;刷新&gt;，恢复勾选前的默认状态。</para>
+
+				<para>点击&lt;&gt;&gt;&gt;，查询所选择网管分组、网管、子网或网元的数据</para>
+
+			</section>
+
+			<section xml:id="节-槽道可用率图">
+				<title>槽道可用率图</title>
+
+				<para>【页面显示】</para>
+
+				<para>在槽道可用率页面点击&lt;&gt;&gt;&gt;按钮，查询结果显示的窗口上方即为槽道可用率图，如下图。</para>
+
+				<figure xml:id="图-槽道可用率图">
+					<title>槽道可用率图</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/slot_availability_chart.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/slot_availability_chart.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>各类型板卡的槽道可用率按板卡呈现，即横坐标为板卡类型，纵坐标为可用率，显示柱状图。</para>
+
+				<para>综合可用率按网管分组、网管、子网或网元呈现，即扇形面积为可用率和不可用率的百分比，显示饼状图。</para>
+
+				<para>“板卡类型”：板卡类型名称，如SDH-1。</para>
+
+				<para>“可用率”：可用率百分比，如33%。</para>
+
+			</section>
+
+			<section xml:id="节-预警等_槽道">
+				<title>预警等级</title>
+
+				<para>【页面显示】</para>
+
+				<para>在可用率页面点击&lt;预警等级&gt;后的下拉框，显示可选择的预警等级，如下图。</para>
+
+				<figure xml:id="图-预警等级_槽道">
+					<title>预警等级</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/warning_level.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/warning_level.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>按预警等级对所选择的网元进行过滤。</para>
+
+				<para>&lt;预警等级&gt;选择全部，显示所有查询的网元。</para>
+
+				<para>&lt;预警等级&gt;选择一般预警，显示查询的网元中，综合可用率属于一般预警等级的网元。</para>
+
+				<para>&lt;预警等级&gt;选择次要预警，显示查询的网元中，综合可用率属于次要预警等级的网元。</para>
+
+				<para>&lt;预警等级&gt;选择重要预警，显示查询的网元中，综合可用率属于重要预警等级的网元。</para>
+
+			</section>
+
+			<section xml:id="节-预警设置_槽道">
+				<title>预警设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在可用率页面点击&lt;预警设置&gt;按钮，预警设置窗口将打开，如下图。</para>
+
+				<figure xml:id="图-预警设置_槽道">
+					<title>预警设置</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/warning_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/warning_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>自定义槽道可用率在何种范围内属于何种预警等级。如上图所示，当可用率在30%~50%之间显示为一般预警，当可用率在10%~30%之间显示为次要预警，当可用率&lt;10%显示为重要预警。</para>
+
+				<para>文本框内输入百分比数字。</para>
+
+				<para>点击&lt;确定&gt;，退出窗口并且保存修改。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口并且放弃修改。</para>
+
+			</section>
+
+			<section xml:id="节-导出_槽道">
+				<title>导出</title>
+
+				<para>【页面显示】</para>
+
+				<para>在槽道可用率页面点击&lt;导出&gt;按钮，导出窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导出">
+					<title>导出</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/export.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/export.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要可以打开或者保存文件。</para>
+
+				<para>点击&lt;打开&gt;，将打开文件。</para>
+
+				<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口且放弃操作。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-端口可用率">
+			<title>端口可用率</title>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;统计&gt;→&lt;资源统计&gt;→&lt;端口可用率&gt;，端口可用率页面将会打开，如下图。</para>
+
+			<figure xml:id="图-端口可用率">
+				<title>端口可用率</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/statistics/port_availability.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/statistics/port_availability.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“预警等级”：预警等级名称，如全部、重要预警、次要预警、一般预警</para>
+
+			<para>“预警设置”：设置可用率在多少百分比范围内为何等级预警</para>
+
+			<para>“网管分组”：网管分组名称，如ZTE-U31</para>
+
+			<para>“所属网管”：网管名称，如U31-SDH</para>
+
+			<para>“网元”：网元名称，如大武口S385</para>
+
+			<para>“网元型号”：网元型号，如ZXMP S385</para>
+
+			<para>“区域”：区域，如宁夏</para>
+
+			<para>“厂家”：厂家，如中兴</para>
+
+			<para>“综合”：查询对象的综合端口可用率</para>
+
+			<para>“E1”：自定义类型为E1的端口可用率</para>
+
+			<para>【功能说明】</para>
+
+			<para>先点击&lt;网管分组&gt;前的加号，选择相应的网管分组、网管、子网或网元（参见<xref linkend="节-网元树_端口"/>），再点击&lt;&gt;&gt;&gt;按钮，执行查询操作并显示查询结果（即在页面下方显示列表数据，上方显示可用率图）（参见<xref linkend="节-端口可用率图"/>）。</para>
+
+			<para>点击&lt;数据抽取&gt;按钮，将实现数据抽取功能。</para>
+
+			<para>点击&lt;导出&gt;按钮，将实现导出功能，参见<xref linkend="节-导出_端口"/>。</para>
+
+			<section xml:id="节-网元树_端口">
+				<title>网元树</title>
+
+				<para>【页面显示】</para>
+
+				<para>在页面的左侧为网元树选择页面，如下图。</para>
+
+				<figure xml:id="图-网元树_端口">
+					<title>网元树</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/ne_tree.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/ne_tree.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>待选择的对象以树状结构的方式来展现，支持多选。</para>
+
+				<para>“搜索”：搜索栏，分为网管分组、网管、子网或网元（通过左边下拉框选择）。具体的网管分组、网管、子网或网元可以在后面的文本框中输入对象名或者通过下拉框选择。</para>
+
+				<para>点击&lt;筛选&gt;，筛选或全部显示。</para>
+
+				<para>点击&lt;刷新&gt;，恢复勾选前的默认状态。</para>
+
+				<para>点击&lt;&gt;&gt;&gt;，查询所选择网管分组、网管、子网或网元的数据</para>
+
+			</section>
+
+			<section xml:id="节-端口可用率图">
+				<title>端口可用率图</title>
+
+				<para>【页面显示】</para>
+
+				<para>在端口可用率页面点击&lt;&gt;&gt;&gt;按钮，查询结果显示的窗口上方即为端口可用率图，如下图。</para>
+
+				<figure xml:id="图-端口可用率图">
+					<title>端口可用率图</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/port_availability_chart.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/port_availability_chart.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>各类型端口的端口可用率按端口呈现，即横坐标为端口类型，纵坐标为可用率，显示柱状图。</para>
+
+				<para>综合可用率按网管分组、网管、子网或网元呈现，即扇形面积为可用率和不可用率的百分比，显示饼状图。</para>
+
+				<para>“端口类型”：端口类型名称，如E1、STM-16。</para>
+
+				<para>“可用率”：可用率百分比，如40%。</para>
+
+			</section>
+
+			<section xml:id="节-预警等级_端口">
+				<title>预警等级</title>
+
+				<para>【页面显示】</para>
+
+				<para>在可用率页面点击&lt;预警等级&gt;后的下拉框，显示可选择的预警等级，如下图。</para>
+
+				<figure xml:id="图-预警等级_端口">
+					<title>预警等级</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/warning_level.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/warning_level.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>按预警等级对所选择的网元进行过滤。</para>
+
+				<para>&lt;预警等级&gt;选择全部，显示所有勾选的网元。</para>
+
+				<para>&lt;预警等级&gt;选择一般预警，显示勾选的网元中，综合可用率属于一般预警的网元。</para>
+
+				<para>&lt;预警等级&gt;选择次要预警，显示勾选的网元中，综合可用率属于次要预警的网元。</para>
+
+				<para>&lt;预警等级&gt;选择重要预警，显示勾选的网元中，综合可用率属于重要预警的网元。</para>
+
+			</section>
+
+			<section xml:id="节-预警设置_端口">
+				<title>预警设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在可用率页面点击&lt;预警设置&gt;按钮，预警设置窗口将打开，如下图。</para>
+
+				<figure xml:id="图-预警设置_端口">
+					<title>预警等级</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/warning_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/warning_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>自定义端口可用率在何种范围内属于何种预警等级。如上图所示，当可用率在30%~50%之间显示为一般预警，当可用率在10%~30%之间显示为次要预警，当可用率&lt;10%显示为重要预警。</para>
+
+				<para>文本框内输入百分比数字。</para>
+
+				<para>点击&lt;确定&gt;，退出窗口并且保存修改。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口并且放弃修改。</para>
+
+			</section>
+
+			<section xml:id="节-导出_端口">
+				<title>导出</title>
+
+				<para>【页面显示】</para>
+
+				<para>在端口可用率页面点击&lt;导出&gt;按钮，导出窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导出_端口">
+					<title>导出</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/export.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/export.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要可以打开或者保存文件。</para>
+
+				<para>点击&lt;打开&gt;，将打开文件。</para>
+
+				<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口且放弃操作。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-时隙可用率">
+			<title>时隙可用率</title>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;统计&gt;→&lt;资源统计&gt;→&lt;时隙可用率&gt;，端口可用率页面将会打开，如下图。</para>
+
+			<figure xml:id="图-时隙可用率">
+				<title>时隙可用率</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/statistics/channel_availability.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/statistics/channel_availability.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“预警等级”：预警等级名称，如全部、重要预警、次要预警、一般预警</para>
+
+			<para>“预警设置”：设置可用率在多少百分比范围内为何等级预警</para>
+
+			<para>“网管分组”：网管分组名称，如ZTE-U31</para>
+
+			<para>“所属网管”：网管名称，如U31-SDH</para>
+
+			<para>“网元”：网元名称，如大武口S385</para>
+
+			<para>“网元型号”：网元型号，如ZXMP S385</para>
+
+			<para>“区域”：区域，如宁夏</para>
+
+			<para>“厂家”：厂家，如中兴</para>
+
+			<para>“端口”：时隙所属的端口，如101-1</para>
+
+			<para>“业务类型”：查询对象的业务类型，如SDH</para>
+
+			<para>“端口类型”：查询对象的端口类型，如STM-1</para>
+
+			<para>“VC4可用率”：查询对象时隙为VC4等级的可用率</para>
+
+			<para>“VC12可用率”：查询对象时隙为VC12等级的可用率</para>
+
+			<para>【功能说明】</para>
+
+			<para>先点击&lt;网管分组&gt;前的加号，选择相应的网管分组、网管、子网或网元（参见<xref linkend="节-网元树_时隙"/>），再点击&lt;&gt;&gt;&gt;按钮，执行查询操作并显示查询结果（即在页面下方显示列表数据，上方显示可用率图）（参见<xref linkend="节-时隙可用率图"/>）。</para>
+
+			<para>点击&lt;数据抽取&gt;按钮，将实现数据抽取功能。</para>
+
+			<para>点击&lt;导出&gt;按钮，将实现导出功能，参见<xref linkend="节-导出_时隙"/>。</para>
+
+			<section xml:id="节-网元树_时隙">
+				<title>网元树</title>
+
+				<para>【页面显示】</para>
+
+				<para>在页面的左侧为网元树选择页面，如下图。</para>
+
+				<figure xml:id="图-网元树_时隙">
+					<title>网元树</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/ne_tree.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/ne_tree.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>待选择的对象以树状结构的方式来展现，支持多选。</para>
+
+				<para>“搜索”：搜索栏，分为网管分组、网管、子网或网元（通过左边下拉框选择）。具体的网管分组、网管、子网或网元可以在后面的文本框中输入对象名或者通过下拉框选择。</para>
+
+				<para>点击&lt;筛选&gt;，筛选或全部显示。</para>
+
+				<para>点击&lt;刷新&gt;，恢复勾选前的默认状态。</para>
+
+				<para>点击&lt;&gt;&gt;&gt;，查询所选择网管分组、网管、子网或网元的数据</para>
+
+			</section>
+
+			<section xml:id="节-时隙可用率图">
+				<title>时隙可用率图</title>
+
+				<para>【页面显示】</para>
+
+				<para>在时隙可用率页面点击&lt;&gt;&gt;&gt;按钮，查询结果显示的窗口上方即为时隙可用率图，如下图。</para>
+
+				<figure xml:id="图-时隙可用率图">
+					<title>时隙可用率图</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/channel_availability_chart.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/channel_availability_chart.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>各类型端口的时隙可用率按端口呈现，时隙又分为VC4等级和VC12等级两种。即横坐标为端口类型，纵坐标为可用率，显示柱状图。</para>
+
+				<para>综合可用率按网管分组、网管、子网或网元呈现，即扇形面积为可用率和不可用率的百分比，显示饼状图，分VC4等级时隙和VC12等级时隙分别呈现。</para>
+
+				<para>“端口类型”：端口类型名称，如STM-1、STM-16。</para>
+
+				<para>“可用率”：可用率百分比，如44%。</para>
+
+			</section>
+
+			<section xml:id="节-预警等级_时隙">
+				<title>预警等级</title>
+
+				<para>【页面显示】</para>
+
+				<para>在可用率页面点击&lt;预警等级&gt;后的下拉框，显示可选择的预警等级，如下图。</para>
+
+				<figure xml:id="图-预警等级_时隙">
+					<title>预警等级</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/warning_level.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/warning_level.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>按预警等级对所选择的网元进行过滤。</para>
+
+				<para>&lt;预警等级&gt;选择全部，显示所有勾选的网元。</para>
+
+				<para>&lt;预警等级&gt;选择一般预警，显示勾选的网元中，综合可用率属于一般预警的网元。</para>
+
+				<para>&lt;预警等级&gt;选择次要预警，显示勾选的网元中，综合可用率属于次要预警的网元。</para>
+
+				<para>&lt;预警等级&gt;选择重要预警，显示勾选的网元中，综合可用率属于重要预警的网元。</para>
+
+			</section>
+
+			<section xml:id="节-预警设置">
+				<title>预警设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在可用率页面点击&lt;预警设置&gt;按钮，预警设置窗口将打开，如下图。</para>
+
+				<figure xml:id="图-预警设置_时隙">
+					<title>预警等级</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/warning_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/warning_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>自定义端口可用率在何种范围内属于何种预警等级。如上图所示，当可用率在30%~50%之间显示为一般预警，当可用率在10%~30%之间显示为次要预警，当可用率&lt;10%显示为重要预警。</para>
+
+				<para>文本框内输入百分比数字。</para>
+
+				<para>点击&lt;确定&gt;，退出窗口并且保存修改。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口并且放弃修改。</para>
+
+			</section>
+
+			<section xml:id="节-导出_时隙">
+				<title>导出</title>
+
+				<para>【页面显示】</para>
+
+				<para>在端口可用率页面点击&lt;导出&gt;按钮，导出窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导出_时隙">
+					<title>导出窗口</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/export.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/export.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要可以打开或者保存文件。</para>
+
+				<para>点击&lt;打开&gt;，将打开文件。</para>
+
+				<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口且放弃操作。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-时隙可用率拓扑">
+			<title>时隙可用率拓扑</title>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;统计&gt;→&lt;资源统计&gt;→&lt;时隙可用率拓扑&gt;，时隙可用率拓扑页面将会打开，如下图。</para>
+
+			<figure xml:id="图-时隙可用率拓扑">
+				<title>时隙可用率拓扑页面</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/statistics/channel_availability_topology.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/statistics/channel_availability_topology.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>该页面在&lt;视图&gt;→&lt;网络拓扑图&gt;的基础上，增加了时隙可用率的显示。关于网络拓扑图的内容说明，请参见“网络拓扑图”的内容说明。</para>
+
+			<para>【功能说明】</para>
+
+			<para>该页面的功能说明请参见4.1网络拓扑图的功能说明，该页面增加了&lt;VC4时隙可用率&gt;按钮和&lt;VC12时隙可用率&gt;按钮</para>
+
+			<section xml:id="节-网元的时隙可用率拓扑">
+				<title>网元的时隙可用率拓扑</title>
+
+				<para>【页面显示】</para>
+
+				<para>双击EMS拓扑视图/EMS分组拓扑视图中的EMS网管图标/EMS网管视图的子网图标/子网图标或者在对象树中双击EMS网管视图的子网图标时，子网的拓扑视图页面将会打开，如下图。</para>
+
+				<figure xml:id="图-网元的时隙可用率拓扑">
+					<title>网元的时隙可用率拓扑</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/ne_channel_availability_topology.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/ne_channel_availability_topology.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>“子网拓扑视图标题”：“XXX：YYY”（其中XXX为EMS名称，YYY为子网名称）</para>
+
+				<para>“子网图标颜色”：同子网内最高级别告警相对应的颜色</para>
+
+				<para>“网元图标颜色”：与网元上最高级别告警相对应且同步</para>
+
+				<para>“连线颜色”：表示网元的时隙可用率属于何种级别的预警，红色为重要预警、黄色为次要预警、褐色为一般预警、绿色为无预警。</para>
+
+				<para>“连线中间的数据”：X/Y（其中X为可用的空闲时隙数量，Y为总时隙数量）</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;VC4时隙可用率&gt;按钮，链路上显示VC4时隙的可用率。</para>
+
+				<para>点击&lt;VC12时隙可用率&gt;按钮，链路上显示VC12时隙的可用率。</para>
+
+				<para>鼠标悬停操作：</para>
+
+				<para>当鼠标在子网图标或网元图标上悬停时，自动显示网元名称。</para>
+
+				<para>鼠标拖拽操作：</para>
+
+				<para>子网/网元图标可以被选中和拖动。</para>
+
+				<para>鼠标左键操作：</para>
+
+				<para>双击子网图标，进入对应子网的网元拓扑视图。</para>
+
+				<para>双击空白处，退回到上一层视图。</para>
+
+				<para>鼠标右键操作：</para>
+
+				<para>鼠标右键单击网元图标，参见<xref linkend="节-时隙可用率拓扑图右键弹出菜单_网元"/>。</para>
+
+				<para>鼠标右键单击空白区域，参见1.1.4.3。</para>
+
+				<para>右下角功能按钮：</para>
+
+				<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/zoom_in_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图按比例放大。</para>
+
+				<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/zoom_out_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图按比例缩小。</para>
+
+				<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/full_size_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图恢复初始默认大小。</para>
+
+				<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/full_screen_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图全屏显示。</para>
+
+			</section>
+
+			<section xml:id="节-时隙可用率拓扑图右键弹出菜单_网元">
+				<title>子网拓扑图右键弹出菜单（网元）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在子网拓扑图显示区域，鼠标右键单击网元图标，子网拓扑图右键弹出菜单（网元）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-时隙可用率拓扑图右键弹出菜单_系统_网元">
+					<title>子网拓扑图右键弹出菜单（网元）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/subnet_topo_pop-up_menu_ne.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/subnet_topo_pop-up_menu_ne.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;网元属性&gt;，显示所选网元的属性，如下图。</para>
+
+				<figure xml:id="图-网元属性弹出窗口">
+					<title>网元属性弹出窗口</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/ne_attribute.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/ne_attribute.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-时隙可用率拓扑图右键弹出菜单_系统">
+				<title>子网拓扑图右键弹出菜单（系统）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在视图空白区域，鼠标右键单击空白区域，子网拓扑图右键弹出菜单（系统）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-时隙可用率拓扑图右键弹出菜单_系统_系统">
+					<title>子网拓扑图右键弹出菜单（系统）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/subnet_topo_pop-up_menu_system.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/subnet_topo_pop-up_menu_system.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;返回&gt;按钮，返回上一层视图。</para>
+
+				<para>点击&lt;刷新&gt;按钮，更新当前视图的内容（拓扑信息/时隙可用率/对象树内容）。</para>
+
+				<para>点击&lt;放大&gt;按钮，放大拓扑显示区域的显示，步进为原始大小的25%。</para>
+
+				<para>点击&lt;缩小&gt;按钮，缩小拓扑显示区域的显示，步进为原始大小的25%。</para>
+
+				<para>点击&lt;原始大小&gt;按钮，将拓扑显示区域的显示恢复成初始大小。</para>
+
+				<para>点击&lt;预警级别设置&gt;按钮，设定时隙率为多少百分比时属于何种预警等级。</para>
+
+				<para>点击&lt;图例&gt;按钮，打开图例面板，面板上显示拓扑图上出现的各种图形要素的说明。</para>
+
+				<para>点击&lt;导出图形&gt;按钮，将当前拓扑视图区域显示内容保存为外部文件（不包含对象树）。</para>
+
+				<para>点击&lt;导出列表&gt;按钮，将当前拓扑视图区域内显示的所有网元的时隙可用率保存为外部文件。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-板卡分类自定义">
+			<title>板卡分类自定义</title>
+
+			<para>【描述】</para>
+
+			<para>自定义各种厂家的板卡类型，分类管理。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;统计&gt;→&lt;资源统计&gt;→&lt;板卡分类自定义&gt;，板卡分类自定义页面将会打开，如下图。</para>
+
+			<figure xml:id="图-板卡分类自定义">
+					<title>板卡分类自定义</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/card_classification_define.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/card_classification_define.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“厂家”：板卡所属厂家，如中兴</para>
+
+			<para>“板卡名称”：板卡的名称，如ESCC、FAN</para>
+
+			<para>“板卡小类名称”：自定义的板卡小类名称，需要先在板卡类别名称自定义中定义，如SDH-1。 </para>
+
+			<para>“板卡大类”：自定义的板卡大类名称， 需要先在板卡类别名称自定义中定义，如业务板卡、公共板卡</para>
+
+			<para>【功能说明】	</para>
+
+			<para>选中一行板卡数据，双击该行板卡小类名称列，出现下拉菜单，如下图所示（下拉菜单显示的内容需先定义）。选择一个板卡小类名称后，单击空白处。列表中，板卡小类名称和板卡大类显示内容与选择一致。</para>
+
+			<para>图表 8.25 选择板卡小类页面</para>
+			<figure xml:id="图-选择板卡小类">
+					<title>选择板卡小类</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/select_card_subclass.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/select_card_subclass.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+			<para>点击&lt;保存&gt;按钮，保存板卡小类名称和板卡大类的内容，弹出提示框，提示“设定板卡内容成功”，自动刷新。</para>
+
+			<para>点击&lt;刷新&gt;按钮，刷新当前页的列表。</para>
+
+		</section>
+
+		<section xml:id="节-板卡类别名称自定义">
+			<title>板卡类别名称自定义</title>
+
+			<para>【描述】</para>
+
+			<para>自定义板卡小类的名称，并定义该板卡小类属于何种板卡大类。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;统计&gt;→&lt;资源统计&gt;→&lt;板卡类别名称自定义&gt;，板卡类别名称自定义页面将会打开，如下图。</para>
+
+			<figure xml:id="图-板卡类别名称自定义">
+					<title>板卡类别名称自定义</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/card_classification_name_define.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/card_classification_name_define.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“新增”：新增板卡小类</para>
+
+			<para>“删除”：删除板卡小类</para>
+
+			<para>“保存”：保存修改</para>
+
+			<para>“板卡小类名称”：自定义的板卡小类名称，如SDH-1。 </para>
+
+			<para>“板卡大类”：自定义的板卡大类名称，如业务板卡、公共板卡</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;新增&gt;按钮，新增板卡类别窗口将打开，参见<xref linkend="节-新增板卡小类"/></para>
+
+			<para>点击&lt;删除&gt;按钮，删除板卡类别窗口将打开，参见 <xref linkend="节-删除板卡小类"/></para>
+
+			<para>点击&lt;保存&gt;按钮，保存修改 </para>
+
+			<section xml:id="节-新增板卡小类">
+				<title>新增板卡小类</title>
+
+				<para>【页面显示】</para>
+
+				<para>在板卡类别名称自定义页面点击&lt;新增&gt;按钮, 新增板卡类别窗口将打开,如下图所示</para>
+
+				<figure xml:id="图-新增板卡类别">
+					<title>新增板卡类别</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/add_card_classification.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/add_card_classification.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>在板卡小类名称文本框中，输入新增板卡小类名称</para>
+
+				<para>点击&lt;板卡大类&gt;文本框后的下拉菜单，选择“业务板卡”、或“公共板卡”。</para>
+
+				<para>点击&lt;确定&gt; 按钮，退出窗口并保存修改。</para>
+
+				<para>点击&lt;取消&gt; 按钮，退出窗口并不保存修改。</para>
+
+			</section>
+
+			<section xml:id="节-删除板卡小类">
+				<title>删除板卡小类</title>
+
+				<para>【页面显示】</para>
+
+				<para>在板卡类别名称自定义页面选择一行板卡小类，点击&lt;删除&gt;按钮, 删除板卡类别窗口将打开,如下图所示</para>
+
+				<figure xml:id="图-删除板卡类别">
+					<title>删除板卡类别</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/statistics/delete_card_classification.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/statistics/delete_card_classification.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt; 按钮，退出窗口并删除选择的板卡小类</para>
+
+				<para>点击&lt;否&gt; 按钮，退出窗口并不删除选择的板卡</para>
+
+			</section>
+
+		</section>
+
+	</section>
+
+</chapter>

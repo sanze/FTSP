@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.fujitsu</groupId>
+	<artifactId>FTSP_UM_NX</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>FTSP_UM</name>
+	<description>宁夏电信传输综合网管用户操作手册</description>
+	<properties>
+		<docbkx.version>2.0.16</docbkx.version>
+		<dir.source>${basedir}/src/docbkx</dir.source>
+		<dir.custom.xsl>${dir.source}/xsl</dir.custom.xsl>
+		<dir.custom.font>${dir.source}/fonts</dir.custom.font>
+		<dir.target.html>target/docbkx/xhtml/</dir.target.html>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.agilejava.docbkx</groupId>
+				<artifactId>docbkx-maven-plugin</artifactId>
+				<version>${docbkx.version}</version>
+				<executions>
+ 					<execution>
+						<phase>generate-resources</phase>
+						<id>create-pdf-docs</id>
+						<goals>
+							<goal>generate-pdf</goal>
+						</goals>
+						<configuration>
+							<includes>main.xml</includes>
+							<xincludeSupported>true</xincludeSupported>
+							<foCustomization>${dir.custom.xsl}/customfo.xsl</foCustomization>
+						</configuration>
+					</execution>
+					<execution>
+						<phase>generate-resources</phase>
+						<id>create-html-docs</id>
+						<goals>
+							<goal>generate-xhtml</goal>
+						</goals>
+						<configuration>
+							<preProcess>
+								<copy todir="${dir.target.html}">
+									<fileset dir="${dir.source}">
+										<include name="**/images/**/*"/>
+										<include name="**/css/*"/>
+										<include name="**/assets/**/*"/>
+									</fileset>
+								</copy>
+							</preProcess>						
+							<includes>main.xml</includes>
+							<xincludeSupported>true</xincludeSupported>
+							<xhtmlCustomization>${dir.custom.xsl}/customhtml.xsl</xhtmlCustomization>
+							<chunkedOutput>true</chunkedOutput>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<fonts>
+						<font>
+							<name>msyh</name>
+							<style>normal</style>
+							<weight>normal</weight>
+							<embedFile>${dir.custom.font}/msyh.ttf</embedFile>
+							<metricsFile>${dir.custom.font}/msyh.xml</metricsFile>
+						</font>
+						<font>
+							<name>simsun</name>
+							<style>normal</style>
+							<weight>normal</weight>
+							<embedFile>${dir.custom.font}/simsun.ttc</embedFile>
+							<metricsFile>${dir.custom.font}/simsun.xml</metricsFile>
+						</font>
+					</fonts>
+				</configuration>
+			</plugin>
+<!-- 			<plugin>
+				<groupId>com.agilejava.docbkx</groupId>
+				<artifactId>docbkx-fop-support</artifactId>
+				<version>${docbkx.version}</version>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<ansi>true</ansi>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin> -->
+		</plugins>
+	</build>
+</project>

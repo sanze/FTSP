@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper
+	namespace="com.fujitsu.dao.mysql.DemoTestManagerMapper">
+	
+	<!--  查询Demo_test表所有数据 -->
+	<select id="getDemoData" resultType="hashmap" parameterType="hashmap">
+		select * from demo_test 
+	</select>
+	
+	<!--  查询Demo_test表分页数据 -->
+	<select id="selectDemoDataList" parameterType="hashmap" resultType="hashmap">
+   		select * from demo_test 
+
+   		<if test="map.pageSize != null and map.pageSize > 0 and map.startNumber != null and map.startNumber >= 0">
+			LIMIT #{map.startNumber},#{map.pageSize}
+		</if>   
+  	</select>
+  	<select id="countDemoDataList" parameterType="hashmap" resultType="int">
+   		select count(*) from demo_test
+  	</select>
+  	
+  	<insert id="insert" >
+     insert into demo_test
+	   (NAME,ADDRESS,IP,PHONE,NOTE)
+	 values
+	   (#{demoTest.name},
+	    #{demoTest.address},
+	    #{demoTest.ip},
+	    #{demoTest.phone},
+	    #{demoTest.note})
+     </insert>
+	
+  	<!-- 修改 -->
+	<update id="update">
+		update 
+			demo_test
+		set
+			NAME=#{demoTest.name},
+			ADDRESS=#{demoTest.address},
+			IP=#{demoTest.ip},
+			PHONE=#{demoTest.phone},
+			NOTE=#{demoTest.note}
+			
+		where
+			ID=#{demoTest.id}
+	</update>
+	
+	 <delete id="delete" >
+     	delete from  
+     		demo_test
+		where
+			ID=#{demoTest.id}
+     </delete>
+	
+</mapper>

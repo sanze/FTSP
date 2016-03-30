@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Data>
+  <Items>   
+    <TotalResults>3</TotalResults>
+    <TotalPages>1</TotalPages>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>中卫老电信局_1/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>CX600</DISPLAY_PRODUCT_NAME>
+      <ZONGHE>20%(20/100)</ZONGHE>
+      <PUBLIC_UNIT>2%(2/100)</PUBLIC_UNIT>
+      <SUB_UNIT>40%(40/100)</SUB_UNIT>
+      <UNIT_10G>23%(23/100)</UNIT_10G>
+      <UNIT_25G>23%(23/100)</UNIT_25G>
+      <STM4>45%(45/100)</STM4>
+      <STM1>6%(6/100)</STM1>
+      <M34>45%(45/100)</M34>
+      <M2>11%(11/100)</M2>
+    </Item>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>气象局_20/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>ZXMP S200</DISPLAY_PRODUCT_NAME>
+      <ZONGHE>25%(50/200)</ZONGHE>
+      <PUBLIC_UNIT>11%(11/100)</PUBLIC_UNIT>
+      <SUB_UNIT>16%(16/100)</SUB_UNIT>
+      <UNIT_10G>34%(34/100)</UNIT_10G>
+      <UNIT_25G>26%(26/100)</UNIT_25G>
+      <STM4>76%(76/100)</STM4>
+      <STM1>48%(48/100)</STM1>
+      <M34>54%(54/100)</M34>
+      <M2>63%(63/100)</M2>
+    </Item>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>地毯厂60/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>ZXMP S380</DISPLAY_PRODUCT_NAME>
+      <ZONGHE>4%(4/100)</ZONGHE>
+      <PUBLIC_UNIT>11%(11/100)</PUBLIC_UNIT>
+      <SUB_UNIT>44%(44/100)</SUB_UNIT>
+      <UNIT_10G>22%(22/100)</UNIT_10G>
+      <UNIT_25G>12%(12/100)</UNIT_25G>
+      <STM4>18%(18/100)</STM4>
+      <STM1>36%(36/100)</STM1>
+      <M34>86%(86/100)</M34>
+      <M2>89%(89/100)</M2>
+    </Item>
+  </Items>
+</Data>

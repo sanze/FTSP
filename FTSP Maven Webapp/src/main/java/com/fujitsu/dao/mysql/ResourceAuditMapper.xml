@@ -1,0 +1,521 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.fujitsu.dao.mysql.ResourceAuditMapper">
+
+	<!--  查询获取网元数据 -->
+	<select id="getBaseNeData" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t_base_ems_connection.DISPLAY_NAME AS BELONGS_NET_MANAGEMENT,
+			t_base_subnet.DISPLAY_NAME AS SUB_NETWORK,
+			t_base_ne.NATIVE_EMS_NAME,
+			t_base_ne.NAME,
+			t_base_ne.USER_LABEL,
+			t_base_ne.PRODUCT_NAME,
+			t_base_ne.TYPE,
+			t_base_ne.NET_ADDRESS,
+			t_base_ne.FACTORY
+		FROM
+			t_base_ne 
+			LEFT JOIN t_base_ems_connection ON t_base_ne.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+			LEFT JOIN t_base_subnet ON t_base_ne.BASE_SUBNET_ID = t_base_subnet.BASE_SUBNET_ID
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_ne.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_ne.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_ne.CREATE_TIME >= #{startTime}
+				AND t_base_ne.CREATE_TIME <= #{endTime}
+				AND t_base_ne.CREATE_TIME = t_base_ne.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_ne.UPDATE_TIME >= #{startTime}
+				AND t_base_ne.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_ne.UPDATE_TIME >= #{startTime}
+				AND t_base_ne.UPDATE_TIME <= #{endTime}
+				AND t_base_ne.CREATE_TIME != t_base_ne.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取子架数据 -->
+	<select id="getBaseShelfData" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t_base_ems_connection.DISPLAY_NAME AS NET_MANAGEMENT_NAME,
+			t_base_ne.USER_LABEL AS NE_MANE,
+			t_base_shelf.VENDOR_NAME,
+			t_base_shelf.SHELF_TYPE,
+			t_base_shelf.RACK_NO,
+			t_base_shelf.SHELF_NO
+		FROM
+			t_base_shelf 
+			LEFT JOIN t_base_ems_connection 
+			  ON t_base_shelf.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID 
+			LEFT JOIN t_base_ne 
+			  ON t_base_shelf.BASE_NE_ID = t_base_ne.BASE_NE_ID 
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_shelf.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_shelf.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_shelf.CREATE_TIME >= #{startTime}
+				AND t_base_shelf.CREATE_TIME <= #{endTime}
+				AND t_base_shelf.CREATE_TIME = t_base_shelf.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_shelf.UPDATE_TIME >= #{startTime}
+				AND t_base_shelf.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_shelf.UPDATE_TIME >= #{startTime}
+				AND t_base_shelf.UPDATE_TIME <= #{endTime}
+				AND t_base_shelf.CREATE_TIME != t_base_shelf.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取板卡数据 -->
+	<select id="getBaseUnitData" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t_base_ems_connection.DISPLAY_NAME AS NET_MANAGEMENT_NAME,
+			t_base_ne.USER_LABEL AS NE_MANE,
+			t_base_unit.RACK_NO,
+			t_base_unit.SHELF_NO,
+			t_base_unit.SLOT_NO,
+			t_base_unit.INSTALLED_EQUIP_OBJ_TYPE,
+			t_base_unit.HAS_PROTECTION,
+			t_base_unit.PROTECT_MODE
+		FROM
+			t_base_unit 
+			LEFT JOIN t_base_ems_connection 
+			  ON t_base_unit.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID 
+			LEFT JOIN t_base_ne 
+			  ON t_base_unit.BASE_NE_ID = t_base_ne.BASE_NE_ID 
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_unit.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_unit.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_unit.CREATE_TIME >= #{startTime}
+				AND t_base_unit.CREATE_TIME <= #{endTime}
+				AND t_base_unit.CREATE_TIME = t_base_unit.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_unit.UPDATE_TIME >= #{startTime}
+				AND t_base_unit.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_unit.UPDATE_TIME >= #{startTime}
+				AND t_base_unit.UPDATE_TIME <= #{endTime}
+				AND t_base_unit.CREATE_TIME != t_base_unit.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取端口数据 -->
+	<select id="getBasePtpData" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t_base_ems_connection.DISPLAY_NAME AS NET_MANAGEMENT_NAME,
+			t_base_ne.USER_LABEL AS NE_MANE,
+			t_base_ptp.SLOT_NO,
+			t_base_ptp.NAME,
+			t_base_ptp.DOMAIN,
+			t_base_ptp.PTP_TYPE,
+			t_base_ptp.RATE,
+			t_base_ptp.IS_PROTECTED
+		FROM
+			(SELECT * FROM t_base_ptp LIMIT #{selectStart},#{everySelectCnt}) AS t_base_ptp
+			LEFT JOIN t_base_ems_connection 
+			  ON t_base_ptp.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID 
+			LEFT JOIN t_base_ne 
+			  ON t_base_ptp.BASE_NE_ID = t_base_ne.BASE_NE_ID 
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_ptp.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_ptp.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_ptp.CREATE_TIME >= #{startTime}
+				AND t_base_ptp.CREATE_TIME <= #{endTime}
+				AND t_base_ptp.CREATE_TIME = t_base_ptp.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_ptp.UPDATE_TIME >= #{startTime}
+				AND t_base_ptp.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_ptp.UPDATE_TIME >= #{startTime}
+				AND t_base_ptp.UPDATE_TIME <= #{endTime}
+				AND t_base_ptp.CREATE_TIME != t_base_ptp.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取SDH交叉数据 -->
+	<select id="getBaseSDHData" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t_base_ems_connection.DISPLAY_NAME AS NET_MANAGEMENT_NAME,
+			t_base_ne.USER_LABEL AS NE_MANE,
+			t_base_sdh_crs.DIRECTION,
+			t_base_sdh_crs.RATE,
+			t_base_ptp_A.NAME AS A_PTP_NAME,
+			t_base_sdh_ctp_A.NAME AS A_CTP_NAME,
+			t_base_sdh_ctp_A.NATIVE_EMS_NAME AS A_NATIVE_EMS_NAME,
+			t_base_sdh_ctp_A.CTP_64C AS A_CTP_64C,
+			t_base_sdh_ctp_A.CTP_16C AS A_CTP_16C,
+			t_base_sdh_ctp_A.CTP_8C AS A_CTP_8C,
+			t_base_sdh_ctp_A.CTP_4C AS A_CTP_4C,
+			t_base_sdh_ctp_A.CTP_J_ORIGINAL AS A_CTP_J_ORIGINAL,
+			t_base_sdh_ctp_A.CTP_J AS A_CTP_J,
+			t_base_sdh_ctp_A.CTP_K AS A_CTP_K,
+			t_base_sdh_ctp_A.CTP_L AS A_CTP_L,
+			t_base_sdh_ctp_A.CTP_M AS A_CTP_M,
+			t_base_ptp_Z.NAME AS Z_PTP_NAME,
+			t_base_sdh_ctp_Z.NAME AS Z_CTP_NAME,
+			t_base_sdh_ctp_Z.NATIVE_EMS_NAME AS Z_NATIVE_EMS_NAME,
+			t_base_sdh_ctp_Z.CTP_64C AS Z_CTP_64C,
+			t_base_sdh_ctp_Z.CTP_16C AS Z_CTP_16C,
+			t_base_sdh_ctp_Z.CTP_8C AS Z_CTP_8C,
+			t_base_sdh_ctp_Z.CTP_4C AS Z_CTP_4C,
+			t_base_sdh_ctp_Z.CTP_J_ORIGINAL AS Z_CTP_J_ORIGINAL,
+			t_base_sdh_ctp_Z.CTP_J AS Z_CTP_J,
+			t_base_sdh_ctp_Z.CTP_K AS Z_CTP_K,
+			t_base_sdh_ctp_Z.CTP_L AS Z_CTP_L,
+			t_base_sdh_ctp_Z.CTP_M AS Z_CTP_M
+		FROM
+			(SELECT * FROM t_base_sdh_crs LIMIT #{selectStart},#{everySelectCnt}) AS t_base_sdh_crs
+			LEFT JOIN t_base_ems_connection 
+			  ON t_base_sdh_crs.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID 
+			LEFT JOIN t_base_ne 
+			  ON t_base_sdh_crs.BASE_NE_ID = t_base_ne.BASE_NE_ID 
+			LEFT JOIN t_base_ptp t_base_ptp_A 
+			  ON t_base_sdh_crs.A_END_PTP = t_base_ptp_A.BASE_PTP_ID 
+			LEFT JOIN t_base_sdh_ctp t_base_sdh_ctp_A 
+			  ON t_base_sdh_crs.A_END_CTP = t_base_sdh_ctp_A.BASE_SDH_CTP_ID 
+			LEFT JOIN t_base_ptp t_base_ptp_Z 
+			  ON t_base_sdh_crs.Z_END_PTP = t_base_ptp_Z.BASE_PTP_ID 
+			LEFT JOIN t_base_sdh_ctp t_base_sdh_ctp_Z 
+			  ON t_base_sdh_crs.Z_END_CTP = t_base_sdh_ctp_Z.BASE_SDH_CTP_ID 
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_sdh_crs.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_sdh_crs.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_sdh_crs.CREATE_TIME >= #{startTime}
+				AND t_base_sdh_crs.CREATE_TIME <= #{endTime}
+				AND t_base_sdh_crs.CREATE_TIME = t_base_sdh_crs.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_sdh_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_sdh_crs.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_sdh_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_sdh_crs.UPDATE_TIME <= #{endTime}
+				AND t_base_sdh_crs.CREATE_TIME != t_base_sdh_crs.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取OTN交叉数据 -->
+	<select id="getBaseOTNData" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT 
+			t_base_ems_connection.DISPLAY_NAME AS NET_MANAGEMENT_NAME,
+			t_base_ne.USER_LABEL AS NE_MANE,
+			t_base_otn_crs.DIRECTION,
+			t_base_ptp_A.NAME AS A_PTP_NAME,
+			t_base_otn_ctp_A.NAME AS A_CTP_NAME,
+			t_base_otn_ctp_A.NATIVE_EMS_NAME AS A_NATIVE_EMS_NAME,
+			t_base_otn_crs.A_OS,
+			t_base_otn_crs.A_OTS,
+			t_base_otn_crs.A_OMS,
+			t_base_otn_crs.A_OCH,
+			t_base_otn_crs.A_ODU0,
+			t_base_otn_crs.A_ODU1,
+			t_base_otn_crs.A_ODU2,
+			t_base_otn_crs.A_ODU3,
+			t_base_otn_crs.A_OTU0,
+			t_base_otn_crs.A_OTU1,
+			t_base_otn_crs.A_OTU2,
+			t_base_otn_crs.A_OTU3,
+			t_base_otn_crs.A_DSR,
+			t_base_otn_crs.A_OAC_TYPE,
+			t_base_otn_crs.A_OAC_VALUE,
+			t_base_otn_crs.A_TYPE,
+			t_base_ptp_Z.NAME AS Z_PTP_NAME,
+			t_base_otn_ctp_Z.NAME Z_CTP_NAME,
+			t_base_otn_ctp_Z.NATIVE_EMS_NAME AS Z_NATIVE_EMS_NAME,
+			t_base_otn_crs.Z_OS,
+			t_base_otn_crs.Z_OTS,
+			t_base_otn_crs.Z_OMS,
+			t_base_otn_crs.Z_OCH,
+			t_base_otn_crs.Z_ODU0,
+			t_base_otn_crs.Z_ODU1,
+			t_base_otn_crs.Z_ODU2,
+			t_base_otn_crs.Z_ODU3,
+			t_base_otn_crs.Z_OTU0,
+			t_base_otn_crs.Z_OTU1,
+			t_base_otn_crs.Z_OTU2,
+			t_base_otn_crs.Z_OTU3,
+			t_base_otn_crs.Z_DSR,
+			t_base_otn_crs.Z_OAC_TYPE,
+			t_base_otn_crs.Z_OAC_VALUE,
+			t_base_otn_crs.Z_TYPE,
+			t_base_otn_crs.CLIENT_TYPE,
+			t_base_otn_crs.CLIENT_RATE,
+			t_base_otn_crs.RATE
+		FROM
+			(SELECT * FROM t_base_otn_crs LIMIT #{selectStart},#{everySelectCnt}) AS t_base_otn_crs 
+			LEFT JOIN t_base_ems_connection 
+			  ON t_base_otn_crs.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID 
+			LEFT JOIN t_base_ne 
+			  ON t_base_otn_crs.BASE_NE_ID = t_base_ne.BASE_NE_ID 
+			LEFT JOIN t_base_ptp AS t_base_ptp_A
+			  ON t_base_otn_crs.A_END_PTP = t_base_ptp_A.BASE_PTP_ID 
+			LEFT JOIN t_base_otn_ctp t_base_otn_ctp_A
+			  ON t_base_otn_crs.A_END_CTP = t_base_otn_ctp_A.BASE_OTN_CTP_ID 
+			LEFT JOIN  t_base_ptp t_base_ptp_Z
+			  ON t_base_otn_crs.Z_END_PTP = t_base_ptp_Z.BASE_PTP_ID 
+			LEFT JOIN t_base_otn_ctp t_base_otn_ctp_Z
+			  ON t_base_otn_crs.Z_END_CTP = t_base_otn_ctp_Z.BASE_OTN_CTP_ID 
+
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_otn_crs.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_otn_crs.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_otn_crs.CREATE_TIME >= #{startTime}
+				AND t_base_otn_crs.CREATE_TIME <= #{endTime}
+				AND t_base_otn_crs.CREATE_TIME = t_base_otn_crs.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_otn_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_otn_crs.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_otn_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_otn_crs.UPDATE_TIME <= #{endTime}
+				AND t_base_otn_crs.CREATE_TIME != t_base_otn_crs.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取端口数据的记录数 -->
+	<select id="getBasePtpDataCount" resultType="int"
+		parameterType="int">
+		SELECT 
+			count(*)
+		FROM
+			t_base_ptp 
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_ptp.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_ptp.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_ptp.CREATE_TIME >= #{startTime}
+				AND t_base_ptp.CREATE_TIME <= #{endTime}
+				AND t_base_ptp.CREATE_TIME = t_base_ptp.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_ptp.UPDATE_TIME >= #{startTime}
+				AND t_base_ptp.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_ptp.UPDATE_TIME >= #{startTime}
+				AND t_base_ptp.UPDATE_TIME <= #{endTime}
+				AND t_base_ptp.CREATE_TIME != t_base_ptp.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取SDH交叉数据的记录数 -->
+	<select id="getBaseSDHDataCount" resultType="int"
+		parameterType="int">
+		SELECT 
+			count(*)
+		FROM
+			t_base_sdh_crs
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_sdh_crs.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_sdh_crs.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_sdh_crs.CREATE_TIME >= #{startTime}
+				AND t_base_sdh_crs.CREATE_TIME <= #{endTime}
+				AND t_base_sdh_crs.CREATE_TIME = t_base_sdh_crs.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_sdh_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_sdh_crs.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_sdh_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_sdh_crs.UPDATE_TIME <= #{endTime}
+				AND t_base_sdh_crs.CREATE_TIME != t_base_sdh_crs.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+	
+	<!--  查询获取OTN交叉数据的记录数 -->
+	<select id="getBaseOTNDataCount" resultType="int"
+		parameterType="int">
+		SELECT 
+			count(*)
+		FROM
+			t_base_otn_crs
+		<where>
+			<if test="dataState=='all' or dataState=='add' or dataState=='update'">
+				t_base_otn_crs.IS_DEL = 0
+			</if>
+			<if test="dataState=='delete'">
+				t_base_otn_crs.IS_DEL = 1
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='add'">
+			<![CDATA[
+				AND t_base_otn_crs.CREATE_TIME >= #{startTime}
+				AND t_base_otn_crs.CREATE_TIME <= #{endTime}
+				AND t_base_otn_crs.CREATE_TIME = t_base_otn_crs.UPDATE_TIME
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='delete'">
+			<![CDATA[
+				AND t_base_otn_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_otn_crs.UPDATE_TIME <= #{endTime}
+			]]>
+			</if>
+			
+			<if test="startTime!=null and endTime!=null and dataState=='update'">
+			<![CDATA[
+				AND t_base_otn_crs.UPDATE_TIME >= #{startTime}
+				AND t_base_otn_crs.UPDATE_TIME <= #{endTime}
+				AND t_base_otn_crs.CREATE_TIME != t_base_otn_crs.UPDATE_TIME
+			]]>
+			</if>
+		</where>
+	</select>
+<!--********************************************** 客户需求变更，暂时删除 ******************************************************-->
+	<!-- 数据状态 -->
+<!--	<sql id="dataStateDisplay">
+		<if test="dataState=='all'">
+			"全部" as DATA_STATE
+		</if>
+	
+		<if test="dataState=='add'">
+			"新增" as DATA_STATE
+		</if>
+	
+		<if test="dataState=='delete'">
+			"删除" as DATA_STATE
+		</if>
+	
+		<if test="dataState=='update'">
+			"更新" as DATA_STATE
+		</if>
+	</sql> -->
+
+</mapper>

@@ -1,0 +1,1073 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ReportManagerMapper">
+
+	<!--  按网元型号查询某些局站的资源统计信息 -->
+	<select id="getResourceChartByStationAndNeModel" resultType="hashmap" parameterType="hashmap">
+		SELECT B.RESOURCE_STATION_ID,B.STATION_NAME,D.PRODUCT_NAME AS NE_MODEL,COUNT(1) AS COUNT from T_RESOURCE_AREA AS A
+	 LEFT JOIN T_RESOURCE_STATION AS B
+			   ON A. RESOURCE_AREA_ID = B.RESOURCE_AREA_ID
+	 LEFT JOIN T_RESOURCE_ROOM AS C
+		       ON B.RESOURCE_STATION_ID = C.RESOURCE_STATION_ID
+	 LEFT JOIN T_BASE_NE AS D
+		       ON C.RESOURCE_ROOM_ID = D.RESOURCE_ROOM_ID
+	 LEFT JOIN T_BASE_EMS_CONNECTION AS E
+		       ON D.BASE_EMS_CONNECTION_ID = E.BASE_EMS_CONNECTION_ID
+	 LEFT JOIN T_BASE_EMS_GROUP AS F
+		       ON E.BASE_EMS_GROUP_ID = F.BASE_EMS_GROUP_ID
+	 LEFT JOIN T_BASE_PTP AS G
+		       ON D.BASE_NE_ID = G.BASE_NE_ID
+	 LEFT JOIN T_BASE_UNIT AS H
+		       ON G.BASE_UNIT_ID = H.BASE_UNIT_ID
+	    <where>
+			 <if test="map.stationId != null">
+				B.RESOURCE_STATION_ID IN (${map.stationId}) AND D.PRODUCT_NAME IS NOT NULL
+			</if>
+		</where>
+	 GROUP BY D.PRODUCT_NAME
+	</select>
+	
+	<!--  查询某些局站下的所有网元型号 -->
+	<select id="getAllNeModelsByStation" resultType="hashmap" parameterType="hashmap">
+		SELECT DISTINCT T. NE_MODEL FROM (
+			SELECT B.STATION_NAME,D.PRODUCT_NAME AS NE_MODEL from T_RESOURCE_AREA AS A
+			 LEFT JOIN T_RESOURCE_STATION AS B
+					   ON A. RESOURCE_AREA_ID = B.RESOURCE_AREA_ID
+			 LEFT JOIN T_RESOURCE_ROOM AS C
+				       ON B.RESOURCE_STATION_ID = C.RESOURCE_STATION_ID
+			 LEFT JOIN T_BASE_NE AS D
+				       ON C.RESOURCE_ROOM_ID = D.RESOURCE_ROOM_ID
+			 LEFT JOIN T_BASE_EMS_CONNECTION AS E
+				       ON D.BASE_EMS_CONNECTION_ID = E.BASE_EMS_CONNECTION_ID
+			 LEFT JOIN T_BASE_EMS_GROUP AS F
+				       ON E.BASE_EMS_GROUP_ID = F.BASE_EMS_GROUP_ID
+			 LEFT JOIN T_BASE_PTP AS G
+				       ON D.BASE_NE_ID = G.BASE_NE_ID
+			 LEFT JOIN T_BASE_UNIT AS H
+				       ON G.BASE_UNIT_ID = H.BASE_UNIT_ID
+			<where>
+				 <if test="map.stationId != null">
+					B.RESOURCE_STATION_ID IN (${map.stationId})
+				</if>
+			</where>
+			   	 )AS T
+	</select>
+	
+	<!--  按局站查询某些网元型号的资源统计信息 -->
+	<select id="getResourceChartByNeModelAndStation" resultType="hashmap" parameterType="hashmap">
+		SELECT B.RESOURCE_STATION_ID,B.STATION_NAME,D.PRODUCT_NAME AS NE_MODEL,COUNT(1) AS COUNT from T_RESOURCE_AREA AS A
+	 LEFT JOIN T_RESOURCE_STATION AS B
+			   ON A. RESOURCE_AREA_ID = B.RESOURCE_AREA_ID
+	 LEFT JOIN T_RESOURCE_ROOM AS C
+		       ON B.RESOURCE_STATION_ID = C.RESOURCE_STATION_ID
+	 LEFT JOIN T_BASE_NE AS D
+		       ON C.RESOURCE_ROOM_ID = D.RESOURCE_ROOM_ID
+	 LEFT JOIN T_BASE_EMS_CONNECTION AS E
+		       ON D.BASE_EMS_CONNECTION_ID = E.BASE_EMS_CONNECTION_ID
+	 LEFT JOIN T_BASE_EMS_GROUP AS F
+		       ON E.BASE_EMS_GROUP_ID = F.BASE_EMS_GROUP_ID
+	 LEFT JOIN T_BASE_PTP AS G
+		       ON D.BASE_NE_ID = G.BASE_NE_ID
+	 LEFT JOIN T_BASE_UNIT AS H
+		       ON G.BASE_UNIT_ID = H.BASE_UNIT_ID
+	    <where>
+			 <if test="map.neModel != null">
+				D.PRODUCT_NAME IN (${map.neModel}) AND B.RESOURCE_STATION_ID IN (${map.stationId})
+			</if>
+		</where>
+	 GROUP BY B.RESOURCE_STATION_ID
+	</select>
+	
+	
+	<!--  按局站查询资源总数 -->
+	<select id="getResourceCountByStation" resultType="hashmap" parameterType="hashmap">
+		SELECT COUNT(1) AS total FROM T_RESOURCE_AREA AS A
+	 LEFT JOIN T_RESOURCE_STATION AS B
+			   ON A. RESOURCE_AREA_ID = B.RESOURCE_AREA_ID
+	 LEFT JOIN T_RESOURCE_ROOM AS C
+		       ON B.RESOURCE_STATION_ID = C.RESOURCE_STATION_ID
+	 LEFT JOIN T_BASE_NE AS D
+		       ON C.RESOURCE_ROOM_ID = D.RESOURCE_ROOM_ID
+	 LEFT JOIN T_BASE_EMS_CONNECTION AS E
+		       ON D.BASE_EMS_CONNECTION_ID = E.BASE_EMS_CONNECTION_ID
+	 LEFT JOIN T_BASE_EMS_GROUP AS F
+		       ON E.BASE_EMS_GROUP_ID = F.BASE_EMS_GROUP_ID
+	 LEFT JOIN T_BASE_PTP AS G
+		       ON D.BASE_NE_ID = G.BASE_NE_ID
+	 LEFT JOIN T_BASE_UNIT AS H
+		       ON G.BASE_UNIT_ID = H.BASE_UNIT_ID
+		 <where>
+			 <if test="map.stationId != null">
+				B.RESOURCE_STATION_ID IN (${map.stationId})
+			</if>
+		</where>
+	</select>
+	
+	<!--  按局站查询资源详细信息 -->
+	<select id="getResourceDetailByStation" resultType="hashmap" parameterType="hashmap">
+		SELECT A.RESOURCE_AREA_ID,A.AREA_NAME,B.RESOURCE_STATION_ID,B.STATION_NAME,C.RESOURCE_ROOM_ID,C.ROOM_NAME,D.BASE_NE_ID,D.DISPLAY_NAME AS NE_NAME,
+			   D.PRODUCT_NAME AS NE_MODEL,D.BASE_EMS_CONNECTION_ID,E.DISPLAY_NAME AS EMS_NAME,E.BASE_EMS_GROUP_ID,F.GROUP_NAME,G.BASE_UNIT_ID,G.BASE_PTP_ID,G.RACK_NO,G.SHELF_NO,G.SLOT_NO,
+			   G.PORT_NO,G.DOMAIN,G.RATE,G.PTP_TYPE,H.DISPLAY_NAME AS UNIT_NAME,H.HARD_WARE_VERSION,H.SOFT_WARE_VERSION FROM T_RESOURCE_AREA AS A
+	 LEFT JOIN T_RESOURCE_STATION AS B
+			   ON A. RESOURCE_AREA_ID = B.RESOURCE_AREA_ID
+	 LEFT JOIN T_RESOURCE_ROOM AS C
+		       ON B.RESOURCE_STATION_ID = C.RESOURCE_STATION_ID
+	 LEFT JOIN T_BASE_NE AS D
+		       ON C.RESOURCE_ROOM_ID = D.RESOURCE_ROOM_ID
+	 LEFT JOIN T_BASE_EMS_CONNECTION AS E
+		       ON D.BASE_EMS_CONNECTION_ID = E.BASE_EMS_CONNECTION_ID
+	 LEFT JOIN T_BASE_EMS_GROUP AS F
+		       ON E.BASE_EMS_GROUP_ID = F.BASE_EMS_GROUP_ID
+	 LEFT JOIN T_BASE_PTP AS G
+		       ON D.BASE_NE_ID = G.BASE_NE_ID
+	 LEFT JOIN T_BASE_UNIT AS H
+		       ON G.BASE_UNIT_ID = H.BASE_UNIT_ID
+		 <where>
+			 <if test="map.stationId != null">
+				B.RESOURCE_STATION_ID IN (${map.stationId})
+			</if>
+		</where>
+		limit #{start},#{limit}
+	</select>
+	
+	<!--  按网管分组统计查询总数 -->
+	<select id="getEmsGroupTotal_Resource" resultType="hashmap" parameterType="hashmap">
+		select count(1) as total
+		FROM t_base_ems_group beg
+	    left join t_base_ems_connection bec on beg.base_ems_group_id = bec.base_ems_group_id
+	    left join t_base_ne bn on bec.base_ems_connection_id = bn.base_ems_connection_id
+	    left join t_resource_room rr on bn.resource_room_id = rr.resource_room_id
+	    left join t_resource_station rs on rr.resource_station_id = rs.resource_station_id
+	    left join t_resource_area ra on rs.resource_area_id = ra.resource_area_id
+	    left join t_base_unit bu on bec.base_ems_connection_id = bu.base_ems_connection_id
+		<where>
+			group_name is not null
+			<if test="map.group_name != null">
+				AND beg.group_name = #{map.group_name}
+			</if>
+			<if test="map.PARA != null and map.PARA != ''">
+				AND beg.base_ems_group_id in(${map.PARA})
+			</if>
+		</where>
+	</select>
+	
+	<!--  按网管分组统计查询 -->
+	<select id="getEmsGroupInfo_Resource" resultType="hashmap" parameterType="hashmap">
+		SELECT bn.native_ems_name, ems_name, bn.name net_name, room_name, station_name, area_name,
+        	bu.hard_ware_version, bu.soft_ware_version, bu.name, bn.product_name, group_name
+		FROM t_base_ems_group beg
+	    left join t_base_ems_connection bec on beg.base_ems_group_id = bec.base_ems_group_id
+	    left join t_base_ne bn on bec.base_ems_connection_id = bn.base_ems_connection_id
+	    left join t_resource_room rr on bn.resource_room_id = rr.resource_room_id
+	    left join t_resource_station rs on rr.resource_station_id = rs.resource_station_id
+	    left join t_resource_area ra on rs.resource_area_id = ra.resource_area_id
+	    left join t_base_unit bu on bec.base_ems_connection_id = bu.base_ems_connection_id
+	    <where>
+			group_name is not null
+			<if test="map.group_name != null">
+				AND beg.group_name = #{map.group_name}
+			</if>
+			<if test="map.PARA != null and map.PARA != ''">
+				AND beg.base_ems_group_id in(${map.PARA})
+			</if>
+		</where>
+		limit #{start},#{limit}
+	</select>
+	
+	<!--  按网管分组统计查询 -->
+	<select id="getEmsGroupFusionChart_Resource" resultType="hashmap" parameterType="hashmap">
+		SELECT group_name X, count(1) as Y, beg.base_ems_group_id
+    	FROM t_base_ems_group beg
+		left join t_base_ems_connection bec on beg.base_ems_group_id = bec.base_ems_group_id
+		left join t_base_ne bn on bec.base_ems_connection_id = bn.base_ems_connection_id
+		left join t_resource_room rr on bn.resource_room_id = rr.resource_room_id
+		left join t_resource_station rs on rr.resource_station_id = rs.resource_station_id
+		left join t_resource_area ra on rs.resource_area_id = ra.resource_area_id
+		left join t_base_unit bu on bec.base_ems_connection_id = bu.base_ems_connection_id
+		<where>
+			group_name is not null
+			<if test="map.PARA != null and map.PARA != ''">
+				AND beg.base_ems_group_id in(${map.PARA})
+			</if>
+		</where>
+		group by beg.base_ems_group_id
+	</select>
+	
+	<!--  按网管统计查询总数 -->
+	<select id="getEmsTotal_Resource" resultType="hashmap" parameterType="hashmap">
+		SELECT count(1) total
+			   FROM t_base_ems_connection bec
+			LEFT JOIN t_base_ems_group beg ON beg.base_ems_group_id = bec.base_ems_group_id
+			LEFT JOIN t_base_ne bn ON bec.base_ems_connection_id = bn.base_ems_connection_id
+			LEFT JOIN t_resource_room rr  ON bn.resource_room_id = rr.resource_room_id
+			LEFT JOIN t_resource_station rs ON rr.resource_station_id = rs.resource_station_id
+			LEFT JOIN t_resource_area ra ON rs.resource_area_id = ra.resource_area_id
+		<where>
+			bec.is_del=0
+			<if test="map.PARA1 != null and map.PARA1 != '' and map.PARA1 != '-1'">
+				AND bec.base_ems_group_id in(${map.PARA1})
+			</if>
+			<if test="map.PARA2 != null and map.PARA2 != ''">
+				AND bec.base_ems_connection_id in(${map.PARA2})
+			</if>
+			<if test="map.PARA1 == '-1'">
+			 <choose>
+				  <when test="map.PARA2 == null">
+				  	AND (bec.base_ems_group_id is null or bec.base_ems_group_id=0)
+				  </when>
+				  <when test="map.PARA2 == ''">
+				 	 AND (bec.base_ems_group_id is null or bec.base_ems_group_id=0)
+				  </when>
+			 </choose>
+			</if>
+		</where>
+	</select>
+	
+	<!--  按网管统计查询 -->
+	<select id="getEmsInfo_Resource" resultType="hashmap" parameterType="hashmap">
+		 SELECT beg.group_name,
+			  bec.display_name,
+			  bn.native_ems_name,
+			  bn.display_name net_name,
+			  room_name,
+			  station_name,
+			  area_name,
+			  bn.product_name
+			   FROM t_base_ems_connection bec
+			LEFT JOIN t_base_ems_group beg ON beg.base_ems_group_id = bec.base_ems_group_id
+			LEFT JOIN t_base_ne bn ON bec.base_ems_connection_id = bn.base_ems_connection_id
+			LEFT JOIN t_resource_room rr  ON bn.resource_room_id = rr.resource_room_id
+			LEFT JOIN t_resource_station rs ON rr.resource_station_id = rs.resource_station_id
+			LEFT JOIN t_resource_area ra ON rs.resource_area_id = ra.resource_area_id
+	    <where>
+				bec.is_del=0
+			<if test="map.PARA1 != null and map.PARA1 != '' and map.PARA1 != '-1'">
+				AND bec.base_ems_group_id in(${map.PARA1})
+			</if>
+			<if test="map.PARA2 != null and map.PARA2 != ''">
+				AND bec.base_ems_connection_id in(${map.PARA2})
+			</if>
+			<if test="map.PARA1 == '-1'">
+			 <choose>
+				  <when test="map.PARA2 == null">
+				  	AND (bec.base_ems_group_id is null or bec.base_ems_group_id=0)
+				  </when>
+				  <when test="map.PARA2 == ''">
+				 	 AND (bec.base_ems_group_id is null or bec.base_ems_group_id=0)
+				  </when>
+			 </choose>
+			</if>
+		</where>
+		limit #{start},#{limit}
+	</select>
+	
+	<!--  按网管统计查询 -->
+	<select id="getEmsFusionChart_Resource" resultType="hashmap" parameterType="hashmap">
+		SELECT beg.base_ems_group_id,bec.display_name X, count(1) as Y
+     		FROM t_base_ems_connection bec
+			LEFT JOIN t_base_ems_group beg ON beg.base_ems_group_id = bec.base_ems_group_id
+			LEFT JOIN t_base_ne bn ON bec.base_ems_connection_id = bn.base_ems_connection_id
+			LEFT JOIN t_resource_room rr  ON bn.resource_room_id = rr.resource_room_id
+			LEFT JOIN t_resource_station rs ON rr.resource_station_id = rs.resource_station_id
+			LEFT JOIN t_resource_area ra ON rs.resource_area_id = ra.resource_area_id
+		<where>
+			bec.is_del=0
+			<if test="map.PARA1 != null and map.PARA1 != '' and map.PARA1 != '-1'">
+				AND bec.base_ems_group_id in(${map.PARA1})
+			</if>
+			<if test="map.PARA2 != null and map.PARA2 != ''">
+				AND bec.base_ems_connection_id in(${map.PARA2})
+			</if>
+			<if test="map.PARA1 == '-1'">
+			 <choose>
+				  <when test="map.PARA2 == null">
+				  	AND (bec.base_ems_group_id is null or bec.base_ems_group_id=0)
+				  </when>
+				  <when test="map.PARA2 == ''">
+				 	 AND (bec.base_ems_group_id is null or bec.base_ems_group_id=0)
+				  </when>
+			 </choose>
+			</if>
+		</where>
+		group by bec.base_ems_connection_id
+	</select>
+	
+	<!--  按网管分组统计查询总数 -->
+	<select id="getEmsGroupTotal_Performance" resultType="hashmap" parameterType="hashmap">
+		select count(1) total from(select  G.GROUP_NAME,COUNT(1) COU
+				from ${map.table_name} t
+			LEFT JOIN t_base_ems_group G ON T.BASE_EMS_GROUP_ID=G.BASE_EMS_GROUP_ID
+	    <where>
+			t.is_del=0
+			and t.base_ems_group_id is not null
+			and t.base_ems_group_id not in('')
+			<if test="map.GROUPID != null and map.GROUPID != '' and map.GROUPID != '-99'">
+				AND T.base_ems_group_id=#{map.GROUPID}
+			</if>
+			<if test="map.timeType=='month'">
+			    AND substring(retrieval_time,1,7)=#{map.time}
+			</if>
+			<if test="map.timeType=='day'">
+			    AND substring(retrieval_time,1,10)=#{map.time}
+			</if>
+		</where>
+		group by G.GROUP_NAME
+		) a
+	</select>
+	
+	<!--  按网管分组统计查询 -->
+	<select id="getEmsGroupInfo_Performance" resultType="hashmap" parameterType="hashmap">
+			SELECT IFNULL(t.base_ems_group_id,'') base_ems_group_id,IFNULL(g.group_name,'无') group_name,SUM(cou) cou
+				FROM ${map.table_name} t
+				LEFT JOIN t_base_ems_group g ON t.base_ems_group_id=g.base_ems_group_id
+	    <where>
+	        1=1
+	        <if test="map.table_name=='t_pm_origi_data_collect'">
+				AND t.is_del=0
+			</if>
+	        <if test="map.timeType=='year'">
+				AND SUBSTRING(t.retrieval_time,1,4)=#{map.time}
+			</if>
+			 <if test="map.timeType=='month'">
+				AND SUBSTRING(t.retrieval_time,1,7)=#{map.time}
+			</if>
+			<if test="map.timeType=='day'">
+				AND SUBSTRING(t.retrieval_time,1,10)=#{map.time}
+			</if>
+			<if test="map.GROUPID != null and map.GROUPID != '' and map.GROUPID != '-99' and map.GROUPID != '-1'">
+				AND T.base_ems_group_id=#{map.GROUPID}
+			</if>
+			<if test="map.GROUPID == '-1'">
+				AND (t.base_ems_group_id IS NULL OR t.base_ems_group_id='')
+			</if>
+		</where>
+		GROUP BY t.base_ems_group_id,g.group_name
+	</select>
+	
+	
+	
+	
+		<!--根据网管分组获取月数据-->
+	<select id="getPMMonthDataByEmsGroup" resultType="hashmap" parameterType="hashmap">
+		  SELECT 
+		     a.retrieval_time,
+		     a.base_ems_group_id,
+		     MAX(CASE WHEN a.type_level='23' THEN a.cou ELSE 0 END) count_3,
+		     MAX(CASE WHEN a.type_level='22' THEN a.cou ELSE 0 END) count_2,
+		     MAX(CASE WHEN a.type_level='21' THEN a.cou ELSE 0 END) count_1,
+		     MAX(CASE WHEN a.type_level='13' THEN a.cou ELSE 0 END) physics_3,
+		     MAX(CASE WHEN a.type_level='12' THEN a.cou ELSE 0 END) physics_2,
+		     MAX(CASE WHEN a.type_level='11' THEN a.cou ELSE 0 END) physics_1
+		   FROM(
+			  SELECT 
+			  t.retrieval_time,
+			  t.base_ems_group_id,
+			  CONCAT(t.type,t.exception_lv) type_level,
+			  SUM(cou) cou 
+			FROM
+			  t_pm_origi_data_collect_month t 
+			WHERE 1=1
+			AND SUBSTRING(t.retrieval_time,1,4)=#{map.time}
+			<if test="map.group_name=='' or map.group_name==null">
+			    AND  (t.base_ems_group_id IS NULL OR t.base_ems_group_id='')
+			</if>
+			<if test="map.group_name!='' and map.group_name!=null">
+			    AND t.base_ems_group_id=#{map.group_name}
+			</if>
+			 
+			GROUP BY t.retrieval_time,
+			  t.base_ems_group_id,
+			  CONCAT(t.type,
+			  t.exception_lv)
+		  ) a 
+		  GROUP BY a.retrieval_time,a.base_ems_group_id
+		  order by a.retrieval_time
+	</select>
+	
+	
+		<!--根据网管分组,月份获取日数据-->
+	<select id="getPMDayDataByEmsGroup" resultType="hashmap" parameterType="hashmap">
+		  SELECT 
+		     a.retrieval_time,
+		     MAX(CASE WHEN a.type_level='23' THEN a.cou ELSE 0 END) count_3,
+		     MAX(CASE WHEN a.type_level='22' THEN a.cou ELSE 0 END) count_2,
+		     MAX(CASE WHEN a.type_level='21' THEN a.cou ELSE 0 END) count_1,
+		     MAX(CASE WHEN a.type_level='13' THEN a.cou ELSE 0 END) physics_3,
+		     MAX(CASE WHEN a.type_level='12' THEN a.cou ELSE 0 END) physics_2,
+		     MAX(CASE WHEN a.type_level='11' THEN a.cou ELSE 0 END) physics_1
+		   FROM(
+			  SELECT 
+			  t.retrieval_time,
+			  CONCAT(t.type,t.exception_lv) type_level,
+			  SUM(cou) cou 
+			FROM
+			  t_pm_origi_data_collect t 
+			WHERE t.is_del=0
+			  AND SUBSTRING(t.retrieval_time,1,7)=#{map.query_month}
+		  	<if test="map.group_name=='' or map.group_name==null">
+			    AND  (t.base_ems_group_id IS NULL OR t.base_ems_group_id='')
+			</if>
+			<if test="map.group_name!='' and map.group_name!=null">
+			    AND t.base_ems_group_id=#{map.group_name}
+			</if>
+			GROUP BY t.retrieval_time,
+			  CONCAT(t.type,
+			  t.exception_lv)
+		  ) a 
+		  GROUP BY a.retrieval_time
+		  ORDER BY a.retrieval_time
+	</select>
+	
+	
+	
+			<!--根据网管分组,月份获取日数据-->
+	<select id="getPMDayDataByQueryDayAndGroup" resultType="hashmap" parameterType="hashmap">
+		     SELECT 
+			  (CASE CONCAT(t.type,t.exception_lv) 
+			  WHEN 23 THEN '计数值3级'
+			  WHEN 22 THEN '计数值2级'
+			  WHEN 21 THEN '计数值1级'
+			  WHEN 13 THEN '物理量3级'
+			  WHEN 12 THEN '物理量2级'
+			  WHEN 11 THEN '物理量1级'
+			  END) type_level,
+			  SUM(cou) cou 
+			FROM
+			  t_pm_origi_data_collect t 
+			WHERE t.is_del=0
+			  AND SUBSTRING(t.retrieval_time,1,10)=#{map.query_day}
+		   	<if test="map.group_name=='' or map.group_name==null">
+			    AND  (t.base_ems_group_id IS NULL OR t.base_ems_group_id='')
+			</if>
+			<if test="map.group_name!='' and map.group_name!=null">
+			    AND t.base_ems_group_id =#{map.group_name}
+			</if>
+			GROUP BY CONCAT(t.type,t.exception_lv)
+			ORDER BY CONCAT(t.type,t.exception_lv) DESC
+	</select>
+	
+	
+	<!--  按网管分组统计查询fusion_01 -->
+	<select id="getEmsGroupFusionChart_Performance_1" resultType="hashmap" parameterType="hashmap">
+		 SELECT TBEC.base_ems_group_id,display_ems_group X,count(1) Y
+		   FROM ${map.table_name} TPOD
+		LEFT JOIN T_BASE_EMS_CONNECTION TBEC ON TPOD.BASE_EMS_CONNECTION_ID = TBEC.BASE_EMS_CONNECTION_ID
+		<where>
+			EXCEPTION_LV !=0 
+			<if test="map.GROUPID!= null and map.GROUPID!= '' and map.GROUPID!= '-99' and map.GROUPID!= '-1'">
+				AND TBEC.BASE_EMS_GROUP_ID = #{map.GROUPID}
+			</if>
+			<if test="map.day!= null and map.day!= ''">
+				AND DATE_FORMAT(RETRIEVAL_TIME,'%Y-%m-%d')=#{map.day}
+			</if>
+		</where>
+		group by TBEC.base_ems_group_id
+	</select>
+	
+	<!--  按网管分组统计查询fusion_02 -->
+	<select id="getEmsGroupFusionChart_Performance_2" resultType="org.apache.commons.collections.map.ListOrderedMap" parameterType="hashmap">
+			 SELECT TBEC.base_ems_group_id,display_ems_group X,count(1) Y
+		   FROM ${map.table_name} TPOD
+		LEFT JOIN T_BASE_EMS_CONNECTION TBEC ON TPOD.BASE_EMS_CONNECTION_ID = TBEC.BASE_EMS_CONNECTION_ID
+		<where>
+			EXCEPTION_LV !=0 
+			<if test="map.GROUPID!= null and map.GROUPID!= '' and map.GROUPID!= '-99' and map.GROUPID!= '-1'">
+				AND TBEC.BASE_EMS_GROUP_ID = #{map.GROUPID}
+			</if>
+			<if test="map.GROUPID== '-1'">
+				AND (TBEC.BASE_EMS_GROUP_ID is null or TBEC.BASE_EMS_GROUP_ID=0)
+			</if>
+			<if test="map.day!= null and map.day!= ''">
+				AND DATE_FORMAT(RETRIEVAL_TIME,'%Y-%m-%d')=#{map.day}
+			</if>
+		</where>
+		group by TBEC.base_ems_group_id
+	</select>
+
+	
+    <!--  按性能统计网管 -->
+	<sql id="PERFORMANCE_EMS">
+	    select  G.GROUP_NAME,C.DISPLAY_NAME,C.BASE_EMS_CONNECTION_ID,sum(t.COU)as COU 
+			from ${map.table_name} t
+			LEFT JOIN t_base_ems_group G ON T.BASE_EMS_GROUP_ID=G.BASE_EMS_GROUP_ID
+			LEFT JOIN t_base_ems_connection C ON T.BASE_EMS_CONNECTION_ID=C.BASE_EMS_CONNECTION_ID
+	</sql>
+
+	
+	<!--  性能按网管统计查询总数 -->
+	<select id="getEmsTotal_Performance" resultType="hashmap" parameterType="hashmap">
+		select count(1) total from(
+			 <include refid="PERFORMANCE_EMS" /> 
+	    <where>
+			 <if test="map.timeType=='day'">
+				t.is_del=0
+			 </if>
+			<if test="map.GROUPID != null and map.GROUPID != '' and map.GROUPID != '-1'">
+				AND T.base_ems_group_id=#{map.GROUPID}
+			</if>
+			<if test="map.EMSIDS != null and map.EMSIDS != ''">
+				AND T.base_ems_connection_id in(${map.EMSIDS})
+			</if>
+			<if test="map.GROUPID == '-1'">
+			 <choose>
+				  <when test="map.EMSIDS == null">
+				  	AND (T.base_ems_group_id is null or T.base_ems_group_id=0)
+				  </when>
+				  <when test="map.EMSIDS == ''">
+				 	 AND (T.base_ems_group_id is null or T.base_ems_group_id=0)
+				  </when>
+			 </choose>
+			</if>
+			<if test="map.timeType=='month'">
+			    AND substring(retrieval_time,1,7)=#{map.time}
+			</if>
+			<if test="map.timeType=='day'">
+			    AND substring(retrieval_time,1,10)=#{map.time}
+			</if>
+		</where>
+		) a
+	</select>
+	
+	
+	<!--  性能按网管统计查询 -->
+	<select id="getEmsInfo_Performance" resultType="hashmap" parameterType="hashmap">
+	     <include refid="PERFORMANCE_EMS" /> 
+	    <where>
+	   		 <if test="map.timeType=='day'">
+				t.is_del=0
+			 </if>
+			<if test="map.EMSIDS != null and map.EMSIDS != ''">
+				AND T.base_ems_connection_id in(${map.EMSIDS})
+			</if>
+			<if test="map.timeType=='year'">
+			    AND substring(retrieval_time,1,4)=#{map.time}
+			</if>
+			<if test="map.timeType=='month'">
+			    AND substring(retrieval_time,1,7)=#{map.time}
+			</if>
+			<if test="map.timeType=='day'">
+			    AND substring(retrieval_time,1,10)=#{map.time}
+			</if>
+			group by G.GROUP_NAME,C.DISPLAY_NAME
+			order by  G.GROUP_NAME,C.DISPLAY_NAME
+		</where>
+		<choose>
+			<when test="map.query=='list'">
+				limit #{start},#{limit}
+			</when>
+	    </choose>
+	</select>
+	
+	<!--  按网管统计查询fusion_01 -->
+	<select id="getEmsFusionChart_Performance_1" resultType="hashmap" parameterType="hashmap">
+		 SELECT TBEC.display_name X,count(1) Y
+		   FROM ${map.table_name} TPOD
+		LEFT JOIN T_BASE_EMS_CONNECTION TBEC ON TPOD.BASE_EMS_CONNECTION_ID = TBEC.BASE_EMS_CONNECTION_ID
+		<where>
+			EXCEPTION_LV !=0 
+			<if test="map.GROUPID != null and map.GROUPID != '' and map.GROUPID != '-1'">
+				AND TBEC.BASE_EMS_GROUP_ID = #{map.GROUPID}
+			</if>
+			<if test="map.EMSIDS != null and map.EMSIDS != ''">
+				AND TPOD.base_ems_connection_id in(${map.EMSIDS})
+			</if>
+			<if test="map.GROUPID == '-1'">
+			 <choose>
+				  <when test="map.EMSIDS == null">
+				  	AND (TBEC.BASE_EMS_GROUP_ID is null or TBEC.BASE_EMS_GROUP_ID=0)
+				  </when>
+				  <when test="map.EMSIDS == ''">
+				 	 AND (TBEC.BASE_EMS_GROUP_ID is null or TBEC.BASE_EMS_GROUP_ID=0)
+				  </when>
+			 </choose>
+			</if>
+			<if test="map.day!= null and map.day!= ''">
+				AND DATE_FORMAT(RETRIEVAL_TIME,'%Y-%m-%d')=#{map.day}
+			</if>
+		</where>
+		group by TBEC.display_name
+	</select>
+	
+	<!--  按网管统计查询fusion_02 -->
+	<select id="getEmsFusionChart_Performance_2" resultType="hashmap" parameterType="hashmap">
+		SELECT display_ems X, count(1) Y
+			FROM ${map.table_name} TPOD
+			<where>
+				EXCEPTION_LV !=0 
+				<if test="map.GROUPID!= null and map.GROUPID!= '' and map.GROUPID!= '-99' and map.GROUPID!= '-1'">
+					AND TPOD.BASE_EMS_GROUP_ID = #{map.GROUPID}
+				</if>
+				<if test="map.EMSIDS!= null and map.EMSIDS!= ''">
+					AND TPOD.base_ems_connection_id in(${map.EMSIDS})
+				</if>
+				<if test="map.label!= null and map.label!= ''">
+					AND TPOD.display_ems='${map.label}'
+				</if>
+			</where>
+			group by display_ems
+	</select>
+	
+		<!--  按网管分组统计查询总数 -->
+	<select id="getEmsGroupTotal_Circuit" resultType="hashmap" parameterType="hashmap">
+		select count(1) as total
+		FROM
+		T_CIR_CIRCUIT_INFO CCI
+		LEFT JOIN T_BASE_PTP BP ON CCI.A_END_PTP = BP.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN ON BP.BASE_NE_ID = BN.BASE_NE_ID
+		LEFT JOIN T_BASE_PTP BP2 ON CCI.Z_END_PTP = BP2.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN2 ON BP2.BASE_NE_ID = BN2.BASE_NE_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC ON CCI.A_END_CTP = BSC.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC2 ON CCI.Z_END_CTP = BSC2.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC ON BN.BASE_EMS_CONNECTION_ID = BEC.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC2 ON BN2.BASE_EMS_CONNECTION_ID = BEC2.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG ON BEC.BASE_EMS_GROUP_ID = BEG.BASE_EMS_GROUP_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG2 ON BEC2.BASE_EMS_GROUP_ID = BEG2.BASE_EMS_GROUP_ID
+		<where>
+			1=1
+			<if test="map.group_name != null">
+				AND beg.group_name = #{map.group_name}
+			</if>
+			<if test="map.PARA != null and map.PARA != ''">
+				AND beg.base_ems_group_id in(${map.PARA})
+			</if>
+		</where>
+	</select>
+	
+	<!--  按网管分组统计查询 -->
+	<select id="getEmsGroupInfo_Circuit" resultType="hashmap" parameterType="hashmap">
+		SELECT CCI.CIR_NO, CCI.SOURCE_NO, BN.DISPLAY_NAME A_NET, BN2.DISPLAY_NAME Z_NET, BP.DOMAIN BUSI_TYPE, BSC.DISPLAY_NAME A_CTP,
+			   BSC2.DISPLAY_NAME Z_CTP,CCI.A_END_RATE, CCI.Z_END_RATE, CCI.SELECT_TYPE, CCI.CLIENT_NAME, CCI.USED_FOR, 
+			   CCI.A_END_USER_NAME, CCI.Z_END_USER_NAME, BEC.DISPLAY_NAME A_EMS, 
+			   BEC2.DISPLAY_NAME Z_EMS, BEG.GROUP_NAME A_GROUP, BEG2.GROUP_NAME Z_GROUP
+		FROM
+		T_CIR_CIRCUIT_INFO CCI
+		LEFT JOIN T_BASE_PTP BP ON CCI.A_END_PTP = BP.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN ON BP.BASE_NE_ID = BN.BASE_NE_ID
+		LEFT JOIN T_BASE_PTP BP2 ON CCI.Z_END_PTP = BP2.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN2 ON BP2.BASE_NE_ID = BN2.BASE_NE_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC ON CCI.A_END_CTP = BSC.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC2 ON CCI.Z_END_CTP = BSC2.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC ON BN.BASE_EMS_CONNECTION_ID = BEC.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC2 ON BN2.BASE_EMS_CONNECTION_ID = BEC2.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG ON BEC.BASE_EMS_GROUP_ID = BEG.BASE_EMS_GROUP_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG2 ON BEC2.BASE_EMS_GROUP_ID = BEG2.BASE_EMS_GROUP_ID
+	    <where>
+			1=1
+			<if test="map.group_name != null">
+				AND beg.group_name = #{map.group_name}
+			</if>
+			<if test="map.PARA != null and map.PARA != ''">
+				AND beg.base_ems_group_id in(${map.PARA})
+			</if>
+		</where>
+		limit #{start},#{limit}
+	</select>
+	
+	<!--  按网管分组统计查询 -->
+	<select id="getEmsGroupFusionChart_Circuit_1" resultType="hashmap" parameterType="hashmap">
+		SELECT beg.group_name X, count(1) as Y, beg.base_ems_group_id
+		FROM
+		T_CIR_CIRCUIT_INFO CCI
+		LEFT JOIN T_BASE_PTP BP ON CCI.A_END_PTP = BP.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN ON BP.BASE_NE_ID = BN.BASE_NE_ID
+		LEFT JOIN T_BASE_PTP BP2 ON CCI.Z_END_PTP = BP2.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN2 ON BP2.BASE_NE_ID = BN2.BASE_NE_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC ON CCI.A_END_CTP = BSC.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC2 ON CCI.Z_END_CTP = BSC2.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC ON BN.BASE_EMS_CONNECTION_ID = BEC.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC2 ON BN2.BASE_EMS_CONNECTION_ID = BEC2.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG ON BEC.BASE_EMS_GROUP_ID = BEG.BASE_EMS_GROUP_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG2 ON BEC2.BASE_EMS_GROUP_ID = BEG2.BASE_EMS_GROUP_ID
+		<where>
+			1=1
+			<if test="map.PARA != null and map.PARA != ''">
+				AND beg.base_ems_group_id in(${map.PARA})
+			</if>
+		</where>
+		group by beg.base_ems_group_id
+	</select>
+	
+	<!--  按网管分组统计查询 -->
+	<select id="getEmsGroupFusionChart_Circuit_2" resultType="hashmap" parameterType="hashmap">
+		SELECT bec.ems_name X, count(1) as Y
+		FROM
+		T_CIR_CIRCUIT_INFO CCI
+		LEFT JOIN T_BASE_PTP BP ON CCI.A_END_PTP = BP.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN ON BP.BASE_NE_ID = BN.BASE_NE_ID
+		LEFT JOIN T_BASE_PTP BP2 ON CCI.Z_END_PTP = BP2.BASE_PTP_ID
+		LEFT JOIN T_BASE_NE BN2 ON BP2.BASE_NE_ID = BN2.BASE_NE_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC ON CCI.A_END_CTP = BSC.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_SDH_CTP BSC2 ON CCI.Z_END_CTP = BSC2.BASE_SDH_CTP_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC ON BN.BASE_EMS_CONNECTION_ID = BEC.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_CONNECTION BEC2 ON BN2.BASE_EMS_CONNECTION_ID = BEC2.BASE_EMS_CONNECTION_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG ON BEC.BASE_EMS_GROUP_ID = BEG.BASE_EMS_GROUP_ID
+		LEFT JOIN T_BASE_EMS_GROUP BEG2 ON BEC2.BASE_EMS_GROUP_ID = BEG2.BASE_EMS_GROUP_ID
+		group by bec.BASE_EMS_CONNECTION_ID
+	</select>
+	
+	<!--  按网管统计查询fusion_06 -->
+	<select id="getEmsFusionChart_Alarm_test" resultType="hashmap" parameterType="hashmap">
+		SELECT display_ems X, count(1) Y
+		FROM ${map.table_name}
+		<where>
+			EXCEPTION_LV !=0 
+			<if test="map.label != null">
+				AND display_ems = #{map.label}
+			</if>
+		</where>
+		group by display_ems
+	</select>
+
+
+	<select id="callPerformaceSP" parameterType="hashmap" statementType="CALLABLE">
+		{call sp_performance_report_data(#{map.day})}
+	</select>
+	
+	
+	
+	<update id="deleteAlarmDataByDay" parameterType="string" >
+			UPDATE t_alarm_origi_data_collect
+			set is_del=1
+			where first_time=#{day}		
+		
+	</update>
+	
+	<delete id="deleteAlarmDataByDayForever" parameterType="string" >
+		delete from t_alarm_origi_data_collect
+		where first_time=#{day}	
+	</delete>
+	
+	<insert id="insertAlarmDataFromMonodb" parameterType="java.util.List">  
+	    insert into t_alarm_origi_data_collect (first_time,base_ems_group_id,base_ems_connection_id,perceived_severity,insert_date,is_del)   
+	    values  
+    	<foreach collection="lists" item="item" index="index" separator="," >  
+       		 (#{item.FIRST_TIME},#{item.BASE_EMS_GROUP_ID},#{item.EMS_ID},#{item.PERCEIVED_SEVERITY},NOW(),0)  
+    	</foreach>  
+	</insert>
+
+	<insert  id="insertAlarmAnaData" parameterType="string" >
+		INSERT INTO t_alarm_ana_data_collect(alarm_num,first_time,base_ems_group_id,base_ems_connection_id,PERCEIVED_SEVERITY)  (
+		SELECT COUNT(1),first_time,base_ems_group_id,base_ems_connection_id,PERCEIVED_SEVERITY 
+		  FROM t_alarm_origi_data_collect
+		WHERE first_time=#{firstTime}
+		GROUP BY first_time,base_ems_group_id,base_ems_connection_id,PERCEIVED_SEVERITY)
+	</insert>
+		
+	<!--  性能按网管统计查询 -->
+	<select id="getReportAlarmByEmsbak" resultType="hashmap" parameterType="hashmap">
+			SELECT t.base_ems_connection_id,c.display_name,COUNT(1) cou 
+				FROM t_alarm_origi_data_collect t
+				LEFT JOIN t_base_ems_connection c ON t.base_ems_connection_id=c.BASE_EMS_CONNECTION_ID
+	    <where>
+	        t.is_del=0
+	        <if test="map.timeType=='year'">
+				AND SUBSTRING(t.first_time,1,4)=#{map.time}
+			</if>
+			 <if test="map.timeType=='month'">
+				AND SUBSTRING(t.first_time,1,7)=#{map.time}
+			</if>
+			<if test="map.timeType=='day'">
+				AND SUBSTRING(t.first_time,1,10)=#{map.time}
+			</if>
+			<if test="map.GROUPID != null and map.GROUPID != '' and map.GROUPID != '-99' and map.GROUPID != '-1'">
+				AND T.base_ems_group_id=#{map.GROUPID}
+			</if>
+			<if test="map.GROUPID == '-1'">
+				AND (t.base_ems_group_id IS NULL OR t.base_ems_group_id='')
+			</if>
+			<if test="map.EMSIDS!= null and map.EMSIDS!= ''">
+				AND t.base_ems_connection_id in(${map.EMSIDS})
+			</if>
+		</where>
+		  GROUP BY t.base_ems_connection_id,c.DISPLAY_NAME
+	</select>
+	
+	<select id="getReportAlarmByEms" resultType="hashmap" parameterType="hashmap">
+			SELECT t.base_ems_connection_id,c.display_name,SUM(alarm_num) cou 
+				FROM t_alarm_ana_data_collect t
+				LEFT JOIN t_base_ems_connection c ON t.base_ems_connection_id=c.BASE_EMS_CONNECTION_ID
+	    <where>
+	    		1=1
+	        <if test="map.timeType=='year'">
+				AND SUBSTRING(t.first_time,1,4)=#{map.time}
+			</if>
+			 <if test="map.timeType=='month'">
+				AND SUBSTRING(t.first_time,1,7)=#{map.time}
+			</if>
+			<if test="map.timeType=='day'">
+				AND SUBSTRING(t.first_time,1,10)=#{map.time}
+			</if>
+			<if test="map.GROUPID != null and map.GROUPID != '' and map.GROUPID != '-99' and map.GROUPID != '-1'">
+				AND T.base_ems_group_id=#{map.GROUPID}
+			</if>
+			<if test="map.GROUPID == '-1'">
+				AND (t.base_ems_group_id IS NULL OR t.base_ems_group_id='')
+			</if>
+			<if test="map.EMSIDS!= null and map.EMSIDS!= ''">
+				AND t.base_ems_connection_id in(${map.EMSIDS})
+			</if>
+		</where>
+		  GROUP BY t.base_ems_connection_id,c.DISPLAY_NAME
+	</select>
+	
+	<!--性能根据网管获取月数据-->
+	<select id="getAlarmMonthDataByEmsbak" resultType="hashmap" parameterType="hashmap">
+		  SELECT 
+	     a.first_time,
+	     a.base_ems_connection_id,
+	     MAX(CASE WHEN a.perceived_severity='4' THEN a.cou ELSE 0 END) ps_warning,
+	     MAX(CASE WHEN a.perceived_severity='3' THEN a.cou ELSE 0 END) ps_minor,
+	     MAX(CASE WHEN a.perceived_severity='2' THEN a.cou ELSE 0 END) ps_major,
+	     MAX(CASE WHEN a.perceived_severity='1' THEN a.cou ELSE 0 END) ps_critical
+	     FROM(
+	       SELECT 
+		  SUBSTRING(t.first_time,1,7) first_time,
+		  t.base_ems_connection_id,
+		  t.perceived_severity,
+		  COUNT(1) cou 
+		FROM
+		  t_alarm_origi_data_collect t 
+		WHERE t.is_del=0
+		    AND SUBSTRING(t.first_time,1,4)=#{map.time}
+		    AND t.base_ems_connection_id=#{map.EMS_NAME}
+		 
+		GROUP BY SUBSTRING(t.first_time,1,7),
+		  t.base_ems_group_id,
+		  t.perceived_severity
+		) a
+		 GROUP BY a.first_time,a.base_ems_connection_id
+	  ORDER BY a.first_time
+	</select>
+	
+	<select id="getAlarmMonthDataByEms" resultType="hashmap" parameterType="hashmap">
+		  SELECT 
+	     a.first_time,
+	     a.base_ems_connection_id,
+	     MAX(CASE WHEN a.perceived_severity='4' THEN a.cou ELSE 0 END) ps_warning,
+	     MAX(CASE WHEN a.perceived_severity='3' THEN a.cou ELSE 0 END) ps_minor,
+	     MAX(CASE WHEN a.perceived_severity='2' THEN a.cou ELSE 0 END) ps_major,
+	     MAX(CASE WHEN a.perceived_severity='1' THEN a.cou ELSE 0 END) ps_critical
+	     FROM(
+	       SELECT 
+		  SUBSTRING(t.first_time,1,7) first_time,
+		  t.base_ems_connection_id,
+		  t.perceived_severity,
+		  SUM(alarm_num) cou 
+		FROM
+		  t_alarm_ana_data_collect t 
+		WHERE  SUBSTRING(t.first_time,1,4)=#{map.time}
+		    AND t.base_ems_connection_id=#{map.EMS_NAME}
+		 
+		GROUP BY SUBSTRING(t.first_time,1,7),
+		  t.base_ems_group_id,
+		  t.perceived_severity
+		) a
+		 GROUP BY a.first_time,a.base_ems_connection_id
+	  ORDER BY a.first_time
+	</select>
+	<!--性能根据网管,月份获取日数据-->
+	<select id="getAlarmDayDataByEmsbak" resultType="hashmap" parameterType="hashmap">
+			  SELECT 
+	     a.first_time,
+	     a.base_ems_connection_id,
+	     MAX(CASE WHEN a.perceived_severity='4' THEN a.cou ELSE 0 END) ps_warning,
+	     MAX(CASE WHEN a.perceived_severity='3' THEN a.cou ELSE 0 END) ps_minor,
+	     MAX(CASE WHEN a.perceived_severity='2' THEN a.cou ELSE 0 END) ps_major,
+	     MAX(CASE WHEN a.perceived_severity='1' THEN a.cou ELSE 0 END) ps_critical
+	     FROM(
+	       SELECT 
+		  t.first_time,
+		  t.base_ems_connection_id,
+		  t.perceived_severity,
+		  COUNT(1) cou 
+		FROM
+		  t_alarm_origi_data_collect t 
+		WHERE t.is_del=0
+		    AND SUBSTRING(t.first_time,1,7)=#{map.query_month}
+		    AND t.base_ems_connection_id=#{map.EMS_NAME}
+		 
+		GROUP BY t.first_time,
+		  t.base_ems_group_id,
+		  t.perceived_severity
+		) a
+		 GROUP BY a.first_time,a.base_ems_connection_id
+	  ORDER BY a.first_time
+	</select>
+	<select id="getAlarmDayDataByEms" resultType="hashmap" parameterType="hashmap">
+			  SELECT 
+	     a.first_time,
+	     a.base_ems_connection_id,
+	     MAX(CASE WHEN a.perceived_severity='4' THEN a.cou ELSE 0 END) ps_warning,
+	     MAX(CASE WHEN a.perceived_severity='3' THEN a.cou ELSE 0 END) ps_minor,
+	     MAX(CASE WHEN a.perceived_severity='2' THEN a.cou ELSE 0 END) ps_major,
+	     MAX(CASE WHEN a.perceived_severity='1' THEN a.cou ELSE 0 END) ps_critical
+	     FROM(
+	       SELECT 
+		  t.first_time,
+		  t.base_ems_connection_id,
+		  t.perceived_severity,
+		   SUM(alarm_num) cou 
+		FROM
+		  t_alarm_ana_data_collect t 
+		WHERE SUBSTRING(t.first_time,1,7)=#{map.query_month}
+		    AND t.base_ems_connection_id=#{map.EMS_NAME}
+		 
+		GROUP BY t.first_time,
+		  t.base_ems_group_id,
+		  t.perceived_severity
+		) a
+		 GROUP BY a.first_time,a.base_ems_connection_id
+	  ORDER BY a.first_time
+	</select>
+	
+	<!--性能根据网管,根据天获取数据-->
+	<select id="getAlarmDayDataByQueryDayAndEmsbak" resultType="hashmap" parameterType="hashmap">
+		       SELECT 
+			  (CASE perceived_severity
+			  WHEN 4 THEN '提示'
+			  WHEN 3 THEN '一般'
+			  WHEN 2 THEN '重要'
+			  WHEN 1 THEN '紧急'
+			  END) type_level,
+			  COUNT(1) cou 
+			FROM
+			   t_alarm_origi_data_collect t 
+			WHERE t.is_del=0
+		    AND SUBSTRING(t.first_time,1,10)=#{map.query_day}
+			    AND t.base_ems_connection_id=#{map.EMS_NAME}
+			GROUP BY perceived_severity
+			ORDER BY perceived_severity DESC
+	</select>
+	<select id="getAlarmDayDataByQueryDayAndEms" resultType="hashmap" parameterType="hashmap">
+		       SELECT 
+			  (CASE perceived_severity
+			  WHEN 4 THEN '提示'
+			  WHEN 3 THEN '一般'
+			  WHEN 2 THEN '重要'
+			  WHEN 1 THEN '紧急'
+			  END) type_level,
+			 SUM(alarm_num) cou 
+			FROM
+			   t_alarm_ana_data_collect t 
+			WHERE SUBSTRING(t.first_time,1,10)=#{map.query_day}
+			    AND t.base_ems_connection_id=#{map.EMS_NAME}
+			GROUP BY perceived_severity
+			ORDER BY perceived_severity DESC
+	</select>
+
+
+
+
+	<!--根据网管ID获取月数据 -->
+	<select id="getPMDataPerMonthByEmsId" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+		a.retrieval_time,
+		a.base_ems_connection_id,
+		MAX(CASE WHEN a.type_level='23' THEN a.cou ELSE 0 END) count_3,
+		MAX(CASE WHEN a.type_level='22' THEN a.cou ELSE 0 END) count_2,
+		MAX(CASE WHEN a.type_level='21' THEN a.cou ELSE 0 END) count_1,
+		MAX(CASE WHEN a.type_level='13' THEN a.cou ELSE 0 END) physics_3,
+		MAX(CASE WHEN a.type_level='12' THEN a.cou ELSE 0 END) physics_2,
+		MAX(CASE WHEN a.type_level='11' THEN a.cou ELSE 0 END) physics_1
+		FROM(
+		SELECT
+		t.retrieval_time,
+		t.base_ems_connection_id,
+		CONCAT(t.type,t.exception_lv) type_level,
+		SUM(cou) cou
+		FROM
+		<if test="map.timeType=='year'">
+		t_pm_origi_data_collect_month t
+		</if>
+		<if test="map.timeType=='month'">
+		t_pm_origi_data_collect t
+		</if>
+		WHERE
+		t.base_ems_connection_id = #{map.emsId}
+		<if test="map.timeType=='year'">
+		AND SUBSTRING(t.retrieval_time,1,4)=#{map.time}
+		</if>
+		<if test="map.timeType=='month'">
+		AND SUBSTRING(t.retrieval_time,1,7)=#{map.time}
+		</if>
+		GROUP BY t.retrieval_time,
+		t.base_ems_connection_id,
+		CONCAT(t.type,
+		t.exception_lv)
+		) a
+		GROUP BY a.retrieval_time,a.base_ems_connection_id
+		order by a.retrieval_time
+	</select>
+
+
+	<!--根据网管分组,月份获取日数据（异常性能分布） -->
+	<select id="getPMDataPerDayEms" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+		(CASE CONCAT(t.type,t.exception_lv)
+		WHEN 23 THEN '计数值3级'
+		WHEN 22 THEN '计数值2级'
+		WHEN 21 THEN '计数值1级'
+		WHEN 13 THEN '物理量3级'
+		WHEN 12 THEN '物理量2级'
+		WHEN 11 THEN '物理量1级'
+		END) type_level,
+		SUM(cou) cou
+		FROM
+		t_pm_origi_data_collect t
+		WHERE t.is_del=0
+		AND t.BASE_EMS_CONNECTION_ID = #{map.emsId}
+		<if test="map.query_day!=null and map.query_day!=''">
+		AND SUBSTRING(t.retrieval_time,1,10)=#{map.query_day}
+		</if>
+		<if test="map.query_month!=null and map.query_month!=''"> 
+		AND SUBSTRING(t.retrieval_time,1,7)=#{map.query_month}
+		</if>
+		GROUP BY CONCAT(t.type,t.exception_lv)
+		ORDER BY CONCAT(t.type,t.exception_lv) DESC
+	</select>
+
+	<!--根据网管ID获取日数据 -->
+	<select id="getPMDataPerDayByEmsId" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+		a.retrieval_time,
+		a.base_ems_connection_id,
+		MAX(CASE WHEN a.type_level='23' THEN a.cou ELSE 0 END) count_3,
+		MAX(CASE WHEN a.type_level='22' THEN a.cou ELSE 0 END) count_2,
+		MAX(CASE WHEN a.type_level='21' THEN a.cou ELSE 0 END) count_1,
+		MAX(CASE WHEN a.type_level='13' THEN a.cou ELSE 0 END) physics_3,
+		MAX(CASE WHEN a.type_level='12' THEN a.cou ELSE 0 END) physics_2,
+		MAX(CASE WHEN a.type_level='11' THEN a.cou ELSE 0 END) physics_1
+		FROM(
+		SELECT
+		t.retrieval_time,
+		t.base_ems_connection_id,
+		CONCAT(t.type,t.exception_lv) type_level,
+		SUM(cou) cou
+		FROM
+		t_pm_origi_data_collect t
+		WHERE
+		t.is_del != 1
+		and
+		t.base_ems_connection_id = #{map.emsId}
+		AND SUBSTRING(t.retrieval_time,1,7)=#{map.query_month}
+		GROUP BY t.retrieval_time,
+		t.base_ems_connection_id,
+		CONCAT(t.type,
+		t.exception_lv)
+		) a
+		GROUP BY a.retrieval_time,a.base_ems_connection_id
+		order by a.retrieval_time
+	</select>
+	
+	<select id="getEmsName" resultType="String">
+	select
+	DISPLAY_NAME 
+	from
+	T_BASE_EMS_CONNECTION
+	WHERE
+	BASE_EMS_CONNECTION_ID = #{map.emsId}
+	</select>
+</mapper>

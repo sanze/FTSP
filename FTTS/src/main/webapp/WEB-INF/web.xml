@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <display-name>FTTS</display-name>
+  <context-param>
+    <param-name>webAppRootKey</param-name>
+    <param-value>FTTS.root</param-value>
+  </context-param>
+  <filter>
+    <filter-name>encodingFilter</filter-name>
+    <filter-class>
+			org.springframework.web.filter.CharacterEncodingFilter
+		</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>forceEncoding</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>encodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+			/WEB-INF/classes/resourceConfig/springConfig/*.xml
+		</param-value>
+  </context-param>
+  <listener>
+    <listener-class>  
+            org.springframework.web.util.IntrospectorCleanupListener  
+        </listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+  </listener>
+  <context-param>
+    <param-name>log4jConfigLocation</param-name>
+    <param-value>/WEB-INF/classes/resourceConfig/logConfig/log4j.properties </param-value>
+  </context-param>
+  <listener>
+    <listener-class>
+			com.fujitsu.servlet.MyContextLoaderListener
+		</listener-class>
+  </listener>
+  <filter>
+    <filter-name>struts2</filter-name>
+    <filter-class>
+			org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter
+		</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>struts2</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter>
+    <filter-name>i18nFilter</filter-name>
+    <filter-class>com.fujitsu.filter.I18nFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>i18nFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <servlet>
+    <servlet-name>DruidStatView</servlet-name>
+    <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DruidStatView</servlet-name>
+    <url-pattern>/druid/*</url-pattern>
+  </servlet-mapping>
+  
+    <servlet>
+    <servlet-name>dwr-invoker</servlet-name>
+    <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <init-param>
+      <param-name>pollAndCometEnabled</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <init-param>
+      <param-name>org.directwebremoting.extend.ScriptSessionManager</param-name>
+      <param-value>com.fujitsu.util.dwr.DWRScriptSessionManager </param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>dwr-invoker</servlet-name>
+    <url-pattern>/dwr/*</url-pattern>
+  </servlet-mapping>
+  
+  	 <!--配置CXFServlet begin-->  
+	<servlet>  
+	    <servlet-name>CXFServlet</servlet-name>  
+	    <servlet-class>  
+	        org.apache.cxf.transport.servlet.CXFServlet  
+	    </servlet-class>  
+	    <load-on-startup>1</load-on-startup>  
+	</servlet>  
+	<servlet-mapping>  
+	    <servlet-name>CXFServlet</servlet-name>  
+	    <!-- url可自定义配置，用于CXFServlet请求地址拦截,访问会用到 -->  
+	    <url-pattern>/webservice/*</url-pattern>  
+	</servlet-mapping>  
+	<!--配置CXFServlet end -->
+  
+  <session-config>
+    <session-timeout>15</session-timeout>
+  </session-config>
+</web-app>

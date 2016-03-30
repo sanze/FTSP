@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.EvaluateManagerMapper">
+	<select id="callFiberLinkPmSP" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		sp_fiberlink_pm(#{param.NET_LEVEL},#{param.RESOURCE_TRANS_SYS_ID},#{param.RESOURCE_LINK_ID},#{param.START_DATE},#{param.END_DATE},#{start},#{limit},#{param.total,jdbcType=INTEGER,mode=OUT})}
+	</select>
+
+	<select id="getFendLinkId" resultType="java.lang.Integer"
+		parameterType="hashmap">
+		select
+		l.FEND_LINK_ID as fendLinkId
+		from
+		`t_resource_link` l
+		where l.RESOURCE_LINK_ID = #{param.RESOURCE_LINK_ID}
+	</select>
+	
+	<sql id="getResourceLinkSql">
+		from
+		  t_resource_trans_sys rts,
+		  t_base_link bl
+			left join t_resource_link rl on bl.base_link_id=rl.resource_link_id
+			left join t_resource_link rfl on bl.base_link_id=rfl.fend_link_id and (ISNULL(rl.resource_link_id) or rl.fend_link_id=rfl.resource_link_id)
+			left join t_resource_fiber rf on bl.RESOURCE_FIBER_ID=rf.RESOURCE_FIBER_ID
+			left join t_resource_cable rc on rf.RESOURCE_CABLE_ID=rc.RESOURCE_CABLE_ID
+			left join t_resource_cables rcs on rc.RESOURCE_CABLES_ID=rcs.RESOURCE_CABLES_ID
+			
+		    left join t_base_ptp ap on bl.A_END_PTP=ap.BASE_PTP_ID and bl.A_NE_ID=ap.BASE_NE_ID
+		    left join t_base_ne an on bl.A_NE_ID=an.BASE_NE_ID
+		    left join t_resource_room arr on an.RESOURCE_ROOM_ID=arr.RESOURCE_ROOM_ID
+		    left join t_resource_station ars on arr.RESOURCE_STATION_ID=ars.RESOURCE_STATION_ID
+		    
+		    left join t_base_ptp zp on bl.Z_END_PTP=zp.BASE_PTP_ID and bl.Z_NE_ID=zp.BASE_NE_ID
+		    left join t_base_ne zn on bl.Z_NE_ID=zn.BASE_NE_ID
+		    left join t_resource_room zrr on zn.RESOURCE_ROOM_ID=zrr.RESOURCE_ROOM_ID
+		    left join t_resource_station zrs on zrr.RESOURCE_STATION_ID=zrs.RESOURCE_STATION_ID
+		    
+		    left join t_base_ptp apmain on rl.A_END_PTP=apmain.BASE_PTP_ID and bl.A_NE_ID=apmain.BASE_NE_ID
+		    left join t_base_ptp zpmain on rl.Z_END_PTP=zpmain.BASE_PTP_ID and bl.Z_NE_ID=zpmain.BASE_NE_ID
+		    left join t_base_ptp aposc on rl.A_END_OSC_PTP=aposc.BASE_PTP_ID and bl.A_NE_ID=aposc.BASE_NE_ID
+		    left join t_base_ptp zposc on rl.Z_END_OSC_PTP=zposc.BASE_PTP_ID and bl.Z_NE_ID=zposc.BASE_NE_ID
+		    
+		where bl.resource_trans_sys_id=rts.resource_trans_sys_id
+		  and (ISNULL(bl.IS_DEL) or bl.IS_DEL=0)
+		  <if test="param.NET_LEVEL!=null">
+		  and rts.NET_LEVEL=#{param.NET_LEVEL}
+		  </if>
+		  <if test="param.RESOURCE_TRANS_SYS_ID!=null">
+		  and rts.RESOURCE_TRANS_SYS_ID=#{param.RESOURCE_TRANS_SYS_ID}
+		  </if>
+		  <if test="param.RESOURCE_LINK_ID!=null">
+		  and bl.BASE_LINK_ID=#{param.RESOURCE_LINK_ID}
+		  </if>
+	</sql>
+	<select id="cntAllResourceLink" parameterType="hashmap"
+		resultType="int">
+		SELECT 
+		  COUNT(1) AS total 
+	    <include refid="getResourceLinkSql" />
+	</select>
+	<select id="getAllResourceLink" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT 
+		rts.SYS_NAME,
+		bl.DISPLAY_NAME as LINK_NAME,
+		
+		ars.STATION_NAME as A_STATION_NAME,
+		an.DISPLAY_NAME as A_NE_NAME,
+		ap.PORT_DESC as A_PTP_NAME,
+		
+		zrs.STATION_NAME as Z_STATION_NAME,
+		zn.DISPLAY_NAME as Z_NE_NAME,
+		zp.PORT_DESC as Z_PTP_NAME,
+		
+		bl.IS_MANUAL,
+		rcs.DISPLAY_NAME as CABLES_NAME,
+		rcs.CABLES_NO,
+		rc.CABLE_NAME,
+		rc.CABLE_NO,
+		rf.FIBER_NAME,
+		rf.FIBER_NO,
+		
+		apmain.PORT_DESC as A_PTP_NAME_MAIN,
+		rl.ATT,
+		zpmain.PORT_DESC as Z_PTP_NAME_MAIN,
+		
+		aposc.PORT_DESC as A_PTP_NAME_OSC,
+		rl.ATT_OSC,
+		zposc.PORT_DESC as Z_PTP_NAME_OSC,
+		
+		bl.BASE_LINK_ID,
+		rfl.RESOURCE_LINK_ID as FEND_LINK_ID,
+		ars.RESOURCE_STATION_ID as A_STATION_ID,
+		zrs.RESOURCE_STATION_ID as Z_STATION_ID,
+		rcs.RESOURCE_CABLES_ID,
+		rc.RESOURCE_CABLE_ID,
+		rf.RESOURCE_FIBER_ID,
+		bl.A_NE_ID,
+		bl.Z_NE_ID,
+		bl.A_END_PTP as A_PTP_ID,
+		bl.Z_END_PTP as Z_PTP_ID,
+		rl.A_END_PTP as A_PTP_ID_MAIN,
+		rl.Z_END_PTP as Z_PTP_ID_MAIN,
+		rl.A_END_OSC_PTP as A_PTP_ID_OSC,
+		rl.Z_END_OSC_PTP as Z_PTP_ID_OSC
+		
+		<include refid="getResourceLinkSql" />
+		<if test="pageSize != null and pageSize>0">
+			LIMIT ${startNumber}, ${pageSize}
+		</if>
+	</select>
+	<delete id="deleteResourceLink" parameterType="hashmap">
+		delete from t_resource_link where
+		RESOURCE_LINK_ID = #{param.RESOURCE_LINK_ID}
+	</delete>
+	<update id="relateResourceLink" parameterType="hashmap">
+		update t_resource_link set FEND_LINK_ID=
+		<choose>
+		<when test="param.FEND_LINK_ID !=null">(CASE WHEN RESOURCE_LINK_ID = ${param.FEND_LINK_ID} THEN ${param.RESOURCE_LINK_ID} ELSE null END)</when>
+		<otherwise>NULL</otherwise>
+		</choose>
+		where (FEND_LINK_ID=#{param.FEND_LINK_ID} AND RESOURCE_LINK_ID!=#{param.RESOURCE_LINK_ID})
+		or (FEND_LINK_ID=#{param.RESOURCE_LINK_ID} AND RESOURCE_LINK_ID!=#{param.FEND_LINK_ID})
+		<if test="param.FEND_LINK_ID !=null">
+			or RESOURCE_LINK_ID = #{param.FEND_LINK_ID}
+		</if>
+	</update>
+	<insert id="setResourceLink" parameterType="hashmap">
+		insert into t_resource_link (
+			RESOURCE_LINK_ID,
+			FEND_LINK_ID,
+			RESOURCE_FIBER_ID,
+			A_END_PTP,
+			Z_END_PTP,
+			A_END_OSC_PTP,
+			Z_END_OSC_PTP,
+			ATT,
+			ATT_OSC
+		) values (
+			#{param.RESOURCE_LINK_ID},
+			<choose>
+				<when test="param.FEND_LINK_ID != null">#{param.FEND_LINK_ID},</when>
+				<otherwise>NULL,</otherwise>
+			</choose>
+			<choose>
+				<when test="param.RESOURCE_FIBER_ID != null">#{param.RESOURCE_FIBER_ID},</when>
+				<otherwise>NULL,</otherwise>
+			</choose>
+			<choose>
+				<when test="param.A_PTP_MAIN != null">#{param.A_PTP_MAIN},</when>
+				<otherwise>NULL,</otherwise>
+			</choose>
+			<choose>
+				<when test="param.Z_PTP_MAIN != null">#{param.Z_PTP_MAIN},</when>
+				<otherwise>NULL,</otherwise>
+			</choose>
+			<choose>
+				<when test="param.A_PTP_OSC != null">#{param.A_PTP_OSC},</when>
+				<otherwise>NULL,</otherwise>
+			</choose>
+			<choose>
+				<when test="param.Z_PTP_OSC != null">#{param.Z_PTP_OSC},</when>
+				<otherwise>NULL,</otherwise>
+			</choose>
+			<choose>
+				<when test="param.ATT_MAIN != null">#{param.ATT_MAIN},</when>
+				<otherwise>NULL,</otherwise>
+			</choose>
+			<choose>
+				<when test="param.ATT_OSC != null">#{param.ATT_OSC}</when>
+				<otherwise>NULL</otherwise>
+			</choose>
+		) ON DUPLICATE KEY
+		UPDATE
+			FEND_LINK_ID=values(FEND_LINK_ID),
+			RESOURCE_FIBER_ID=values(RESOURCE_FIBER_ID),
+			A_END_PTP=values(A_END_PTP),
+			Z_END_PTP=values(Z_END_PTP),
+			A_END_OSC_PTP=values(A_END_OSC_PTP),
+			Z_END_OSC_PTP=values(Z_END_OSC_PTP),
+			ATT=values(ATT),
+			ATT_OSC=values(ATT_OSC)
+	</insert>
+	<select id="callEvaluatelinkPmSP" parameterType="hashmap"
+		resultType="hashmap" statementType="CALLABLE">
+		{CALL
+		sp_evaluatelink_pm(#{param.NET_LEVEL},#{param.RESOURCE_TRANS_SYS_ID},#{param.RESOURCE_LINK_ID},#{param.START_DATE},#{param.END_DATE},#{start},#{limit},#{param.total,jdbcType=INTEGER,mode=OUT})}
+	</select>
+</mapper>

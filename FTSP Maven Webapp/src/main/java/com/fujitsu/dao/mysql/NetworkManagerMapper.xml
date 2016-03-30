@@ -1,0 +1,1560 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.NetworkManagerMapper"> 
+
+    <!--获取预警设置值-->
+    <select id="getEarlyAlarmSetting" resultType="hashmap">
+        SELECT ${selectText}  FROM t_resource_wr_conf limit 1
+    </select>
+     
+    <!-- 初次设置告警预置 -->
+    <insert id="insertEarlyAlarmSetting" parameterType="hashmap">
+      INSERT INTO t_resource_wr_conf
+      (SLOT_MJ,SLOT_MN,SLOT_WR,CRS_MJ,
+	   CRS_MN,CRS_WR,PTP_MJ,PTP_MN,
+	   PTP_WR,MS_VC4_MJ,MS_VC4_MN,MS_VC4_WR,
+	   MS_VC12_MJ,MS_VC12_MN,MS_VC12_WR,
+	   LARGE_RING_MJ,LARGE_RING_MN,LARGE_RING_WR,LONG_CHAIN_MJ,
+	   LONG_CHAIN_MN,LONG_CHAIN_WR,FOCAL_POINT_MJ,FOCAL_POINT_MN,
+	   FOCAL_POINT_WR,MULTI_NODE_MJ,MULTI_NODE_MN,MULTI_NODE_WR
+      )VALUES(
+        <choose>
+            <when test="map.SLOT_MJ != null">#{map.SLOT_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.SLOT_MN != null">#{map.SLOT_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.SLOT_WR != null">#{map.SLOT_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.CRS_MJ != null">#{map.CRS_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.CRS_MN != null">#{map.CRS_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.SLOT_WR != null">#{map.CRS_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.PTP_MJ != null">#{map.PTP_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.PTP_MN != null">#{map.PTP_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.PTP_WR != null">#{map.PTP_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>, 
+		<choose> 
+            <when test="map.MS_VC4_MJ != null">#{map.MS_VC4_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+		<choose> 
+            <when test="map.MS_VC4_MN != null">#{map.MS_VC4_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+		<choose> 
+            <when test="map.MS_VC4_WR != null">#{map.MS_VC4_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.MS_VC12_MJ != null">#{map.MS_VC12_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+   		<choose> 
+            <when test="map.MS_VC12_MN != null">#{map.MS_VC12_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.MS_VC12_WR != null">#{map.MS_VC12_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.LARGE_RING_MJ!= null">#{map.LARGE_RING_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.LARGE_RING_MN != null">#{map.LARGE_RING_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.LARGE_RING_WR!= null">#{map.LARGE_RING_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.LONG_CHAIN_MJ!= null">#{map.LONG_CHAIN_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.LONG_CHAIN_MN != null">#{map.LONG_CHAIN_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.LONG_CHAIN_WR != null">#{map.LONG_CHAIN_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.FOCAL_POINT_MJ!= null">#{map.FOCAL_POINT_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.FOCAL_POINT_MN != null">#{map.FOCAL_POINT_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.FOCAL_POINT_WR != null">#{map.FOCAL_POINT_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.MULTI_NODE_MJ != null">#{map.MULTI_NODE_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.MULTI_NODE_MN != null">#{map.MULTI_NODE_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.MULTI_NODE_WR != null">#{map.MULTI_NODE_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>)
+    </insert>
+
+	<!-- 更新资源预警值 -->
+    <update id="updateEarlyAlarmSetting"  parameterType="hashmap">
+     update t_resource_wr_conf
+        <set> 
+            <if test="map.SLOT_MJ != null">
+                SLOT_MJ=#{map.SLOT_MJ},
+            </if>
+            <if test="map.SLOT_MN != null">
+                SLOT_MN=#{map.SLOT_MN},
+            </if>
+            <if test="map.SLOT_WR != null">
+                SLOT_WR=#{map.SLOT_WR},
+            </if>
+            <if test="map.CRS_MJ != null">
+                CRS_MJ=#{map.CRS_MJ},
+            </if>
+            <if test="map.CRS_MN != null">
+                CRS_MN=#{map.CRS_MN},
+            </if>
+            <if test="map.CRS_WR != null">
+                CRS_WR=#{map.CRS_WR},
+            </if>
+            <if test="map.PTP_MJ != null">
+                PTP_MJ=#{map.PTP_MJ},
+            </if>
+            <if test="map.PTP_MN != null">
+                PTP_MN=#{map.PTP_MN},
+            </if>
+            <if test="map.PTP_WR != null">
+                PTP_WR=#{map.PTP_WR},
+            </if> 
+            <if test="map.MS_VC4_MJ != null">
+                MS_VC4_MJ=#{map.MS_VC4_MJ},
+            </if>
+            <if test="map.MS_VC4_MN != null">
+                MS_VC4_MN=#{map.MS_VC4_MN},
+            </if>
+            <if test="map.MS_VC4_WR != null">
+                MS_VC4_WR=#{map.MS_VC4_WR},
+            </if>
+                       <if test="map.MS_VC12_MJ != null">
+                MS_VC12_MJ=#{map.MS_VC12_MJ},
+            </if>
+            <if test="map.MS_VC12_MN != null">
+                MS_VC12_MN=#{map.MS_VC12_MN},
+            </if>
+            <if test="map.MS_VC12_WR != null">
+                MS_VC12_WR=#{map.MS_VC12_WR},
+            </if>
+            <if test="map.LARGE_RING_MJ!= null">
+                LARGE_RING_MJ=#{map.LARGE_RING_MJ},
+            </if>
+            <if test="map.LARGE_RING_MN != null">
+                LARGE_RING_MN=#{map.LARGE_RING_MN},
+            </if>
+            <if test="map.LARGE_RING_WR!= null">
+                LARGE_RING_WR=#{map.LARGE_RING_WR},
+            </if>
+            <if test="map.LONG_CHAIN_MJ!= null">
+                LONG_CHAIN_MJ=#{map.LONG_CHAIN_MJ},
+            </if>
+            <if test="map.LONG_CHAIN_MN != null">
+                LONG_CHAIN_MN=#{map.LONG_CHAIN_MN},
+            </if>
+            <if test="map.LONG_CHAIN_WR != null">
+                LONG_CHAIN_WR=#{map.LONG_CHAIN_WR},
+            </if>
+            <if test="map.FOCAL_POINT_MJ!= null">
+                FOCAL_POINT_MJ=#{map.FOCAL_POINT_MJ},
+            </if>
+            <if test="map.FOCAL_POINT_MN != null">
+                FOCAL_POINT_MN=#{map.FOCAL_POINT_MN},
+            </if>
+            <if test="map.FOCAL_POINT_WR != null">
+                FOCAL_POINT_WR=#{map.FOCAL_POINT_WR},
+            </if>
+            <if test="map.MULTI_NODE_MJ != null">
+                MULTI_NODE_MJ=#{map.MULTI_NODE_MJ},
+            </if>
+            <if test="map.MULTI_NODE_MN != null">
+                MULTI_NODE_MN=#{map.MULTI_NODE_MN},
+            </if>
+            <if test="map.MULTI_NODE_WR != null">
+               MULTI_NODE_WR=#{map.MULTI_NODE_WR},
+            </if>    
+        </set> 
+    </update>
+    
+    <!--槽道占用率-->
+    <select id="getunitCntByneId" resultType="Integer">
+        SELECT COUNT(*) AS unitCnt FROM t_base_unit WHERE IS_DEL =0 and base_ne_id = #{neId}
+    </select>
+    <select id="getslotCntByneId" resultType="Integer">
+        SELECT COUNT(*) AS slotCnt FROM t_base_slot WHERE IS_DEL =0 and base_ne_id =#{neId}
+    </select> 
+    
+    <!--端口占用率-->
+   <select id="judgePtpTypeIsNull" resultType="hashmap">
+         SELECT RATE, COUNT(*) AS cnt FROM t_base_ptp 
+            WHERE base_ne_id = #{neId} GROUP BY RATE
+    </select>
+    
+    <!--端口ptpType是否存在-->
+    <select id="judgePtpTypeCrsIsNull" resultType="hashmap">
+        SELECT p.RATE, COUNT(*) AS cnt 
+		FROM T_base_PTP AS p 
+		LEFT JOIN ${map.crs_table}  AS t
+		ON (t.A_END_PTP = p.base_ptp_id OR t.Z_END_PTP = p.base_ptp_id )  
+		WHERE t.IS_DEL=0 and t.BASE_NE_ID=#{neId}
+		GROUP BY p.RATE
+    </select>
+    
+    <sql id = "portRateInfo">
+        MAX(CASE WHEN a.RATE='2M' THEN a.cnt ELSE 0 END) cnt_2M,
+        MAX(CASE WHEN a.RATE='155M' THEN a.cnt ELSE 0 END) cnt_STM1,
+        MAX(CASE WHEN a.RATE='622M' THEN a.cnt ELSE 0 END) cnt_STM4,
+        MAX(CASE WHEN a.RATE='2.5G' THEN a.cnt ELSE 0 END) cnt_STM16,
+        MAX(CASE WHEN a.RATE='10G' THEN a.cnt ELSE 0 END) cnt_STM64,
+        MAX(CASE WHEN a.RATE='40G' THEN a.cnt ELSE 0 END) cnt_STM256
+    </sql>
+    
+    <!--网元ptpType个数-->
+    <select id="getRateCntALL" resultType="hashmap">
+        SELECT  
+           <include refid="portRateInfo"/> 
+        FROM(
+            SELECT RATE, COUNT(*) AS cnt FROM t_base_ptp 
+            WHERE IS_DEL=0 and base_ne_id = #{neId} GROUP BY RATE
+        )a
+    </select>
+    
+    <!--网元交叉连接占用个数-->
+    <select id="getRateCntCrossconnect" resultType="hashmap">
+        SELECT  
+             <include refid="portRateInfo"/> 
+        FROM(	
+        	SELECT t.RATE, COUNT(*) AS cnt  FROM( 
+				SELECT DISTINCT p.base_ptp_id,p.`RATE`
+					FROM T_base_PTP AS p 
+					LEFT JOIN ${map.crs_table} AS t
+					ON (t.A_END_PTP = p.base_ptp_id OR t.Z_END_PTP = p.base_ptp_id )  
+					WHERE t.IS_DEL=0 AND p.BASE_NE_ID=#{neId}
+					AND p.`IS_DEL` = 0
+				)t
+				GROUP BY t.RATE 
+        )a
+    </select> 
+     
+    <!--网元查询系统-->
+    <select id="getRLInfoByneId" resultType="hashmap"> 
+        SELECT sys.RESOURCE_TRANS_SYS_ID ,sys.SYS_NAME,sys.RATE
+		FROM t_resource_trans_sys_ne sne
+		LEFT JOIN  t_resource_trans_sys sys 
+		ON sne.`RESOURCE_TRANS_SYS_ID` = sys.`RESOURCE_TRANS_SYS_ID` 
+		WHERE NE_ID=#{neId}
+   </select>
+   
+   <!--查询系统上的端口-->
+   <select id="getRLptpIds" resultType="hashmap">
+     	SELECT  A_END_PTP,Z_END_PTP,DISPLAY_NAME,DIRECTION,IS_MANUAL,
+        (SELECT DISPLAY_NAME FROM t_base_ne WHERE base_ne_id = A_NE_ID) aNeDisplayName,
+        (SELECT DISPLAY_NAME FROM t_base_ne WHERE base_ne_id = Z_NE_ID)  zNeDisplayName,
+        (SELECT PORT_DESC FROM t_base_ptp WHERE base_ptp_id = A_END_PTP)  aPortDesc,
+        (SELECT PORT_DESC FROM t_base_ptp WHERE base_ptp_id = Z_END_PTP)  zPortDesc,
+        (SELECT RATE FROM t_base_ptp WHERE base_ptp_id = Z_END_PTP)  rate  
+        FROM t_base_link
+		WHERE IS_MAIN =1 AND IS_DEL =0 AND RESOURCE_TRANS_SYS_ID = #{rlId}
+   </select>
+   
+   <!-- 占用的VC12 --> 
+   <select id="getVC12Data" resultType="hashmap"> 
+   		SELECT b.ptpId ,SUM(b.cnt) cnt
+		FROM(
+			SELECT 
+			a.ptpId AS ptpId,
+			(CASE 
+			 WHEN a.RATE='VC12' THEN 1 
+			 WHEN a.RATE='VC3' THEN 21 
+			 WHEN a.RATE='VC4' THEN 63 
+			 WHEN a.RATE='4C' THEN 252
+			 WHEN a.RATE='8C' THEN 504 
+			 WHEN a.RATE='16C' THEN 1008 
+			 WHEN a.RATE='64C' THEN 4032
+			 ELSE 0 END
+			) cnt
+			FROM
+			(
+				SELECT 
+				   ctp.BASE_SDH_CTP_ID,crs.RATE,ctp.`BASE_PTP_ID` AS ptpId
+				FROM 
+				  t_base_sdh_crs crs
+				LEFT JOIN t_base_sdh_ctp ctp 
+				  ON crs.`A_END_CTP` = ctp.`BASE_SDH_CTP_ID` 
+				WHERE crs.`A_END_PTP` IN ${ptpIds}
+				  AND crs.`IS_DEL` = 0  
+				UNION  (
+				SELECT 
+				   ctp.BASE_SDH_CTP_ID,crs.RATE,ctp.`BASE_PTP_ID` AS ptpId
+				FROM 
+				  t_base_sdh_crs crs
+				LEFT JOIN t_base_sdh_ctp ctp 
+				  ON crs.`Z_END_CTP` = ctp.`BASE_SDH_CTP_ID` 
+				WHERE crs.`Z_END_PTP` IN  ${ptpIds}
+				  AND crs.`IS_DEL` = 0 
+				  )
+			)a
+		)b
+		GROUP BY b.ptpId 
+	</select> 
+	
+    <!-- 占用的VC4-->
+	<select id="getVC4Data" resultType="hashmap"> 
+		SELECT n.ptpId AS ptpId,SUM(n.cnt) AS cnt  FROM( 
+		SELECT b.ptpId AS ptpId,SUM(b.cnt) AS cnt 
+		FROM(
+			SELECT 
+			a.ptpId AS ptpId,
+			(CASE 
+			 WHEN a.RATE='4C' THEN 4 
+			 WHEN a.RATE='8C' THEN 8 
+			 WHEN a.RATE='16C' THEN 16
+			 WHEN a.RATE='64C' THEN 64
+			 ELSE 0 END
+			) cnt
+			FROM
+			(
+			SELECT 
+			   ctp.BASE_SDH_CTP_ID,crs.RATE,ctp.`BASE_PTP_ID` AS ptpId
+			FROM 
+			  t_base_sdh_crs crs
+			LEFT JOIN t_base_sdh_ctp ctp 
+			  ON crs.`A_END_CTP` = ctp.`BASE_SDH_CTP_ID` 
+			WHERE crs.`A_END_PTP` IN ${ptpIds}
+			  AND crs.`IS_DEL` = 0  
+			UNION  (
+			SELECT 
+			   ctp.BASE_SDH_CTP_ID,crs.RATE,ctp.`BASE_PTP_ID` AS ptpId
+			FROM 
+			  t_base_sdh_crs crs
+			LEFT JOIN t_base_sdh_ctp ctp 
+			  ON crs.`Z_END_CTP` = ctp.`BASE_SDH_CTP_ID` 
+			WHERE crs.`Z_END_PTP` IN  ${ptpIds}
+			  AND crs.`IS_DEL` = 0 
+			  )
+			)a
+		)b
+		GROUP BY b.ptpId
+		UNION  
+		(SELECT m.ptpId AS ptpId,COUNT(*) AS cnt  FROM
+		    (SELECT 
+			   ctp.BASE_PTP_ID AS ptpId,ctp.CTP_64C AS ctp64c,
+			   ctp.CTP_16C AS ctp16c,ctp.CTP_8C AS ctp8c,ctp.CTP_4C AS ctp4c,
+			   ctp.CTP_J AS ctpJ	
+			FROM 
+			  t_base_sdh_crs crs
+			LEFT JOIN t_base_sdh_ctp ctp 
+			  ON crs.`A_END_CTP` = ctp.`BASE_SDH_CTP_ID` 
+			WHERE crs.`A_END_PTP` IN ${ptpIds}
+			  AND crs.`IS_DEL` = 0  
+			  AND (ctp.CTP_J != 0 OR ctp.CTP_K != 0 OR ctp.CTP_L != 0 OR ctp.CTP_M != 0) 
+			UNION  (
+			SELECT 
+			   ctp.BASE_PTP_ID AS ptpId,ctp.CTP_64C AS ctp64c,
+			   ctp.CTP_16C AS ctp16c,ctp.CTP_8C AS ctp8c,ctp.CTP_4C AS ctp4c,
+			   ctp.CTP_J AS ctpJ	
+			FROM 
+			  t_base_sdh_crs crs
+			LEFT JOIN t_base_sdh_ctp ctp 
+			  ON crs.`Z_END_CTP` = ctp.`BASE_SDH_CTP_ID` 
+			WHERE crs.`Z_END_PTP` IN  ${ptpIds}
+			  AND crs.`IS_DEL` = 0    
+			  AND (ctp.CTP_J != 0 OR ctp.CTP_K != 0 OR ctp.CTP_L != 0 OR ctp.CTP_M != 0) 
+			  )
+		    )m
+		    GROUP BY ptpId  
+		    ))n
+		GROUP BY n.ptpId
+   </select> 
+    
+    <!-- 插入定时任务的内容-->	
+	<select id="getAllNeList" resultType="hashmap"> 
+		select BASE_NE_ID,TYPE,DISPLAY_NAME
+        from t_base_ne 
+		LIMIT ${start}, ${limit}
+	</select>  
+	
+    <!--查询复用段结果集是否已经定时计算过-->
+   	<select id="searchMsOccupyEarlyWarn" resultType="Integer"> 
+		select count(*)
+        from t_resource_ms_wr  
+        where RESOURCE_TRANS_SYS_ID=#{rlId}
+	</select>  
+   
+    <!--插入网元定时计算结果-->
+    <insert id="insertNeEarlyWarn" parameterType="hashmap">
+      INSERT INTO t_resource_network_wr
+      (BASE_NE_ID,DISPLAY_NAME,SLOT_OCCUPANCY,PTP_OCCUPANCY_2M,
+	   PTP_OCCUPANCY_STM1,PTP_OCCUPANCY_STM4,PTP_OCCUPANCY_STM16,
+	   PTP_OCCUPANCY_STM64,PTP_OCCUPANCY_STM256,MS_OCCUPANCY
+      )VALUES(
+      	#{map.BASE_NE_ID},
+        <choose>
+            <when test="map.DISPLAY_NAME != null">#{map.DISPLAY_NAME}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.SLOT_OCCUPANCY != null">#{map.SLOT_OCCUPANCY}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.PTP_OCCUPANCY_2M != null">#{map.PTP_OCCUPANCY_2M}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.PTP_OCCUPANCY_STM1 != null">#{map.PTP_OCCUPANCY_STM1}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.PTP_OCCUPANCY_STM4 != null">#{map.PTP_OCCUPANCY_STM4}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.PTP_OCCUPANCY_STM16 != null">#{map.PTP_OCCUPANCY_STM16}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.PTP_OCCUPANCY_STM64 != null">#{map.PTP_OCCUPANCY_STM64}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.PTP_OCCUPANCY_STM256 != null">#{map.PTP_OCCUPANCY_STM256}</when>
+            <otherwise>null</otherwise>
+		</choose>, 
+		<choose> 
+            <when test="map.MS_OCCUPANCY != null">#{map.MS_OCCUPANCY}</when>
+            <otherwise>null</otherwise>
+		</choose>)
+    </insert>
+     
+    <!--更新网元定时计算结果-->
+    <update id="updateNeEarlyWarn"  parameterType="hashmap">
+     update t_resource_network_wr
+        <set> 
+            <if test="map.DISPLAY_NAME!= null">
+                DISPLAY_NAME=#{map.DISPLAY_NAME},
+            </if>
+            <if test="map.SLOT_OCCUPANCY != null">
+                SLOT_OCCUPANCY=#{map.SLOT_OCCUPANCY},
+            </if> 
+            <if test="map.PTP_OCCUPANCY_2M != null">
+                PTP_OCCUPANCY_2M=#{map.PTP_OCCUPANCY_2M},
+            </if>
+            <if test="map.PTP_OCCUPANCY_STM1 != null">
+                PTP_OCCUPANCY_STM1=#{map.PTP_OCCUPANCY_STM1},
+            </if>
+            <if test="map.PTP_OCCUPANCY_STM4 != null">
+                PTP_OCCUPANCY_STM4=#{map.PTP_OCCUPANCY_STM4},
+            </if>
+            <if test="map.PTP_OCCUPANCY_STM16 != null">
+                PTP_OCCUPANCY_STM16=#{map.PTP_OCCUPANCY_STM16},
+            </if>
+            <if test="map.PTP_OCCUPANCY_STM64 != null">
+                PTP_OCCUPANCY_STM64=#{map.PTP_OCCUPANCY_STM64},
+            </if>
+            <if test="map.PTP_OCCUPANCY_STM256 != null">
+                PTP_OCCUPANCY_STM256=#{map.PTP_OCCUPANCY_STM256},
+            </if> 
+            <if test="map.MS_OCCUPANCY!= null">
+                MS_OCCUPANCY=#{map.MS_OCCUPANCY},
+            </if> 
+        </set> 
+          where BASE_NE_ID = #{map.BASE_NE_ID}
+    </update> 
+    
+    <!--查询复用段结果集是否已经定时计算过-->
+    <insert id="insertMsOccupyEarlyWarn" parameterType="hashmap">
+      INSERT INTO t_resource_ms_wr
+      (RESOURCE_TRANS_SYS_ID,VC4_OCCUPANCY_MAX,VC4_OCCUPANCY_AVG,
+	   VC4_OCCUPANCY_MIN,VC12_OCCUPANCY_MAX,VC12_OCCUPANCY_AVG,
+	   VC12_OCCUPANCY_MIN
+      )VALUES(
+      	#{map.RESOURCE_TRANS_SYS_ID},
+        <choose>
+            <when test="map.VC4MAX != null">#{map.VC4MAX}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.VC4 != null">#{map.VC4}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.VC4MIN != null">#{map.VC4MIN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.VC12MAX != null">#{map.VC12MAX}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.VC12 != null">#{map.VC12}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose> 
+            <when test="map.VC12MIN != null">#{map.VC12MIN}</when>
+            <otherwise>null</otherwise>
+		</choose>)
+    </insert>
+     
+    <!--更新复用段定时结果-->
+    <update id="updateMsOccupyEarlyWarn"  parameterType="hashmap">
+     update t_resource_ms_wr
+        <set> 
+            <if test="map.VC4MAX != null">
+                VC4_OCCUPANCY_MAX=#{map.VC4MAX},
+            </if>
+            <if test="map.VC4 != null">
+                VC4_OCCUPANCY_AVG=#{map.VC4},
+            </if> 
+            <if test="map.VC4MIN != null">
+                VC4_OCCUPANCY_MIN=#{map.VC4MIN},
+            </if>
+            <if test="map.VC12MAX != null">
+                VC12_OCCUPANCY_MAX=#{map.VC12MAX},
+            </if>
+            <if test="map.VC12 != null">
+                VC12_OCCUPANCY_AVG=#{map.VC12},
+            </if>
+            <if test="map.VC12MIN != null">
+                VC12_OCCUPANCY_MIN=#{map.VC12MIN},
+            </if>
+        </set> 
+          where RESOURCE_TRANS_SYS_ID = #{map.RESOURCE_TRANS_SYS_ID}
+    </update> 
+   
+   <!--判断是否需要定时计算-->
+   <select id="isTriggeredQz" resultType="hashmap">
+	SELECT ne.BASIC_SYNC_TIME,sys.UPDATE_TIME
+		FROM t_base_ne ne
+		LEFT JOIN t_resource_trans_sys_ne sne
+		ON ne.BASE_NE_ID = sne.NE_ID 
+		LEFT JOIN t_resource_trans_sys sys
+		ON sys.RESOURCE_TRANS_SYS_ID = sne.RESOURCE_TRANS_SYS_ID
+		WHERE ne.`IS_DEL`=0 AND
+			ne.BASE_NE_ID =#{neId}
+    </select>
+    
+    <!--查询网元预警-->
+    <select id="searchNeEarlyWarn" resultType="hashmap">
+	SELECT *
+		FROM t_resource_network_wr  
+		<where>
+			<if test="map.neIds != null">
+				BASE_NE_ID in ${map.neIds}
+			</if> 
+			<!--定时任务增加分支  -->
+			<if test="map.NEID!= null">
+				BASE_NE_ID =#{map.NEID}
+			</if> 
+		</where>
+		<if test="limit != null and limit>0">
+				LIMIT ${start}, ${limit}
+		</if>
+    </select>
+    
+     <!--查询网元预警个数-->
+    <select id="countNeEarlyWarn" resultType="Integer">
+	SELECT COUNT(*)
+		FROM t_resource_network_wr  
+		<where>
+			<if test="map.neIds != null">
+				BASE_NE_ID in ${map.neIds}
+			</if> 
+		</where>
+    </select>   
+  
+ 	<!-- 获取是否有此系统的权限  -->
+    <sql id="getdeviceSql">  
+   		inner join (
+   			select sne.RESOURCE_TRANS_SYS_ID,count(sne.NE_ID) as count
+			from t_resource_trans_sys_ne sne
+			inner join (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) ne 
+			on sne.NE_ID = ne.base_ne_id
+			group by sne.RESOURCE_TRANS_SYS_ID  having	count > 0
+		) t
+		on sys.RESOURCE_TRANS_SYS_ID = t.RESOURCE_TRANS_SYS_ID
+    </sql> 
+    
+    <!-- 获取是否有此系统共有的网元数量-->
+    <sql id="getNeCntSql">  
+   		inner join (
+   			select sne.RESOURCE_TRANS_SYS_ID,count(sne.NE_ID)  as NODE_COUNT,
+   			GROUP_CONCAT(distinct con.DISPLAY_NAME) as emsDisplayName
+   			from t_resource_trans_sys_ne  sne
+   			left join t_base_ne ne
+   			on sne.ne_id=ne.base_ne_id
+   			left join t_base_ems_connection con
+   			on ne.BASE_EMS_CONNECTION_ID= con.BASE_EMS_CONNECTION_ID   
+   			group by RESOURCE_TRANS_SYS_ID  having	NODE_COUNT > 0
+   			<choose>
+            <when test="map.tag!=null and (map.tag==1 or map.tag==2)">
+           		and(
+				1=0
+				<if test="map.alarm3 !=null">
+					or NODE_COUNT <![CDATA[ >=  ]]>#{map.MJ} 
+				</if>
+		 		<if test="map.alarm2 !=null">
+					or (NODE_COUNT <![CDATA[ <  ]]> #{map.MJ} and NODE_COUNT <![CDATA[ >= ]]> #{map.MN})
+				</if>	
+				<if test="map.alarm1 !=null">
+					or (NODE_COUNT <![CDATA[ <  ]]>#{map.MN} and NODE_COUNT <![CDATA[ >= ]]> #{map.WR})
+				</if>	
+				)
+            </when>
+			</choose>
+		) m
+		on sys.RESOURCE_TRANS_SYS_ID = m.RESOURCE_TRANS_SYS_ID
+    </sql>  
+    
+    
+    <sql id="getMsEarlyWarnSql">  
+		FROM t_resource_trans_sys sys
+		LEFT JOIN t_resource_area are
+		ON sys.`RESOURCE_AREA_ID` = are.`RESOURCE_AREA_ID` 
+		left join t_resource_ms_wr wr
+		on sys.RESOURCE_TRANS_SYS_ID = wr.RESOURCE_TRANS_SYS_ID 
+		<include refid="getdeviceSql" />  
+		<include refid="getNeCntSql" />  
+		<where>
+		sys.`IS_DEL`=0
+		AND (DOMAIN=1 OR DOMAIN=3 OR DOMAIN=4)
+		 <choose>
+            <when test="map.rlId !=null and map.rlId >0">
+           		 and sys.RESOURCE_TRANS_SYS_ID=#{map.rlId}
+           	 </when>
+            <otherwise> 
+				<if test="map.areaIds !=null and map.areaIds!=''">
+					AND sys.RESOURCE_AREA_ID IN ${map.areaIds}
+				</if>
+				<if test="map.structCombo !=null and map.structCombo>0 and map.structCombo!=3">
+					and sys.TYPE =#{map.structCombo}
+				</if>
+				<if test="map.levelCombo!=null and map.levelCombo>0 and map.levelCombo!=6">
+					AND sys.NET_LEVEL =#{map.levelCombo}
+				</if> 
+				AND (
+					<if test="map.alarm4 !=null">
+						wr.VC4_OCCUPANCY_MIN <![CDATA[ <= ]]>#{map.VC4MJ}  or wr.VC12_OCCUPANCY_MIN <![CDATA[ <= ]]>#{map.VC12MJ} OR
+					</if>
+			 		<if test="map.alarm3 !=null">
+			 			(wr.VC4_OCCUPANCY_MAX <![CDATA[ > ]]>#{map.VC4MJ} AND wr.VC4_OCCUPANCY_MAX <![CDATA[ <= ]]>#{map.VC4MN}) OR
+			 			(wr.VC4_OCCUPANCY_AVG <![CDATA[ > ]]>#{map.VC4MJ} AND wr.VC4_OCCUPANCY_AVG <![CDATA[ <= ]]>#{map.VC4MN}) OR
+			 			(wr.VC4_OCCUPANCY_MIN <![CDATA[ > ]]>#{map.VC4MJ} AND wr.VC4_OCCUPANCY_MIN <![CDATA[ <= ]]>#{map.VC4MN}) OR
+			 			(wr.VC12_OCCUPANCY_MAX <![CDATA[ > ]]>#{map.VC12MJ} AND wr.VC12_OCCUPANCY_MAX <![CDATA[ <= ]]>#{map.VC12MN}) OR
+			 			(wr.VC12_OCCUPANCY_AVG <![CDATA[ > ]]>#{map.VC12MJ} AND wr.VC12_OCCUPANCY_AVG <![CDATA[ <= ]]>#{map.VC12MN}) OR
+			 			(wr.VC12_OCCUPANCY_MIN <![CDATA[ > ]]>#{map.VC12MJ} AND wr.VC12_OCCUPANCY_MIN <![CDATA[ <= ]]>#{map.VC12MN}) OR 
+					</if>	
+					<if test="map.alarm2 !=null">
+						(wr.VC4_OCCUPANCY_MAX <![CDATA[ > ]]>#{map.VC4MN} AND wr.VC4_OCCUPANCY_MAX <![CDATA[ <= ]]>#{map.VC4WR}) OR
+			 			(wr.VC4_OCCUPANCY_AVG <![CDATA[ > ]]>#{map.VC4MN} AND wr.VC4_OCCUPANCY_AVG <![CDATA[ <= ]]>#{map.VC4WR}) OR
+			 			(wr.VC4_OCCUPANCY_MIN <![CDATA[ > ]]>#{map.VC4MN} AND wr.VC4_OCCUPANCY_MIN <![CDATA[ <= ]]>#{map.VC4WR}) OR
+			 			(wr.VC12_OCCUPANCY_MAX <![CDATA[ > ]]>#{map.VC12MN} AND wr.VC12_OCCUPANCY_MAX <![CDATA[ <= ]]>#{map.VC12WR}) OR
+			 			(wr.VC12_OCCUPANCY_AVG <![CDATA[ > ]]>#{map.VC12MN} AND wr.VC12_OCCUPANCY_AVG <![CDATA[ <= ]]>#{map.VC12WR}) OR
+			 			(wr.VC12_OCCUPANCY_MIN <![CDATA[ > ]]>#{map.VC12MN} AND wr.VC12_OCCUPANCY_MIN <![CDATA[ <= ]]>#{map.VC12WR}) OR 
+					</if>	
+					<if test="map.alarm1 !=null">
+							wr.VC4_OCCUPANCY_MAX <![CDATA[ >= ]]>#{map.VC4WR}  or wr.VC12_OCCUPANCY_MAX <![CDATA[ >= ]]>#{map.VC12WR} OR
+					</if>
+					wr.RESOURCE_TRANS_SYS_ID is null
+				)  
+			</otherwise>
+		</choose> 
+	</where>
+	</sql>
+	
+    <!--查询复用段预警-->
+    <select id="searchMsEarlyWarn" resultType="hashmap">
+		SELECT sys.*,wr.*,m.NODE_COUNT,m.emsDisplayName<include refid="getMsEarlyWarnSql" /> 
+		<if test="map.limit != null and map.limit>0">
+			LIMIT ${map.start}, ${map.limit}
+		</if>
+    </select>   
+    
+    <!--查询复用段预警个数-->
+    <select id="countMsEarlyWarn" resultType="int">
+		SELECT
+		COUNT(*) AS total 
+		<include refid="getMsEarlyWarnSql" /> 
+    </select>   
+    
+    <sql id="getResourceTransSql"> 
+		FROM t_resource_trans_sys sys
+		LEFT JOIN t_resource_area are
+		ON sys.`RESOURCE_AREA_ID` = are.`RESOURCE_AREA_ID` 
+		<include refid="getdeviceSql" />  
+		<include refid="getNeCntSql" />   
+		<where>
+		sys.`IS_DEL`=0
+
+		<if test="map.areaIds !=null and map.areaIds!=''">
+			AND sys.RESOURCE_AREA_ID IN ${map.areaIds}
+		</if> 
+		<!-- 无保护环-->
+		<choose>
+            <when test="map.tag!=null and map.tag==3">
+           		and sys.TYPE =1  and sys.PRO_GROUP_TYPE =99
+           	 </when>
+            <otherwise>   
+				<!-- 超大环 -->
+				<if test="map.tag!=null and map.tag==1">
+					AND sys.TYPE =1
+				</if>
+				<!-- 长单链-->
+				<if test="map.tag!=null and map.tag==2">
+					and sys.TYPE =2
+				</if> 
+				<if test="map.levelCombo!=null and map.levelCombo>0 and map.levelCombo!=6">
+					AND sys.NET_LEVEL =#{map.levelCombo}
+				</if>
+				<if test="map.protectTypeCombo !=null and map.protectTypeCombo>=0 and map.protectTypeCombo!=7">
+					AND sys.PRO_GROUP_TYPE =#{map.protectTypeCombo} 
+				</if>   
+			</otherwise>
+		</choose>
+		</where>  
+    </sql>   
+    
+    <!--查询系统-->
+    <select id="getResourceTransSysByCond" resultType="hashmap">
+		SELECT sys.*,m.NODE_COUNT,m.emsDisplayName
+		<include refid="getResourceTransSql" /> 
+		<if test="map.limit != null and map.limit>0">
+			LIMIT ${map.start}, ${map.limit}
+		</if>
+    </select>   
+    
+    <!--查询系统个数-->
+    <select id="countResourceTransSysByCond" resultType="int">
+		SELECT count(*)
+		<include refid="getResourceTransSql" />  
+    </select>    
+	
+	<!--查询节点链接详情-->
+	<select id="searchAreaNodeList" resultType="hashmap" parameterType="hashmap">
+	select t.* from(
+  	    SELECT  
+	        link.`A_END_PTP` as ptpId,
+	        link.A_NE_ID as neId,
+	        ptp.PORT_DESC,
+	        #{map.areaName} as areaName,
+	        ne.`DISPLAY_NAME`, 
+	        ne.`PRODUCT_NAME`
+		FROM t_base_link link 
+			LEFT JOIN t_base_ptp ptp
+			ON link.`A_END_PTP` = ptp.`BASE_PTP_ID`
+			LEFT JOIN t_base_ne ne
+			ON ne.BASE_NE_ID = ptp.BASE_NE_ID
+		WHERE
+			link.`IS_MAIN`=1 AND link.RESOURCE_TRANS_SYS_ID = #{map.rlId} 
+		UNION
+		(SELECT 
+	        link.`Z_END_PTP` as ptpId,
+	        link.Z_NE_ID as neId,
+	        ptp.PORT_DESC,
+	        #{map.areaName} as areaName,
+	        ne.`DISPLAY_NAME`,
+	        ne.`PRODUCT_NAME`
+		FROM t_base_link link 
+			LEFT JOIN t_base_ptp ptp
+			ON link.`Z_END_PTP` = ptp.`BASE_PTP_ID`
+			LEFT JOIN t_base_ne ne
+			ON ne.BASE_NE_ID = ptp.BASE_NE_ID 
+		WHERE
+			link.`IS_MAIN`=1 AND link.RESOURCE_TRANS_SYS_ID = #{map.rlId})
+		)t
+		order by t.neId
+	</select>  
+	
+	<!--查询网络分析的节点-->
+	<select id="getTopoNodes" resultType="hashmap" parameterType="Integer">
+		SELECT ne.`DISPLAY_NAME` AS displayName,ne.`TYPE` AS neType,
+			ne.`BASE_NE_ID` AS nodeId, "node" AS nodeOrLine, "3" AS nodeType,
+			ne.`POSITION_X` AS position_X,ne.`POSITION_Y` AS position_Y
+		FROM t_resource_trans_sys_ne sne
+		INNER JOIN t_base_ne ne 
+		ON sne.`NE_ID`=ne.`BASE_NE_ID`
+		WHERE sne.`RESOURCE_TRANS_SYS_ID`=#{rlId}
+	</select>  
+	
+	<!--查询网络分析的links-->
+	<select id="getTopoLinks" resultType="hashmap" parameterType="Integer">
+		SELECT  link.A_NE_ID AS fromNode, link.Z_NE_ID AS toNode,
+			"line" AS nodeOrLine,"neLine" AS lineType,"3" AS fromNodeType, "3" AS toNodeType
+		FROM t_base_link link
+		WHERE link.`IS_MAIN`=1 AND link.RESOURCE_TRANS_SYS_ID=#{rlId}
+	</select>  
+	
+	<select id="searchPolycyclicNodeNeList" resultType="hashmap" parameterType="hashmap">
+		select n.BASE_NE_ID as neId,
+			   n.DISPLAY_NAME as neName,
+			   n.PRODUCT_NAME as productName,
+			   area.RESOURCE_AREA_ID as areaId,
+			   ems.DISPLAY_NAME as emsDisplayName,
+			   c.count
+		from(
+			select ne.*
+			from t_base_ne ne
+			where 1=2
+		    <if test = "map.subnetIdList != null">
+			union (
+				select ne.*
+				from t_base_ne ne
+				inner join (select r.base_subnet_id 
+						   from t_base_subnet_ref r 
+						   where r.parent_subnet_id in
+							<foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+					   		   #{item.subnetId}
+					   		</foreach>)   t
+				on ne.base_subnet_id = t.base_subnet_id
+			)
+			union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_subnet_id in
+				   <foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.subnetId}
+			   	   </foreach>) 
+			 </if>
+			 <if test = "map.emsIdList != null">  	   
+			 union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_ems_connection_id in
+				   <foreach collection="map.emsIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.emsId}
+			   	   </foreach>)
+			  </if>
+			  <if test = "map.emsGroupIdList != null">  	   
+			 union (select ne.*
+				   from t_base_ne ne 
+				   left join t_base_ems_connection ems
+				   on ne.base_ems_connection_id = ems.base_ems_connection_id
+				   where ems.base_ems_group_id in
+				   <foreach collection="map.emsGroupIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.emsGroupId}
+			   	   </foreach>)
+			  </if>
+		)  n
+		inner join (
+			select t.ne_id,
+				   count(t.resource_trans_sys_ne_id) as count
+			from t_resource_trans_sys_ne t
+			left join t_resource_trans_sys sys
+			on t.resource_trans_sys_id = sys.resource_trans_sys_id
+			where sys.type = #{map.type}
+			group by t.ne_id having	count(*) <![CDATA[ <  ]]> 0
+			<if test=" map.WRChecked != null ">
+				or (count(*) >= #{map.WR} and count(*) <![CDATA[ <  ]]> #{map.MN})
+			</if>
+			<if test=" map.MNChecked != null ">
+				or (count(*) >= #{map.MN} and count(*) <![CDATA[ <  ]]> #{map.MJ})
+			</if>
+			<if test=" map.MJChecked != null ">
+				or (count(*) >= #{map.MJ})
+			</if>
+			<if test=" map.MJChecked == null and map.MNChecked == null and map.WRChecked == null">
+				or (count(*) <![CDATA[ <  ]]> #{map.WR}) 
+			</if>
+		)  c
+		on n.base_ne_id = c.ne_id
+		left join t_base_ems_connection as ems
+		on n.base_ems_connection_id = ems.base_ems_connection_id
+		left join t_resource_room as room
+		on room.RESOURCE_ROOM_ID = n.RESOURCE_ROOM_ID
+		left join t_resource_station as station
+		on room.RESOURCE_STATION_ID = station.RESOURCE_STATION_ID
+		left join t_resource_area as area
+		on station.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+		<if test="map.limit != null and map.limit>0">
+			limit #{map.start}, #{map.limit}
+		</if>
+	</select>
+	<select id="countPolycyclicNodeNeList" resultType="int" parameterType="hashmap">
+		select count(*)
+		from(
+			select ne.*
+			from t_base_ne ne
+			where 1=2
+		    <if test = "map.subnetIdList != null">
+			union (
+				select ne.*
+				from t_base_ne ne
+				inner join (select r.base_subnet_id 
+						   from t_base_subnet_ref r 
+						   where r.parent_subnet_id in
+							<foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+					   		   #{item.subnetId}
+					   		</foreach>)   t
+				on ne.base_subnet_id = t.base_subnet_id
+			)
+			union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_subnet_id in
+				   <foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.subnetId}
+			   	   </foreach>) 
+			 </if>
+			 <if test = "map.emsIdList != null">  	   
+			 union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_ems_connection_id in
+				   <foreach collection="map.emsIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.emsId}
+			   	   </foreach>)
+			  </if>
+			  <if test = "map.emsGroupIdList != null">  	   
+			 union (select ne.*
+				   from t_base_ne ne 
+				   left join t_base_ems_connection ems
+				   on ne.base_ems_connection_id = ems.base_ems_connection_id
+				   where ems.base_ems_group_id in
+				   <foreach collection="map.emsGroupIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.emsGroupId}
+			   	   </foreach>)
+			  </if>
+		)  n
+		inner join(
+			select t.ne_id,
+				   count(t.resource_trans_sys_ne_id) as count
+			from t_resource_trans_sys_ne t
+			left join t_resource_trans_sys sys
+			on t.resource_trans_sys_id = sys.resource_trans_sys_id
+			where sys.type = #{map.type}
+			group by t.ne_id having count(*) <![CDATA[ <  ]]> 0
+			<if test=" map.WRChecked != null ">
+				or (count(*) >= #{map.WR} and count(*) <![CDATA[ <  ]]> #{map.MN})
+			</if>
+			<if test=" map.MNChecked != null ">
+				or (count(*) >= #{map.MN} and count(*) <![CDATA[ <  ]]> #{map.MJ})
+			</if>
+			<if test=" map.MJChecked != null ">
+				or (count(*) >= #{map.MJ})
+			</if>
+			<if test=" map.MJChecked == null and map.MNChecked == null and map.WRChecked == null">
+				or (count(*) <![CDATA[ <  ]]> #{map.WR}) 
+			</if>
+		)  c
+		on n.base_ne_id = c.ne_id
+	</select>
+	
+	<select id="getWRConfig" resultType="hashmap">
+		select *
+		from t_resource_wr_conf
+		limit 1
+	</select>
+	
+	<select id="searchCycleList" resultType="hashmap" parameterType="hashmap">	
+		select ptp.base_ptp_id as id,
+		       sys.resource_trans_sys_id as resourceid,
+		       sys.sys_name as circleName,
+		       sys.node_count as nodeCount,
+		       sys.rate as rate,
+		       sys.pro_group_type as protectType,
+		       sys.net_level as level,
+		       ptp.port_desc as port
+		from t_resource_trans_sys sys
+		left join(
+		    select distinct(l.linkptp) as ptpId,
+		           l.resource_trans_sys_id as sysId
+		    from (
+		        (
+		        select a_end_ptp as linkptp,
+		                resource_trans_sys_id
+		        from t_base_link
+		        where a_ne_id = #{map.neId}
+		        ) 
+		        union (
+		            select z_end_ptp as linkptp,
+		                    resource_trans_sys_id
+		            from t_base_link
+		            where z_ne_id = #{map.neId}
+		        )
+		    ) l
+		) link
+		on link.sysId = sys.resource_trans_sys_id
+		left join t_base_ptp as ptp
+		on ptp.base_ptp_id = link.ptpId
+		where sys.resource_trans_sys_id in(
+		    select resource_trans_sys_id
+		    from t_resource_trans_sys_ne
+		    where ne_id = #{map.neId}
+	    )
+		and sys.type = #{map.type}
+		and sys.is_del = 0
+	</select>
+	
+	<select id="searchNoCyclicNeList" resultType="hashmap" parameterType="hashmap">
+		select n.BASE_NE_ID as neId,
+			   n.DISPLAY_NAME as neName,
+			   n.PRODUCT_NAME as productName,
+			   area.RESOURCE_AREA_ID as areaId,
+			   ems.DISPLAY_NAME as emsDisplayName
+		from(
+			select ne.*
+			from t_base_ne ne
+			where 1=2
+		    <if test = "map.subnetIdList != null">
+			union (
+				select ne.*
+				from t_base_ne ne
+				left join (select r.base_subnet_id 
+						   from t_base_subnet_ref r 
+						   where r.parent_subnet_id in
+							<foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+					   		   #{item.subnetId}
+					   		</foreach>)   t
+				on ne.base_subnet_id = t.base_subnet_id
+			)
+			union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_subnet_id in
+				   <foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.subnetId}
+			   	   </foreach>) 
+			 </if>
+			 <if test = "map.emsIdList != null">  	   
+			 union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_ems_connection_id in
+				   <foreach collection="map.emsIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.emsId}
+			   	   </foreach>)
+			  </if>
+			  <if test = "map.emsGroupIdList != null">  	   
+			 union (select ne.*
+				   from t_base_ne ne 
+				   left join t_base_ems_connection ems
+				   on ne.base_ems_connection_id = ems.base_ems_connection_id
+				   where ems.base_ems_group_id in
+				   <foreach collection="map.emsGroupIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.emsGroupId}
+			   	   </foreach>)
+			  </if>
+		)  n
+		left join t_base_ems_connection as ems
+		on n.base_ems_connection_id = ems.base_ems_connection_id
+		left join t_resource_room as room
+		on room.RESOURCE_ROOM_ID = n.RESOURCE_ROOM_ID
+		left join t_resource_station as station
+		on room.RESOURCE_STATION_ID = station.RESOURCE_STATION_ID
+		left join t_resource_area as area
+		on station.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+		
+		where n.base_ne_id not in (
+			select distinct(t.ne_id)
+			from t_resource_trans_sys_ne t
+			left join t_resource_trans_sys sys
+			on t.resource_trans_sys_id = sys.resource_trans_sys_id
+			where sys.type = 1
+		)	
+		<if test="map.limit != null and map.limit>0">
+			limit #{map.start}, #{map.limit}
+		</if>
+	</select>
+	<select id="countNoCyclicNeList" resultType="int" parameterType="hashmap">
+		select count(*)
+		from(
+			select ne.*
+			from t_base_ne ne
+			where 1=2
+		    <if test = "map.subnetIdList != null">
+			union (
+				select ne.*
+				from t_base_ne ne
+				left join (select r.base_subnet_id 
+						   from t_base_subnet_ref r 
+						   where r.parent_subnet_id in
+							<foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+					   		   #{item.subnetId}
+					   		</foreach>)   t
+				on ne.base_subnet_id = t.base_subnet_id
+			)
+			union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_subnet_id in
+				   <foreach collection="map.subnetIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.subnetId}
+			   	   </foreach>) 
+			 </if>
+			 <if test = "map.emsIdList != null">  	   
+			 union (select ne.* 
+				   from t_base_ne ne 
+				   where ne.base_ems_connection_id in
+				   <foreach collection="map.emsIdList" item="item" index="index" open="(" separator="," close=")">
+			   		   #{item.emsId}
+			   	   </foreach>)
+			  </if>
+		)  n
+		where n.base_ne_id not in (
+			select distinct(t.ne_id)
+			from t_resource_trans_sys_ne t
+			left join t_resource_trans_sys sys
+			on t.resource_trans_sys_id = sys.resource_trans_sys_id
+			where sys.type = 1
+		)
+	</select>
+	<select id="isExistInResourceSysNe" resultType="int" parameterType="hashmap">
+		select count(ne_id)
+		from t_resource_trans_sys_ne
+		where ne_id = #{map.neId}
+	</select>	
+	
+	
+	<select id="searchAvailabilityHeader" resultType="java.util.LinkedHashMap" statementType="STATEMENT">
+		SELECT *
+		FROM  ${tableName}
+		ORDER BY TYPE_NAME ASC;
+	</select>
+	
+	<select id="searchAvailabilityData" resultType="java.util.LinkedHashMap" statementType="STATEMENT">
+		SELECT 
+		t.BASE_NE_ID,
+		t.EMS_GROUP_DISPLAY_NAME,
+		t.EMS_DISPLAY_NAME,
+		t.NE_DISPLAY_NAME,
+		t.AREA_DISPLAY_NAME,
+		t.STATION_DISPLAY_NAME,
+		t.FACTORY_DISPLAY_NAME,
+		t.PRODUCT_DISPLAY_NAME,
+		CAST(
+		      (
+		        t.AVAILABILITY_UNUSE / t.AVAILABILITY_TOTAL * 100
+		      ) AS DECIMAL (3, 0)
+		    ) AS WARNNING,
+		 CONCAT(
+		    CAST(
+		      (
+		        t.AVAILABILITY_UNUSE / t.AVAILABILITY_TOTAL * 100
+		      ) AS DECIMAL (3, 0)
+		    ),
+		    '%(',
+		    t.AVAILABILITY_UNUSE,
+		    '/',
+		    t.AVAILABILITY_TOTAL,
+		    ')'
+		  ) AS AVAILABILITY
+		FROM
+		  ${tableName} t 
+		<if test="neIdList != null">
+		WHERE t.BASE_NE_ID IN
+		<foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+				 ${item}
+		</foreach></if>
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if>;
+	</select>
+	
+	
+	<select id="searchAvailabilityData4Ctp" resultType="java.util.LinkedHashMap">
+		SELECT 
+		t.BASE_NE_ID,
+		t.EMS_GROUP_DISPLAY_NAME,
+		t.EMS_DISPLAY_NAME,
+		t.NE_DISPLAY_NAME,
+		t.AREA_DISPLAY_NAME,
+		t.STATION_DISPLAY_NAME,
+		t.FACTORY_DISPLAY_NAME,
+		t.PRODUCT_DISPLAY_NAME,
+		t.PORT_DISPLAY_NAME,
+		t.DOMAIN,
+		t.PTP_TYPE,
+		CAST(
+		      (
+		        t.VC4_UNUSE / t.VC4_TOTAL * 100
+		      ) AS DECIMAL (3, 0)
+		    )  AS WARNNING,
+		 CONCAT(
+		    CAST(
+		      (
+		        t.VC4_UNUSE / t.VC4_TOTAL * 100
+		      ) AS DECIMAL (3, 0)
+		    ),
+		    '%(',
+		    t.VC4_UNUSE,
+		    '/',
+		    t.VC4_TOTAL,
+		    ')'
+		  ) AS AVAILABILITY_VC4,
+		  CONCAT(
+		    CAST(
+		      (
+		        t.VC12_UNUSE / t.VC12_TOTAL * 100
+		      ) AS DECIMAL (3, 0)
+		    ),
+		    '%(',
+		    t.VC12_UNUSE,
+		    '/',
+		    t.VC12_TOTAL,
+		    ')'
+		  ) AS AVAILABILITY_VC12
+		FROM
+		  T_NWA_CTP_ANALYSIS t
+		<if test="neIdList != null">
+		WHERE t.BASE_NE_ID IN
+		<foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+				 ${item}
+		</foreach></if>
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if>
+	</select>
+	
+	<select id="searchAvailabilityDataDetail" resultType="java.util.LinkedHashMap" statementType="STATEMENT">
+		SELECT 
+		t.BASE_NE_ID,
+		t.TYPE_NAME,
+		  CONCAT(
+		    CAST(
+		      (
+		        t.TYPE_UNUSE / t.TYPE_TOTAL * 100
+		      ) AS DECIMAL (3, 0)
+		    ),
+		    '%(',
+		    t.TYPE_UNUSE,
+		    '/',
+		    t.TYPE_TOTAL,
+		    ')'
+		  ) AS TYPE_NAME_VALUE
+		FROM
+		  ${tableName} t 
+		<if test="neIdList != null">
+		WHERE t.BASE_NE_ID IN
+		<foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+				 ${item}
+		</foreach></if>
+	</select>
+	
+	<select id="searchAvailabilityData4Chart" resultType="java.util.LinkedHashMap" statementType="STATEMENT">
+		SELECT 
+		  T.TYPE_NAME,
+		  CAST(
+		    (
+		      SUM(t.TYPE_UNUSE) / SUM(t.TYPE_TOTAL) * 100
+		    ) AS DECIMAL (3, 0)
+		  ) AS TYPE_VALUE
+		FROM
+		  ${tableName} t 
+		<if test="neIdList != null">
+		WHERE t.BASE_NE_ID IN
+		<foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+				 ${item}
+		</foreach>
+		</if>
+		GROUP BY T.TYPE_NAME;
+	</select>
+	
+	<select id="searchAvailabilityData4Chart_CTP" resultType="java.util.LinkedHashMap">
+		SELECT 
+		  T.PTP_TYPE as TYPE_NAME,
+		  CAST(
+		    (
+		      SUM(t.VC4_UNUSE) / SUM(t.VC4_TOTAL) * 100
+		    ) AS DECIMAL (3, 0)
+		  ) AS TYPE_VALUE_VC4,
+		  CAST(
+		    (
+		      SUM(t.VC12_UNUSE) / SUM(t.VC12_TOTAL) * 100
+		    ) AS DECIMAL (3, 0)
+		  ) AS TYPE_VALUE_VC12
+		FROM
+		  T_NWA_CTP_ANALYSIS_DETAIL t 
+		<if test="neIdList != null">
+		WHERE t.BASE_NE_ID IN
+	    <foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+				 ${item}
+		</foreach></if>
+		GROUP BY T.PTP_TYPE;
+	</select>
+	
+	<select id="searchAvailabilityData4Chart_ZONGHE" resultType="java.util.LinkedHashMap" statementType="STATEMENT">
+		SELECT 
+		  <!-- '可用' AS TYPE_UNUSE_NAME, -->
+	  CAST(
+	    (
+	      SUM(t.AVAILABILITY_UNUSE) / SUM(t.AVAILABILITY_TOTAL) * 100
+	    ) AS DECIMAL (3, 0)
+	  ) AS TYPE_UNUSE_VALUE
+		FROM
+		  ${tableName} t 
+		<if test="neIdList != null">
+		WHERE t.BASE_NE_ID IN
+	    <foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+				 ${item}
+		</foreach></if>;
+	</select>
+	
+	<select id="searchAvailabilityData4Chart_ZONGHE_VC4" resultType="java.util.LinkedHashMap">
+		SELECT 
+		  <!-- '可用' AS TYPE_UNUSE_NAME, -->
+	  CAST(
+	    (
+	      SUM(t.VC4_UNUSE) / SUM(t.VC4_TOTAL) * 100
+	    ) AS DECIMAL (3, 0)
+	  ) AS TYPE_UNUSE_VALUE
+		FROM
+		  T_NWA_CTP_ANALYSIS t
+		<if test="neIdList != null">
+		WHERE t.BASE_NE_ID IN
+	    <foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+			${item}
+		</foreach></if>;
+	</select>
+	
+	<select id="searchAvailabilityData4Chart_ZONGHE_VC12" resultType="java.util.LinkedHashMap">
+		SELECT 
+		  <!-- '可用' AS TYPE_UNUSE_NAME, -->
+	  CAST(
+	    (
+	      SUM(t.VC12_UNUSE) / SUM(t.VC12_TOTAL) * 100
+	    ) AS DECIMAL (3, 0)
+	  ) AS TYPE_UNUSE_VALUE
+		FROM
+		  T_NWA_CTP_ANALYSIS t
+		<if test="neIdList != null"> 
+		WHERE t.BASE_NE_ID IN
+	    <foreach collection="neIdList" item="item" index="index" open="(" separator="," close=")">
+				 ${item}
+		</foreach></if>;
+	</select>
+	
+	<!--查询网络分析预警设置值-->
+    <select id="searchWarningValue" resultType="hashmap">
+        SELECT *  FROM T_NWA_WARN_CONF t where t.TYPE = #{type} limit 1 
+    </select>
+     
+    <!-- 初次设置网络分析预警设置值 -->
+    <insert id="insertWarningValue" parameterType="hashmap">
+      INSERT INTO T_NWA_WARN_CONF
+      (TYPE,AVAILABILITY_MJ,AVAILABILITY_MN,AVAILABILITY_WR,CREATE_TIME)VALUES(
+        <choose>
+            <when test="map.TYPE != null">#{map.TYPE}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.AVAILABILITY_MJ != null">#{map.AVAILABILITY_MJ}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.AVAILABILITY_MN != null">#{map.AVAILABILITY_MN}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.AVAILABILITY_WR != null">#{map.AVAILABILITY_WR}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+		<choose>
+            <when test="map.CREATE_TIME != null">#{map.CREATE_TIME}</when>
+            <otherwise>null</otherwise>
+		</choose>
+       )
+    </insert>
+
+	<!-- 更新网络分析预警设置值 -->
+    <update id="modifyWarningValue"  parameterType="hashmap">
+     update T_NWA_WARN_CONF
+        <set> 
+            <if test="map.TYPE != null">
+                TYPE =#{map.TYPE },
+            </if>
+            <if test="map.AVAILABILITY_MJ != null">
+                AVAILABILITY_MJ=#{map.AVAILABILITY_MJ},
+            </if>
+            <if test="map.AVAILABILITY_MN != null">
+                AVAILABILITY_MN=#{map.AVAILABILITY_MN},
+            </if>
+            <if test="map.AVAILABILITY_WR != null">
+                AVAILABILITY_WR=#{map.AVAILABILITY_WR},
+            </if>
+        </set> 
+      where TYPE =#{map.TYPE }
+    </update>
+	<!--查询板卡类别名称自定义列表-->
+    <select id="countCtpNameCustomList" resultType="int">
+        SELECT count(*)  FROM T_NWA_UNIT_TYPE t 
+    </select>
+	<!--查询板卡类别名称自定义列表-->
+    <select id="searchCtpNameCustomList" resultType="hashmap">
+        SELECT *  FROM T_NWA_UNIT_TYPE t 
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if> 
+    </select>
+    <!-- 新增板卡类别 -->
+    <insert id="addCtpCategory" parameterType="hashmap">
+      INSERT INTO T_NWA_UNIT_TYPE
+      (SORT_A,SORT_B,CREATE_TIME,UPDATE_TIME)VALUES(
+        <choose>
+            <when test="map.sortA != null">#{map.sortA}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.sortB != null">#{map.sortB}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.createTime != null">#{map.createTime}</when>
+            <otherwise>null</otherwise>
+		</choose>,
+        <choose>
+            <when test="map.updateTime != null">#{map.updateTime}</when>
+            <otherwise>null</otherwise>
+		</choose>)
+    </insert>
+    <!--查询板卡类别关联板卡类别自定义个数-->
+    <select id="countCtpCategoryRel" parameterType="java.util.List" resultType="int">
+        SELECT count(*)  FROM T_NWA_UNIT_TYPE_DEFINE d 
+        <if test="unitTypeList != null">
+            WHERE d.NWA_UNIT_TYPE_ID IN
+        	<foreach collection="unitTypeList" item="item" index="index" open="(" separator="," close=")">
+			${item}
+			</foreach>
+        </if>
+    </select>
+    <!-- 删除板卡类别  -->
+	<delete id="deleteCtpCategory" parameterType="java.util.List">
+		delete from T_NWA_UNIT_TYPE where NWA_UNIT_TYPE_ID IN
+       	<foreach collection="unitTypeList" item="item" index="index" open="(" separator="," close=")">
+		${item}
+		</foreach>
+	</delete>
+	<!-- 修改板卡类别  -->
+	<update id="updateCtpCategory"  parameterType="hashmap">
+     update T_NWA_UNIT_TYPE
+        <set> 
+            <if test="map.SORT_B != null">
+                SORT_B =#{map.SORT_B },
+            </if>
+            <if test="map.SORT_A != null">
+                SORT_A =#{map.SORT_A },
+            </if>
+            <if test="map.UPDATE_TIME != null">
+                UPDATE_TIME=#{map.UPDATE_TIME},
+            </if>
+        </set>
+      where NWA_UNIT_TYPE_ID =  #{map.NWA_UNIT_TYPE_ID}
+    </update>
+    <!--查询板卡类别名称自定义列表-->
+    <select id="countCtpCategoryListById" resultType="int">
+        SELECT count(*)  FROM T_NWA_UNIT_TYPE_DEFINE d 
+        <if test="factoryId != 0">
+            WHERE d.FACTORY = #{factoryId}
+        </if>
+    </select>
+	<!--查询板卡类别名称自定义列表-->
+    <select id="getCtpCategoryListById" resultType="hashmap">
+        SELECT d.* , t.*  FROM T_NWA_UNIT_TYPE_DEFINE d 
+        LEFT JOIN T_NWA_UNIT_TYPE t
+        ON t.NWA_UNIT_TYPE_ID = d.NWA_UNIT_TYPE_ID
+        <if test="factoryId != 0">
+            WHERE d.FACTORY = #{factoryId}
+        </if>
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if> 
+    </select>
+    <!--查询板卡类别名称自定义列表-->
+    <select id="getListBySortB" resultType="int">
+        SELECT count(*)  FROM T_NWA_UNIT_TYPE WHERE SORT_B = #{sortB}
+    </select>
+    <!-- 设定板卡类别  -->
+	<update id="setCtpCategory"  parameterType="hashmap">
+     update T_NWA_UNIT_TYPE_DEFINE
+        <set> 
+            <if test="map.NWA_UNIT_TYPE_ID != null">
+                NWA_UNIT_TYPE_ID =#{map.NWA_UNIT_TYPE_ID },
+            </if>
+            <if test="map.UPDATE_TIME != null">
+                UPDATE_TIME=#{map.UPDATE_TIME},
+            </if>
+        </set>
+      where NWA_UNIT_TYPE_DEFINE_ID =  #{map.NWA_UNIT_TYPE_DEFINE_ID}
+    </update>
+    <!--查询板卡类别名称自定义列表-->
+    <select id="selectNeListByEmsId" resultType="hashmap">
+        SELECT n.* 
+        FROM T_BASE_NE n 
+        LEFT JOIN T_BASE_EMS_CONNECTION e
+        ON n.BASE_EMS_CONNECTION_ID = e.BASE_EMS_CONNECTION_ID
+        LEFT JOIN T_BASE_EMS_GROUP g
+        ON g.BASE_EMS_GROUP_ID = e.BASE_EMS_GROUP_ID
+        <if test="emsGroupId != 0">
+        WHERE g.BASE_EMS_GROUP_ID = #{emsGroupId}
+        </if>
+    </select>
+ <select id="countPortDetial" resultType="Integer" statementType="STATEMENT">
+        SELECT COUNT(*) AS ptpListCnt 
+        FROM ${tableName}  
+        WHERE BASE_NE_ID =${neId}
+    </select>
+    <select id="getPortDetial" resultType="hashmap" statementType="STATEMENT">
+        SELECT n.* ,p.NE_DISPLAY_NAME as NE_DISPLAY_NAME
+        FROM ${tableName} n 
+        LEFT JOIN ${leftJoinTableName} P
+        ON n.BASE_NE_ID = p.BASE_NE_ID
+        <if test="neId != 0">
+        WHERE n.BASE_NE_ID =${neId}
+        </if>
+    </select>  
+<select id="getLinkAnalysisInfo" resultType="hashmap">
+  		SELECT 
+		  *,
+		  CONCAT(
+		    CAST(
+		      (t.VC4_UNUSE / t.VC4_TOTAL * 100) AS DECIMAL (3, 0)
+		    ),
+		    '%'
+		  ) AS VC4_AVAILABILITY,
+		  CONCAT(
+		    CAST(
+		      (t.VC12_UNUSE / t.VC12_TOTAL * 100) AS DECIMAL (3, 0)
+		    ),
+		    '%'
+		  ) AS VC12_AVAILABILITY 
+		FROM
+		  T_NWA_LINK_ANALYSIS t 
+		WHERE t.BASE_LINK_ID IN
+		<foreach collection="linkIds" item="linkId" open="(" close=")"
+			separator=",">
+			${linkId}
+		</foreach> 
+  	</select>
+</mapper>

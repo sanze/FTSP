@@ -1,0 +1,232 @@
+﻿.mainBody{
+   width:1500px;
+   height:705px;
+   /*background:#d9e4f4;
+   background:#16499a;*/
+   background: url(../../images/otherImages/bodyBg.png);
+   background-repeat: no-repeat;
+   background-size:cover;
+  -moz-background-size:cover;
+   margin-left:auto;
+   margin-right:auto;
+   vertical-align:top;
+   overflow:hidden;
+}
+
+.left{
+  width:115px;
+  heitht:600px;
+  margin-top:62px;
+  vertical-align:top;
+  display:inline-block;
+}
+
+.border{
+  heitht:600px;
+  vertical-align:top;
+  display:inline-block;
+}
+
+.right{   
+  /*background:#d9e4f4;*/
+  heitht:600px;
+  vertical-align:top;
+  display:inline-block;
+  margin-left:0px;
+  padding-left:0px;
+  admin
+}
+
+.rightGrid{
+  width:1050px;
+  height:500px;
+  padding-left:30px;
+  padding-top:20px;
+  margin-left:30px;
+  margin-top:30px;
+  font-family:'微软雅黑';
+  /*background: url(../../images/otherImages/gridbg1.png);
+  background-repeat: no-repeat;
+  background:#16499a;*/
+  /*background:#d9e4f4;
+  background:#4390de;*/
+  color:white;
+  
+  
+}
+
+/**********************************alarm***************************************/
+.alarm{
+  margin-top:10px;
+  margin-left:10px;
+  padding-top:10px;
+  padding-bottom:10px;
+  padding-left:10px;
+  padding-right:10px;
+  float:left;
+  /*background:#16499a;
+  background:white;
+  
+  font-weight:bold;
+  
+  filter:alpha(opacity=80);*/
+  background: url(../../images/otherImages/alarmBg.png);
+  background-repeat: no-repeat;
+}
+
+.alarmTable{
+  border:1px solid white;
+  border-collapse: collapse;
+  width:360px;
+  border-color:#332502;  
+}
+
+.alarmTableTr{
+  height:25px;
+  border-color:#332502;
+  border:1px solid white;
+  text-align:center;
+}
+
+.alarmTableTh{
+  background: #308dbb;
+  font-size:12px;
+  text-align:center;
+  color:white;
+  border:1px solid #16499a;
+  background: url(../../images/otherImages/trPM.png);
+  background-repeat: no-repeat;
+  width:120px;
+}
+
+.alarmTableTd{
+  border:1px solid #16499a;
+  background: url(../../images/otherImages/trPM.png);
+  background-repeat: no-repeat;
+  width:120px;
+  font-size:13px;
+  color:white;
+}
+
+/**********************************performance***************************************/
+.performance{
+  margin-top:10px;
+  padding-top:10px;
+  padding-bottom:10px;
+  padding-left:10px;
+  padding-right:10px;
+  float:left;
+  /*background:#16499a;*/
+  background: url(../../images/otherImages/alarmBg.png);
+  background-repeat: no-repeat;
+}
+
+.performanceTable{
+  border:1px solid white;
+  border-collapse: collapse;
+  width:360px;
+  border-color:#332502;  
+}
+
+.performanceTableTh{
+  background: #308dbb;
+  font-size:12px;
+  text-align:center;
+  color:white;
+  border:1px solid #16499a;
+  /*width:18%;*/
+  background: url(../../images/otherImages/trSummary.png);
+  background-repeat: no-repeat;
+  width:150px;
+}
+
+.performanceTableTd{
+  border:1px solid #16499a;
+  /*width:30%;*/
+  background: url(../../images/otherImages/tdSummary.png);
+  background-repeat: no-repeat;
+  width:210px;
+  font-size:12px;
+  color:white;
+}
+
+/**********************************summary***************************************/
+.summary{
+  margin-top:10px;
+  padding-top:10px;
+  padding-bottom:10px;
+  padding-left:10px;
+  padding-right:10px;
+  margin-top:10px;
+  float:left;
+  background: url(../../images/otherImages/summaryBg.png);
+  background-repeat: no-repeat;
+}
+
+.summaryTable{
+  border:1px solid white;
+  border-collapse: collapse;
+  width:360px;
+  border-color:#332502;  
+}
+
+.summaryTableTh{
+  background: url(../../images/otherImages/trSummary.png);
+  background-repeat: no-repeat;
+  font-size:12px;
+  text-align:center;
+  color:white;
+  border:1px solid #16499a;
+  width:150px;
+}
+
+.summaryTableTd{
+  
+  border:1px solid #16499a;
+  background: url(../../images/otherImages/tdSummary.png);
+  background-repeat: no-repeat;
+  width:210px;
+  font-size:12px;
+  color:white;
+}
+
+/**********************************task***************************************/
+.task{
+  padding-top:10px;
+  padding-left:10px;
+  padding-right:10px;
+  padding-bottom:10px;
+  margin-left:10px;
+  margin-top:10px;
+  float:left;
+  background: url(../../images/otherImages/summaryBg.png);
+  background-repeat: no-repeat;
+}
+
+.taskTable{
+  border:1px solid white;
+  border-collapse: collapse;
+  width:360px;
+  border-color:#332502;  
+}
+
+.taskTableTh{
+  background: #308dbb;
+  font-size:12px;
+  /*font-weight:bold;*/
+  text-align:center;
+  color:white;
+  background: url(../../images/otherImages/trPM.png);
+  background-repeat: no-repeat;
+  border:1px solid #16499a;
+  width:120px;
+}
+
+.taskTableTd{
+  background: url(../../images/otherImages/tdTask.png);
+  background-repeat: no-repeat;
+  border:1px solid #16499a;
+  width:80px;
+  font-size:13px;
+  color:white;
+}

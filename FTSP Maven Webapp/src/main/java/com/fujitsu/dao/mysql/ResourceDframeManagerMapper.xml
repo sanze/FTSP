@@ -1,0 +1,737 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ResourceDframeManagerMapper"> 
+<sql id="odfSearchSql"> 
+	SELECT * FROM(
+	  SELECT  
+           t1.RESOURCE_ODF_ID AS odfId,
+           t1.ODF_NO AS odfNo,
+           t1.OUT_TYPE AS outType,
+           t1.OUT_TARGET AS outTarget,
+           t1.USEABLE AS useable,
+           t1.NOTE  AS note,
+           t6.RESOURCE_AREA_ID AS areaId,
+           t6.AREA_NAME AS areaName,
+           t5.RESOURCE_STATION_ID AS stationId,
+           t5.STATION_NAME AS stationName,
+           t4.RESOURCE_ROOM_ID AS roomId,
+           t4.ROOM_NAME AS roomName,
+           t3.RESOURCE_CABLE_ID AS cableId,
+           t3.CABLE_NO AS cableNo,
+           t3.CABLE_NAME AS cableName,
+           t2.RESOURCE_FIBER_ID AS fiberResourceId,  
+           t2.FIBER_NO AS fiberNo,
+           t2.FIBER_NAME AS fiberName, 
+           t7.DISPLAY_NAME   AS neDisplayName,
+           t7.BASE_NE_ID  AS neId,
+           IFNULL(t44.ROOM_NAME,'') AS roomTargetName,
+           CONCAT(IFNULL(t8.RACK_NO,''),'-',IFNULL(t9.SHELF_NO,''),
+               '-',IFNULL(t10.SLOT_NO,''),'(',IFNULL(t11.DISPLAY_NAME,''),')
+               -',IFNULL(t12.PORT_NO,''),'(',IFNULL(t12.DISPLAY_NAME,''),')') AS `outTargetName`
+	FROM
+           T_RESOURCE_STATION  t5,  
+           T_RESOURCE_AREA   t6,
+           T_RESOURCE_ROOM  t4,
+          (((((((((T_RESOURCE_ODF  t1
+           LEFT JOIN
+           T_RESOURCE_FIBER  t2
+           ON( t1.RESOURCE_FIBER_ID = t2.RESOURCE_FIBER_ID ))
+           LEFT JOIN 
+           T_RESOURCE_CABLE t3
+           ON( t2.RESOURCE_CABLE_ID = t3.RESOURCE_CABLE_ID ))
+           LEFT JOIN 
+           T_BASE_PTP  t12
+           ON( t1.OUT_TARGET = t12.BASE_PTP_ID ))
+           LEFT JOIN 
+           T_BASE_NE   t7
+           ON( t12.BASE_NE_ID = t7.BASE_NE_ID ))
+           LEFT JOIN 
+           T_BASE_UNIT  t11
+           ON( t12.BASE_UNIT_ID = t11.BASE_UNIT_ID ))
+           LEFT JOIN 
+           T_BASE_SLOT  t10  
+           ON( t11.BASE_SLOT_ID = t10.BASE_SLOT_ID ))
+           LEFT JOIN 
+           T_BASE_SHELF  t9
+           ON( t10.BASE_SHELF_ID = t9.BASE_SHELF_ID )) 
+           LEFT JOIN 
+           T_BASE_RACK  t8
+           ON( t9.BASE_RACK_ID = t8.BASE_RACK_ID )) 
+           LEFT JOIN 
+           T_RESOURCE_ROOM  t44
+           ON( t7.RESOURCE_ROOM_ID = t44.RESOURCE_ROOM_ID ))
+   	WHERE ((t1.OUT_TYPE = 1)
+           AND (t1.RESOURCE_ROOM_ID = t4.RESOURCE_ROOM_ID)
+           AND (t4.RESOURCE_STATION_ID = t5.RESOURCE_STATION_ID)
+           AND (t5.RESOURCE_AREA_ID = t6.RESOURCE_AREA_ID))   
+   UNION  ALL SELECT        
+           t1.RESOURCE_ODF_ID AS odfId,
+           t1.ODF_NO AS odfNo,
+           t1.OUT_TYPE AS outType,
+           t1.OUT_TARGET AS outTarget,
+           t1.USEABLE AS useable, 
+           t1.NOTE  AS note,
+           t6.RESOURCE_AREA_ID AS areaId,
+           t6.AREA_NAME AS areaName,
+           t5.RESOURCE_STATION_ID AS stationId,
+           t5.STATION_NAME AS stationName,
+           t4.RESOURCE_ROOM_ID AS roomId,
+           t4.ROOM_NAME AS roomName,
+           t3.RESOURCE_CABLE_ID AS cableId,
+           t3.CABLE_NO AS cableNo,
+           t3.CABLE_NAME AS cableName,
+           t2.RESOURCE_FIBER_ID AS fiberResourceId,  
+           t2.FIBER_NO AS fiberNo,
+           t2.FIBER_NAME AS fiberName,
+           NULL AS neDisplayName, 
+           NULL AS neId,
+           IFNULL(t44.ROOM_NAME,'') AS roomTargetName,
+           IFNULL(t11.ODF_NO,'') AS outTargetName
+
+	FROM
+           T_RESOURCE_ROOM  t4,
+           T_RESOURCE_STATION  t5,  
+           T_RESOURCE_AREA   t6,
+           (((( T_RESOURCE_ODF  t1
+           LEFT JOIN
+           T_RESOURCE_FIBER  t2
+           ON( t1.RESOURCE_FIBER_ID = t2.RESOURCE_FIBER_ID ))
+           LEFT JOIN 
+           T_RESOURCE_CABLE t3
+           ON( t2.RESOURCE_CABLE_ID = t3.RESOURCE_CABLE_ID )) 
+           LEFT JOIN 
+           T_RESOURCE_ODF  t11
+           ON(t1.OUT_TYPE = 2 AND t1.OUT_TARGET = t11.RESOURCE_ODF_ID))
+           LEFT JOIN 
+           T_RESOURCE_ROOM  t44
+           ON( t11.RESOURCE_ROOM_ID = t44.RESOURCE_ROOM_ID))
+  	WHERE 
+  		   ((t1.OUT_TYPE = 2 OR ISNULL(t1.OUT_TYPE))
+           AND (t1.RESOURCE_ROOM_ID = t4.RESOURCE_ROOM_ID)
+           AND (t4.RESOURCE_STATION_ID = t5.RESOURCE_STATION_ID)
+           AND (t5.RESOURCE_AREA_ID = t6.RESOURCE_AREA_ID)))AS a
+</sql>   
+  	 
+<!-- ODF页面初始化查询，查出个数 -->  
+<select id="countOdfList" resultType="Integer">
+SELECT  COUNT(*) FROM (
+	<include refid="odfSearchSql"/> 
+	<where>
+	  <if test="conMap!=null">
+		<if test="conMap.odfNo!=null and conMap.odfNo!=''">
+			and odfNo LIKE "%"#{conMap.odfNo}"%" 
+		</if> 
+		<if test="conMap.roomId!=null and conMap.roomId!=''">
+			and roomId = #{conMap.roomId}
+		</if>
+		<if test="conMap.cableName!=null and conMap.cableName!=''">
+			and cableName LIKE "%"#{conMap.cableName}"%" 
+		</if>
+		<if test="conMap.useable!=null and conMap.useable!=''">
+			and useable = #{conMap.useable}
+		</if> 
+	</if>  
+	</where>) AS b 
+</select>     
+
+<!-- ODF页面初始化查询显示-->  
+<select id="getOdfList" resultType="hashmap">
+	<include refid="odfSearchSql" /> 
+	<where>
+	<if test="conMap!=null">
+		<if test="conMap.odfNo!=null and conMap.odfNo!=''">
+			and odfNo LIKE "%"#{conMap.odfNo}"%" 
+		</if> 
+		<if test="conMap.roomId!=null and conMap.roomId!=''">
+			and roomId = #{conMap.roomId}
+		</if>
+		<if test="conMap.cableName!=null and conMap.cableName!=''">
+			and cableName LIKE "%"#{conMap.cableName}"%" 
+		</if>
+		<if test="conMap.useable!=null and conMap.useable!=''">
+			and useable = #{conMap.useable}
+		</if> 
+	</if> 
+	</where>
+	<if test="pageSize != null and pageSize>0">
+		LIMIT ${startNumber}, ${pageSize}
+	</if>
+</select>   
+ 
+<!-- 查询条件“用途”combo下拉菜单-->  
+<select id="getUseableList" resultType="hashmap">
+	SELECT DISTINCT
+		USEABLE
+	FROM
+		T_RESOURCE_ODF 
+	<where>
+		USEABLE IS NOT NULL AND USEABLE!=''
+	</where>
+</select>
+
+<!-- 查询条件“光缆名称”联想combo下拉菜单-->  
+<select id="getCableNameList" resultType="hashmap">
+	SELECT 
+		RESOURCE_CABLE_ID,CABLE_NAME
+	FROM
+		T_RESOURCE_CABLE  
+	 <where>
+	 	CABLE_NAME IS NOT NULL AND CABLE_NAME!=''  
+	 	<if test="CABLE_NAME != null and CABLE_NAME!=''">
+		   AND CABLE_NAME LIKE "%"#{CABLE_NAME}"%"
+		</if> 
+		<if test="pageSize != null and pageSize>0">
+			LIMIT ${startNumber}, ${pageSize}
+		</if>
+	</where> 
+</select>
+
+<!-- 查询条件“光缆名称”联想combo数量。用于分页--> 
+<select id="countCableNameList" resultType="Integer">
+	SELECT 
+   		count(*) 
+	FROM
+		T_RESOURCE_CABLE  
+	 <where>
+	 	CABLE_NAME IS NOT NULL AND CABLE_NAME!=''  
+	 	<if test="CABLE_NAME != null and CABLE_NAME!=''">
+		   AND CABLE_NAME LIKE "%"#{CABLE_NAME}"%"
+		</if> 
+	</where>  
+</select>
+	
+<!-- 增加ODF时，和光缆名称的级联关系--> 	
+<select id="getFiberNoList" resultType="hashmap">
+	SELECT DISTINCT
+		FIBER_NO  
+	FROM
+		T_RESOURCE_FIBER 
+	<where>
+		FIBER_NO IS NOT NULL AND FIBER_NO!='' AND RESOURCE_CABLE_ID = #{RESOURCE_CABLE_ID}
+	</where> 
+</select>
+ 
+<!-- 判断同一个机房是否存在重名的ODF端子号--> 	
+<select id="judgeOdf" resultType="Integer">
+	SELECT  COUNT(*)
+	FROM
+		T_RESOURCE_ODF 
+	<where>
+		ODF_NO = #{odfNo} AND RESOURCE_ROOM_ID = #{RESOURCE_ROOM_ID}
+	</where> 
+</select> 
+  
+<!-- 根据光缆id和光纤号确定光纤Id--> 	  
+<select id="getResourceFiberID" resultType="Integer">
+	SELECT  
+		RESOURCE_FIBER_ID 
+	FROM
+		T_RESOURCE_FIBER 
+	<where>
+	 	<if test="fiberNo != null and fiberNo!=''">
+	     	FIBER_NO = #{fiberNo} 
+		</if>  
+	 	<if test="cableId != 0">
+			 AND RESOURCE_CABLE_ID = #{cableId}
+		</if>    
+	</where>
+	LIMIT 0,1
+</select> 
+	
+<!-- 新增一条ODF记录 -->		
+<insert id="insertOdf" parameterType="hashmap">
+    insert into t_resource_odf
+   (
+   	ODF_NO,
+    USEABLE,
+    NOTE,
+    RESOURCE_ROOM_ID,
+    RESOURCE_FIBER_ID
+    ) values (	
+    	<choose>
+			<when test="odf.odfNo != null">
+				#{odf.odfNo}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="odf.useable != null">
+				#{odf.useable}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+ 		<choose>
+			<when test="odf.note != null">
+				#{odf.note}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="RESOURCE_ROOM_ID!= null">
+				#{RESOURCE_ROOM_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		 ,
+		<choose>
+			<when test="fiberId!=0">
+				#{fiberId}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+	
+	) 
+</insert>  
+
+<!-- 根据odfId号删除ODF记录 -->
+<delete id="deleteOdf" parameterType="Integer">
+	delete from t_resource_odf 
+	<where>
+		RESOURCE_ODF_ID = #{odfId};
+	</where>
+</delete>
+
+<!-- 修改ODF记录 -->
+<update id="updateOdf"  parameterType="hashmap">
+	UPDATE T_RESOURCE_ODF 
+	<set>
+ 		<if test="conMap.useable != null">
+			USEABLE = #{conMap.useable},
+		</if>
+  		<if test="conMap.note != null">
+			NOTE = #{conMap.note},
+		</if>  
+		<if test="conMap.fiberId != ''">
+			RESOURCE_FIBER_ID = #{conMap.fiberId},
+		</if>  
+		<if test="conMap.fiberId == ''">
+			RESOURCE_FIBER_ID = null,
+		</if>  
+	</set>
+	<where>
+		 RESOURCE_ODF_ID = #{conMap.odfId}
+	 </where>
+</update>
+	
+<!-- 关联ODF记录 -->
+<update id="updateOdfRelate"  parameterType="hashmap">
+	UPDATE T_RESOURCE_ODF 
+	<set> 
+		<if test="conMap.OUT_TYPE != null">
+			OUT_TYPE = #{conMap.OUT_TYPE},
+		</if>  
+		<if test="conMap.OUT_TARGET != null">
+			OUT_TARGET = #{conMap.OUT_TARGET},
+		</if>  
+	</set>
+	<where>
+		 RESOURCE_ODF_ID = #{conMap.odfId}
+	 </where>
+</update> 
+
+<!-- 修改ODF记录 ，删除关联-->
+<update id="updateOdfDelete"  parameterType="hashmap">
+	UPDATE T_RESOURCE_ODF 
+	<set>
+		<if test="conMap.OUT_TYPE == 0">
+			OUT_TYPE = null,
+		</if>  
+		<if test="conMap.OUT_TARGET == 0">
+			OUT_TARGET = null,
+		</if>  
+	</set>
+	<where>
+		 RESOURCE_ODF_ID = #{conMap.odfId}
+	 </where>
+</update> 
+	
+<!-- 查询可关联的ODF记录 -->
+<select id="getRelateOdfList" resultType="hashmap">
+	SELECT 
+		RESOURCE_ODF_ID,STATION_NAME,ROOM_NAME,ODF_NO  
+	FROM
+		T_RESOURCE_ROOM t1,T_RESOURCE_STATION t2,T_RESOURCE_ODF t3
+	<where>
+		 t1.RESOURCE_STATION_ID=t2.RESOURCE_STATION_ID AND
+		 t1.RESOURCE_ROOM_ID=t3.RESOURCE_ROOM_ID 
+		 <if test="roomId != null">
+			AND t3.RESOURCE_ROOM_ID= #{roomId}
+		</if>  
+	</where> 
+</select>
+
+<!-- 查询ODF记录 -->
+<select id="getOdfData" resultType="hashmap">
+	SELECT *
+	FROM
+		T_RESOURCE_ODF 
+	<where>
+		 <if test="odfId != null">
+			RESOURCE_ODF_ID= #{odfId}
+		</if>  
+	</where> 
+</select>  
+
+<!--  网元-槽道-板卡-端口-->
+<select id="judgePortOccupation" resultType="hashmap">
+  SELECT CONCAT(IFNULL(t2.DISPLAY_NAME,''),'-',IFNULL(t4.SLOT_NO,''),'-',IFNULL(t3.DISPLAY_NAME,''),'-',
+               IFNULL(t1.PORT_NO,'')) AS `ptpTargetName`
+	FROM (((( 
+           T_BASE_PTP  t1
+           LEFT JOIN 
+           T_RESOURCE_ODF t5
+           ON( t1.BASE_PTP_ID = t5.OUT_TARGET ))
+           LEFT JOIN 
+           T_BASE_NE   t2
+           ON( t1.BASE_NE_ID = t2.BASE_NE_ID ))
+           LEFT JOIN 
+           T_BASE_UNIT  t3
+           ON( t1.BASE_UNIT_ID = t3.BASE_UNIT_ID ))
+           LEFT JOIN 
+           T_BASE_SLOT  t4  
+           ON( t1.BASE_SLOT_ID = t4.BASE_SLOT_ID ))
+	<where>
+		 <if test="ptpId != null">
+		 	t1.BASE_PTP_ID = #{ptpId} 
+		    and t5.OUT_TARGET = t1.BASE_PTP_ID 
+		</if>   
+	</where> 
+</select>   
+
+<!--  判断odf端子是否存在关联-->
+<select id="judgeOdfOccupation" resultType="String"> 
+ 	 SELECT ODF_NO FROM  T_RESOURCE_ODF  
+     <where>
+	 <if test="odfId != null">
+	 	RESOURCE_ODF_ID = #{odfId} 
+	    AND OUT_TYPE IS NOT NULL
+	</if>   
+	</where>  
+</select>  
+
+ 
+<sql id="ddfSearchSql"> 
+SELECT * FROM(
+    SELECT
+        d.RESOURCE_DDF_ID      AS ddfId,
+        a.RESOURCE_AREA_ID     AS areaId,
+        a.AREA_NAME      		 AS areaName,
+        s.RESOURCE_STATION_ID  AS stationId,
+        s.STATION_NAME   		 AS stationName,
+        r.RESOURCE_ROOM_ID     AS roomId,
+        r.ROOM_NAME      		 AS roomName,
+        d.DDF_NO          	 AS ddfNo,
+        d.SOURCE          	 AS ptpId,
+        d.USEABLE        		 AS useable,
+        d.DESTINATION    		 AS destination,
+        d.NOTE           		 AS note,
+        p.BASE_NE_ID           AS neId,
+        n.DISPLAY_NAME 		 AS neDisplayName,
+        n.BASE_EMS_CONNECTION_ID  AS emsId,
+        IFNULL(rr.ROOM_NAME,'') AS roomTargetName,
+        CONCAT(IFNULL(ra.RACK_NO,''),'-',IFNULL(sh.SHELF_NO,''),'-',IFNULL(sl.SLOT_NO,''),
+        '(',IFNULL(e.DISPLAY_NAME,''),')-',IFNULL(p.PORT_NO,''),'(',IFNULL(p.DISPLAY_NAME,''),')') 
+        AS ptpDisplayName 
+    FROM (((((((((((t_resource_ddf d
+        LEFT JOIN t_base_ptp p
+        ON ((d.SOURCE = p.BASE_PTP_ID)))
+        LEFT JOIN t_base_ne n
+        ON ((p.BASE_NE_ID = n.BASE_NE_ID)))
+        LEFT JOIN t_base_unit e
+        ON ((e.BASE_UNIT_ID = p.BASE_UNIT_ID)))
+        LEFT JOIN t_base_slot sl
+        ON ((sl.BASE_SLOT_ID = e.BASE_SLOT_ID)))
+        LEFT JOIN t_base_shelf sh
+        ON ((sh.BASE_SHELF_ID = sl.BASE_SHELF_ID)))
+        LEFT JOIN t_base_rack ra
+        ON ((ra.BASE_RACK_ID = sh.BASE_RACK_ID))) 
+        LEFT JOIN t_resource_ddf dd
+        ON ((dd.DDF_NO = d.DESTINATION)))
+        LEFT JOIN t_resource_room rr
+        ON ((dd.RESOURCE_ROOM_ID = rr.RESOURCE_ROOM_ID)))  
+        JOIN t_resource_room r)
+        JOIN t_resource_station s)
+        JOIN t_resource_area a)
+    WHERE ((d.RESOURCE_ROOM_ID = r.RESOURCE_ROOM_ID)
+        AND (r.RESOURCE_STATION_ID = s.RESOURCE_STATION_ID)
+        AND (s.RESOURCE_AREA_ID = a.RESOURCE_AREA_ID)
+        AND (d.SOURCE IS NOT NULL)) 
+    UNION ALL SELECT
+    d.RESOURCE_DDF_ID        AS ddfId,
+    a.RESOURCE_AREA_ID       AS areaId,
+    a.AREA_NAME     		  AS areaName,
+    s.RESOURCE_STATION_ID    AS stationId,
+    s.STATION_NAME   		  AS stationName,
+    r.RESOURCE_ROOM_ID       AS roomId,
+    r.ROOM_NAME      		  AS roomName,
+    d.DDF_NO          		  AS ddfNo,
+    d.SOURCE         		  AS ptpId,
+    d.USEABLE         	 	  AS useable,
+    d.DESTINATION    		  AS destination,
+    d.NOTE           		  AS note,
+    NULL           AS neId,
+    NULL			  AS neDisplayName,
+    NULL   AS emsId,
+    IFNULL(rr.ROOM_NAME,'')  AS roomTargetName,
+    NULL                     AS ptpDisplayName
+    FROM (((((t_resource_ddf d  
+        LEFT JOIN t_resource_ddf dd
+        ON ((dd.DDF_NO = d.DESTINATION)))
+        LEFT JOIN t_resource_room rr
+        ON ((dd.RESOURCE_ROOM_ID = rr.RESOURCE_ROOM_ID)))
+        JOIN t_resource_station s)
+        JOIN t_resource_area a)
+        JOIN t_resource_room r)
+    WHERE (r.RESOURCE_STATION_ID = s.RESOURCE_STATION_ID)
+        AND (r.RESOURCE_ROOM_ID = d.RESOURCE_ROOM_ID)
+        AND (s.RESOURCE_AREA_ID = a.RESOURCE_AREA_ID)
+        AND ISNULL(d.SOURCE))AS a 
+</sql>
+  
+<!-- DDF页面初始化查询，查出个数 -->  
+<select id="countDdfList" resultType="Integer">
+  	SELECT  COUNT(*) FROM (
+	<include refid="ddfSearchSql" />
+		<where>
+	<if test="conMap!=null">
+		<if test="conMap.ddfNo!=null and conMap.ddfNo!=''">
+		    and ddfNo LIKE "%"#{conMap.ddfNo}"%" 
+		</if> 
+		<if test="conMap.roomId!=null and conMap.roomId!=''">
+			and roomId = #{conMap.roomId}
+		</if>
+		
+		<if test="conMap.useable!=null and conMap.useable!=''">
+			and useable = #{conMap.useable}
+		</if> 
+	</if> 
+	</where>) AS b 
+</select>       
+
+<!-- DDF页面初始化查询显示-->  
+<select id="getDdfList" resultType="hashmap">
+	<include refid="ddfSearchSql" /> 
+	<where>
+	<if test="conMap!=null">
+		<if test="conMap.ddfNo!=null and conMap.ddfNo!=''">
+		    and ddfNo LIKE "%"#{conMap.ddfNo}"%" 
+		</if> 
+		<if test="conMap.roomId!=null and conMap.roomId!=''">
+			and roomId = #{conMap.roomId}
+		</if>
+		
+		<if test="conMap.useable!=null and conMap.useable!=''">
+			and useable = #{conMap.useable}
+		</if> 
+	</if> 
+	</where>
+	<if test="pageSize != null and pageSize>0">
+		LIMIT ${startNumber}, ${pageSize}
+	</if>
+</select>   
+
+<!-- 查询条件“用途”combo下拉菜单-->  
+<select id="getDdfUseableList" resultType="hashmap">
+	SELECT DISTINCT
+		USEABLE
+	FROM
+		T_RESOURCE_DDF 
+	<where>
+		USEABLE IS NOT NULL AND USEABLE!=''
+	</where>
+</select>
+
+<!-- 判断同一个机房是否存在重名的DDF端子号--> 	
+<select id="judgeDdf" resultType="Integer">
+	SELECT  COUNT(*)
+	FROM
+		T_RESOURCE_DDF 
+	<where>
+		DDF_NO = #{ddfNo} AND RESOURCE_ROOM_ID = #{RESOURCE_ROOM_ID}
+	</where> 
+</select> 
+
+<!-- 新增一条DDF记录 -->		
+<insert id="insertDdf" parameterType="hashmap">
+    insert into t_resource_ddf
+   (
+   	DDF_NO,
+    USEABLE,
+    NOTE,
+    RESOURCE_ROOM_ID
+    ) values (	
+    	<choose>
+			<when test="ddf.ddfNo != null">
+				#{ddf.ddfNo}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="ddf.useable != null">
+				#{ddf.useable}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+ 		<choose>
+			<when test="ddf.note != null">
+				#{ddf.note}
+			</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="RESOURCE_ROOM_ID!= null">
+				#{RESOURCE_ROOM_ID}
+			</when>
+			<otherwise>null</otherwise>
+		</choose> 
+	) 
+</insert>  
+
+<!-- 根据ddfId号删除DDF记录 -->
+<delete id="deleteDdf" parameterType="Integer">
+	delete from t_resource_ddf 
+	<where>
+		RESOURCE_DDF_ID = #{ddfId};
+	</where>
+</delete>
+
+<!-- 修改DDF记录 -->
+<update id="updateDdf"  parameterType="hashmap">
+	UPDATE T_RESOURCE_DDF 
+	<set>
+ 		<if test="conMap.useable != null">
+			USEABLE = #{conMap.useable},
+		</if>
+  		<if test="conMap.note != null">
+			NOTE = #{conMap.note},
+		</if> 
+	</set>
+	<where>
+		 RESOURCE_DDF_ID = #{conMap.ddfId}
+	 </where>
+</update>
+	
+	
+<!-- 关联DDF记录 -->
+<update id="updateDdfRelate"  parameterType="hashmap">
+	UPDATE T_RESOURCE_DDF 
+	<set> 
+		<if test="conMap.source!=null">
+				SOURCE = #{conMap.source},
+		</if>
+	</set>
+	<where>
+		 RESOURCE_DDF_ID = #{conMap.ddfId}
+	 </where>
+</update> 
+
+<!-- 修改ODF记录 ，删除关联-->
+<update id="updateDdfDelete"  parameterType="hashmap">
+	UPDATE T_RESOURCE_DDF 
+	<set>
+		<if test="conMap.source==0">
+			SOURCE = null,
+		</if>
+	</set>
+	<where>
+		 RESOURCE_DDF_ID = #{conMap.ddfId}
+	 </where>
+</update> 
+
+ <!-- 跳线删除开始 -->
+ <update id="updateDelDdfJumpLine"  parameterType="hashmap">
+	UPDATE T_RESOURCE_DDF 
+   <set> 
+		<if test="conMap.destination==0 ">
+			DESTINATION = null,
+		</if> 
+	</set>
+	<where>
+		 RESOURCE_DDF_ID = #{conMap.ddfId}
+	 </where>
+</update> 
+
+<!-- 跳线设置开始 -->
+ <update id="updateDdfJumpLine"  parameterType="hashmap">
+	UPDATE T_RESOURCE_DDF 
+   <set> 
+		<if test="conMap.destination!=null ">
+			DESTINATION = #{conMap.destination},
+		</if> 
+	</set>
+	<where>
+		 RESOURCE_DDF_ID = #{conMap.ddfId}
+	 </where>
+</update>
+
+ <!--  网元-槽道-板卡-端口-->
+<select id="judgePortDDFOccupation" resultType="hashmap">
+  SELECT CONCAT(IFNULL(t2.DISPLAY_NAME,''),'-',IFNULL(t4.SLOT_NO,''),'-',IFNULL(t3.DISPLAY_NAME,''),'-',
+               IFNULL(t1.PORT_NO,'')) AS `ptpTargetName`
+	FROM (((( 
+           T_BASE_PTP  t1
+           LEFT JOIN 
+           T_RESOURCE_DDF t5
+           ON( t1.BASE_PTP_ID = t5.SOURCE ))
+           LEFT JOIN 
+           T_BASE_NE   t2
+           ON( t1.BASE_NE_ID = t2.BASE_NE_ID ))
+           LEFT JOIN 
+           T_BASE_UNIT  t3
+           ON( t1.BASE_UNIT_ID = t3.BASE_UNIT_ID ))
+           LEFT JOIN 
+           T_BASE_SLOT  t4  
+           ON( t1.BASE_SLOT_ID = t4.BASE_SLOT_ID ))
+	<where>
+		 <if test="ptpId != null">
+		 	t1.BASE_PTP_ID = #{ptpId} 
+		    and t5.SOURCE = t1.BASE_PTP_ID 
+		</if>   
+	</where> 
+</select>   
+
+<!-- 查询DDF记录 -->
+<select id="getDdfData" resultType="hashmap">
+	SELECT *
+	FROM
+		T_RESOURCE_DDF 
+	<where>
+		 <if test="ddfId != null">
+			RESOURCE_DDF_ID= #{ddfId}
+		</if>  
+	</where> 
+</select> 
+
+<!--  判断ddf端子是否存在跳线-->
+<select id="judgeDdfOccupation" resultType="String"> 
+ 	 SELECT DDF_NO FROM  T_RESOURCE_DDF  
+     <where>
+	 <if test="ddfId != null">
+	 	RESOURCE_DDF_ID = #{ddfId} 
+	    AND (DESTINATION IS NOT NULL)
+	</if>   
+	</where>  
+</select>  
+
+<!-- 查询可关联的DDF记录 -->
+<select id="getRelateDdfList" resultType="hashmap">
+	SELECT 
+		RESOURCE_DDF_ID,STATION_NAME,ROOM_NAME,DDF_NO  
+	FROM
+		T_RESOURCE_ROOM t1,T_RESOURCE_STATION t2,T_RESOURCE_DDF t3
+	<where>
+		 t1.RESOURCE_STATION_ID=t2.RESOURCE_STATION_ID AND
+		 t1.RESOURCE_ROOM_ID=t3.RESOURCE_ROOM_ID 
+		 <if test="roomId != null">
+			AND t3.RESOURCE_ROOM_ID= #{roomId}
+		</if>  
+	</where> 
+</select>
+
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ReportTreeMapper">
+	
+	<sql id="AREA">
+		t.resource_area_id nodeId,t.area_name text,t.area_level
+	</sql>
+	<sql id="STATION">
+		t.resource_station_id nodeId,station_name text
+	</sql>
+	<sql id="EMPGROUP">
+		t.base_ems_group_id nodeId,t.group_name text
+	</sql>
+	
+	
+	<!-- 获取节点 -->
+	<select id="getChildNodesByNodeId" resultType="hashmap" parameterType="hashmap" >
+		SELECT
+		<choose>
+			<when test="nodeType==1">
+				<include refid="AREA"/>
+					from t_resource_area t
+					where t.area_parent_id=#{nodeId}
+			</when>
+			<when test="nodeType==2">
+				<include refid="STATION"/>
+					from t_resource_station t
+					where t.resource_area_id=#{nodeId}
+			</when>
+			<when test="nodeType==4">
+				<include refid="EMPGROUP"/>
+					from t_base_ems_group t
+					where t.is_del=0
+			</when>
+		</choose>
+	</select>
+	
+		<!-- 获取网管组 -->
+	<select id="getEmsGroupByEmsGroupId" resultType="hashmap" parameterType="string" >
+		select t.base_ems_group_id nodeId,t.group_name text
+			from t_base_ems_group t
+			where t.is_del=0
+			and t.base_ems_group_id=#{emsGroupId}
+			limit 1
+	</select>
+	
+	
+	<sql id="V_BASE_EMS_CONNECTION">
+	    <choose>
+		<when test="userId==Define.USER_ADMIN_ID">
+			t_base_ems_connection
+		</when>
+		<otherwise>
+			(SELECT DISTINCT 
+			  t_ems.* 
+			FROM
+			  t_base_ems_connection t_ems 
+			  LEFT JOIN t_base_ems_group t_emsgrp 
+			    ON t_emsgrp.BASE_EMS_GROUP_ID = t_emsgrp.BASE_EMS_GROUP_ID 
+			  LEFT JOIN t_base_ne t_ne 
+			    ON t_ems.BASE_EMS_CONNECTION_ID = t_ne.BASE_EMS_CONNECTION_ID,
+			  v_user_device_domain v_domain 
+			WHERE (
+			    v_domain.targetType = #{Define.NODE_ROOT} 
+			    OR (
+			      v_domain.targetType = #{Define.NODE_EMSGROUP} 
+			      AND v_domain.targetId = t_ems.BASE_EMS_GROUP_ID
+			    ) 
+			    OR (
+			      v_domain.targetType = #{Define.NODE_EMS} 
+			      AND v_domain.targetId = t_ems.BASE_EMS_CONNECTION_ID
+			    ) 
+			    OR (
+			      v_domain.targetType = #{Define.NODE_NE} 
+			      AND v_domain.targetId = t_ne.BASE_NE_ID 
+			      AND t_ne.BASE_EMS_CONNECTION_ID = t_ems.BASE_EMS_CONNECTION_ID
+			    )
+			  ) 
+			  AND v_domain.userId = #{userId})
+		  </otherwise>
+		  </choose>
+	</sql>
+	
+			<!-- 获取网管组下的网元 -->
+	<select id="getEmsByEmsGroupId" resultType="hashmap" parameterType="hashmap" >
+		select t.base_ems_connection_id nodeId,t.display_name text
+			from <include refid="V_BASE_EMS_CONNECTION"/> t
+		<where>
+				t.is_del=0
+			<if test="emsGroupId != null and emsGroupId != '-1'">
+				AND t.base_ems_group_id=#{emsGroupId}
+			</if>
+			<if test="emsGroupId == '-1'">
+				AND (t.base_ems_group_id is null or t.base_ems_group_id='')
+			</if>
+		</where>
+	</select>
+	
+</mapper>

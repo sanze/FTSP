@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ResourceStockMapper">
+	<!-- *************************************资源存量管理查询(网元)******************************************* -->
+	<select id="getNeResourceStock" resultType="hashmap" parameterType="hashmap">
+		select emsGroup.GROUP_NAME as emsGroupDisplayName,
+		    ems.DISPLAY_NAME as emsDisplayName,
+		    ne.BASE_NE_ID as neId,
+		    ne.NATIVE_EMS_NAME as nativeEmsName,
+		    ne.USER_LABEL as userLabel,
+		    ne.DISPLAY_MODE as neDisplayMode,
+		    station.STATION_NAME as station,
+		    area.RESOURCE_AREA_ID as areaId,
+		    area.AREA_NAME as areaName,
+		    area.AREA_LEVEL as areaLevel,
+		    area.AREA_PARENT_ID as areaParentId,		    
+		    ne.FACTORY as factory,
+		    ne.PRODUCT_NAME as productName,
+		    ne.VERSION as neVersion,
+      		ne.MGMT_CATEGORY as manageCategory,
+		    ne.NOTE as note
+		from t_base_ne as ne
+		left join t_base_ems_connection as ems
+		on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		
+		left join t_resource_room as room
+		on room.RESOURCE_ROOM_ID = ne.RESOURCE_ROOM_ID
+		
+		left join t_resource_station as station
+		on room.RESOURCE_STATION_ID = station.RESOURCE_STATION_ID
+		
+		left join t_resource_area as area
+		on station.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+		where ne.BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and ne.IS_DEL = 0
+   		<if test="map.limit != 0">
+   		limit  #{map.start},#{map.limit} 
+   		</if>
+	</select>
+	<select id="countNeResourceStock" resultType="int" parameterType="hashmap">
+		select count(*)
+		from t_base_ne
+		where BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and IS_DEL = 0
+	</select>
+	<!-- *************************************资源存量管理查询(子架)******************************************* -->
+	<select id="getShelfResourceStock" resultType="hashmap" parameterType="hashmap">
+		select emsGroup.GROUP_NAME as emsGroupDisplayName,
+		    ems.DISPLAY_NAME as emsDisplayName,
+		    ne.NATIVE_EMS_NAME as neNativeEmsName,
+		    ne.USER_LABEL as neUserLabel,
+		    
+		    station.STATION_NAME as station,
+		    area.RESOURCE_AREA_ID as areaId,		    
+		    ne.FACTORY as factory,
+		    ne.PRODUCT_NAME as productName,
+		    
+		    shelf.BASE_SHELF_ID as shelfId,
+		    shelf.SHELF_TYPE as shelfType,
+		    shelf.NATIVE_EMS_NAME as shelfNativeEmsName,
+		    shelf.USER_LABEL as shelfUserLabel,
+		    shelf.DISPLAY_MODE as shelfDisplayMode,
+		    shelf.NOTE as note
+		from t_base_shelf as shelf
+		left join t_base_ne as ne
+		on shelf.BASE_NE_ID = ne.BASE_NE_ID
+		
+		left join t_base_ems_connection as ems
+		on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		
+		left join t_resource_room as room
+		on room.RESOURCE_ROOM_ID = ne.RESOURCE_ROOM_ID
+		
+		left join t_resource_station as station
+		on room.RESOURCE_STATION_ID = station.RESOURCE_STATION_ID
+		
+		left join t_resource_area as area
+		on station.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+		where shelf.BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and shelf.IS_DEL = 0
+   		and ne.IS_DEL = 0
+   		<if test="map.limit != 0">
+   		limit  #{map.start},#{map.limit} 
+   		</if>
+	</select>
+	<select id="countShelfResourceStock" resultType="int" parameterType="hashmap">
+		select count(*)
+		from t_base_shelf  shelf
+		left join t_base_ne ne
+		on shelf.BASE_NE_ID = ne.BASE_NE_ID
+		where shelf.BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and ne.IS_DEL = 0
+   		and shelf.IS_DEL = 0
+	</select>
+	<!-- *************************************资源存量管理查询(板卡)******************************************* -->
+	<select id="getUnitResourceStock" resultType="hashmap" parameterType="hashmap">
+		select emsGroup.GROUP_NAME as emsGroupDisplayName,
+		    ems.DISPLAY_NAME as emsDisplayName,
+		    ne.NATIVE_EMS_NAME as neNativeEmsName,
+		    ne.USER_LABEL as neUserLabel,
+
+		    station.STATION_NAME as station,
+		    area.RESOURCE_AREA_ID as areaId,		    
+		    ne.FACTORY as factory,
+		    ne.PRODUCT_NAME as productName,
+		    
+		    unit.BASE_UNIT_ID as unitId,
+		    unit.SLOT_NO as slotNo,
+		    unit.SOFT_WARE_VERSION as unitVersion,
+		    unit.MANUFACTURE as manufacture,
+		    unit.INSTALLED_PART_NUMBER as partNum,
+		    unit.INSTALLED_SERIAL_NUMBER as serialNum,
+		    unit.SERVICE_STATE as serviceState,
+		    unit.NATIVE_EMS_NAME as unitNativeEmsName,
+		    unit.USER_LABEL as unitUserLabel,
+		    unit.DISPLAY_MODE as unitDisplayMode,
+		    unit.NOTE as note
+		from t_base_unit as unit
+		left join t_base_ne as ne
+		on unit.BASE_NE_ID = ne.BASE_NE_ID
+		
+		left join t_base_ems_connection as ems
+		on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		
+		left join t_resource_room as room
+		on room.RESOURCE_ROOM_ID = ne.RESOURCE_ROOM_ID
+		
+		left join t_resource_station as station
+		on room.RESOURCE_STATION_ID = station.RESOURCE_STATION_ID
+		
+		left join t_resource_area as area
+		on station.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+		where unit.BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and ne.IS_DEL = 0
+   		and unit.IS_DEL = 0
+   		<if test="map.limit != 0">
+   		limit  #{map.start},#{map.limit} 
+   		</if>
+	</select>
+	<select id="countUnitResourceStock" resultType="int" parameterType="hashmap">
+		select count(*)
+		from t_base_unit as unit
+		left join t_base_ne as ne
+		on unit.BASE_NE_ID = ne.BASE_NE_ID
+		where unit.BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and ne.IS_DEL = 0
+   		and unit.IS_DEL = 0
+	</select>
+	<!-- *************************************资源存量管理查询(端口)******************************************* -->
+	<select id="getPtpResourceStock" resultType="hashmap" parameterType="hashmap">
+		select emsGroup.GROUP_NAME as emsGroupDisplayName,
+		    ems.DISPLAY_NAME as emsDisplayName,
+		    ne.NATIVE_EMS_NAME as neNativeEmsName,
+		    ne.USER_LABEL as neUserLabel,
+		    
+		    station.STATION_NAME as station,
+		    area.RESOURCE_AREA_ID as areaId,		    
+		    ne.FACTORY as factory,
+		    ne.PRODUCT_NAME as productName,
+		    
+		    ptp.BASE_PTP_ID as ptpId,
+		    ptp.PORT_DESC as portNo,
+		    ptp.DOMAIN as domain,
+		    ptp.PTP_TYPE as ptpType,
+		    ptp.ATT as att,
+		    ptp.OPT_MODEL as optModel,
+		    ptp.DDF_ODF as ddfPdf,
+		    ptp.NATIVE_EMS_NAME as ptpNativeEmsName,
+		    ptp.USER_LABEL as ptpUserLabel,
+		    ptp.DISPLAY_MODE as ptpDisplayMode,
+		    ptp.NOTE as note
+		from t_base_ptp as ptp
+		left join t_base_ne as ne
+		on ptp.BASE_NE_ID = ne.BASE_NE_ID
+		
+		left join t_base_ems_connection as ems
+		on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		
+		left join t_resource_room as room
+		on room.RESOURCE_ROOM_ID = ne.RESOURCE_ROOM_ID
+		
+		left join t_resource_station as station
+		on room.RESOURCE_STATION_ID = station.RESOURCE_STATION_ID
+		
+		left join t_resource_area as area
+		on station.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+		where ptp.BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and ne.IS_DEL = 0
+   		and ptp.IS_DEL = 0
+   		<if test="map.limit > 0">
+   		limit  #{map.start},#{map.limit} 
+   		</if>
+	</select>
+	<select id="countPtpResourceStock" resultType="int" parameterType="hashmap">
+		select count(*)
+		from t_base_ptp as ptp
+		left join t_base_ne as ne
+		on ptp.BASE_NE_ID = ne.BASE_NE_ID
+		where ptp.BASE_NE_ID in
+		<foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item.neId}
+   		</foreach>
+   		and ne.IS_DEL = 0
+   		and ptp.IS_DEL = 0
+	</select>
+	<!-- *************************************根据子网id查询所有网元id******************************************* -->
+	<select id="getNeIdListBySubnetId" resultType="hashmap" parameterType="hashmap">
+		select distinct ne.BASE_NE_ID as neId
+		from t_base_ne ne
+		inner join (select r.base_subnet_id 
+				   from t_base_subnet_ref r 
+				   where r.parent_subnet_id = #{map.subnetId})   t
+		on ne.base_subnet_id = t.base_subnet_id
+		union (select distinct ne.BASE_NE_ID as neId 
+				   from t_base_ne ne 
+				   where ne.base_subnet_id = #{map.subnetId})
+	</select>
+	<!-- *************************************根据网管id查询所有网元id******************************************* -->
+	<select id="getNeIdListByEmsId" resultType="hashmap" parameterType="hashmap">
+		select BASE_NE_ID as neId
+		from t_base_ne
+		where BASE_EMS_CONNECTION_ID = #{map.emsId}
+	</select>
+	<!-- *************************************根据网管组id查询所有网元id******************************************* -->
+	<select id="getNeIdListByEmsGroupId" resultType="hashmap" parameterType="hashmap">
+		select ne.BASE_NE_ID as neId
+		from t_base_ne as ne
+		left join t_base_ems_connection as ems
+		on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where emsGroup.BASE_EMS_GROUP_ID = #{map.emsGroupId}
+	</select>
+	<!-- ******************************资源存量管理  显示方式修改(网元、子架、板卡、端口)************************************* -->
+	<update id="changeDisplayMode" parameterType="hashmap">
+	    update ${map.tableName}
+	    <set>
+	       <if test="map.displayMode != null">DISPLAY_MODE = #{map.displayMode}</if>
+	    </set>
+	    where ${map.columnName} in
+	    <foreach collection="map.neIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+	</update>
+	<!-- *******************************资源存量管理  修改(网元、子架、板卡、端口)******************************************* -->
+	<update id="saveChangedInfo" parameterType="hashmap">
+	    update ${map.tableName}
+	    <set>
+	       <if test="map.standardName != null">USER_LABEL = #{map.standardName},</if>
+	       <if test="map.displayMode != null">DISPLAY_MODE = #{map.displayMode},</if>
+	       <if test="map.manageCategory != null">MGMT_CATEGORY = #{map.manageCategory},</if>
+	       <if test="map.note != null">NOTE = #{map.note}</if>
+	    </set>
+	    where ${map.columnName} = #{map.resourceId}
+	</update>
+	<!-- *************************************检查 规范网元名称 是否已经存在 ******************************************* -->
+	<select id="checkNeNameExit" resultType="hashmap" parameterType="hashmap">
+		select *
+		from t_base_ne
+		where USER_LABEL = #{map.standardName}
+		and BASE_NE_ID <![CDATA[ <>  ]]> #{map.resourceId}
+	</select>
+
+
+</mapper>

@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section version="5.0" xml:id="menu" xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook"
+	xmlns:xl="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:ns5="http://www.w3.org/2000/svg" xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+	xmlns:ns3="http://www.w3.org/1999/xhtml" xmlns:ns="http://docbook.org/ns/docbook">
+	<title>FTSP主菜单</title>
+
+	<para>主菜单位于页面窗口的上部，图片标题栏的下方。下面的表格列出了主菜单出现的内容。</para>
+
+	<informaltable colsep="0" frame="topbot" rowsep="0">
+		<tgroup cols="4">
+			<colspec colname="c1" colwidth="1*" />
+      <colspec colname="c2" colwidth="1*" />
+      <colspec colname="c3" colwidth="5*" />
+      <colspec colname="c4" colwidth="13*"/>
+
+			<tbody>
+				<!-- 系统 -->
+				<row>
+					<entry nameend="c3" namest="c1">系统→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">用户→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">用户管理：</entry>
+					<entry colname="c4">用户显示、增加、删除、修改（包括设备域和操作域的设置）</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">用户组管理：</entry>
+					<entry colname="c4">用户组显示、增加、删除、修改（组成员的划分）</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">设备域管理：</entry>
+					<entry colname="c4">设备域的显示、增加、删除、修改</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">操作域管理：</entry>
+					<entry colname="c4">操作域的显示、增加、删除、修改</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">接口管理→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">综合接口过滤器：</entry>
+					<entry colname="c4">对告警进行系统过滤设置和用户过滤器设置</entry>
+				</row>
+				<row>
+					<entry colname="c3">资源关联设置：</entry>
+					<entry colname="c4">与资源系统接口相关设置</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">LOG管理：</entry>
+					<entry colname="c4">操作日志、访问日志、异常情况日志的查询、备份、删除等</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">服务器监控：</entry>
+					<entry colname="c4">各个服务器的运作状态监控，显示CPU、内存、硬盘等数据</entry>
+				</row>
+
+				<row rowsep="1">
+					<entry nameend="c3" namest="c2">退出：</entry>
+					<entry colname="c4">退出登录，返回登录界面</entry>
+				</row>
+
+				<!-- 接入 -->
+				<row>
+					<entry nameend="c3" namest="c1">接入→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">南向连接管理：</entry>
+					<entry colname="c4">和EMS的CORBA连接管理，新增、删除、编辑、显示连接；采集任务控制</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">接入服务器管理：</entry>
+					<entry colname="c4">接入服务器的查看和接入服务器的选择配置</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">网管分组管理：</entry>
+					<entry colname="c4">对各种连接进行分组管理，新增、删除、修改、分配EMS等功能</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">网元管理：</entry>
+					<entry colname="c4">网元数据同步，包括基础数据（网元、槽道、板块、端口）,通道、通道路由、波分通道、波分通道路由、子网、保护子网等，TELNET网元的增、删、改
+					</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">链路管理→</entry>
+					<entry colname="c4"></entry>
+				</row>
+
+				<row>
+					<entry colname="c3">拓扑链路同步：</entry>
+					<entry colname="c4">拓扑连接的同步管理</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">拓扑链路管理：</entry>
+					<entry colname="c4">不同网元之间的链路管理</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">内部链路管理：</entry>
+					<entry colname="c4">网元内部的链路管理</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">网管同步：</entry>
+					<entry colname="c4">网管级别的自动同步、手动同步功能</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">子网管理：</entry>
+					<entry colname="c4">子网增 删 改，子网划分</entry>
+				</row>
+
+				<row rowsep="1">
+					<entry nameend="c3" namest="c2">设备资源管理：</entry>
+					<entry colname="c4">管理网络中的网元、子架、板卡和端口的显示名称、显示方式等相关信息</entry>
+				</row>
+
+				<!-- 视图 -->
+				<row>
+					<entry nameend="c4" namest="c1">视图→</entry>
+				</row>
+
+				<row rowsep="1">
+					<entry nameend="c3" namest="c2">网络拓扑图：</entry>
+					<entry colname="c4">显示不同层级的网络拓扑，通过网元拓扑可以显示设备面板图
+					</entry>
+				</row>
+
+				<!-- 故障 -->
+				<row>
+					<entry nameend="c4" namest="c1">故障→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">当前告警：</entry>
+					<entry colname="c4">当前告警列表，查询显示，查询过滤器设置，告警的确认、派单、清除</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">历史告警：</entry>
+					<entry colname="c4">多维度查询、显示、删除历史告警</entry>
+				</row>
+
+				<row>
+					<entry nameend="c4" namest="c2">告警设置→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">当前告警过滤器：</entry>
+					<entry colname="c4">对告警进行系统过滤设置和用户过滤器设置</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">告警及事件屏蔽：</entry>
+					<entry colname="c4">以任务的形式，对告警采集进行屏蔽过滤</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">告警收敛规则：</entry>
+					<entry colname="c4">告警收敛规则设置</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">告警自动同步：</entry>
+					<entry colname="c4">周期性同步告警信息</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">告警自动确认设置：</entry>
+					<entry colname="c4">告警自动确认规则设置</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">告警归一化设置：</entry>
+					<entry colname="c4">告警归一化的设置界面</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">告警及事件重定义：</entry>
+					<entry colname="c4">告警及事件的重新定义</entry>
+				</row>
+
+				<row rowsep="1">
+					<entry colname="c3">告警参数设置：</entry>
+					<entry colname="c4">设置告警颜色、显示内容等</entry>
+				</row>
+
+				<!-- 性能 -->
+				<row>
+					<entry nameend="c4" namest="c1">性能→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">SDH/ETH当前性能查询：</entry>
+					<entry colname="c4">查询SDH（含MSTP）设备的当前性能信息</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">SDH/ETH历史性能查询：</entry>
+					<entry colname="c4">查询SDH（含MSTP）设备的历史性能信息</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">WDM当前性能查询：</entry>
+					<entry colname="c4">查询WDM（含OTN）设备的当前性能信息</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">WDM历史性能查询：</entry>
+					<entry colname="c4">查询WDM（含OTN）设备的历史性能信息</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">性能采集管理：</entry>
+					<entry colname="c4">对性能数据采集的设置和管理，以辅助用户对性能数据的搜集、整理和分析等日常维护工作
+					</entry>
+				</row>
+
+				<row>
+					<entry nameend="c4" namest="c2">光口设置管理→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">光口类型管理：</entry>
+					<entry colname="c4">根据设定好的光口标准，对网络中设备的光口类型进行查询、设置，和应用</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">光口标准管理：</entry>
+					<entry colname="c4">根据不同端口类型、速率、光口标准等信息，对所需的光口标准进行设置和管理</entry>
+				</row>
+
+				<row>
+					<entry nameend="c4" namest="c2">性能分析管理→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">性能分析模板查询设置：</entry>
+					<entry colname="c4">根据设定好的性能分析模板，对网络中设备的端口进行查询和设置</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">性能分析模板管理：</entry>
+					<entry colname="c4">对性能分析模板进行设置和管理，根据设定好的性能分析模板，对网络中设备（网元、网管）的光口类型进行批量应用
+					</entry>
+				</row>
+
+				<row rowsep="1">
+					<entry colname="c3">性能基准值管理：</entry>
+					<entry colname="c4">对性能基准值进行查询、生成和保存</entry>
+				</row>
+
+				<!-- 电路 -->
+				<row>
+					<entry nameend="c4" namest="c1">电路→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">电路自动生成：</entry>
+					<entry colname="c4">以网管为对象，定期自动生成电路</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">电路手动生成：</entry>
+					<entry colname="c4">以网管、子网、网元为对象，手动选择范围，自动生成电路</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">端到端查询：</entry>
+					<entry colname="c4">查询制定A、Z端的电路，并呈现</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">相关性查询：</entry>
+					<entry colname="c4">查询和所选条件相关的电路，并呈现</entry>
+				</row>
+
+				<row rowsep="1">
+					<entry nameend="c3" namest="c2">交叉连接查询：</entry>
+					<entry colname="c4">查询指定网元的交叉连接，并呈现</entry>
+				</row>
+
+				<!-- 统计 -->
+				<row>
+					<entry nameend="c4" namest="c1">统计→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c4" namest="c2">资源统计→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">槽道可用率：</entry>
+					<entry colname="c4">分析统计网元的槽道可用率，并综合呈现</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">端口可用率：</entry>
+					<entry colname="c4">分析统计网元的端口可用率，并综合呈现</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">时隙可用率：</entry>
+					<entry colname="c4">分析统计网元的时隙可用率，并综合呈现</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">时隙可用率拓扑：</entry>
+					<entry colname="c4">以网络拓扑图的形式呈现网元的时隙可用率</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">板卡分类自定义：</entry>
+					<entry colname="c4">按板卡名称进行的板卡归类设置</entry>
+				</row>
+
+				<row rowsep="1">
+					<entry colname="c3">板卡类别名称自定义：</entry>
+					<entry colname="c4">板卡类别名称管理（仅板卡小类名称）</entry>
+				</row>
+
+				<!-- 维护 -->
+				<row>
+					<entry nameend="c4" namest="c1">维护→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">资源→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">区域管理：</entry>
+					<entry colname="c4">分为4级区域、可以新增、删除、修改区域、区域属性可以修改</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">区域资源：</entry>
+					<entry colname="c4">可以选择新增区域级别、区域所属；也可以对区域下属局站进行新增、修改、删除、显示局站所属区域，站名、地址、联系人、电话、备注；机房隶属于某个局站，可以新增、修改、删除机房，可以关联（去关联）机房下属网元，显示机房所属局站、机房名称、机房类型、联系人、电话、备注
+					</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">割接→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">割接任务：</entry>
+					<entry colname="c4">对设备和链路割接任务进行管理</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">光放单元管理：</entry>
+					<entry colname="c4">WDM光复用段中的光放单元增加、删除等管理</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">自动作业计划→</entry>
+				</row>
+
+				<row>
+					<entry colname="c3">自动作业报表查询：</entry>
+					<entry colname="c4"></entry>
+				</row>
+
+				<row>
+					<entry colname="c3">自动作业报表下载：</entry>
+					<entry colname="c4"></entry>
+				</row>
+
+				<row>
+					<entry colname="c3">自动作业报表即时生成：</entry>
+					<entry colname="c4"></entry>
+				</row>
+
+				<row>
+					<entry colname="c3">自动作业计划管理：</entry>
+					<entry colname="c4"></entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">定制作业计划→</entry>
+				</row>
+				
+				<row>
+					<entry colname="c3">定制作业计划管理：</entry>
+					<entry colname="c4">根据用户需要，定制作业计划任务</entry>
+				</row>
+				
+				<row>
+					<entry colname="c3">定制作业计报表下载：</entry>
+					<entry colname="c4">根据用户需要，将生成的定制作业计划报表下载的用户本地</entry>
+				</row>
+				
+				<row>
+					<entry colname="c3">定制即时报表生成：</entry>
+					<entry colname="c4">根据用户需要，定制个性化报表并即时生成</entry>
+				</row>
+				
+				<row>
+					<entry colname="c3">波分方向管理：</entry>
+					<entry colname="c4">根据用户需要，对波分方向进行管理</entry>
+				</row>
+				
+				<row>
+					<entry colname="c3">板卡接口管理：</entry>
+					<entry colname="c4">WDM设备相关板卡接口设置</entry>
+				</row>
+				
+				<row rowsep="1">
+					<entry colname="c3">PTN系统管理：</entry>
+					<entry colname="c4"></entry>
+				</row>
+
+				<!-- 帮助 -->
+
+				<row>
+					<entry nameend="c4" namest="c1">帮助→</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">如何使用：</entry>
+					<entry>使用说明书</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">许可：</entry>
+					<entry>LICENSE信息</entry>
+				</row>
+
+				<row>
+					<entry nameend="c3" namest="c2">关于FTSP：</entry>
+					<entry>产品标记</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</informaltable>
+</section>

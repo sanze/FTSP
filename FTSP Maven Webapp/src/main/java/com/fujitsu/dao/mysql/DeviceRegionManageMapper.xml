@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.DeviceRegionManageMapper">
+	
+	<!--  查询Demo_test表所有数据 -->
+	<select id="getDemoData" resultType="hashmap" parameterType="hashmap">
+		select * from demo_test 
+	</select>
+	
+	<!--  查询t_sys_device_domain表分页数据 -->
+	<select id="selectDeviceRegionDataList" parameterType="hashmap" resultType="hashmap">
+   		select tsdd.sys_device_domain_id,tsdd.name,tsdd.note 
+			from t_sys_device_domain tsdd
+   		<if test="map.pageSize != null and map.pageSize > 0 and map.startNumber != null and map.startNumber >= 0">
+			LIMIT #{map.startNumber},#{map.pageSize}
+		</if>   
+  	</select>
+  	<select id="countDeviceRegionDataList" parameterType="hashmap" resultType="int">
+   		select count(1) from t_sys_device_domain
+  	</select>
+  	
+  	 <select id="validateUserDeviceDomainName" parameterType="string" resultType="int">
+   		select count(1) from t_sys_device_domain where name=#{name}
+  	</select>
+  	
+  	
+  	<!-- 插入设备域数据并返回主键 -->
+   	<insert id="insert" parameterType="hashmap" useGeneratedKeys="true" keyProperty="map.id">
+		INSERT INTO t_sys_device_domain(NAME,NOTE)
+			VALUES(#{map.name},#{map.note})
+     	  <selectKey resultType="string"   keyProperty="map.id">  
+			        SELECT LAST_INSERT_ID() AS id
+    	</selectKey>  
+	</insert>
+	
+	<!-- 插入设备域关联的网元-->
+   	<insert id="insertDeviceRegionRefNe" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+		INSERT INTO t_sys_device_domain_ref(SYS_DEVICE_DOMAIN_ID,TARGET_ID,TARGET_TYPE)
+			VALUES(#{deviceRegion.id},#{deviceRegion.neId},#{deviceRegion.neType})
+	</insert>
+	
+  	<!-- 修改 -->
+	<update id="update" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+		update 
+			t_sys_device_domain
+		set
+			NOTE=#{deviceRegion.note}
+		where
+			SYS_DEVICE_DOMAIN_ID=#{deviceRegion.id}
+	</update>
+	
+	<delete id="deleteDeviceRegionRefNe" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+     	delete from  
+     		t_sys_device_domain_ref
+		where
+			SYS_DEVICE_DOMAIN_ID=#{deviceRegion.id}
+     </delete>
+     
+     
+     <delete id="deleteDeviceRegionRefUser" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+     	delete from  
+     		t_sys_user_ref_device
+		where
+			SYS_DEVICE_DOMAIN_ID=#{deviceRegion.id}
+     </delete>
+	
+	 <delete id="delete" >
+     	delete from  t_sys_device_domain
+		where
+			SYS_DEVICE_DOMAIN_ID=#{deviceRegion.id}
+     </delete>
+     
+     <!--  查询网管数据-->
+	<select id="getEMSDatas" resultType="hashmap" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+		select t.base_ems_connection_id,t.display_name
+		from t_base_ems_connection t
+		where t.is_del=0
+	</select>
+	
+	 <!--  查询子网数据-->
+	<select id="getSubnetByEMSIdDatas" resultType="hashmap" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+		select t.base_subnet_id,t.display_name
+			from t_base_subnet t
+			where t.is_del=0
+			and t.base_ems_connection_id=#{deviceRegion.emsId}
+	</select>
+	
+	 <!--  查询网元数据-->
+	<select id="getDeviceBySubnetIdDatas" resultType="hashmap" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+			select t.base_ne_id,t.name,
+				(select count(1)
+				from t_sys_device_domain_ref ts
+				where ts.sys_device_domain_id=#{deviceRegion.id}
+				and ts.base_ne_id=t.base_ne_id) rela_ne_cou
+				from t_base_ne t
+				where  t.base_subnet_id=#{deviceRegion.subnetId}
+	</select>
+	
+		 <!--  查询设备域对应的所有设备-->
+	<select id="getNesByDeviceDomainId" resultType="hashmap" parameterType="com.fujitsu.manager.systemManager.model.DeviceRegion">
+			select 
+				concat(t.target_type ,"-",t.target_id) id,
+				t.target_id nodeId,
+				tg.group_name text
+				from t_sys_device_domain_ref t
+				join t_base_ems_group tg on t.target_id=tg.base_ems_group_id and t.target_type=1
+				where t.sys_device_domain_id=#{deviceRegion.id}
+				and tg.is_del=0
+				union all
+				select
+				concat(t.target_type ,"-",t.target_id) id,
+				t.target_id nodeId,
+				tc.display_name text
+				from t_sys_device_domain_ref t
+				join t_base_ems_connection tc on t.target_id=tc.base_ems_connection_id and t.target_type=2
+				where t.sys_device_domain_id=#{deviceRegion.id}
+				and tc.is_del=0
+				union all
+				select
+				concat(t.target_type ,"-",t.target_id) id,
+				t.target_id nodeId,
+				ts.display_name text
+				from t_sys_device_domain_ref t
+				join t_base_subnet ts on t.target_id=ts.base_subnet_id and t.target_type=3
+				where t.sys_device_domain_id=#{deviceRegion.id}
+				and ts.is_del=0
+				union all
+				select
+				concat(t.target_type ,"-",t.target_id) id,
+				t.target_id nodeId,
+				tn.display_name text
+				from t_sys_device_domain_ref t
+				join t_base_ne tn on t.target_id=tn.base_ne_id and t.target_type=4
+				where t.sys_device_domain_id=#{deviceRegion.id}
+				and tn.is_del=0
+	</select>
+	
+	
+	
+	<sql id="EMS_INFO">
+		(CASE when IFNULL(tc.base_ems_group_id, 0) =0
+		  THEN 
+			${Define.NODE_ROOT}
+		  ELSE
+			${Define.NODE_EMSGROUP}
+		END) AS parentLevel,
+					(CASE when IFNULL(tc.base_ems_group_id, 0) =0
+		  THEN 
+			0
+		  ELSE
+			tc.base_ems_group_id
+		END) AS parentId,
+(CASE when IFNULL(tc.base_ems_group_id, 0) =0
+		  THEN 
+			'根节点'			
+		  ELSE
+			(select t.group_name from t_base_ems_group t
+				where t.base_ems_group_id=tc.base_ems_group_id limit 1)
+		END) AS parentName
+	</sql>
+	
+	<sql id="SUBNET_INFO">
+		(CASE when IFNULL(ts.PARENT_SUBNET, 0) >0
+		  THEN 
+			${Define.NODE_SUBNET}
+		  ELSE
+			${Define.NODE_EMS}
+		END) AS parentLevel,
+				(CASE when IFNULL(ts.PARENT_SUBNET, 0) >0
+		  THEN 
+			ts.parent_subnet	
+		  ELSE
+			ts.base_ems_connection_id
+		END) AS parentId,
+			(CASE when IFNULL(ts.PARENT_SUBNET, 0) >0
+				  THEN 
+					(select t.display_name from t_base_subnet t
+						where t.base_subnet_id=ts.parent_subnet limit 1)
+				  ELSE
+					(select tb.display_name from t_base_ems_connection tb 
+					where tb.base_ems_connection_id=ts.base_ems_connection_id limit 1)
+				END) AS parentName
+	</sql>
+	<sql id="NE_INFO">
+			(CASE when IFNULL(tn.base_subnet_id, 0) =0
+				  THEN 
+					${Define.NODE_EMS}
+				  ELSE
+					${Define.NODE_SUBNET}
+				END) AS parentLevel,
+				(CASE when IFNULL(tn.base_subnet_id, 0) =0
+		  THEN 
+			tn.base_ems_connection_id			
+		  ELSE
+			tn.base_subnet_id
+		END) AS parentId,
+	(CASE when IFNULL(tn.base_subnet_id, 0) =0
+		  THEN 
+			(select tb.display_name from t_base_ems_connection tb 
+			   where tb.base_ems_connection_id=tn.base_ems_connection_id limit 1)
+			
+		  ELSE
+			(select t.display_name from t_base_subnet t
+				where t.base_subnet_id=tn.base_subnet_id limit 1)
+		END) AS parentName
+	</sql>
+	
+	<select id="getParentPathByNodeLevelAndNodeId" resultType="hashmap" parameterType="hashmap">
+		SELECT
+		<choose>
+			<when test="nodeLevel==Define.NODE_EMS">
+				<include refid="EMS_INFO" />
+				from t_base_ems_connection tc
+					where tc.is_del=0
+					and tc.base_ems_connection_id=#{nodeId}
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBNET">
+				<include refid="SUBNET_INFO" />
+				FROM
+				  t_base_subnet ts
+				  where ts.is_del=0
+				  and ts.base_subnet_id=#{nodeId}
+			</when>
+			<when test="nodeLevel==Define.NODE_NE">
+				<include refid="NE_INFO" />
+				from t_base_ne tn
+					where tn.is_del=0
+					and tn.base_ne_id=#{nodeId}
+			</when>
+		</choose>
+	</select>
+</mapper>

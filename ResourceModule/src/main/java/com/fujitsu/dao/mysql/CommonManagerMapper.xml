@@ -1,0 +1,1469 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.CommonManagerMapper">
+	
+	<select id="getMenuList" resultType="hashmap" >
+		select T_SYS_MENU.*,USER_AUTH.AUTH_SEQUENCE from T_SYS_MENU left join  
+		(select * from V_USER_AUTH_DOMAIN where SYS_USER_ID  = #{userId}) USER_AUTH
+		on T_SYS_MENU.SYS_MENU_ID = USER_AUTH.SYS_MENU_ID
+		where T_SYS_MENU.SYS_MENU_ID in 
+		<foreach collection="menuIds" item="item" index="index" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="getAllSubMenuList" resultType="hashmap" >
+		select * from T_SYS_MENU where MENU_PARENT_ID = #{menuParentId} 
+	</select>
+	
+	<select id="getAuthSubMenuList" resultType="hashmap" >
+		SELECT * FROM V_USER_AUTH_DOMAIN where MENU_PARENT_ID = #{menuParentId} 
+			and SYS_USER_ID  = #{userId}
+	</select>
+	
+	<select id="selectSysParam" resultType="hashmap" parameterType="java.lang.String">
+		select * from t_sys_param
+		 where PARAM_KEY = #{paramKey}
+	</select>
+	<insert id="setSysParam" parameterType="hashmap">
+	    insert into T_SYS_PARAM 
+	    (PARAM_CLASS,PARAM_KEY,PARAM_VALUE,PARAM_DESCRIPTION,SHOW_ORDER,IS_DEL,CREATE_TIME) values 
+	    (#{PARAM_CLASS},#{PARAM_KEY},#{PARAM_VALUE},#{PARAM_DESCRIPTION},#{SHOW_ORDER},#{IS_DEL},#{CREATE_TIME})
+		  ON DUPLICATE KEY UPDATE
+			<if test="PARAM_CLASS != null">
+                PARAM_CLASS = #{PARAM_CLASS},
+            </if>
+            <if test="PARAM_VALUE != null">
+                PARAM_VALUE = #{PARAM_VALUE},
+            </if>
+            <if test="PARAM_DESCRIPTION != null">
+                PARAM_DESCRIPTION = #{PARAM_DESCRIPTION},
+            </if>
+            <if test="SHOW_ORDER != null">
+                SHOW_ORDER = #{SHOW_ORDER},
+            </if>
+            <if test="IS_DEL != null">
+                IS_DEL = #{IS_DEL},
+            </if>
+            <if test="CREATE_TIME != null">
+                CREATE_TIME = #{CREATE_TIME},
+            </if>
+            PARAM_KEY = #{PARAM_KEY}
+	</insert>
+	
+	<select id="selectTable" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		  <if test="pageSize != null and pageSize>0">
+			LIMIT ${startNumber}, ${pageSize}
+		</if>
+	</select>
+	
+	<select id="selectTableCount" resultType="int" statementType="STATEMENT">
+		select count(1)
+		  from ${tableName}
+	</select>
+	
+	<select id="selectTableById" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${idName} = ${id}
+	</select>
+
+	<select id="selectTableListById" resultType="hashmap" statementType="STATEMENT">
+		select *
+		  from ${tableName}
+		 where ${idName} = ${id}
+		 <if test="pageSize != null and pageSize>0">
+			LIMIT ${startNumber}, ${pageSize}
+		</if>
+	</select>
+	
+	<select id="selectTableListCountById" resultType="int" statementType="STATEMENT">
+		select count(1)
+		  from ${tableName}
+		 where ${idName} = ${id}
+	</select>
+	
+	<!-- ^^^^^^^^^^ 用户设备域 ^^^^^^^^^^^-->
+<!-- 	<select id="selectUserDeviceDomain" resultType="hashmap" >
+		SELECT * FROM v_user_device_domain t WHERE t.userId = #{userId} 
+		<if test="targetType != null">
+			and t.targetType = #{targetType}
+		</if>
+	</select> -->
+	
+	<!-- ^^^^^^^^^^ 共通查询部分^^^^^^^^^^^-->
+	<select id="getAllEmsGroups" resultType="hashmap" >
+		select * from <include refid="V_BASE_EMS_GROUP" /> t
+		where t.IS_DEL = 0
+		<if test="pageSize != null and pageSize>0">
+			LIMIT #{startNumber}, #{pageSize}
+		</if>
+	</select>
+	
+	<!--  查询某个网管分组下的所有网管 -->
+	<select id="getAllEmsByEmsGroupId" resultType="hashmap" >
+		select * from <include refid="V_BASE_EMS_CONNECTION" /> t 
+		where t.IS_DEL = 0
+		<if test="emsGroupId!=Define.VALUE_ALL">
+			<if test="emsGroupId!=Define.VALUE_NONE">
+				and t.BASE_EMS_GROUP_ID = #{emsGroupId}
+		</if>
+			<if test="emsGroupId==Define.VALUE_NONE">
+				and t.BASE_EMS_GROUP_ID is null
+			</if>
+		</if>
+		ORDER BY t.BASE_EMS_CONNECTION_ID ASC
+		<if test="pageSize != null and pageSize>0">
+			LIMIT #{startNumber}, #{pageSize}
+		</if>
+	</select>
+	
+	<!--  查询某个网管下的所有网元 -->
+	<select id="getAllNeByEmsId" resultType="hashmap" >
+		select * from <include refid="V_BASE_NE" /> t 
+		where 
+		<if test="isDel == null ">
+			t.IS_DEL = 0
+		</if>
+		<if test="isDel != null ">
+			t.IS_DEL in
+			<foreach item="item" index="index" collection="isDel" open="(" separator="," close=")">  
+			  #{item}   
+			</foreach>
+		</if>
+		<if test="emsId!=Define.VALUE_ALL">
+			<if test="emsId!=Define.VALUE_NONE">
+				and t.BASE_EMS_CONNECTION_ID = #{emsId}
+			</if>
+			<if test="emsId==Define.VALUE_NONE">
+				and t.BASE_EMS_CONNECTION_ID is null
+		</if>
+		</if>
+		ORDER BY t.BASE_EMS_CONNECTION_ID ASC
+		<if test="pageSize != null and pageSize>0">
+			LIMIT #{startNumber}, #{pageSize}
+		</if>
+	</select>
+	
+		<!--  查询某个网管下的所有网元计数 -->
+	<select id="getAllNeByEmsIdCount" resultType="int" >
+		select count(1) from <include refid="V_BASE_NE" /> t 
+		where 
+		<if test="isDel == null ">
+			t.IS_DEL = 0
+		</if>
+		<if test="isDel != null ">
+			t.IS_DEL in
+			<foreach item="item" index="index" collection="isDel" open="(" separator="," close=")">  
+			  #{item}   
+			</foreach>
+		</if>
+		<if test="emsId!=Define.VALUE_ALL">
+			<if test="emsId!=Define.VALUE_NONE">
+				and t.BASE_EMS_CONNECTION_ID = #{emsId}
+			</if>
+			<if test="emsId==Define.VALUE_NONE">
+				and t.BASE_EMS_CONNECTION_ID is null
+			</if>
+		</if>
+	</select>
+	
+	
+		<!--  查询某个网管下的所有网元 -->
+	<select id="getAllNeByEmsIdWithAdditionInfo" resultType="hashmap" >
+		select t.*,
+			DATE_FORMAT(t.BASIC_SYNC_TIME,'%Y-%c-%d %H:%i:%s') AS BASIC_SYNC_TIME_DISPLAY,
+		    c.DISPLAY_NAME as emsConnectionName,
+		    c.CONNETION_TYPE,
+		    g.BASE_EMS_GROUP_ID,
+		    g.GROUP_NAME,
+		    s.STATION_NAME,
+		    a.AREA_NAME
+ 		from <include refid="V_BASE_NE" /> t
+		        left join
+		    T_BASE_EMS_CONNECTION c ON c.BASE_EMS_CONNECTION_ID = t.BASE_EMS_CONNECTION_ID
+		        left join
+		    T_BASE_EMS_GROUP g ON g.BASE_EMS_GROUP_ID = c.BASE_EMS_GROUP_ID
+		        left join
+		    t_resource_room r ON  r.RESOURCE_ROOM_ID= t.RESOURCE_ROOM_ID
+		        left join
+		    T_RESOURCE_STATION s ON s.RESOURCE_STATION_ID = r.RESOURCE_STATION_ID
+		        left join
+		    T_RESOURCE_AREA a ON a.RESOURCE_AREA_ID = s.RESOURCE_AREA_ID 
+		where 
+		<if test="isDel == null ">
+			t.IS_DEL = 0
+		</if>
+		<if test="isDel != null ">
+			t.IS_DEL in
+			<foreach item="item" index="index" collection="isDel" open="(" separator="," close=")">  
+			  #{item}   
+			</foreach>
+		</if>
+		<if test="emsId!=Define.VALUE_ALL">
+			<if test="emsId!=Define.VALUE_NONE">
+				and t.BASE_EMS_CONNECTION_ID = #{emsId}
+			</if>
+			<if test="emsId==Define.VALUE_NONE">
+				and t.BASE_EMS_CONNECTION_ID is null
+		</if>
+		</if>
+		ORDER BY t.BASE_EMS_CONNECTION_ID ASC
+		<if test="pageSize != null and pageSize>0">
+			LIMIT #{startNumber}, #{pageSize}
+		</if>
+	</select>
+	
+  <!-- V_BASE_EMS_GROUP -->
+  <sql id="V_BASE_EMS_GROUP">
+    <choose>
+    <when test="userId==Define.USER_ADMIN_ID">
+    (SELECT *,TRUE AS domainAuth,0 AS targetId,0 AS targetType from t_base_ems_group)
+    </when>
+    <otherwise>
+    (SELECT  
+      *
+    FROM
+      (SELECT  
+      t_emsgrp.*,
+      <![CDATA[ v_domain.targetType <= ${Define.NODE_EMSGROUP} ]]>
+      AS domainAuth,
+      v_domain.targetId,
+      v_domain.targetType
+      FROM
+      t_base_ems_group t_emsgrp 
+      LEFT JOIN t_base_ems_connection t_ems 
+      ON t_ems.BASE_EMS_GROUP_ID = t_emsgrp.BASE_EMS_GROUP_ID 
+      LEFT JOIN t_base_ne t_ne 
+      ON t_ems.BASE_EMS_CONNECTION_ID = t_ne.BASE_EMS_CONNECTION_ID
+      LEFT JOIN t_base_subnet t_sn 
+      ON t_ems.BASE_EMS_CONNECTION_ID = t_sn.BASE_EMS_CONNECTION_ID,
+      v_user_device_domain v_domain 
+      WHERE (
+      (
+      v_domain.targetType = #{Define.NODE_ROOT} 
+      AND v_domain.targetId = #{Define.ROOT_ID} 
+      ) 
+      OR (
+      v_domain.targetType = #{Define.NODE_EMSGROUP} 
+      AND v_domain.targetId = t_emsgrp.BASE_EMS_GROUP_ID
+      ) 
+      OR (
+      v_domain.targetType = #{Define.NODE_EMS} 
+      AND v_domain.targetId = t_ems.BASE_EMS_CONNECTION_ID 
+      AND t_ems.BASE_EMS_GROUP_ID = t_emsgrp.BASE_EMS_GROUP_ID
+      ) 
+      OR (
+      v_domain.targetType = #{Define.NODE_NE} 
+      AND v_domain.targetId = t_ne.BASE_NE_ID 
+      AND t_ne.BASE_EMS_CONNECTION_ID = t_ems.BASE_EMS_CONNECTION_ID 
+      AND t_ems.BASE_EMS_GROUP_ID = t_emsgrp.BASE_EMS_GROUP_ID
+      )
+      OR (
+      v_domain.targetType = #{Define.NODE_SUBNET} 
+      AND v_domain.targetId = t_sn.BASE_SUBNET_ID 
+      AND t_sn.BASE_EMS_CONNECTION_ID = t_ems.BASE_EMS_CONNECTION_ID
+      )
+      ) 
+      AND v_domain.userId = #{userId}
+      ORDER BY domainAuth DESC
+      ) t
+    <if test="Define.DOMAIN_AUTH!=Define.AUTH_VIEW">
+      WHERE domainAuth=#{Define.AUTH_ALL}
+    </if>
+    GROUP BY BASE_EMS_GROUP_ID
+    )
+    </otherwise>
+    </choose>
+  </sql>
+
+  <!-- V_BASE_EMS_CONNECTION -->
+  <sql id="V_BASE_EMS_CONNECTION">
+    <choose>
+    <when test="userId==Define.USER_ADMIN_ID">
+     (SELECT *,TRUE AS domainAuth,0 AS targetId,0 AS targetType from t_base_ems_connection)
+    </when>
+    <otherwise>
+    (SELECT * from (
+    SELECT  
+      t_ems.*,
+      <![CDATA[ v_domain.targetType <= ${Define.NODE_EMS} ]]>
+      AS domainAuth,
+      v_domain.targetId,
+      v_domain.targetType
+    FROM
+      t_base_ems_connection t_ems 
+      LEFT JOIN t_base_ems_group t_emsgrp 
+      ON t_ems.BASE_EMS_GROUP_ID = t_emsgrp.BASE_EMS_GROUP_ID
+      LEFT JOIN t_base_ne t_ne 
+      ON t_ems.BASE_EMS_CONNECTION_ID = t_ne.BASE_EMS_CONNECTION_ID
+      LEFT JOIN t_base_subnet t_sn 
+      ON t_ems.BASE_EMS_CONNECTION_ID = t_sn.BASE_EMS_CONNECTION_ID,
+      v_user_device_domain v_domain 
+    WHERE (
+      v_domain.targetType = #{Define.NODE_ROOT} 
+      OR (
+      v_domain.targetType = #{Define.NODE_EMSGROUP} 
+      AND v_domain.targetId = t_ems.BASE_EMS_GROUP_ID
+      ) 
+      OR (
+      v_domain.targetType = #{Define.NODE_EMS} 
+      AND v_domain.targetId = t_ems.BASE_EMS_CONNECTION_ID
+      ) 
+      OR (
+      v_domain.targetType = #{Define.NODE_NE} 
+      AND v_domain.targetId = t_ne.BASE_NE_ID 
+      AND t_ne.BASE_EMS_CONNECTION_ID = t_ems.BASE_EMS_CONNECTION_ID
+      )
+      OR (
+      v_domain.targetType = #{Define.NODE_SUBNET} 
+      AND v_domain.targetId = t_sn.BASE_SUBNET_ID 
+      AND t_sn.BASE_EMS_CONNECTION_ID = t_ems.BASE_EMS_CONNECTION_ID
+      )
+      ) 
+      AND v_domain.userId = #{userId}
+      ORDER BY domainAuth DESC
+    ) t
+    <if test="Define.DOMAIN_AUTH!=Define.AUTH_VIEW">
+      WHERE domainAuth=TRUE
+    </if>
+    GROUP BY BASE_EMS_CONNECTION_ID
+    )
+    </otherwise>
+    </choose>
+  </sql>
+
+  <!-- V_BASE_SUBNET -->
+  <sql id="V_BASE_SUBNET">
+    <choose>
+    <when test="userId==Define.USER_ADMIN_ID">
+    (SELECT *,TRUE AS domainAuth,0 AS targetId,0 AS targetType from t_base_subnet)
+    </when>
+    <otherwise>
+    (SELECT * FROM
+    (SELECT 
+      t_sn.*,
+      IFNULL(
+        <![CDATA[
+          v_domain.targetType < ${Define.NODE_SUBNET}
+          OR (
+            v_domain.targetType = ${Define.NODE_SUBNET} 
+            AND (
+              v_domain.targetId = t_sn.BASE_SUBNET_ID 
+              OR v_domain.targetId = t_sp.PARENT_SUBNET_ID
+            )
+          )
+        ]]>,FALSE)
+      AS domainAuth,
+      v_domain.targetId,
+      v_domain.targetType
+    FROM
+      t_base_subnet t_sn
+      LEFT JOIN t_base_subnet_ref t_sp
+      ON t_sn.BASE_SUBNET_ID=t_sp.BASE_SUBNET_ID
+      LEFT JOIN t_base_subnet_ref t_sc
+      ON t_sn.BASE_SUBNET_ID=t_sc.PARENT_SUBNET_ID
+      LEFT JOIN t_base_ems_connection t_ems 
+      ON t_sn.BASE_EMS_CONNECTION_ID=t_ems.BASE_EMS_CONNECTION_ID
+      LEFT JOIN t_base_ne t_ne 
+      ON t_sn.BASE_SUBNET_ID=t_ne.BASE_SUBNET_ID
+        OR t_sc.BASE_SUBNET_ID=t_ne.BASE_SUBNET_ID,
+      v_user_device_domain v_domain 
+      WHERE (
+      (
+      v_domain.targetType = #{Define.NODE_ROOT} 
+      AND v_domain.targetId = #{Define.ROOT_ID} 
+      ) 
+      OR (
+      v_domain.targetType = #{Define.NODE_EMSGROUP} 
+      AND v_domain.targetId = t_ems.BASE_EMS_GROUP_ID 
+      AND t_ems.BASE_EMS_CONNECTION_ID = t_sn.BASE_EMS_CONNECTION_ID
+      ) 
+      OR (
+      v_domain.targetType = #{Define.NODE_EMS} 
+      AND v_domain.targetId = t_sn.BASE_EMS_CONNECTION_ID
+      ) 
+      OR (
+        v_domain.targetType = #{Define.NODE_NE} 
+        AND v_domain.targetId = t_ne.BASE_NE_ID 
+        AND (
+          t_ne.BASE_SUBNET_ID = t_sn.BASE_SUBNET_ID
+          OR t_ne.BASE_SUBNET_ID = t_sc.BASE_SUBNET_ID
+        )
+      )
+      OR (
+        v_domain.targetType = #{Define.NODE_SUBNET} 
+        AND (
+          v_domain.targetId = t_sn.BASE_SUBNET_ID 
+          OR v_domain.targetId = t_sp.PARENT_SUBNET_ID
+          OR v_domain.targetId = t_sc.BASE_SUBNET_ID
+        )
+      )
+      )
+      AND v_domain.userId = #{userId}
+      ORDER BY domainAuth DESC
+    ) t
+    <if test="Define.DOMAIN_AUTH!=Define.AUTH_VIEW">
+      WHERE domainAuth=TRUE
+    </if>
+    GROUP BY BASE_SUBNET_ID
+    )
+    </otherwise>
+    </choose>
+  </sql>
+
+  <!-- V_BASE_NE -->
+  <sql id="V_BASE_NE">
+    <choose>
+    <when test="userId==Define.USER_ADMIN_ID">
+    (SELECT *,TRUE AS domainAuth,0 AS targetId,0 AS targetType from t_base_ne)
+    </when>
+    <otherwise>
+    (SELECT  
+    t_ne.*,
+    TRUE
+    AS domainAuth,
+    v_domain.targetId,
+    v_domain.targetType
+    FROM
+    t_base_ne t_ne 
+    LEFT JOIN t_base_ems_connection t_ems 
+    ON t_ems.BASE_EMS_CONNECTION_ID = t_ne.BASE_EMS_CONNECTION_ID
+    LEFT JOIN (t_base_subnet t_sn LEFT JOIN t_base_subnet_ref t_sp ON t_sn.BASE_SUBNET_ID=t_sp.BASE_SUBNET_ID)
+    ON t_sn.BASE_SUBNET_ID = t_ne.BASE_SUBNET_ID,
+    v_user_device_domain v_domain 
+    WHERE (
+    (
+      v_domain.targetType = #{Define.NODE_ROOT} 
+      AND v_domain.targetId = #{Define.ROOT_ID} 
+    ) 
+    OR (
+      v_domain.targetType = #{Define.NODE_EMSGROUP} 
+      AND v_domain.targetId = t_ems.BASE_EMS_GROUP_ID 
+      AND t_ems.BASE_EMS_CONNECTION_ID = t_ne.BASE_EMS_CONNECTION_ID
+    ) 
+    OR (
+      v_domain.targetType = #{Define.NODE_EMS} 
+      AND v_domain.targetId = t_ne.BASE_EMS_CONNECTION_ID
+    ) 
+    OR (
+      v_domain.targetType = #{Define.NODE_NE} 
+      AND v_domain.targetId = t_ne.BASE_NE_ID
+    )
+    OR (
+      v_domain.targetType = #{Define.NODE_SUBNET} 
+      AND (
+      v_domain.targetId = t_sn.BASE_SUBNET_ID
+      OR v_domain.targetId = t_sp.PARENT_SUBNET_ID
+      )
+    )
+    ) 
+    AND v_domain.userId = #{userId}
+    GROUP BY t_ne.BASE_NE_ID
+    )
+    </otherwise>
+    </choose>
+  </sql>
+	<!-- _______________________________ 共通树分域 _______________________________ -->
+	<!-- 
+	<resultMap id="TreeResultMap" type="com.fujitsu.model.TreeNodeModel">
+		<result column="nodeId" property="nodeId" jdbcType="INTEGER" />
+		<result column="text" property="text" jdbcType="VARCHAR" />
+		<result column="parent" property="parent" jdbcType="VARCHAR" />
+	</resultMap>
+ 	-->
+	<sql id="IS_NOT_DEL">
+		(ISNULL(t_select.IS_DEL) 
+		  OR t_select.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_EMSGROUP">
+		(ISNULL(t_base_ems_group.IS_DEL) 
+		  OR t_base_ems_group.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_EMS">
+		(ISNULL(t_base_ems_connection.IS_DEL) 
+		  OR t_base_ems_connection.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_SUBNET">
+		(ISNULL(t_base_subnet.IS_DEL) 
+		  OR t_base_subnet.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_NE">
+		(ISNULL(t_base_ne.IS_DEL) 
+		  OR t_base_ne.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_SHELF">
+		(ISNULL(t_base_shelf.IS_DEL) 
+		  OR t_base_shelf.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_UNIT">
+		(ISNULL(t_base_unit.IS_DEL) 
+		  OR t_base_unit.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_SUBUNIT">
+		(ISNULL(t_base_sub_unit.IS_DEL) 
+		  OR t_base_sub_unit.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="IS_NOT_DEL_PTP">
+		(ISNULL(t_base_ptp.IS_DEL) 
+		  OR t_base_ptp.IS_DEL = #{Define.FALSE}) 
+	</sql>
+	<sql id="EMSGROUP_INFO">
+		t_select.BASE_EMS_GROUP_ID AS nodeId,
+		t_select.GROUP_NAME AS text,
+		CONCAT(
+		  ${Define.NODE_ROOT},
+		  "-",
+		  ${Define.ROOT_ID}
+		) AS parent,
+		t_select.domainAuth
+	</sql>
+	<sql id="EMS_INFO">
+		t_select.BASE_EMS_CONNECTION_ID AS nodeId,
+		t_select.DISPLAY_NAME AS text,
+		CASE
+		  IFNULL(t_select.BASE_EMS_GROUP_ID, 0) 
+		  WHEN 0 
+		  THEN CONCAT(
+		    ${Define.NODE_ROOT},
+		    "-",
+		    ${Define.ROOT_ID}
+		  ) 
+		  ELSE CONCAT(
+		    ${Define.NODE_EMSGROUP},
+		    '-',
+		    t_select.BASE_EMS_GROUP_ID
+		  ) 
+		END AS parent,
+		t_select.domainAuth
+	</sql>
+	<sql id="SUBNET_INFO">
+		t_select.BASE_SUBNET_ID AS nodeId,
+		t_select.DISPLAY_NAME AS text,
+		CASE
+		  IFNULL(t_select.PARENT_SUBNET, 0) 
+		  WHEN 0 
+		  THEN CONCAT(
+		    ${Define.NODE_EMS},
+		    '-',
+		    t_select.BASE_EMS_CONNECTION_ID
+		  ) 
+		  ELSE CONCAT(
+		    ${Define.NODE_SUBNET},
+		    '-',
+		    t_select.PARENT_SUBNET
+		  ) 
+		END AS parent,
+		t_select.domainAuth
+	</sql>
+	<sql id="NE_INFO">
+		t_select.BASE_NE_ID AS nodeId,
+		t_select.DISPLAY_NAME AS text,
+		CASE
+		  IFNULL(t_select.BASE_SUBNET_ID, 0) 
+		  WHEN 0 
+		  THEN CONCAT(
+		    ${Define.NODE_EMS},
+		    '-',
+		    t_select.BASE_EMS_CONNECTION_ID
+		  ) 
+		  ELSE CONCAT(
+		    ${Define.NODE_SUBNET},
+		    '-',
+		    t_select.BASE_SUBNET_ID
+		  ) 
+		END AS parent,
+		t_select.domainAuth
+	</sql>
+	<sql id="SHELF_INFO">
+		t_select.BASE_SHELF_ID AS nodeId,
+		CONCAT(
+		  IFNULL(t_relate.DISPLAY_NAME, ''),
+		  '-',
+		  IFNULL(t_select.DISPLAY_NAME, '')
+		) AS text,
+		CONCAT(
+		  ${Define.NODE_NE},
+		  '-',
+		  t_select.BASE_NE_ID
+		) AS parent 
+	</sql>
+	<sql id="UNIT_INFO">
+		t_select.BASE_UNIT_ID AS nodeId,
+		CONCAT(
+		  IFNULL(t_relate.DISPLAY_NAME, ''),
+		  '-',
+		  IFNULL(t_select.DISPLAY_NAME, '')
+		) AS text,
+		CONCAT(
+		  ${Define.NODE_SHELF},
+		  '-',
+		  t_select.BASE_SHELF_ID
+		) AS parent 
+	</sql>
+	<sql id="SUBUNIT_INFO">
+		t_select.BASE_SUB_UNIT_ID AS nodeId,
+		CONCAT(
+		  IFNULL(t_relate.DISPLAY_NAME, ''),
+		  '-',
+		  IFNULL(t_select.DISPLAY_NAME, '')
+		) AS text,
+		CONCAT(
+		  ${Define.NODE_UNIT},
+		  '-',
+		  t_parent.BASE_UNIT_ID
+		) AS parent 
+	</sql>
+	<sql id="PTP_INFO">
+		t_select.BASE_PTP_ID AS nodeId,
+  	    IFNULL(t_select.DISPLAY_NAME, '') AS text,
+		CASE
+		  IFNULL(t_select.BASE_SUB_UNIT_ID, 0) 
+		  WHEN 0 
+		  THEN CONCAT(
+		    ${Define.NODE_UNIT},
+		    '-',
+		    t_select.BASE_UNIT_ID
+		  ) 
+		  ELSE CONCAT(
+		    ${Define.NODE_SUBUNIT},
+		    '-',
+		    t_select.BASE_SUB_UNIT_ID
+		  ) 
+		END AS parent 
+	</sql>
+	<select id="treeGetNodesByParent" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT
+		<choose>
+			<when test="nodeLevel==Define.NODE_EMSGROUP">
+				<include refid="EMSGROUP_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_EMS_GROUP" /> t_select
+				WHERE
+			</when>
+			<when test="nodeLevel==Define.NODE_EMS">
+				<include refid="EMS_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_EMS_CONNECTION" /> t_select
+				WHERE
+				<choose>
+					<when test="parentLevel==Define.NODE_ROOT">
+						(
+						  ISNULL(t_select.BASE_EMS_GROUP_ID) 
+						  OR t_select.BASE_EMS_GROUP_ID = 0
+						) 
+						AND 
+					</when>
+					<when test="parentLevel==Define.NODE_EMSGROUP">
+						(t_select.BASE_EMS_GROUP_ID = #{parentId}) 
+						AND 
+					</when>
+				</choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBNET">
+				<include refid="SUBNET_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_SUBNET" /> t_select
+				WHERE
+				<choose>
+					<when test="parentLevel==Define.NODE_EMS">
+						(t_select.BASE_EMS_CONNECTION_ID = #{parentId}) 
+						AND (
+						  ISNULL(t_select.PARENT_SUBNET) 
+						  OR t_select.PARENT_SUBNET = 0
+						) 
+						AND 
+					</when>
+					<when test="parentLevel==Define.NODE_SUBNET">
+						(t_select.PARENT_SUBNET = #{parentId}) 
+						AND 
+					</when>
+				</choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_NE">
+				<include refid="NE_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_NE" /> t_select
+				WHERE
+				<choose>
+					<when test="parentLevel==Define.NODE_EMS">
+						(t_select.BASE_EMS_CONNECTION_ID = #{parentId}) 
+						AND (
+						  ISNULL(t_select.BASE_SUBNET_ID) 
+						  OR t_select.BASE_SUBNET_ID = 0
+						) 
+						AND 
+					</when>
+					<when test="parentLevel==Define.NODE_SUBNET">
+						(t_select.BASE_SUBNET_ID = #{parentId}) 
+						AND 
+					</when>
+				</choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_SHELF">
+				<include refid="SHELF_INFO" />,t_select.*
+				FROM
+				  t_base_shelf t_select,
+				  t_base_rack t_relate
+				WHERE (t_select.BASE_NE_ID = #{parentId}) 
+				  AND (t_relate.BASE_RACK_ID = t_select.BASE_RACK_ID)
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_UNIT">
+				<include refid="UNIT_INFO" />,t_select.*
+				FROM
+				  t_base_unit t_select,
+				  t_base_slot t_relate
+				WHERE (t_select.BASE_SHELF_ID = #{parentId}) 
+				  AND (t_relate.BASE_SLOT_ID = t_select.BASE_SLOT_ID)
+                  AND 
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBUNIT">
+				<include refid="SUBUNIT_INFO" />,t_select.*
+				FROM
+				  t_base_sub_unit t_select,
+                  t_base_sub_slot t_relate,
+                  t_base_unit t_parent
+				WHERE (t_parent.BASE_UNIT_ID = #{parentId})
+				  AND t_parent.BASE_SLOT_ID = t_relate.BASE_SLOT_ID
+				  AND t_relate.BASE_SUB_SLOT_ID = t_select.BASE_SUB_SLOT_ID
+                  AND t_select.DISPLAY_MODE != #{Define.DISPLAY_MODE_NONE}
+                  AND 
+			</when>
+			<when test="nodeLevel==Define.NODE_PTP">
+				<include refid="PTP_INFO" />,t_select.*
+				FROM
+				  t_base_ptp t_select
+				WHERE
+				<choose>
+					<when test="parentLevel==Define.NODE_UNIT">
+						(t_select.BASE_UNIT_ID = #{parentId})
+						AND (
+						  ISNULL(t_select.BASE_SUB_UNIT_ID) 
+						  OR t_select.BASE_SUB_UNIT_ID = 0
+						) 
+						AND 
+					</when>
+					<when test="parentLevel==Define.NODE_SUBUNIT">
+						(t_select.BASE_SUB_UNIT_ID = #{parentId})
+						AND 
+					</when>
+				</choose>
+				t_select.PTP_FTP=0 AND
+			</when>
+		</choose>
+		<include refid="IS_NOT_DEL" />
+		LIMIT 0, #{Define.CHILD_MAX}
+	</select>
+	<select id="treeGetNodeById" resultType="hashmap"
+		parameterType="hashmap">
+		select
+		<choose>
+			<when test="nodeLevel==Define.NODE_EMSGROUP">
+				<include refid="EMSGROUP_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_EMS_GROUP" /> t_select
+				WHERE (t_select.BASE_EMS_GROUP_ID = #{nodeId})
+				  AND 
+			</when>
+			<when test="nodeLevel==Define.NODE_EMS">
+				<include refid="EMS_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_EMS_CONNECTION" /> t_select
+				WHERE (t_select.BASE_EMS_CONNECTION_ID = #{nodeId}) 
+				  AND 
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBNET">
+				<include refid="SUBNET_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_SUBNET" /> t_select
+				WHERE (t_select.BASE_SUBNET_ID = #{nodeId}) 
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_NE">
+				<include refid="NE_INFO" />,t_select.*
+				FROM
+				  <include refid="V_BASE_NE" /> t_select
+				WHERE (t_select.BASE_NE_ID = #{nodeId}) 
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_SHELF">
+				<include refid="SHELF_INFO" />,t_select.*
+				FROM
+				  t_base_shelf t_select,
+				  t_base_rack t_relate
+				WHERE (t_select.BASE_SHELF_ID = #{nodeId}) 
+				  AND (t_relate.BASE_RACK_ID = t_select.BASE_RACK_ID)
+				  AND 
+			</when>
+			<when test="nodeLevel==Define.NODE_UNIT">
+				<include refid="UNIT_INFO" />,t_select.*
+				FROM
+				  t_base_unit t_select,
+				  t_base_slot t_relate
+				WHERE (t_select.BASE_UNIT_ID = #{nodeId}) 
+				  AND (t_relate.BASE_SLOT_ID = t_select.BASE_SLOT_ID)
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBUNIT">
+				<include refid="SUBUNIT_INFO" />,t_select.*
+				FROM
+				  t_base_sub_unit t_select,
+				  t_base_sub_slot t_relate,
+				  t_base_unit t_parent
+				WHERE (t_select.BASE_SUB_UNIT_ID = #{nodeId}) 
+				  AND (t_relate.BASE_SUB_SLOT_ID = t_select.BASE_SUB_SLOT_ID)
+				  AND t_parent.BASE_SLOT_ID = t_relate.BASE_SLOT_ID
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_PTP">
+				<include refid="PTP_INFO" />,t_select.*
+				FROM
+				  t_base_ptp t_select
+				WHERE (t_select.BASE_PTP_ID = #{nodeId}) 
+				  AND
+			</when>
+		</choose>
+		<include refid="IS_NOT_DEL" />
+		LIMIT 0, 1
+	</select>
+	<sql id="treeGetNodesByTextSql">
+		SELECT
+		<choose>
+			<when test="nodeLevel==Define.NODE_EMSGROUP">
+				<include refid="EMSGROUP_INFO" />
+				FROM
+				  <include refid="V_BASE_EMS_GROUP" /> t_select
+				WHERE 
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				  	(t_select.GROUP_NAME LIKE #{text}) AND
+				  </if>
+			</when>
+			<when test="nodeLevel==Define.NODE_EMS">
+				<include refid="EMS_INFO" />
+				FROM
+				  <include refid="V_BASE_EMS_CONNECTION" /> t_select
+				WHERE
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	t_select.BASE_EMS_GROUP_ID = #{rootId} AND
+				  </when>
+				  </choose>
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				  	(t_select.DISPLAY_NAME LIKE #{text}) AND
+				  </if>
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBNET">
+				<include refid="SUBNET_INFO" />
+				FROM
+				  <include refid="V_BASE_SUBNET" /> t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection 
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND 
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  WHERE
+				  	t_select.PARENT_SUBNET = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				  	(t_select.DISPLAY_NAME LIKE #{text}) AND
+				  </if>
+			</when>
+			<when test="nodeLevel==Define.NODE_NE">
+				<include refid="NE_INFO" />
+				FROM
+				  <include refid="V_BASE_NE" /> t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE 
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  WHERE
+				  	t_select.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				  	(t_select.DISPLAY_NAME LIKE #{text}) AND
+				  </if>
+			</when>
+			<when test="nodeLevel==Define.NODE_SHELF">
+				<include refid="SHELF_INFO" />
+				FROM
+				  t_base_shelf t_select,
+				  t_base_rack t_relate
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+				  (t_relate.BASE_RACK_ID = t_select.BASE_RACK_ID) AND
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				  (
+				    CONCAT(
+				      IFNULL(t_relate.DISPLAY_NAME, ''),
+				      '-',
+				      IFNULL(t_select.DISPLAY_NAME, '')
+				    ) LIKE #{text}
+				  )  AND
+				  </if>
+			</when>
+			<when test="nodeLevel==Define.NODE_UNIT">
+				<include refid="UNIT_INFO" />
+				FROM
+				  t_base_unit t_select,
+				  t_base_slot t_relate
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+					t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SHELF and rootId>0">
+				  WHERE
+				  	t_select.BASE_SHELF_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+				  (t_relate.BASE_SLOT_ID = t_select.BASE_SLOT_ID) AND
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				  (
+				    CONCAT(
+				      IFNULL(t_relate.DISPLAY_NAME, ''),
+				      '-',
+				      IFNULL(t_select.DISPLAY_NAME, '')
+				    ) LIKE#{text}
+				  ) AND
+				  </if>
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBUNIT">
+				<include refid="SUBUNIT_INFO" />
+				FROM
+				  t_base_sub_unit t_select,
+				  t_base_sub_slot t_relate,
+				  t_base_unit t_parent
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				    t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SHELF and rootId>0">
+				  WHERE
+				  	t_parent.BASE_SHELF_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_UNIT and rootId>0">
+				  WHERE
+				    t_parent.BASE_UNIT_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+				  t_relate.BASE_SLOT_ID = t_parent.BASE_SLOT_ID
+				  AND (t_relate.BASE_SUB_SLOT_ID = t_select.BASE_SUB_SLOT_ID) AND
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				  (
+				    CONCAT(
+				      IFNULL(t_relate.DISPLAY_NAME, ''),
+				      '-',
+				      IFNULL(t_select.DISPLAY_NAME, '')
+				    ) LIKE #{text}
+				  ) AND
+				  </if>
+			</when>
+			<when test="nodeLevel==Define.NODE_PTP">
+				<include refid="PTP_INFO" />
+				FROM
+				  t_base_ptp t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SHELF and rootId>0">
+				  WHERE
+				  	t_select.BASE_SHELF_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_UNIT and rootId>0">
+				  WHERE
+				  	t_select.BASE_UNIT_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBUNIT and rootId>0">
+				  WHERE
+				  	t_select.BASE_SUB_UNIT_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+				  <if test="text!=null and text!='' and text!='%%' and text!='%%%%'">
+				    IFNULL(t_select.DISPLAY_NAME, '') LIKE#{text}
+				  AND
+				  </if>
+			</when>
+		</choose>
+		<include refid="IS_NOT_DEL" />
+	</sql>
+	<select id="treeGetNodesByText" resultType="hashmap"
+		parameterType="hashmap">
+		<include refid="treeGetNodesByTextSql" />
+		<if test="pageSize != null and pageSize>0">
+			LIMIT ${startNumber}, ${pageSize}
+		</if>
+	</select>
+	<select id="treeCountNodesByText" resultType="int"
+		parameterType="hashmap">
+		SELECT 
+		  COUNT(1) AS total 
+		FROM
+		  (<include refid="treeGetNodesByTextSql" />) t
+	</select>
+	<select id="getNodeInfo" resultType="hashmap"
+		parameterType="hashmap">
+		select
+		<choose>
+			<when test="nodeLevel==Define.NODE_EMSGROUP">
+				*
+				FROM
+				  t_base_ems_group t_select
+				WHERE (BASE_EMS_GROUP_ID = #{nodeId})
+				  AND 
+			</when>
+			<when test="nodeLevel==Define.NODE_EMS">
+				*
+				FROM
+				  t_base_ems_connection t_select
+				WHERE (BASE_EMS_CONNECTION_ID = #{nodeId}) 
+				  AND 
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBNET">
+				*
+				FROM
+				  t_base_subnet t_select
+				WHERE (BASE_SUBNET_ID = #{nodeId}) 
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_NE">
+				*
+				FROM
+				  t_base_ne t_select
+				WHERE (BASE_NE_ID = #{nodeId}) 
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_SHELF">
+				*
+				FROM
+				  t_base_shelf t_select
+				WHERE (BASE_SHELF_ID = #{nodeId}) 
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_UNIT">
+				*
+				FROM
+				  t_base_unit t_select
+				WHERE (BASE_UNIT_ID = #{nodeId}) 
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBUNIT">
+				*
+				FROM
+				  t_base_sub_unit t_select
+				WHERE (BASE_SUB_UNIT_ID = #{nodeId}) 
+				  AND
+			</when>
+			<when test="nodeLevel==Define.NODE_PTP">
+				*
+				FROM
+				  t_base_ptp t_select
+				WHERE (BASE_PTP_ID = #{nodeId}) 
+				  AND
+			</when>
+		</choose>
+		<include refid="IS_NOT_DEL" />
+		LIMIT 0, 1
+	</select>
+	<sql id="getNodesInfoByRootSql">
+		SELECT
+		<choose>
+			<when test="nodeLevel==Define.NODE_EMSGROUP">
+				*
+				FROM
+				  t_base_ems_group t_select
+				WHERE 
+			</when>
+			<when test="nodeLevel==Define.NODE_EMS">
+				*
+				FROM
+				  t_base_ems_connection t_select
+				WHERE
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	t_select.BASE_EMS_GROUP_ID = #{rootId} AND
+				  </when>
+				  </choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBNET">
+				*
+				FROM
+				  t_base_subnet t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection 
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND 
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  WHERE
+				  	t_select.PARENT_SUBNET = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_NE">
+				*
+				FROM
+				  t_base_ne t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE 
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  WHERE
+				  	t_select.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_SHELF">
+				*
+				FROM
+				  t_base_shelf t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_UNIT">
+				*
+				FROM
+				  t_base_unit t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+					t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SHELF and rootId>0">
+				  WHERE
+				  	t_select.BASE_SHELF_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_SUBUNIT">
+				*
+				FROM
+				  t_base_sub_unit t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SHELF and rootId>0">
+				  	, t_base_sub_slot t_relate,t_base_unit t_parent
+				  WHERE
+				    t_relate.BASE_SLOT_ID = t_parent.BASE_SLOT_ID
+				  	AND t_select.BASE_SUB_SLOT_ID = t_relate.BASE_SUB_SLOT_ID
+				  	AND t_parent.BASE_SHELF_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_UNIT and rootId>0">
+				    , t_base_sub_slot t_relate,t_base_unit t_parent
+				  WHERE
+				    t_relate.BASE_SLOT_ID = t_parent.BASE_SLOT_ID
+                    AND t_select.BASE_SUB_SLOT_ID = t_relate.BASE_SUB_SLOT_ID
+				  	t_parent.BASE_UNIT_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+			</when>
+			<when test="nodeLevel==Define.NODE_PTP">
+				*
+				FROM
+				  t_base_ptp t_select
+				  <choose>
+				  <when test="rootLevel==Define.NODE_EMSGROUP and rootId>0">
+				  	, t_base_ems_connection
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = t_base_ems_connection.BASE_EMS_CONNECTION_ID
+				  	AND t_base_ems_connection.BASE_EMS_GROUP_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_EMS and rootId>0">
+				  WHERE
+				  	t_select.BASE_EMS_CONNECTION_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBNET and rootId>0">
+				  	, t_base_ne
+				  WHERE
+				  	t_select.BASE_NE_ID = t_base_ne.BASE_NE_ID
+				  	AND t_base_ne.BASE_SUBNET_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_NE and rootId>0">
+				  WHERE
+				  	t_select.BASE_NE_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SHELF and rootId>0">
+				  WHERE
+				  	t_select.BASE_SHELF_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_UNIT and rootId>0">
+				  WHERE
+				  	t_select.BASE_UNIT_ID = #{rootId}
+				  	AND
+				  </when>
+				  <when test="rootLevel==Define.NODE_SUBUNIT and rootId>0">
+				  WHERE
+				  	t_select.BASE_SUB_UNIT_ID = #{rootId}
+				  	AND
+				  </when>
+				  <otherwise>
+				  WHERE
+				  </otherwise>
+				  </choose>
+			</when>
+		</choose>
+		<include refid="IS_NOT_DEL" />
+	</sql>
+	<select id="CountNodesInfoByRoot" resultType="int"
+		parameterType="hashmap">
+		SELECT 
+		  COUNT(1) AS total 
+		FROM
+		  (<include refid="getNodesInfoByRootSql" />) t
+	</select>
+	<select id="getNodesInfoByRoot" resultType="hashmap"
+		parameterType="hashmap">
+		<include refid="getNodesInfoByRootSql" />
+		<if test="pageSize != null and pageSize>0">
+			LIMIT ${startNumber}, ${pageSize}
+		</if>
+	</select>
+	<!-- _______________________________ 共通树部分 _______________________________ -->
+</mapper>

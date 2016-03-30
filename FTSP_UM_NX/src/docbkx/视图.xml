@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<info>
+		<title>视图</title>
+	</info>
+
+	<section xml:id="节-网络拓扑图">
+		<title>网络拓扑图</title>
+
+		<para>【描述】</para>
+
+		<para>网络拓扑图以拓扑图形式显示系统和网络的运行情况。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;视图&gt;→&lt;网络拓扑图&gt;，网络拓扑图页面将会打开，如下图。</para>
+
+		<figure xml:id="图-网络拓扑图">
+			<title>网络拓扑图</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/view/network_topology.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>左侧为监视对象树区域，以树状结构显示监视对象，分为搜索框和对象树，参见<xref linkend="节-监视对象树"/>。</para>
+
+		<para>右边部分为网络拓扑视图显示区域，包含四种类型的视图：</para>
+
+		<para>“EMS拓扑视图”：顶层视图，显示FTSP和各级网络管理系统之间的拓扑结构，参见<xref linkend="节-EMS拓扑视图"/>。</para>
+
+		<para>“EMS分组拓扑视图”：显示FTSP和分组内EMS网络管理系统之间的拓扑结构，参见<xref linkend="节-EMS分组拓扑视图"/>。</para>
+
+		<para>“子网拓扑视图”：显示特定EMS网管内传输设备间的拓扑连接关系（按子网进行呈现），参见<xref linkend="节-子网拓扑视图"/>。</para>
+
+		<para>“网元拓扑视图”：显示特定EMS网管内传输设备间的拓扑连接关系（按网元进行呈现），参见<xref linkend="节-网元拓扑视图"/>。</para>
+
+		<para>【功能说明】</para>
+
+		<para>鼠标操作（在网络拓扑视图显示区域）：</para>
+
+		<para>鼠标悬停操作：</para>
+
+		<para>在EMS拓扑视图和EMS分组拓扑视图中：</para>
+
+		<para>当鼠标在FTSP图标和Link线上悬停时，自动显示网管名称；</para>
+
+		<para>当Link线的端点为EMS分组时，显示组内所有EMS的名称。</para>
+
+		<para>在子网拓扑视图和网元拓扑视图中：</para>
+
+		<para>当鼠标在子网图标上悬停时，自动显示对应设备告警个数；</para>
+
+		<para>当鼠标在网元图标上悬停时，自动显示对应设备网元名称、设备类型和告警个数。</para>
+
+		<para>鼠标拖拽操作：</para>
+
+		<para>相关图标可以被选中和拖动，图标的位置可以保存（右键菜单）。</para>
+
+		<para>鼠标左键操作：</para>
+
+		<para>双击EMS分组图标，进入对应EMS的分组拓扑视图，参见<xref linkend="节-EMS分组拓扑视图"/>。</para>
+
+		<para>双击EMS网管图标，进入对应EMS网管的子网拓扑视图，参见<xref linkend="节-子网拓扑视图"/>。</para>
+
+		<para>在子网拓扑视图中双击子网图标，进入对应网元拓扑视图，参见<xref linkend="节-网元拓扑视图"/>。</para>
+
+		<para>在子网拓扑视图或网元拓扑视图中双击网元图标时，进入网元面板图，参见<xref linkend="节-网元面板图"/>。</para>
+
+		<para>双击视图显示区域的空白处，退回到上一层视图。</para>
+
+		<para>鼠标右键操作：</para>
+
+		<para>单击相关图标或者空白区域，出现不同的系统上下文菜单，参见不同视图对应的右键操作说明：</para>
+
+		<para><xref linkend="节-EMS拓扑图右键弹出菜单_EMS"/>，</para>
+
+		<para><xref linkend="节-EMS拓扑图右键弹出菜单_系统"/>，</para>
+
+		<para><xref linkend="节-子网拓扑图右键弹出菜单_Link线"/>，</para>
+
+		<para><xref linkend="节-子网拓扑图右键弹出菜单_网元"/>，</para>
+
+		<para><xref linkend="节-子网拓扑图右键弹出菜单_系统"/>。</para>
+
+		<para>鼠标操作（在监视对象树区域）：参见<xref linkend="节-监视对象树"/>。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>只有管理员用户才可以进行图标布局的保存。</para>
+		</caution>
+
+		<section xml:id="节-监视对象树">
+			<title>监视对象树</title>
+
+			<para>【描述】</para>
+
+			<para>将监视的对象以树状的形式来表示，可以根据需要展开或收起对应节点分枝。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;视图&gt;→&lt;网络拓扑图&gt;，网络拓扑图页面将会打开，其中左侧部分即为监视对象树，如下图。</para>
+
+			<figure xml:id="图-监视对象树">
+				<title>监视对象树</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/view/object_tree.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>上方为“模糊查询”栏，下方为“对象树”区域</para>
+
+			<para>“模糊查询”栏：网元定位功能，支持输入关键字模糊查询网元，筛选结果将更新对象树的显示</para>
+
+			<para>“对象树”：监视对象的树形方式，呈现的类型深度最大为五级：FTSP→EMS分组→EMS→子网→网元</para>
+
+			<para>【功能说明】</para>
+
+			<para>鼠标单击对象树节点前的箭头图标，展开或收起对应节点分枝。</para>
+
+			<para>鼠标双击FTSP图标，进入顶层EMS拓扑视图，参见<xref linkend="节-EMS拓扑视图"/>。</para>
+
+			<para>鼠标双击EMS分组项，进入对应EMS的分组拓扑视图，参见<xref linkend="节-EMS分组拓扑视图"/>。</para>
+
+			<para>鼠标双击EMS项，进入对应EMS网管的子网拓扑视图，参见<xref linkend="节-子网拓扑视图"/>。</para>
+
+			<para>鼠标双击网元项，进入相应的网元拓扑视图，参见<xref linkend="节-网元拓扑视图"/>。</para>
+
+			<para>鼠标双击网元节点图标时，网元面板图页面将会打开，参见<xref linkend="节-网元面板图"/>。</para>
+
+			<para>鼠标右键操作：鼠标右键单击不同图标，将出现不同的上下文菜单，点击相应菜单项后可进入对应页面，具体参见：</para>
+
+			<para><xref linkend="节-右键弹出菜单_EMS分组"/>。</para>
+
+			<para><xref linkend="节-右键弹出菜单_新增子网"/></para>
+
+			<para><xref linkend="节-右键弹出菜单_修改子网名称"/>。</para>
+
+			<section xml:id="节-右键弹出菜单_EMS分组">
+				<title>右键弹出菜单（EMS分组）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在监视对象树区域，右键单击EMS分组图标，右键弹出菜单（EMS分组）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-右键弹出菜单_EMS分组">
+					<title>右键弹出菜单（EMS分组）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/object_tree_pop-up_menu_ems_group.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;修改EMS分组名称&gt;，在弹出框修改EMS分组名并确定后，自动更新对象树内容。</para>
+
+			</section>
+
+			<section xml:id="节-右键弹出菜单_新增子网">
+				<title>右键弹出菜单（新增子网）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在监视对象树区域，右键单击EMS图标，右键弹出菜单（新增子网）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-右键弹出菜单_EMS">
+					<title>右键弹出菜单（EMS）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/object_tree_pop-up_menu_ems.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增子网&gt;，在弹出框输入子网名称并确定后，自动更新对象树内容。</para>
+
+			</section>
+
+			<section xml:id="节-右键弹出菜单_修改子网名称">
+				<title>右键弹出菜单（修改子网名称）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在监视对象树区域，右键单击子网图标，右键弹出菜单（修改子网名称）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-右键弹出菜单_子网">
+					<title>右键弹出菜单（子网）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/object_tree_pop-up_menu_subnet.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;修改子网名称&gt;，在弹出框修改子网名称并确定后，自动更新对象树内容。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-EMS拓扑视图">
+			<title>EMS拓扑视图</title>
+
+			<para>【描述】</para>
+
+			<para>EMS拓扑图用来显示FTSP和各级网络管理系统之间的拓扑结构。</para>
+
+			<para>【页面显示】</para>
+
+			<figure xml:id="图-EMS拓扑视图">
+				<title>EMS拓扑视图</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/view/ems_topology_view.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“顶层拓扑视图标题”：“EMS拓扑”</para>
+
+			<para>“FTSP”：系统图标居中显示</para>
+
+			<para>“EMS分组”：将一定数量的EMS分成一个组，如“省干”</para>
+
+			<para>“EMS”：各传输设备厂家的网管名称，如“华为四期”</para>
+
+			<para>“Link线颜色”：表示FTSP和各EMS网管的连接状态，绿色表示连接正常，红色表示连接异常，灰色则表示连接中断</para>
+
+			<para>“图例面板”：说明对象树和拓扑图显示区域各种图标的含义，默认关闭，可用右键菜单调出</para>
+
+			<para>【功能说明】</para>
+
+			<para>鼠标悬停操作：</para>
+
+			<para>当鼠标在FTSP图标和EMS分组/EMS网管图标之间的Link线上悬停时，自动显示网管名称；当Link线的端点为EMS分组时，显示组内所有EMS的名称。</para>
+
+			<para>鼠标拖拽操作：</para>
+
+			<para>FTSP/EMS分组/EMS网管图标可以被选中和拖动，图标的位置可以保存（右键菜单）。</para>
+
+			<para>鼠标左键操作：</para>
+
+			<para>双击EMS分组图标，进入对应EMS的分组拓扑视图，参见<xref linkend="节-EMS分组拓扑视图"/>。</para>
+
+			<para>双击EMS网管图标，进入对应EMS网管的子网拓扑视图，参见<xref linkend="节-子网拓扑视图"/>。</para>
+
+			<para>双击子网图标，进入对应网元拓扑视图，参见<xref linkend="节-网元拓扑视图"/>。</para>
+
+			<para>双击空白处，退回到上一层视图。</para>
+
+			<para>鼠标右键操作：</para>
+
+			<para>单击EMS网管图标，参见<xref linkend="节-EMS拓扑图右键弹出菜单_EMS"/>。</para>
+
+			<para>单击空白区域，参见<xref linkend="节-EMS拓扑图右键弹出菜单_系统"/>。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>只有管理员用户才可以进行图标布局的保存。</para>
+			</caution>
+
+			<section xml:id="节-EMS拓扑图右键弹出菜单_EMS">
+				<title>EMS拓扑图右键弹出菜单（EMS）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在EMS拓扑图显示区域，鼠标右键单击EMS网管图标，EMS拓扑图右键弹出菜单（EMS）将弹出，如下图。</para>
+
+				<figure xml:id="图-EMS拓扑图右键弹出菜单_EMS">
+					<title>EMS拓扑图右键弹出菜单（EMS）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/ems_topology_pop-up_menu_ems.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;当前告警&gt;，显示所选EMS上的当前告警。</para>
+
+				<para>点击&lt;EMS属性&gt;，显示所选EMS的网管属性。</para>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-EMS拓扑图右键弹出菜单_系统">
+				<title>EMS拓扑图右键弹出菜单（系统）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在EMS拓扑图页面，鼠标右键单击空白区域，EMS拓扑图右键弹出菜单（系统）将弹出，如下图。</para>
+
+				<figure xml:id="图-EMS拓扑图右键弹出菜单_系统">
+					<title>EMS拓扑图右键弹出菜单（系统）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/ems_topology_pop-up_menu_system.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;返回&gt;，返回上一层视图。</para>
+
+				<para>点击&lt;刷新&gt;，将更新当前视图的内容（拓扑信息/告警状态/对象树内容）。</para>
+
+				<para>点击&lt;放大&gt;，放大拓扑显示区域的显示，步进为原始大小的25%。</para>
+
+				<para>点击&lt;缩小&gt;，缩小拓扑显示区域的显示，步进为原始大小的25%。</para>
+
+				<para>点击&lt;原始大小&gt;，将拓扑显示区域的显示恢复成初始大小。</para>
+
+				<para>点击&lt;图例&gt;，打开图例面板，面板上显示拓扑图上出现的各种图形要素的说明。</para>
+
+				<figure xml:id="图-图例菜单">
+					<title>图例菜单</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/legend.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>点击&lt;导出&gt;，将当前拓扑视图区域显示内容保存为外部文件（不包含对象树）。</para>
+
+				<figure xml:id="图-导出另存">
+					<title>导出另存</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/export.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+				
+				<para>点击&lt;保存布局&gt;，保存当前拓扑图视图中图标的位置。</para>
+
+				<figure xml:id="图-保存布局成功提示">
+					<title>保存布局成功提示</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/save_position_success_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-EMS分组拓扑视图">
+			<title>EMS分组拓扑视图</title>
+
+			<para>【描述】</para>
+
+			<para>EMS分组拓扑视图用来显示FTSP和分组内EMS网络管理系统之间的拓扑结构。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在“EMS拓扑视图”中点击EMS分组图标或者在对象树中双击EMS分组图标时，EMS分组拓扑视图页面将会打开，如下图。</para>
+
+			<figure xml:id="图-EMS分组拓扑视图">
+				<title>EMS分组拓扑视图</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/view/ems_group_topology_view.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“分组拓扑视图标题格式”：“EMS拓扑:XXX”（其中XXX为EMS分组名称）</para>
+
+			<para>“Link线颜色”：表示FTSP和各EMS网管的连接状态，绿色表示连接正常，红色表示连接异常，灰色则表示连接中断</para>
+
+			<para>【功能说明】</para>
+
+			<para>鼠标悬停操作：</para>
+
+			<para>当鼠标在FTSP图标和EMS网管图标之间的Link线上悬停时，自动显示网管名称。</para>
+
+			<para>鼠标拖拽操作：</para>
+
+			<para>EMS网管图标可以被选中和拖动，图标的位置可以保存（右键菜单）。</para>
+
+			<para>鼠标左键操作：</para>
+
+			<para>双击EMS网管图标，进入对应EMS网管的子网拓扑视图。</para>
+
+			<para>双击空白处，退回到上一层视图。</para>
+
+			<para>鼠标右键操作：</para>
+
+			<para>与EMS拓扑视图的鼠标右键操作一样，参照<xref linkend="节-EMS拓扑图右键弹出菜单_EMS"/>和
+			<xref linkend="节-EMS拓扑图右键弹出菜单_系统"/>。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>只有管理员用户才可以进行图标布局的保存。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-子网拓扑视图">
+			<title>子网拓扑视图</title>
+
+			<para>【描述】</para>
+
+			<para>子网拓扑视图用来显示特定EMS网管内传输设备间的拓扑连接关系（按子网进行呈现）。</para>
+
+			<para>【页面显示】</para>
+
+			<para>双击EMS拓扑视图/EMS分组拓扑视图中的EMS网管图标或者在对象树中双击EMS网管图标时，子网拓扑视图页面将会打开，如下图。</para>
+
+			<figure xml:id="图-子网拓扑图">
+				<title>子网拓扑图</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/view/subnet_topology_view.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“子网标题格式”：“XXX”（其中XXX为EMS名称）</para>
+
+			<para>“子网图标颜色”：同子网内最高级别告警相对应的颜色</para>
+
+			<para>“网元图标颜色”：与网元上最高级别告警相对应且同步</para>
+
+			<para>“连线颜色”：表示子网/设备间Link端口上的告警状态</para>
+
+			<para>【功能说明】</para>
+
+			<para>鼠标悬停操作：</para>
+
+			<para>当鼠标在子网图标或网元图标上悬停时，自动显示告警个数。</para>
+
+			<para>鼠标拖拽操作：</para>
+
+			<para>子网/网元图标可以被选中和拖动，图标的位置可以保存（右键菜单）。</para>
+
+			<para>鼠标左键操作：</para>
+
+			<para>双击子网图标，进入对应子网的网元拓扑视图。</para>
+
+			<para>双击网元图标，进入对应网元的设备面板视图。</para>
+
+			<para>双击空白处，退回到上一层视图。</para>
+
+			<para>鼠标右键操作：</para>
+
+			<para>鼠标右键单击Link线，参见<xref linkend="节-子网拓扑图右键弹出菜单_Link线"/>。</para>
+
+			<para>鼠标右键单击网元图标，参见<xref linkend="节-子网拓扑图右键弹出菜单_网元"/>。</para>
+
+			<para>鼠标右键单击空白区域，参见<xref linkend="节-子网拓扑图右键弹出菜单_系统"/>。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>只有管理员用户才可以进行图标布局的保存。</para>
+			</caution>
+
+			<section xml:id="节-子网拓扑图右键弹出菜单_Link线">
+				<title>子网拓扑图右键弹出菜单（Link线）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在子网拓扑图显示区域，鼠标右键单击Link线，子网拓扑图右键弹出菜单（Link线）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-子网拓扑图右键弹出菜单_Link线">
+					<title>子网拓扑图右键弹出菜单（Link线）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/subnet_topology_pop-up_menu_link.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;连接告警&gt;，显示所选拓扑连接上的当前告警。</para>
+
+				<para>点击&lt;连接属性&gt;，显示所拓扑连接的所有Link信息。</para>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-子网拓扑图右键弹出菜单_网元">
+				<title>子网拓扑图右键弹出菜单（网元）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在子网拓扑图显示区域，鼠标右键单击网元图标，子网拓扑图右键弹出菜单（网元）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-子网拓扑图右键弹出菜单_网元">
+					<title>子网拓扑图右键弹出菜单（网元）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/subnet_topology_pop-up_menu_ne.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;当前告警&gt;，显示所选网元上的当前告警。</para>
+
+				<para>点击&lt;历史告警&gt;，显示所选网元上的历史告警。</para>
+
+				<para>点击&lt;当前性能&gt;，显示所选网元上的当前性能。</para>
+
+				<para>点击&lt;历史性能&gt;，显示所选网元上的历史性能。</para>
+
+				<para>点击&lt;网元属性&gt;，显示所选网元的属性。</para>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-子网拓扑图右键弹出菜单_系统">
+				<title>子网拓扑图右键弹出菜单（系统）</title>
+
+				<para>【页面显示】</para>
+
+				<para>在视图空白区域，鼠标右键单击空白区域，子网拓扑图右键弹出菜单（系统）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-子网拓扑图右键弹出菜单_系统">
+					<title>子网拓扑图右键弹出菜单（系统）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/subnet_topology_pop-up_menu_system.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>功能参考4.1.2.2 EMS拓扑图右键菜单。</para>
+
+				<para>点击&lt;返回&gt;，返回上一层视图。</para>
+
+				<para>点击&lt;刷新&gt;，更新当前视图的内容（拓扑信息/告警状态/对象树内容）。</para>
+
+				<para>点击&lt;放大&gt;，放大拓扑显示区域的显示，步进为原始大小的25%。</para>
+
+				<para>点击&lt;缩小&gt;，缩小拓扑显示区域的显示，步进为原始大小的25%。</para>
+
+				<para>点击&lt;原始大小&gt;，将拓扑显示区域的显示恢复成初始大小。</para>
+
+				<para>点击&lt;告警显示设置&gt;，设定在拓扑图上是否呈现告警信息及单项选择拓扑图所要呈现告警的级别。</para>
+
+				<para>点击&lt;图例&gt;，打开图例面板，面板上显示拓扑图上出现的各种图形要素的说明。</para>
+
+				<para>点击&lt;导出&gt;，将当前拓扑视图区域显示内容保存为外部文件（不包含对象树）。</para>
+
+				<para>点击&lt;保存布局&gt;，保存当前拓扑图视图中图标的位置。</para>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-网元拓扑视图">
+			<title>网元拓扑视图</title>
+
+			<para>【描述】</para>
+
+			<para>网元拓扑视图用来显示特定EMS网管内传输设备间的拓扑连接关系（按网元进行呈现）。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在子网拓扑视图中双击子网图标或者在对象树中双击子网节点图标时，网元拓扑视图页面将会打开，如下图。</para>
+
+			<figure xml:id="图-网元拓扑视图">
+				<title>网元拓扑视图</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/view/ne_topology_view.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】	</para>
+
+			<para>“网元拓扑视图标题”：“XXX：YYY”（其中XXX为EMS名称，YYY为子网名称）</para>
+
+			<para>“网元图标颜色”：同网元上最高级别告警的颜色且同步</para>
+
+			<para>“连线颜色”：表示子网/设备间Link端口上的告警状态；</para>
+
+			<para>【功能说明】</para>
+
+			<para>鼠标悬停操作:</para>
+
+			<para>当鼠标在子网图标或网元图标上悬停时，自动显示告警个数。</para>
+
+			<para>鼠标拖拽操作:</para>
+
+			<para>子网/网元图标可以被选中和拖动，图标的位置可以保存（右键菜单）。</para>
+
+			<para>鼠标左键操作：</para>
+
+			<para>双击网元图标，进入对应网元的设备面板视图。</para>
+
+			<para>双击空白处，退回到上一层视图。</para>
+
+			<para>鼠标右键操作：同子网拓扑视图部分，参照：</para>
+
+			<para><xref linkend="节-子网拓扑图右键弹出菜单_Link线"/>，</para>
+
+			<para><xref linkend="节-子网拓扑图右键弹出菜单_网元"/>，</para>
+
+			<para><xref linkend="节-子网拓扑图右键弹出菜单_系统"/>。</para>
+
+			<para>右下角功能按钮：</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/zoom_in_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图按比例放大。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/zoom_out_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图按比例缩小。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/full_size_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图恢复初始默认大小。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/full_screen_button.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图全屏显示。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/all_device.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图恢复显示全部设备。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/sdh_device.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图只显示SDH设备。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/otn_device.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图只显示OTN设备。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/wdm_device.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图只显示WDM设备。</para>
+
+			<para>点击<inlinemediaobject><imageobject><imagedata fileref="images/view/ptn_device.png" valign="middle"/></imageobject></inlinemediaobject>按钮，拓扑图只显示PTN设备。</para>
+
+			<caution>
+			<title> [注意]</title>
+
+			<para>只有管理员用户才可以进行图标布局的保存。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-网元面板图">
+			<title>网元面板图</title>
+
+			<para>【描述】</para>
+
+			<para>网元面板图用来描述特定网元的设备安装情况。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在“子网拓扑视图”或“网元拓扑视图”中双击网元图标时，或者在对象树中双击网元节点图标时，网元面板图页面将会打开，如下图。</para>
+
+			<figure xml:id="图-网元面板图">
+				<title>网元面板图</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/view/ne_bayface.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“已实装单元盘”：用灰色表示</para>
+
+			<para>“未实装单元盘”：亮灰色表示</para>
+
+			<para>“单元盘告警状态表示”：用单元盘上的最高级别告警表示</para>
+
+			<para>“实装单元盘及端口选中状态表示”：单元盘凹凸表示，端口加框线表示</para>
+
+			<para>“当没有实装单元盘的对应数据时”：显示带有UNKNOWN标识的特殊单元盘</para>
+
+			<para>“图例面板”：显示设备面板图中出现各种图标的说明</para>
+
+			<para>【功能说明】</para>
+
+			<para>鼠标左键操作：</para>
+
+			<para>鼠标左键单击可以选择在子架上已实装的单元盘或者通道单元盘上的端口。</para>
+
+			<para>鼠标右键操作：</para>
+
+			<para>鼠标右键单击槽道中的单元盘，参见<xref linkend="节-设备面板图右键弹出菜单_单元盘"/>。</para>
+
+			<para>鼠标右键单击通道单元盘上的端口图标，参见<xref linkend="节-设备面板图右键弹出菜单_端口"/>。</para>
+
+			<para>鼠标右键单击空白区域，参见<xref linkend="节-设备面板图右键弹出菜单_系统"/>。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>设备面板图页面最多只能同时显示三个。</para>
+			</note>
+
+			<section xml:id="节-设备面板图右键弹出菜单_单元盘">
+				<title>设备面板图右键弹出菜单（单元盘）</title>
+
+				<para>【页面显示】</para>
+
+				<para>鼠标右键单击槽道中的单元盘，设备面板图右键弹出菜单（单元盘）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-设备面板图右键弹出菜单_单元盘">
+					<title>设备面板图右键弹出菜单（单元盘）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/ne_bayface_pop-up_menu_card.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;当前告警&gt;，显示所选单元盘上的当前告警。</para>
+
+				<para>点击&lt;当前性能&gt;，显示所选端口上的当前性能。</para>
+
+				<para>点击&lt;历史性能&gt;，显示所选端口上的历史性能。</para>
+
+				<para>点击&lt;属性&gt;，显示所选单元盘上的属性。</para>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-设备面板图右键弹出菜单_端口">
+				<title>设备面板图右键弹出菜单（端口）</title>
+
+				<para>【页面显示】</para>
+
+				<para>鼠标右键单击通道单元盘上的端口图标，设备面板图右键弹出菜单（端口）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-设备面板图右键弹出菜单_端口">
+					<title>设备面板图右键弹出菜单（端口）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/ne_bayface_pop-up_menu_port.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;通道路由&gt;，显示指定设备中单元盘上指定端口的相关电路，在电路详情中显示具体的通道路由。</para>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-设备面板图右键弹出菜单_系统">
+				<title>设备面板图右键弹出菜单（系统）</title>
+
+				<para>【页面显示】</para>
+
+				<para>鼠标右键单击空白区域，设备面板图右键弹出菜单（系统）页面将弹出，如下图。</para>
+
+				<figure xml:id="图-设备面板图右键弹出菜单_系统">
+					<title>设备面板图右键弹出菜单（系统）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/view/ne_bayface_pop-up_menu_system.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;当前告警&gt;，显示当前设备上的当前告警。</para>
+
+				<para>点击&lt;历史告警&gt;，显示当前设备上的历史告警。</para>
+
+				<para>点击&lt;刷新&gt;，更新当前设备面板图视图的内容（槽道配置/告警状态）。</para>
+
+				<para>点击&lt;图例&gt;，打开图例面板，面板上显示设备面板图上出现的各种图形要素的说明。</para>
+
+				<para>点击&lt;导出&gt;，将当前设备面板图的显示内容保存为外部文件。</para>
+
+				<note>
+				<title>[说明]</title>
+
+				<para>由于图形页面的右键菜单会缺省显示FlashPlayer的系统菜单，依据版本的不同，右键菜单的内容会有所不同。</para>
+				</note>
+
+			</section>
+
+		</section>
+
+	</section>
+
+</chapter>

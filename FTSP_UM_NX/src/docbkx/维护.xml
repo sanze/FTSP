@@ -1,0 +1,3359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<info>
+		<title>维护</title>
+	</info>
+
+	<section xml:id="节-资源">
+		<title>资源</title>
+
+		<section xml:id="节-区域管理">
+			<title>区域管理</title>
+
+			<para>【描述】</para>
+
+			<para>区域最多分为十级，例如省、市、区、街道。区域管理功能指新建、删除、修改和查询相关的区域信息。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;资源&gt;→&lt;区域管理&gt;，区域管理页面将会打开，如下图。</para>
+
+			<para></para>
+
+			<figure xml:id="图-区域管理">
+				<title>区域管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/region_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/region_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>左侧为对象树（共十级即FTSP根节点加九级区域节点），右侧为对应的区域列表。</para>
+
+			<para>“一级区域”：一级区域名，如四川（省）</para>
+
+			<para>“二级区域”：二级区域名，如成都（市）</para>
+
+			<para>“三级区域”：三级区域名，如成华（区）</para>
+
+			<para>“四级区域”：四级区域名，如新华（街道）</para>
+
+			<para>“区域级别”：区域级别，如三（级）</para>
+
+			<para>“级别名称”：级别名称，如区</para>
+
+			<para>其中，区域级别到九级。</para>
+
+			<para>【功能说明】</para>
+
+			<para>根据查询需要，点击对象树相应节点，可显示对应区域的信息。</para>
+
+			<para>点击&lt;新增&gt;按钮，将新建一个区域（一级至九级区域），参见<xref linkend="节-新增区域"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的区域，参见<xref linkend="节-删除区域"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选区域的信息，参见<xref linkend="节-修改区域"/>。</para>
+
+			<para>点击&lt;级别名称&gt;按钮，将更改区域属性，参见<xref linkend="节-所属区域"/>。</para>
+
+			<caution>
+
+				<title>[注意]</title>
+
+				<para>点击&lt;新增&gt;按钮前必须在对象树中选择一个节点，否则会弹出错误信息对话框。</para>
+
+				<para>点击&lt;删除&gt;和&lt;修改&gt;按钮前必须选择一个区域，否则会弹出错误信息对话框。</para>
+
+			</caution>
+
+			<section xml:id="节-新增区域">
+				<title>新增区域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域管理页面点击&lt;新增&gt;按钮，新增区域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增区域">
+					<title>新增区域</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>酌情填写“区域名称”。</para>
+
+				<para>点击&lt;确认&gt;，完成新增区域操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增区域。</para>
+
+				<note>
+
+					<title>[说明]</title>
+
+					<para>区域名称不能为空。</para>
+
+				</note>
+
+			</section>
+
+			<section xml:id="节-删除区域">
+				<title>删除区域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域管理页面点击&lt;删除&gt;按钮，删除区域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除区域">
+					<title>删除区域</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/delete_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/delete_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除区域操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除区域。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>不符合删除条件的区域则无法删除，系统提示出错的具体原因。</para>
+
+					<para>根节点无法被删除。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-修改区域">
+				<title>修改区域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域管理页面点击&lt;修改&gt;按钮，修改区域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改区域">
+					<title>修改区域</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要可以修改区域名称或者修改所属区域。</para>
+
+				<para>“区域名称”：当前被修改的区域的名称。直接输入新的区域名称。</para>
+
+				<para>“所属区域”：当前被修改的区域所属上一级区域的名称。通过点击&lt;…&gt;按钮来选择进行修改，参见<xref linkend="节-所属区域"/>。</para>
+
+				<para>点击&lt;确认&gt;，完成修改区域操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃修改区域。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>一级区域只能修改区域名称，不能修改所属区域。</para>
+
+					<para>同一节点下区域名称不能重名。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-所属区域">
+				<title>所属区域</title>
+
+				<para>【页面显示】</para>
+
+				<para>在修改区域管理页面点击&lt;…&gt;按钮，所属区域窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-所属区域">
+					<title>所属区域</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/respective_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/respective_region.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>所属区域显示的对象树只显示到被修改的区域的上一级。例如，修改四级区域清凉门（街道）的所属区域，弹出的区域树只显示上一级的三级区域，如鼓楼（区）。</para>
+
+				<para>点击&lt;确认&gt;，完成修改所属区域操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃修改所属区域。</para>
+
+			</section>
+
+			<section xml:id="节-级别名称">
+				<title>级别名称</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域管理页面点击&lt;级别名称&gt;按钮，级别名称窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-级别名称">
+					<title>级别名称</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/level_name.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/level_name.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>逐一修改各个级别的区域名称（均为必填项）。</para>
+
+				<para>“一级区域”：一级区域的名称（默认为省）。</para>
+
+				<para>“二级区域”：二级区域的名称（默认为市）。</para>
+
+				<para>“三级区域”：三级区域的名称（默认为区）。</para>
+
+				<para>“四级区域”：四级区域的名称（默认为街道）。</para>
+
+				<para>点击&lt;确认&gt;，完成修改区域名称操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃修改区域名称。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-区域资源">
+			<title>区域资源</title>
+
+			<para>【描述】</para>
+
+			<para>区域资源功能指对某区域中的局站、机房等信息进行新增、删除、修改以及查询等操作。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;资源&gt;→&lt;区域资源&gt;，区域资源页面将会打开，如下图。</para>
+
+			<figure xml:id="图-区域资源_区域">
+				<title>区域资源（区域）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/area_resource_region.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/area_resource_region.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-区域资源_局站">
+				<title>区域资源（局站）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/area_resource_station.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/area_resource_station.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-区域资源_机房">
+				<title>区域资源（机房）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/area_resource_room.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/area_resource_room.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-区域资源_网元">
+				<title>区域资源（网元）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/area_resource_ne.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/area_resource_ne.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>左侧为区域树，右侧为相应的信息列表。</para>
+
+			<para>区域树选择区域，信息列表中显示该区域下的局站信息，参见<xref linkend="图-区域资源_局站"/>；</para>
+
+			<para>区域树选择局站，信息列表中显示该局站下的机房信息，参见<xref linkend="图-区域资源_机房"/>；</para>
+
+			<para>区域树选择机房，信息列表中显示该机房中关联的网元信息，参见<xref linkend="图-区域资源_网元"/>。</para>
+
+			<para>局站信息：</para>
+
+			<para>“所属区域”：所属区域</para>
+
+			<para>“局站名称”：局站名称</para>
+
+			<para>“局站地址”：局站地址</para>
+
+			<para>“联系人”：联系人</para>
+
+			<para>“电话”：电话号码</para>
+
+			<para>“备注”：备注信息</para>
+
+			<para>机房信息：</para>
+
+			<para>“所属局站”：所属局站</para>
+
+			<para>“机房名称”：机房名称</para>
+
+			<para>“机房类型”：机房类型，分为综合机房/传输机房</para>
+
+			<para>“联系人”：联系人</para>
+
+			<para>“电话”：电话号码</para>
+
+			<para>“备注”：备注信息</para>
+
+			<para>网元信息：</para>
+
+			<para>“所属区域”：所属区域，如四川省成都市成华区新华街道</para>
+
+			<para>“局站名称”：局站名称，如新华局</para>
+
+			<para>“机房名称”：机房名称，如三楼机房</para>
+
+			<para>“网管分组”：网管分组，如成都</para>
+
+			<para>“网管名称”：网管名称，如华为一期</para>
+
+			<para>“网元名称”：网元名称，如测试网元1</para>
+
+			<para>“网元类型”：网元类型，如S385</para>
+
+			<para>【功能说明】</para>
+
+			<para>区域树选中区域，点击&lt;新增&gt;按钮，进行新增局站操作；区域树选中局站，点击&lt;新增&gt;按钮，进行新增机房操作，参见<xref linkend="节-新增区域资源"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除区域树选中的机房或者局站的信息，参见<xref linkend="节-删除区域资源"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改对区域树选中的局站或者机房的信息，参见<xref linkend="节-修改区域资源"/>。</para>
+
+			<para>点击&lt;所有局站&gt;按钮，将显示所选区域下、包括其子区域所包含的所有局站信息。</para>
+
+			<para>点击&lt;所有机房&gt;按钮，将显示所选区域下、包括其子区域所包含的所有机房信息。</para>
+
+			<para>点击&lt;所有网元&gt;按钮，将显示所选区域下、包括其子区域所包含的所有网元信息。</para>
+
+			<para>区域树中选中机房，点击&lt;关联网元&gt;按钮，将添加或删除该机房的关联网元，参见<xref linkend="图-关联网元"/>。</para>
+
+			<para>点击&lt;导出&gt;按钮，将实现导出功能，参见<xref linkend="节-导出区域资源"/>。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;新增&gt;、&lt;删除&gt;、&lt;修改&gt;、&lt;所有局站&gt;、&lt;所有机房&gt;、&lt;所有网元&gt;和&lt;关联网元&gt;按钮前必须在区域树中选择相应的节点，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增区域资源">
+				<title>新增区域资源</title>
+
+				<para>【页面显示】</para>
+
+				<para>区域树选中区域，点击&lt;新增&gt;按钮，新增区域资源（局站）窗口将弹出；区域树选中局站，点击&lt;新增&gt;按钮，新增区域资源（机房）窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增区域资源_局站">
+					<title>新增区域资源（局站）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_station.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_station.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<figure xml:id="图-新增区域资源_机房">
+					<title>新增区域资源（机房）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_room.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_room.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>填写“局站名称”或者“机房名称”（必填项），其他信息酌情填写或选择。</para>
+
+				<para>局站：</para>
+				
+				<para>“所属区域”：所属区域。</para>
+
+				<para>“局站名称”：局站名称。</para>
+
+				<para>“局站地址”：局站地址。</para>
+
+				<para>“联系人”：联系人。</para>
+
+				<para>“电话”：电话号码。</para>
+
+				<para>“备注”：备注信息。</para>
+
+				<para>机房：</para>
+
+				<para>“所属局站”：所属局站。</para>
+
+				<para>“机房名称”：机房名称。</para>
+
+				<para>“机房类型”：机房类型，分为综合机房/传输机房。</para>
+
+				<para>“联系人”：联系人。</para>
+
+				<para>“电话”：电话号码。</para>
+
+				<para>“备注”：备注信息。</para>
+
+				<para>点击&lt;确认&gt;，完成新增区域资源操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增区域资源。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>同一节点下的局站名称和机房名称不能重名。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-删除区域资源">
+				<title>删除区域资源</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域资源页面区域树中选择需要删除的局站，点击&lt;删除&gt;按钮，删除区域资源（局站）窗口将弹出，区域树中选择需要删除的机房，点击&lt;删除&gt;按钮，删除区域资源（机房）窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除区域资源_局站">
+					<title>删除区域资源（局站）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/delete_station.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/delete_station.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<figure xml:id="图-删除区域资源_机房">
+					<title>删除区域资源（机房）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/delete_room.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/delete_room.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，执行删除区域资源操作并显示执行结果。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除区域资源。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>不符合删除条件的区域资源则无法删除，系统提示出错的具体原因。</para>
+
+				</note>
+
+			</section>
+
+			<section xml:id="节-修改区域资源">
+				<title>修改区域资源</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域资源页面区域树中选择需要修改的局站，点击&lt;修改&gt;按钮，修改区域资源（局站）窗口将弹出；区域树中选择需要修改的机房，点击&lt;修改&gt;按钮，修改区域资源（机房）窗口将弹出，分别如下图。</para>
+
+				<figure xml:id="图-修改区域资源_局站">
+					<title>修改区域资源（局站）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_station.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_station.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<figure xml:id="图-修改区域资源_机房">
+					<title>修改区域资源（机房）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_room.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_room.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增区域资源。</para>
+
+			</section>
+
+			<section xml:id="节-关联网元">
+				<title>关联网元</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域资源页面区域树中选择机房，点击&lt;关联网元&gt;按钮，关联网元窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-关联网元">
+					<title>关联网元</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/associate_ne.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/associate_ne.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>左侧部分为网元树，右侧为关联网元列表。</para>
+
+				<para>左侧网元树选中的网元可以通过&lt;＞&gt;按钮添加至右侧关联网元列表。同理右侧关联网元列表中的网元可以通过&lt;＜&gt;按钮移除。</para>
+
+				<para>“网管分组”：网管分组，如成都</para>
+
+				<para>“网管”：网管名称，如华为一期</para>
+
+				<para>“网元名称”：网元名称，如测试网元1</para>
+
+				<para>“网元类型”：网元类型，如S385</para>
+
+				<para>点击&lt;确认&gt;，完成关联网元操作。</para>
+
+				<para>点击&lt;重置&gt;，将清除输入或选择的内容，恢复至初始状态。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃操作。</para>
+
+			</section>
+
+			<section xml:id="节-导出区域资源">
+				<title>导出区域资源</title>
+
+				<para>【页面显示】</para>
+
+				<para>在区域资源页面点击&lt;导出&gt;按钮，导出区域资源窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-导出区域资源">
+					<title>导出区域资源</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/export_area_resource.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/export_area_resource.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要可以打开或者保存文件。</para>
+
+				<para>点击&lt;打开&gt;，将打开文件。</para>
+
+				<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口且放弃操作。</para>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-割接">
+		<title>割接</title>
+
+		<section xml:id="节-割接任务">
+			<title>割接任务</title>
+
+			<para>【描述】</para>
+
+			<para>割接任务功能指针对割接时的常见需求和问题采取对应工作，以降低割接工作量与时间。具体为根据需要创建割接任务，根据输入的信息自动查询相关电路供查看。在割接期间对综告接口自动过滤相关告警；在割接前和割接后做性能值（如计数值和物理量）的快照供查看、并将割接前后的值进行对比；在割接前和割接后做告警的快照供查看、并将割接前后的值进行对比。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;割接&gt;→&lt;割接任务&gt;，割接任务页面将会打开，如下图。</para>
+
+			<figure xml:id="图-割接任务">
+				<title>割接任务</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/cutover_task.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/cutover_task.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“割接任务名称”：割接任务名称，如大行宫机房电源割接。</para>
+
+			<para>“预计开始时间”：预计开始时间。</para>
+
+			<para>“预计结束时间”：预计结束时间。</para>
+
+			<para>“状态”：任务状态，分为待命/进行中/完成/挂起。</para>
+
+			<para>“创建人”：创建任务的用户名，如ADMIN。</para>
+
+			<para>“创建时间”：创建任务的时间。</para>
+
+			<para>“描述”：任务描述信息，如大行宫机房搬迁。</para>
+
+			<para>“实际开始时间”：任务实际开始时间，以开始过滤告警时间为准。</para>
+
+			<para>“实际结束时间”：任务实际结束时间，以在任务操作页面点击“割接完成”按钮的时间为准。</para>
+
+			<para>【功能说明】</para>
+
+			<para>系统默认查询条件为空，选择相应的割接时间段，输入或下拉选择割接任务名或割接状态，点击&lt;查询&gt;按钮将查询符合条件的割接任务。默认显示全部割接任务列表。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个新的割接任务。具体包括三个按钮：&lt;按设备割接&gt;、&lt;按链路割接&gt;、&lt;按光缆割接&gt;，如下图所示。</para>
+
+			<figure xml:id="图-新增割接任务按钮菜单">
+				<title>新增割接任务按钮菜单</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_cutover_task_button_menu.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_cutover_task_button_menu.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;按设备割接&gt;按钮，参见<xref linkend="节-按设备新增割接"/>。</para>
+
+			<para>点击&lt;按链路割接&gt;按钮，参见<xref linkend="节-按链路新增割接"/>。</para>
+
+<!-- 		<para>点击&lt;按光缆割接&gt;按钮，参见<xref linkend="节-按光缆新增割接"/>。</para> -->
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的割接任务，参见<xref linkend="节-删除割接任务"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选割接任务的信息，参见<xref linkend="节-修改割接任务"/>。</para>
+
+			<para>点击&lt;任务操作&gt;按钮，将开始割接操作，参见<xref linkend="节-割接任务操作"/>。</para>
+
+			<para>点击&lt;割接报告&gt;按钮，查看割接任务的报告。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;任务操作&gt;和&lt;割接报告&gt;按钮前必须选择一个割接任务，否则会弹出错误信息对话框。</para>
+
+				<para>按照登录用户权限确定显示的任务列表。即管理员可以看到全部任务，其余用户可以看到有权限的报告。</para>
+			</caution>
+
+			<section xml:id="节-按设备新增割接">
+				<title>按设备新增割接</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面选择&lt;新增&gt;→&lt;按设备新增&gt;，按设备新增割接窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-按设备新增割接窗口">
+					<title>按设备新增割接窗口</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_cutover_by_device.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_cutover_by_device.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>首先从左侧的标准设备列表树中选择相关的设备列入中间的割接设备栏（通过&lt;&gt;&gt;&gt;按钮增加，反之&lt;删除&gt;按钮删除），其次在右侧栏分别输入或选择“割接任务名称”、“开始时间”、“结束时间”、“过滤告警”、“快照数据”、“挂起“、“操作权限组”等功能选项。</para>
+
+				<para>“任务名称”：割接任务名称，如大行宫机房电源割接。</para>
+
+				<para>“任务描述”：任务描述信息，如大行宫机房搬迁。</para>
+
+				<para>“开始时间”、“结束时间”：设置开始时间和结束时间，点击右侧按钮出现选择时间窗口。预计开始时间与结束时间不超过24小时。</para>
+
+				<para>“过滤告警”：割接期间是否对综告接口过滤告警。</para>
+
+				<para>“更新基准值”：割接完成后自动更新基准值。</para>
+
+				<para>“快照数据”：采集快照方式选择，三选一。割接前1～8(默认4)小时自动采集性能值和告警快照（默认选项）/立即采集性能值和告警快照/不自动采集性能值和告警快照。</para>
+
+				<para>“挂起”:默认不点击，如果勾选，表示任务挂起，不自动执行。</para>
+
+				<para>“操作权限组”:可以查看和修改巡检任务的用户组列表。默认勾选创建者所在用户组，并列出所有用户组供选择。管理员默认具有所有权限。</para>
+
+				<para>点击&lt;应用&gt;，保存新增割接设定并保持窗口。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增割接。</para>
+
+				<para>点击&lt;确定&gt;，保存新增割接设定，当前窗口不关闭，可以继续新增割接任务。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>割接设备必选。不可以选择网管或者子网，最大单位为网元，网元和端口不可同时选择。</para>
+
+					<para>割接任务名称为必填项，不允许重名。</para>
+
+					<para>割接开始与结束时间必填，割接开始与结束时间不可超过24小时。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-按链路新增割接">
+				<title>按链路新增割接</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面选择&lt;新增&gt;→&lt;按链路割接&gt;，按链路新增割接窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-按链路新增割接">
+					<title>按链路新增割接</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_cutover_by_link.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_cutover_by_link.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>首先从左侧上方的链路列表中选择相关的链路列入下方的割接链路栏（通过相关查询后选择相关通过&lt;&gt;&gt;&gt;按钮增加，反之&lt;删除&gt;按钮删除），其次在右侧栏分别输入或选择“割接任务名称”、“开始时间”、“结束时间”、“过滤告警”、“快照数据”、“挂起“、“操作权限组”等功能选项。</para>
+
+				<para>“割接任务名称”：割接任务名称，如大行宫机房电源割接。</para>
+
+				<para>“描述”：任务描述信息，如大行宫机房搬迁。</para>
+
+				<para>“时间”：设置开始时间和结束时间，点击右侧按钮出现选择时间窗口。预计开始时间与结束时间不超过24小时。</para>
+
+				<para>“过滤告警”：割接期间是否对综告接口过滤告警。</para>
+
+				<para>“更新基准值”：割接完成后自动更新基准值。</para>
+
+				<para>“快照数据”：采集快照方式选择，三选一。割接前1～8(默认4)小时自动采集性能值和告警快照（默认选项）/立即采集性能值和告警快照/不自动采集性能值和告警快照。</para>
+
+				<para>“挂起”: 默认不点击，如果勾选，表示任务挂起，不自动执行。</para>
+
+				<para>“操作权限组”:可以查看和修改巡检任务的用户组列表。默认勾选创建者所在用户组，并列出所有用户组供选择。管理员默认具有所有权限</para>
+
+				<para>点击&lt;应用&gt;，保存新增割接设定并保持窗口。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增割接。</para>
+
+				<para>点击&lt;确定&gt;，保存新增割接设定，当前窗口不关闭，可以继续新增割接任务。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>割接链路必选。</para>
+
+					<para>割接任务名称为必填项，不允许重名。</para>
+
+					<para>割接开始与结束时间必填，割接开始与结束时间不可超过24小时。</para>
+				</note>
+
+			</section>
+
+<!--		<section xml:id="节-按光缆新增割接">
+				<title>按光缆新增割接</title>
+
+				<para>暂不编写。</para>
+
+			</section> -->
+
+			<section xml:id="节-删除割接任务">
+				<title>删除割接任务</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面，点击&lt;删除&gt;按钮，删除割接任务窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除割接任务">
+					<title>删除割接任务</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/delete_cutover_task.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/delete_cutover_task.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除割接任务操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除割接任务。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>只能删除处于挂起状态或者已经完成的任务。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-修改割接任务">
+				<title>修改割接任务</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面，点击&lt;修改&gt;按钮，修改割接任务窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改割接任务_设备">
+					<title>修改割接任务（设备）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_cutover_task_device.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_cutover_task_device.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para></para>
+
+				<figure xml:id="图-修改割接任务_链路">
+					<title>修改割接任务（链路）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_cutover_task_link.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_cutover_task_link.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>功能参考新增割接。</para>
+
+			</section>
+
+			<section xml:id="节-割接任务操作">
+				<title>割接任务操作</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面，点击&lt;任务操作&gt;按钮，任务操作窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-割接任务操作">
+					<title>割接任务操作</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/cutover_task_operate.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/cutover_task_operate.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>页面上方显示任务进展框图。根据割接任务进度显示不同颜色。完成部分“橙色”，未完成部分“绿色”。初始状态“割接任务”、“显示影响电路”为橙色。</para>
+
+				<para>页面下方显示显示割接任务设置界面。新增割接任务后，自动跳转显示“影响电路”。任务未开始，默认打开页面为“影响电路”。任务已经开始至结束, 默认打开页面为“端口性能值”。</para>
+
+				<para>点击&lt;割接任务&gt;，将显示割接任务设置界面，参考<xref linkend="节-修改割接任务"/>。</para>
+
+				<para>点击&lt;查看影响电路&gt;，将显示割接影响电路，参见<xref linkend="节-查看影响电路"/>。</para>
+
+				<para>点击&lt;割接前快照&gt;，将抓取割接前快照，可以多次抓取，保留最后一次快照数据。抓取后自动显示端口性能值界面，参见<xref linkend="节-割接前快照"/>。</para>
+
+				<para>点击&lt;过滤告警&gt;，将过滤相关的告警。</para>
+
+				<para>点击&lt;割接后快照&gt;，将抓取割接后快照，可以多次抓取，保留最后一次快照数据。抓取后自动显示端口性能值界面，对比显示。</para>
+
+				<para>点击&lt;割接完成&gt;，表示任务完成。</para>
+
+				<section xml:id="节-查看影响电路">
+					<title>查看影响电路</title>
+
+					<para>【页面显示】</para>
+
+					<para>在割接任务操作页面，点击&lt;查看影响电路&gt;按钮，查看影响电路窗口将在下方显示，如下图。</para>
+
+					<figure xml:id="图-查看影响电路">
+						<title>查看影响电路窗口</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/view_affected_circuit.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/view_affected_circuit.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>点击&lt;路由详情&gt;，查看电路详情（同电路模块功能）。</para>
+
+					<para>点击&lt;导出&gt;，导出全部电路信息为excel（同电路模块功能）。</para>
+
+				</section>
+
+				<section xml:id="节-割接前快照">
+					<title>割接前快照</title>
+
+					<para>【页面显示】</para>
+
+					<para>在割接任务操作页面，点击&lt;割接前快照&gt;按钮，弹出提示窗口，如下图：</para>
+
+					<figure xml:id="图-割接前快照提示">
+						<title>割接前快照提示</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/snapshot_prompt_before_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/snapshot_prompt_before_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>点击&lt;是&gt;按钮，若成功将在下方显示结果，如下图所示：</para>
+
+					<figure xml:id="图-割接前快照之端口性能值">
+						<title>割接前快照之端口性能值</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/pm_snapshot_before_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/pm_snapshot_before_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<figure xml:id="图-割接前快照之相关告警">
+						<title>割接前快照之相关告警</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/alarm_snapshot_before_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/alarm_snapshot_before_cutover.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<figure xml:id="图-割接前快照之割接前评估">
+						<title>割接前快照之割接前评估</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/evaluate_snapshot_before_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/evaluate_snapshot_before_cutover.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<figure xml:id="图-割接前快照之割接完成评估">
+						<title>割接前快照之割接完成评估</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/finished_evaluate_snapshot_before_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/finished_evaluate_snapshot_before_cutover.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>点击&lt;否&gt;按钮，窗口关闭，并且放弃当前操作。</para>
+
+					<para>【功能说明】</para>
+
+					<para>点击后系统立即抓取相关端口性能值（调用性能模块功能，采集相关端口的“当前”15min值）。同时立即抓取相关网元告警（调用告警模块功能，采集相关网元的当前未清除告警。）</para>
+
+					<para>完成抓取后，显示端口性能值页面。</para>
+
+					<para>点击&lt;导出&gt;，导出当前页面信息为excel。</para>
+
+					<para>点击&lt;相关告警&gt;，查看相关告警详情。</para>
+
+					<note>
+						<title>[说明]</title>
+
+						<para>若没有抓取过，则系统提示“立即抓取快照数据”。若已抓取过，则系统提示“已经存在快照数据，再次抓取会覆盖之前数据。确认重新抓取？”。</para>
+					</note>
+
+				</section>
+
+				<section xml:id="节-过滤告警">
+					<title>过滤告警</title>
+
+					<para>【页面显示】</para>
+
+					<para>在割接任务操作页面，点击&lt;过滤告警&gt;按钮，过滤告警窗口将弹出，如下图。</para>
+
+					<figure xml:id="图-过滤告警">
+						<title>过滤告警窗口</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/filter_alarm.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/filter_alarm.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>标示当前时间为割接开始时间。开始对综告接口过滤相关告警（含割接网元、割接端口所属网元、割接设备对端端口所属网元的告警）。</para>
+
+					<para>点击&lt;是&gt;，将过滤相关告警。</para>
+
+					<para>点击&lt;否&gt;，退出窗口，并且放弃过滤相关告警。</para>
+
+				</section>
+
+				<section xml:id="节-割接后快照">
+					<title>割接后快照</title>
+
+					<para>【页面显示】</para>
+
+					<para>在割接任务操作页面，点击&lt;割接后快照&gt;按钮，弹出提示窗口，如下图：</para>
+
+					<figure xml:id="图-割接后快照提示">
+						<title>割接后快照提示</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/snapshot_prompt_after_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/snapshot_prompt_after_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>点击&lt;是&gt;按钮，若成功割接后将在下方显示结果，如下图所示：</para>
+
+					<figure xml:id="图-割接后快照之端口性能值">
+						<title>割接后快照之端口性能值</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/pm_snapshot_after_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/pm_snapshot_after_cutover.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<figure xml:id="图-割接后快照之相关告警">
+						<title>割接后快照之相关告警</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/alarm_snapshot_after_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/alarm_snapshot_after_cutover.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<figure xml:id="图-割接后快照之割接前评估">
+						<title>割接后快照之割接前评估</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/evaluate_snapshot_after_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/evaluate_snapshot_after_cutover.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<figure xml:id="图-割接后快照之割接完成评估">
+						<title>割接后快照之割接完成评估</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/finished_evaluate_snapshot_after_cutover.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/finished_evaluate_snapshot_after_cutover.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>功能参考割接前快照。</para>
+
+				</section>
+
+				<section xml:id="节-割接完成">
+					<title>割接完成</title>
+
+					<para>【页面显示】</para>
+
+					<para>在割接任务操作页面，点击&lt;割接完成&gt;按钮，割接完成窗口将弹出，如下图。</para>
+
+					<figure xml:id="图-割接完成">
+						<title>割接完成</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/cutover_complete.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/cutover_complete.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>点击&lt;是&gt;，将将对综告释放过滤告警，更新基准值和生成割接报告。</para>
+
+					<para>点击&lt;否&gt;，退出窗口且放弃割接完成。</para>
+
+				</section>
+
+			</section>
+
+			<section xml:id="节-割接报告">
+				<title>割接报告</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面，点击&lt;割接报告&gt;按钮，割接报告窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-割接报告下载">
+					<title>割接报告下载</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/cutover_report_download.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/cutover_report_download.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;打开&gt;，查看割接任务报告。</para>
+
+				<para>点击&lt;保存&gt;，割接任务报告保存到本机。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃查看割接任务报告。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>若割接任务尚未完成，则系统提示“请待任务完成后再查看报告”，如下图：</para>
+				</note>
+
+				<figure xml:id="图-割接报告提示">
+					<title>割接报告提示</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/cutover_report_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/cutover_report_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+			</section>
+
+			<section xml:id="节-更新基准值">
+				<title>更新基准值</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面，点击&lt;更新基准值&gt;按钮，更新基准值窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-更新基准值">
+					<title>更新基准值</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_reference_value.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_reference_value.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;导出&gt;按钮，基准值文件下载弹出，如下图：</para>
+
+				<figure xml:id="图-基准值文件下载">
+					<title>基准值文件下载</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/reference_value_download.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/reference_value_download.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>点击&lt;打开&gt;，将打开文件。</para>
+
+				<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+				<para>点击&lt;打开&gt;，将关闭窗口且放弃操作。</para>		
+
+			</section>
+
+			<section xml:id="节-评估参数">
+				<title>评估参数</title>
+
+				<para>【页面显示】</para>
+
+				<para>在割接任务页面，点击&lt;评估参数&gt;按钮，评估参数窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-评估参数">
+					<title>评估参数</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/evaluate_parameter.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/evaluate_parameter.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>“割接结果等级”：割接结果的等级参数标准设定（完美/优秀/良好/一般/差劲）。</para>
+
+				<para>“光功率差值判定门限”：光功率差值判定门限设定。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;确定&gt;，割接任务评估参数保存，当前窗口关闭。</para>
+
+				<para>点击&lt;取消&gt;，窗口关闭，并且放弃当前操作。</para>
+
+				<para>点击&lt;应用&gt;，割接任务评估参数保存，当前窗口不关闭。</para>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-光放单元管理">
+		<title>光放单元管理</title>
+
+		<para>【描述】</para>
+
+		<para>系统允许用户对光放单元盘进行管理，包括查询、新增、修改、删除操作。系统提供默认光放单元。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;维护&gt;→&lt;光放单元管理&gt;，光放单元管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-光放单元管理">
+			<title>光放单元管理</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/maintenance/optical_amplifier_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/maintenance/optical_amplifier_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>&lt;厂家列表框&gt;：列出系统中定义的所有厂家</para>
+
+		<para>&lt;光放类型列表框&gt;：列出系统中定义的所有光放类型</para>
+
+		<para>&lt;光放型号列表框&gt;：列出系统中定义的所有光放型号</para>
+
+		<para>&lt;查询&gt;：检索所有的光放信息</para>
+
+		<para>&lt;新增&gt;：新增光放信息</para>
+
+		<para>&lt;保存&gt;：保存对光放信息的修改</para>
+
+		<para>&lt;删除&gt;：删除光放信息</para>
+
+		<para>“厂家”：用户自行定义的厂家</para>
+
+		<para>“光放类型”：光放类型信息，包括：后置放大器、前置放大器、线路放大器</para>
+
+		<para>“光放型号”：光放型号信息，包括：光放型号</para>
+
+		<para>“干线名称”：用户自定义的干线信息名称</para>
+
+		<para>“最大输出功率(dBm)”：最大输出光功率信息</para>
+
+		<para>“增益最小值(dB)”：光放单元的增益最小值</para>
+
+		<para>“增益最大值(dB)”：光放单元的增益最大值</para>
+
+		<para>“增益典型值(dB)”：光放单元的增益典型值</para>
+
+		<para>“输入最大值(dB)”：光放单元的最大输入光功率信息</para>
+
+		<para>“输入最小值(dB)”：光放单元的最小输入光功率信息</para>
+
+		<para>“输入典型值(dB)”：光放单元的典型输入光功率信息</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;厂家下拉框&gt;，选择厂家；点击&lt;光放类型下拉框&gt;，选择光放类型；点击&lt;光放型号下拉框&gt;，选择光放型号，点击&lt;查询&gt;按钮，页面中显示对应光放单元信息记录。默认将显示全部厂家的全部光放类型的全部光放型号光放单元信息。</para>
+
+		<para>双击“最大输出功率(dBm)”、“增益最小值(dB)”、“增益最大值(dB)”、“增益典型值(dB)”、“输入最大值(dB)”、“输入最小值(dB)”、“输入典型值(dB)”列的单元格，可以进入编辑状态。其单元格会变成一个文本框，可以直接输入相应的值。</para>
+
+		<para>一旦单元格的内容发生变化后，它会出现一个已编辑过的标志（单元格左上角的红色小三角）。</para>
+
+		<para>点击&lt;查询&gt;，检索符合条件的光放单元信息，参见<xref linkend="节-查询"/>。</para>
+
+		<para>点击&lt;新增&gt;，新增光放单元信息，参见<xref linkend="节-新增"/>新增光放单元信息。</para>
+
+		<para>点击&lt;保存&gt;，保存修改的光放单元信息，参见<xref linkend="节-保存"/>保存光放单元信息。</para>
+
+		<para>点击&lt;删除&gt;，删除选定的光放单元信息，参见<xref linkend="节-删除"/>删除光放单元信息。</para>
+
+		<note>
+			<title>[说明]</title>
+
+			<para>光放单元管理页面打开的时候默认将显示全部厂家的全部光放类型的全部光放型号光放单元信息。</para>
+		</note>
+
+		<section xml:id="节-查询">
+			<title>查询</title>
+
+			<para>【页面显示】</para>
+
+			<para>在光放单元管理页面中，选择&lt;厂家下拉框&gt;、&lt;光放类型下拉框&gt;、&lt;光放型号下拉框&gt;后，点击&lt;查询&gt;页面将显示所选厂家的所选的光放类型下的光放型号下的光放单元信息，如下图。</para>
+
+			<figure xml:id="图-检索结果">
+				<title>检索结果</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/query_result.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/query_result.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>选择&lt;厂家下拉框&gt;、&lt;光放类型下拉框&gt;、&lt;光放型号下拉框&gt;后，需要点击&lt;查询&gt;按钮，才可以看到对应的信息。</para>
+
+		</section>
+
+		<section xml:id="节-新增">
+			<title>新增</title>
+
+			<para>【页面显示】</para>
+
+			<para>在光放单元管理页面中，点击&lt;新增&gt;按钮，将显示光放单元信息的窗口，如下图，</para>
+
+			<para>选择厂家、光放类型，录入相关信息，点击&lt;确定&gt;，新增成功。</para>
+
+			<figure xml:id="图-新增光放类型">
+				<title>新增光放类型</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_optical_amplifier_type.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_optical_amplifier_type.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>实现光放类型的人工录入。</para>
+
+			<para>带红色星号的为必填项。</para>
+
+		</section>
+
+		<section xml:id="节-保存">
+			<title>保存</title>
+
+			<para>【页面显示】</para>
+
+			<para>在光放单元管理页面中，选择某条记录，双击“最大输出功率(dBm)”、“增益最小值(dB)”、“增益最大值(dB)”、“增益典型值(dB)”、“输入最大值(dB)”、“输入最小值(dB)”、“输入典型值(dB)”列的单元格，进入编辑状态。其单元格会变成一个文本框，如下图所示，可以直接输入相应的值。</para>
+
+			<para>输入录入值后后，点击&lt;保存&gt;按钮。</para>
+
+			<figure xml:id="图-光放单元管理页面编辑图">
+				<title>光放单元管理页面编辑图</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/optical_amplifier_under_edit.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/optical_amplifier_under_edit.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>一旦单元格的内容发生变化后，它会出现一个已编辑过的标志（单元格左上角的红色小三角），如下图所示</para>
+
+			<figure xml:id="图-光放单元管理页面被编辑后图">
+				<title>光放单元管理页面被编辑后图</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/optical_amplifier_after_edit.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/optical_amplifier_after_edit.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+		</section>
+
+		<section xml:id="节-删除">
+			<title>删除</title>
+
+			<para>【页面显示】</para>
+
+			<para>在光放单元管理页面中，选择要删除的光放单元，点击&lt;删除&gt;按钮，将有如下图提示信息，点击&lt;是&gt;。</para>
+
+			<para></para>
+
+			<figure xml:id="图-光放单元删除确认">
+				<title>光放单元删除确认</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/optical_amplifier_delete_confirm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/optical_amplifier_delete_confirm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-光放单元删除成功">
+				<title>光放单元删除成功</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/optical_amplifier_delete_success.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/optical_amplifier_delete_success.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>误点&lt;删除&gt;按钮，有确认信息提示，点击&lt;否&gt;取消删除即可。</para>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-自动作业计划">
+		<title>自动作业计划</title>
+
+		<section xml:id="节-自动作业报表查询">
+			<title>自动作业报表查询</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，在web界面查询生成的自动作业报表。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;自动作业计划&gt;→&lt;自动作业计划报表查询&gt;，自动作业计划报表查询页面将会打开，如下图。</para>
+
+			<figure xml:id="图-自动作业报表查询">
+				<title>自动作业报表查询</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/auto_job_report_query.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/auto_job_report_query.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;起始日期选择器&gt;：用来选择起始日期</para>
+
+			<para>&lt;结束日期选择器&gt;：用来选择结束日期</para>
+
+			<para>&lt;创建人列表框&gt;：列出系统中现有用户名称</para>
+
+			<para>&lt;类型列表框&gt;：列出报表的类型，包括：日报、月报、全部</para>
+
+			<para>&lt;数据源列表框&gt;：列出定制报表的数据源，包括：原始数据、异常数据、全部</para>
+
+			<para>&lt;任务名称列表框&gt;：列出系统中已有的性能定制报表任务名称</para>
+
+			<para>&lt;查询&gt;：根据筛选条件查询自动作业报表数据</para>
+
+			<para>&lt;重置&gt;：清空查询条件</para>
+
+			<para>按网元生成的定制报表查询页面</para>
+
+			<para>统计信息数据部分：</para>
+
+			<para>&lt;监测失败网元&gt;：显示监测失败的网元</para>
+
+			<para>&lt;报表数据显示&gt;:在下方区域显示选择报表的数据</para>
+
+			<para>&lt;导出&gt;：将性能统计数据区的数据导出成excel文件</para>
+
+			<para>“日期”：报表数据的生成日期</para>
+
+			<para>“网元监测成功率（成功/总数）”：报表内网元监测成功率显示</para>
+
+			<para>“端口性能正常率（正常/总数）”：报表内性能正常端口百分率显示</para>
+
+			<para>“异常性能事件统计”：显示不同等级的异常事件数量</para>
+
+			<para>性能数据清单部分：</para>
+
+			<para>&lt;性能趋势图&gt;：显示选定性能数据的性能趋势图</para>
+
+			<para>&lt;设为基准值&gt;：将选定的性能数据设置为性能基准值</para>
+
+			<para>&lt;只显示异常端口数据&gt;：在显示全部数据和只显示异常端口数据间的切换</para>
+
+			<para>“网管分组”：EMS分组名称，默认不显示</para>
+
+			<para>“网管”：网络的友好名称</para>
+
+			<para>“网元”：网元的名称</para>
+
+			<para>“型号”：网元的具体设备型号，默认不显示</para>
+
+			<para>“端口”：网元上单元盘的端口信息，实际显示为机架、子架、槽道、板卡和端口的组合</para>
+
+			<para>“通道”：网元上单板端口对应的通道信息</para>
+
+			<para>“性能事件”：相应端口或通道产生的性能事件的名称</para>
+
+			<para>“位置”：性能事件发生的位置</para>
+
+			<para>“性能值”：对应性能事件产生的具体数值</para>
+
+			<para>“采集时间”：性能事件的采集时间</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;起始日期选择器&gt;，选择报表查询的起始日期，必填条件。</para>
+
+			<para>点击&lt;结束日期选择器&gt;，选择报表查询的结束日期，必填条件。</para>
+
+			<para>点击&lt;创建人列表框&gt;，选择报表创建人。</para>
+
+			<para>点击&lt;类型列表框&gt;，选择报表的类型。</para>
+
+			<para>点击&lt;数据源列表框&gt;：选择报表的数据源。</para>
+
+			<para>点击&lt;任务名称列表框&gt;：选择或输入任务名称，必填条件。</para>
+
+			<para>点击&lt;查询&gt;，将根据上述的筛选条件进行查询，并将结果显示在“性能统计数据”区域。</para>
+
+			<para>点击&lt;重置&gt;，将清空各项查询条件。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>依据选择的任务，显示区域会分别显示不同对象内容。</para>
+			</caution>
+
+			<para>按网元生成的定制报表的显示</para>
+
+			<para>统计信息数据区域：</para>
+
+			<para>选择单条统计信息后，点击&lt;监测失败网元&gt;，将显示监测失败的网元清单画面，参见<xref linkend="节-监测失败网元"/>。</para>
+
+			<para>选择单条统计信息后，点击&lt;显示性能数据清单&gt;，将在下方“性能数据清单”区域显示报表数据内容。</para>
+
+			<para>点击&lt;导出&gt;，将把“性能统计数据”区域的内容保存为excel文件，参见<xref linkend="节-自动作业计划_导出"/>。</para>
+
+			<para>性能数据清单区域：</para>
+
+			<para>选择单条性能信息后，点击&lt;性能趋势图&gt;，性能趋势图页面将会打开，参见6.1.1.2。</para>
+
+			<para>选择单条性能信息后，点击&lt;设为基准值&gt;，将会把当前选择的性能值设置为基准值。</para>
+
+			<para>点击&lt;只显示异常端口数据&gt;，但按钮处于被按下状态时，只显示性能异常数据；但按钮处于未按下状态时，显示全部性能数据。</para>
+
+			<section xml:id="节-监测失败网元">
+				<title>监测失败网元</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能报表查询页面，从“性能统计数据”区域选择单条统计信息后，点击&lt;监测失败网元&gt;，监测失败网元页面将会打开，如下图。</para>
+
+				<figure xml:id="图-监测失败网元">
+					<title>监测失败网元</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/monitor_failed_ne.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/monitor_failed_ne.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>“网管分组”：网管分组名称</para>
+
+				<para>“网管”：网络的友好名称</para>
+
+				<para>“子网”：子网信息，如有多级子网将组合显示</para>
+
+				<para>“网元”：网元的名称</para>
+
+				<para>“型号”：网元的具体设备型号</para>
+
+				<para>“区域”：网元设备所归属的区域，默认不显示</para>
+
+				<para>“局站”：网元设备所在的局站，默认不显示</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;导出&gt;，将把列表中的内容保存为excel文件，参见<xref linkend="节-自动作业计划_导出"/>。</para>
+
+				<para>点击&lt;确定&gt;，将关闭页面并返回。</para>
+
+			</section>
+
+			<section xml:id="节-自动作业计划_导出">
+				<title>导出</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能报表查询页面、监测失败网元页面、点击&lt;导出&gt;，导出页面将会打开，如下图。</para>
+
+				<figure xml:id="图-自动作业计划_导出">
+					<title>文件下载</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/file_download.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/file_download.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;保存&gt;，将保存结果到指定的文件。</para>
+
+				<para>点击&lt;取消&gt;，将取消返回。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>默认的文件名结构为：[报表任务名称]-性能统计数据([开始日期]-[结束日期]-[周期]-[对象数据]</para>
+				</note>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-自动作业报表下载">
+			<title>自动作业报表下载</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，将生成的自动作业报表报表下载到用户本地。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;自动作业报表&gt;→&lt;自动作业报表下载&gt;，自动作业报表下载页面将会打开，如下图。</para>
+
+			<figure xml:id="图-自动作业报表下载">
+				<title>自动作业报表下载</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/auto_job_report_download.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/auto_job_report_download.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;任务名称列表框&gt;：列出系统中已有的性能定制报表任务名称</para>
+
+			<para>&lt;数据源列表框&gt;：列出定制报表的数据源，包括：原始数据、异常数据、全部</para>
+
+			<para>&lt;报表类型列表框&gt;：列出报表的类型，包括：定制报表、即时报表</para>
+
+			<para>&lt;报表周期&gt;：列出报表的周期，包括：日报、月报、全部</para>
+
+			<para>&lt;创建人列表框&gt;：列出系统中现有用户名称</para>
+
+			<para>&lt;起始日期选择器&gt;：用来选择起始日期</para>
+
+			<para>&lt;结束日期选择器&gt;：用来选择结束日期</para>
+
+			<para>&lt;查询&gt;：根据筛选条件查询生成的报表</para>
+
+			<para>&lt;下载&gt;：下载生成的报表</para>
+
+			<para>&lt;删除&gt;：删除生成的报表</para>
+
+			<para>“报表名称“：报表的名称</para>
+
+			<para>“数据源”：报表的数据源</para>
+
+			<para>“类型”：报表的类型</para>
+
+			<para>“生成时间”：报表生成的时间</para>
+
+			<para>“创建人”：报表的创建人</para>
+
+			<para>“文件大小”：生成的报表文件大小</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;任务名称列表框&gt;：选择或输入任务名称。</para>
+
+			<para>点击&lt;数据源列表框&gt;：选择报表的数据源。</para>
+
+			<para>点击&lt;报表类型列表框&gt;，选择报表的类型。</para>
+
+			<para>点击&lt;创建人列表框&gt;，选择报表创建人。</para>
+
+			<para>点击&lt;起始日期选择器&gt;，选择报表查询的起始日期。</para>
+
+			<para>点击&lt;报表周期列表框&gt;，选择报表的周期</para>
+
+			<para>点击&lt;结束日期选择器&gt;，选择报表查询的结束日期。</para>
+
+			<para>点击&lt;查询&gt;，将根据上述的筛选条件进行查询，并将结果显示在列表区域。</para>
+
+			<para>在列表中选择相应报表，点击&lt;下载&gt;可以将报表对象文件下载到用户本地PC上。</para>
+
+			<para>在列表中选择相应报表，点击&lt;删除&gt;可以将选定的报表对象文件删除。</para>
+
+		</section>
+
+		<section xml:id="节-自动作业报表即时生成">
+			<title>自动作业报表即时生成</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，定制个性化性能报表并即时生成。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;自动作业计划&gt;→&lt;自动作业报表即时生成&gt;，自动作业报表即时生成页面将会打开，如下图。</para>
+
+			<figure xml:id="图-自动作业报表即时生成">
+				<title>自动作业报表即时生成</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/auto_job_report_generate_immediate.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/auto_job_report_generate_immediate.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>无</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;确定&gt;按钮，若选择了按网元生成报表，则跳转至按网元生成报表页面，详见<xref linkend="节-按网元生成报表"/>。点击&lt;取消&gt;按钮，退出当前页面。</para>
+
+			<section xml:id="节-按网元生成报表">
+				<title>按网元生成报表</title>
+
+				<para>【描述】</para>
+
+				<para>根据用户需要，按照网元为基本单位定制个性化性能报表并即时生成。</para>
+
+				<para>【页面显示】</para>
+
+				<para>在主菜单选择&lt;性能&gt;→&lt;自动作业计划&gt;→&lt;自动作业报表即时生成&gt;，选择按网元生成报表并确定，自动作业报表即时生成（按网元生成）页面将会打开，如下图。</para>
+
+				<figure xml:id="图-自动作业报表即时生成_按网元生成">
+					<title>自动作业报表即时生成（按网元生成）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/auto_job_report_generate_immediate_ne.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/auto_job_report_generate_immediate_ne.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;任务名称&gt;输入框：输入任务的名称</para>
+
+				<para>&lt;数据源&gt;下拉框：选择生成的报表的数据是所有原始数据还是异常数据</para>
+
+				<para>&lt;报表共享范围&gt;下拉框：选择生成的报表可以被几个群组的用户查看与下载，默认自己永远可以查看下载自己创建的报表</para>
+
+				<para>&lt;类型&gt;下拉框：选择生成的报表保存每天的数据或每个月某一天的数据；若选择了每日则会出现&lt;起始日期&gt;&lt;结束日期&gt;，报表将会统计这一时间范围内每天的性能；若选择了每月则会出现&lt;性能日期&gt;下拉框与&lt;起始月份&gt;&lt;结束月份&gt;，报表将会统计起始月份结束月份之间每个月由性能日期指定的那一天的性能值</para>
+
+				<para>&lt;SDH性能设置&gt;与&lt;WDM性能设置&gt;：选择报表中需要包含的性能事件</para>
+
+				<para>“网管”：选中对象所属的网管</para>
+
+				<para>“子网”：选中对象所属的子网</para>
+
+				<para>“网元”：选中的网元名称</para>
+
+				<para>“网元型号”：选中网元的型号</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;按钮，将弹出窗口供选择网元，详见<xref linkend="节-网元选择"/>。</para>
+
+				<para>点击&lt;删除&gt;按钮前，需先选择对象，点击后将会将选中对象从选中列表中删除。</para>
+
+				<para>点击&lt;清空&gt;按钮，将会将选中对象列表清空。</para>
+
+				<para>点击&lt;立即生成报表&gt;按钮，等待片刻将会按照所选条件生成报表并在成功生成后开启下载。</para>
+
+				<section xml:id="节-网元选择">
+					<title>网元选择</title>
+
+					<para>【描述】</para>
+
+					<para>弹出窗口选择网元并返回选择的网元。</para>
+
+					<para>【页面显示】</para>
+
+					<para>在自动作业报表即时生成或自动作业计划管理中，在按网元生成的页面上点击新增即可打开网元选择弹窗，如下图。</para>
+
+					<figure xml:id="图-网元选择">
+						<title>网元选择</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/maintenance/ne_select.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/maintenance/ne_select.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【内容说明】</para>
+
+					<para>无</para>
+
+					<para>【功能说明】</para>
+
+					<para>点击&lt;确定&gt;按钮，将会关闭弹窗并把选中的对象返回并显示在选中列表中。若选中一个网管下所有对象，则列表将只显示该网管。</para>
+
+					<para>点击&lt;取消&gt;按钮，将会直接关闭弹窗。</para>
+
+				</section>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-自动作业计划管理">
+			<title>自动作业计划管理</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，定制自动作业计划任务。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;自动作业计划&gt;→&lt;自动作业计划管理&gt;，自动作业计划管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-自动作业计划管理">
+				<title>自动作业计划管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/auto_job_schedule_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/auto_job_schedule_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“报表任务名称”：生成报表的任务的名称</para>
+
+			<para>“数据源”：生成报表使用的数据，是所有性能数据还是只有异常数据</para>
+
+			<para>“类型”：报表的类型，是月报还是日报</para>
+
+			<para>“创建时间”：报表任务的创建时间</para>
+
+			<para>“创建人”：报表任务的创建人</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;新增报表任务&gt;按钮，将会出现菜单，&lt;按网元生成&gt;按钮。点击&lt;按网元生成&gt;将会跳转至新增报表标签页，详见<xref linkend="节-新增_修改报表任务"/>。</para>
+
+			<para>点击&lt;修改报表任务&gt;按钮前，必须选择一个报表任务。若选择的是按网元生成的任务将会跳转至<xref linkend="节-新增_修改报表任务"/>。 </para>
+
+			<para>点击&lt;高级查询条件&gt;按钮，将会展开高级查询条件，包括创建人、报表类型、数据源、任务名称。再次点击该按钮将会收起高级查询条件。</para>
+
+			<para>点击&lt;查询&gt;按钮，在未展开高级查询条件时点击查询将会查询出该用户有权限查看的（即同一用户组用户创建的）所有任务；展开高级查询条件后将会筛选符合查询条件且有权限查看的任务。</para>
+
+			<caution>
+				<title>[注意]：</title>
+
+				<para>进入本页面后，在点击&lt;查询&gt;按钮前页面将不会展示任何任务信息。</para>
+			</caution>
+
+			<section xml:id="节-删除报表任务">
+				<title>删除报表任务</title>
+
+				<para>【页面显示】</para>
+
+				<para>在自动作业计划管理页面中，选择了任务后，点击&lt;删除报表任务&gt;，将会显示提示信息，如下图。</para>
+
+				<figure xml:id="图-删除报表任务">
+					<title>删除报表任务</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/delete_confirm.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/delete_confirm.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将删除任务。</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>点击&lt;删除报表任务&gt;按钮前，需先选择至少一条报表任务信息。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-新增_修改报表任务">
+				<title>新增/修改报表任务</title>
+
+				<para>【描述】</para>
+
+				<para>根据用户需要，按照网元为基本单位定制自动作业报表任务。</para>
+
+				<para>【页面显示】</para>
+
+				<para>在自动作业计划管理选择&lt;新增报表任务&gt;→&lt;按网元生成&gt;或选择一个按网元生成的自动作业任务点击修改，新增报表/修改报表（按网元生成）页面将会打开，如下图。</para>
+
+				<figure xml:id="图-新增报表_修改报表_按网元生成">
+					<title>新增报表/修改报表（按网元生成）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_update_report_by_ne.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_update_report_by_ne.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;任务名称&gt;输入框：输入任务的名称</para>
+
+				<para>&lt;数据源&gt;下拉框：选择生成的报表的数据是所有原始数据还是异常数据</para>
+
+				<para>&lt;报表共享范围&gt;下拉框：选择生成的报表可以被几个群组的用户查看与下载，默认自己永远可以查看下载自己创建的报表</para>
+
+				<para>&lt;类型&gt;下拉框：选择生成的报表保存每天的数据或每个月某一天的数据；若选择了每日则会出现&lt;生成延迟&gt;&lt;生成时间&gt;下拉框，报表将会在每天采集任务完成，生成时间指定的时间后生成；将使用当前日期减去生成延迟指定的天数后得到的那一天的性能值。若选择了每月则会出现&lt;生成日期&gt;下拉框与&lt;生成时间&gt;下拉框，报表将会在每月生成日期那一天的采集任务完成，生成时间指定的时间后生成；报表将会统计起始上个月生成日期到本月生成日期的性能值</para>
+
+				<para>&lt;SDH性能设置&gt;与&lt;WDM性能设置&gt;：选择报表中需要包含的性能事件</para>
+
+				<para>“网管”：选中对象所属的网管</para>
+
+				<para>“子网”：选中对象所属的子网</para>
+
+				<para>“网元”：选中的网元名称</para>
+
+				<para>“网元型号”：选中网元的型号</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;按钮，将弹出窗口供选择网元，详见<xref linkend="节-网元选择"/>。</para>
+
+				<para>点击&lt;删除&gt;按钮前，需先选择对象，点击后将会将选中对象从选中列表中删除。</para>
+
+				<para>点击&lt;清空&gt;按钮，将会将选中对象列表清空。</para>
+
+				<para>点击&lt;保存&gt;按钮，将会保存当前任务并关闭当前标签页。</para>
+
+				<caution>
+					<title>[注意]：</title>
+
+					<para>若为新增任务，则页面所有选项为空；若为编辑任务，则页面所有选项初始值被设为任务当前保存的值。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-定制作业计划">
+		<title>定制作业计划</title>
+
+		<section xml:id="节-定制作业计划管理">
+			<title>定制作业计划管理</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，定制作业计划任务。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;定制作业计划&gt;→&lt;定制作业计划管理&gt;，定制作业计划管理页面打开，如下图。</para>
+
+			<figure xml:id="图-定制自动作业计划管理">
+				<title>定制自动作业计划管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/custom_job_schedule_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/custom_job_schedule_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“作业计划任务名称”：作业计划的任务名称。</para>
+
+			<para>“作业计划对象”：作业计划类型。</para>
+
+			<para>“报表类型”：作业计划的报表类型。</para>
+
+			<para>“数据源”：作业计划的数据源。</para>
+
+			<para>“创建时间”：作业计划的创建时间。</para>
+
+			<para>“创建人”：作业计划的创建人。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;新增报表任务&gt;，下拉列表显示新增报表任务种类（波长转换盘作业计划、WDM光放大器作业计划、WDM光开关盘作业计划、WDM合波盘作业计划、WDM分波盘作业计划、SDH性能作业计划、PTN端口性能作业计划、PTN端口流量峰值作业计划），点击任何一项，弹出新增计划窗口，参见<xref linkend="节-新增WDM波长转换盘作业计划"/>，<xref linkend="节-新增WDM光放大器作业计划"/>，<xref linkend="节-新增WDM光开关盘作业计划"/>，<xref linkend="节-新增WDM合波盘作业计划"/>，<xref linkend="节-新增WDM分波盘作业计划"/>，<xref linkend="节-新增SDH性能作业计划"/>，<xref linkend="节-新增PTN端口性能作业计划"/>，<xref linkend="节-新增PTN端口流量峰值作业计划"/>。</para>
+
+			<figure xml:id="图-新增报表任务菜单">
+				<title>新增报表任务菜单</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_job_task_menu.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_job_task_menu.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;删除报表任务&gt;，弹出确认删除窗口，如下图所示，删除报表任务。</para>
+
+			<figure xml:id="图-提示窗口">
+				<title>提示窗口</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/delete_confirm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/delete_confirm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;修改报表任务&gt;，修改选中的报表任务，参见<xref linkend="节-修改定制作业计划"/>。</para>
+
+			<para>点击&lt;查询&gt;，查询登录用户所在组的全部作业计划任务。</para>
+
+			<para>点击&lt;高级查询&gt;，查询条件工具栏显示，如下图所示，根据高级条件设置，查询符合条件的作业计划任务，参见<xref linkend="节-查询定制作业计划"/>。</para>
+
+			<figure xml:id="图-高级查询工具栏">
+				<title>高级查询工具栏</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/advanced_query_toolbar.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/advanced_query_toolbar.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<section xml:id="节-新增WDM波长转换盘作业计划">
+				<title>新增WDM波长转换盘作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;WDM波长转换盘作业计划&gt;，WDM波长转换盘作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-WDM波长转换盘作业计划">
+					<title>WDM波长转换盘作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/wdm_wavelength_converter_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/wdm_wavelength_converter_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期（日报、月报），默认日报。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（三天~七天），默认为三天。</para>
+
+				<para>“生成日期”：当类型选择为月报时，设置报表生成日期（每月3号~每月15号），默认为每月3号。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为12：00。</para>
+
+				<para>“WDM性能设置”：设置WDM性能数据选项，TP等级中的“光传送和复用单元”、WDM物理量设置中的“发光功率”与“收光功率”为必选项。</para>
+
+				<para>波分方向选择：</para>
+
+				<para>列表中显示波分方向所在的网元信息列表，包括网元所在网管分组、网管、子网、网元名称、所属厂家、网元型号、所属单位、网络名称、波分方向、容量以及实开波数。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，添加波分方向窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-添加波分方向">
+					<title>添加波分方向</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_wdm_direction_info.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_wdm_direction_info.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>添加波分方向窗口中，选择左侧区域对象，点击&lt;查询&gt;按钮，查询所选区域内的波分方向数据。勾选需要添加的波分方向信息，点击&lt;确定&gt;按钮，波分方向信息添加成功，窗口关闭；点击&lt;应用&gt;按钮，波分方向信息添加成功，窗口不关闭，可继续编辑；点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，波分方向信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，波分方向选择列表清空。</para>
+
+				<para>点击&lt;保存&gt;，WDM波长转换盘作业计划新增成功。</para>
+
+				<para>点击&lt;预览&gt;，该功能暂时不可用 。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>点击&lt;保存&gt;按钮后，若继续编辑，任务名称不改变，继续点击&lt;保存&gt;或&lt;预览&gt;按钮，系统则提示作业计划名重复。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-新增WDM光放大器作业计划">
+				<title>新增WDM光放大器作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;WDM光放大器作业计划&gt;，WDM光放大器作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-WDM光放大器作业计划">
+					<title>WDM光放大器作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/wdm_optical_amplifier_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/wdm_optical_amplifier_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期（日报、月报），默认日报。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（三天~七天），默认为三天。</para>
+
+				<para>“生成日期”：当类型选择为月报时，设置报表生成日期（每月3号~每月15号），默认为每月3号。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为12：00。</para>
+
+				<para>光放大器选择：</para>
+
+				<para>列表中显示光放大器所在的网元信息列表，包括网元所在网管分组、网管、子网、网元名称、所属厂家、网元型号、所属单位、网络名称、波分方向。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，新增光放大器窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-新增光放大器">
+					<title>新增光放大器</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_optical_amplifier.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_optical_amplifier.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>新增光放大器窗口中，点击网元后的下拉框选择网元。输入单位、网络名称、站点、波分方向。板卡选择中，选择可选板卡，点击按钮，添加光放大器所含板卡；选择光放大器所含板卡，点击按钮，删除光放大器所含板卡。信息录入后，点击&lt;确定&gt;按钮，新增光放大器成功，并且窗口关闭。点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+				<para>点击&lt;修改&gt;，修改光放大器窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-修改光放大器">
+					<title>修改光放大器</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_optical_amplifier.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_optical_amplifier.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>修改光放大器窗口中，点击&lt;重置&gt;按钮，波分方向所含板卡列表清空。修改内容后，点击&lt;确定&gt;，内容修改保存并且窗口关闭；点击&lt;应用&gt;按钮，内容修改保存，窗口不关闭，可以继续修改编辑；点击&lt;应用&gt;按钮，修改操作取消，窗口关闭。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，光放大器选择相关信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，光放大器选择列表清空。</para>
+
+				<para>点击&lt;保存&gt;，WDM光放大器作业计划新增成功。</para>
+
+				<para>点击&lt;预览&gt;，该功能暂时不可用。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>点击&lt;保存&gt;按钮后，若继续编辑，任务名称不改变，继续点击&lt;保存&gt;或&lt;预览&gt;按钮，系统则提示作业计划名重复。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-新增WDM光开关盘作业计划">
+				<title>新增WDM光开关盘作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;WDM光开关盘作业计划&gt;，WDM光开关盘作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-WDM光开关盘作业计划">
+					<title>WDM光开关盘作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/wdm_optical_switch_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/wdm_optical_switch_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期（日报、月报），默认日报。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（三天~七天），默认为三天。</para>
+
+				<para>“生成日期”：当类型选择为月报时，设置报表生成日期（每月3号~每月15号），默认为每月3号。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为12：00。</para>
+
+				<para>光开关盘选择：</para>
+
+				<para>列表中显示光开关盘所在的网元信息列表，包括网元所在网管分组、网管、子网、网元名称、所属厂家、网元型号、单位、站名以及网络名称。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，新增光开关盘窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-新增光开关盘">
+					<title>新增光开关盘</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_optical_switch.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_optical_switch.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>新增光放大器窗口中，点击网元后的下拉框选择网元。输入单位、网络名称、站点。板卡选择中，选择可选板卡，点击按钮，添加光开关盘所含板卡；选择光开关盘所含板卡，点击按钮，删除波分方向所含板卡。信息录入后，点击&lt;确定&gt;按钮，新增光开关盘成功，并且窗口关闭。点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+				<para>点击&lt;修改&gt;，修改光开关盘窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-修改光开关盘">
+					<title>修改光开关盘</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_optical_switch.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_optical_switch.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>修改光开关盘窗口中，点击&lt;重置&gt;按钮，作业计划所含板卡列表清空。修改内容后，点击&lt;确定&gt;，内容修改保存并且窗口关闭；点击&lt;应用&gt;按钮，内容修改保存，窗口不关闭，可以继续修改编辑；点击&lt;应用&gt;按钮，修改操作取消，窗口关闭。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，光开关盘选择相关信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，光开关盘选择列表清空。</para>
+
+				<para>点击&lt;保存&gt;，WDM光开关盘作业计划新增成功。</para>
+
+				<para>点击&lt;预览&gt;，该功能暂时不可用。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>点击&lt;保存&gt;按钮后，若继续编辑，任务名称不改变，继续点击&lt;保存&gt;或&lt;预览&gt;按钮，系统则提示作业计划名重复。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-新增WDM合波盘作业计划">
+				<title>新增WDM合波盘作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;WDM合波盘作业计划&gt;，WDM合波盘作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-WDM合波盘作业计划">
+					<title>WDM合波盘作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/wdm_multiplexer_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/wdm_multiplexer_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期（日报、月报），默认日报。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（三天~七天），默认为三天。</para>
+
+				<para>“生成日期”：当类型选择为月报时，设置报表生成日期（每月3号~每月15号），默认为每月3号。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为12：00。</para>
+
+				<para>合波盘选择：</para>
+
+				<para>列表中显示合波盘所在的网元信息列表，包括网元所在网管分组、网管、子网、网元名称、所属厂家、网元型号、所属单位、网络名称、容量以及实开波数。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，新增合波盘窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-新增合波盘">
+					<title>新增合波盘</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_multiplexer.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_multiplexer.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>新增合波盘窗口中，输入单位、网络名称、容量（波数）、实开（波数），选择设备厂家、设备型号。板卡选择中，选择可选板卡，点击按钮，添加波分方向所含板卡；选择波分方向所含板卡，点击按钮，删除波分方向所含板卡。信息录入后，点击&lt;确定&gt;按钮，新增合波盘成功，并且窗口关闭。点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+				<para>点击&lt;修改&gt;，修改合波盘窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-修改合波盘">
+					<title>修改合波盘</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_multiplexer.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_multiplexer.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>修改合波盘窗口中，点击&lt;重置&gt;按钮，右侧板卡列表清空。修改内容后，点击&lt;确定&gt;，内容修改保存并且窗口关闭；点击&lt;应用&gt;按钮，内容修改保存，窗口不关闭，可以继续修改编辑；点击&lt;应用&gt;按钮，修改操作取消，窗口关闭。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，合波盘选择相关信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，合波盘选择列表清空。 </para>
+
+				<para>点击&lt;保存&gt;，WDM合波盘作业计划新增成功。</para>
+
+				<para>点击&lt;预览&gt;，该功能暂时不可用。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>点击&lt;保存&gt;按钮后，若继续编辑，任务名称不改变，继续点击&lt;保存&gt;或&lt;预览&gt;按钮，系统则提示作业计划名重复。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-新增WDM分波盘作业计划">
+				<title>新增WDM分波盘作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;WDM分波盘作业计划&gt;，WDM分波盘作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-WDM分波盘作业计划">
+					<title>WDM分波盘作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/wdm_demultiplexer_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/wdm_demultiplexer_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期（日报、月报），默认日报。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（三天~七天），默认为三天。</para>
+
+				<para>“生成日期”：当类型选择为月报时，设置报表生成日期（每月3号~每月15号），默认为每月3号。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为12：00。</para>
+
+				<para>分波盘选择：</para>
+
+				<para>列表中显示分波盘所在的网元信息列表，包括网元所在网管分组、网管、子网、网元名称、所属厂家、网元型号、所属单位、网络名称、波分方向、容量以及实开波数。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，新增分波盘窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-新增分波盘">
+					<title>新增分波盘</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/add_demultiplexer.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/add_demultiplexer.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>新增分波盘窗口中，输入单位、网络名称、容量（波数）、实开（波数），选择设备厂家、设备型号。板卡选择中，选择可选板卡，点击按钮，添加波分方向所含板卡；选择波分方向所含板卡，点击按钮，删除波分方向所含板卡。信息录入后，点击&lt;确定&gt;按钮，新增分波盘成功，并且窗口关闭。点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+				<para>点击&lt;修改&gt;，修改合波盘窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-修改分波盘">
+					<title>修改分波盘</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/update_demultiplexer.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/update_demultiplexer.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>修改分波盘窗口中，点击&lt;重置&gt;按钮，右侧板卡列表清空。修改内容后，点击&lt;确定&gt;，内容修改保存并且窗口关闭；点击&lt;应用&gt;按钮，内容修改保存，窗口不关闭，可以继续修改编辑；点击&lt;应用&gt;按钮，修改操作取消，窗口关闭。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，分波盘选择相关信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，分波盘选择列表清空。 </para>
+
+				<para>点击&lt;保存&gt;，WDM分波盘作业计划新增成功。</para>
+
+				<para>点击&lt;预览&gt;，该功能暂时不可用。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>点击&lt;保存&gt;按钮后，若继续编辑，任务名称不改变，继续点击&lt;保存&gt;或&lt;预览&gt;按钮，系统则提示作业计划名重复。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-新增SDH性能作业计划">
+				<title>新增SDH性能作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;SDH性能作业计划&gt;，SDH性能作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-SDH性能作业计划">
+					<title>SDH性能作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/sdh_pm_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/sdh_pm_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期（日报、月报），默认日报。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（两天~七天），默认为两天。</para>
+
+				<para>“生成日期”：当类型选择为月报时，设置报表生成日期（每月3号~每月15号），默认为每月3号。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为采集结束一小时后。</para>
+
+				<para>性能设置：</para>
+
+				<para>设置SDH、WDM性能数据，默认全选。</para>
+
+				<para>网元选择：</para>
+
+				<para>列表中显示网元信息列表，包括网元所在网管分组、网管、子网、网元以及网元型号。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，网元选择窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-SDH性能计划_网元选择">
+					<title>网元选择</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/ne_select.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/ne_select.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>选择所需查询的设备对象的类别（网管分组、网管、子网、网元）后，对象名列表自动重新加载信息，选择查询对象，设备列表加载筛选后的设备信息。点击&lt;确认&gt;按钮，网元选定，网元选择窗口关闭；点击&lt;取消&gt;，退出窗口，并且放弃操作。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，网元相关信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，网元列表清空。 </para>
+
+				<para>点击&lt;保存&gt;，进行数据合法性验证，验证通过后保存用户设置并生成SDH性能作业计划任务。</para>
+
+				<para>点击&lt;预览&gt;，该功能暂时不可用。</para>
+
+			</section>
+
+			<section xml:id="节-新增PTN端口性能作业计划">
+				<title>新增PTN端口性能作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;PTN端口性能作业计划&gt;，PTN端口性能作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-PTN端口性能作业计划">
+					<title>PTN端口性能作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/ptn_pm_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/ptn_pm_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据，不可更改。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期，默认日报，不可更改。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（三天~七天），默认为三天。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为12:00。</para>
+
+				<para>端口选择:</para>
+
+				<para>列表中显示端口所在的网元信息列表，包括端口所在网管分组、网管、子网、网元名称、所属厂家、网元型号、端口名称、过载点、灵敏度。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，新增端口窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-端口选择">
+					<title>端口选择</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/ne_select.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/ne_select.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>选择所需查询的设备对象的类别（网管分组、网管、子网、网元）后，对象名列表自动重新加载信息，选择查询对象，设备列表加载筛选后的设备信息。点击&lt;确认&gt;按钮，端口选定，端口选择窗口关闭；点击&lt;取消&gt;，退出窗口，并且放弃操作。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，网元相关信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，网元列表清空。 </para>
+
+				<para>点击&lt;关联光口标准&gt;，弹出提示窗口，确定后，关联事先已设置的光口标注模板。</para>
+
+				<para>点击&lt;保存&gt;，进行数据合法性验证，验证通过后保存用户设置并生成PTN端口性能作业计划任务。</para>
+
+			</section>
+
+			<section xml:id="节-新增PTN端口流量峰值作业计划">
+				<title>新增PTN端口流量峰值作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;PTN端口流量峰值作业计划&gt;，PTN端口流量峰值作业计划页面将会打开，如下图。</para>
+
+				<figure xml:id="图-PTN端口流量峰值作业计划">
+					<title>PTN端口流量峰值作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/ptn_traffic_peak_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/ptn_traffic_peak_job.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>报表设置：</para>
+
+				<para>“任务名称”：作业计划任务的名称，必填项，同一个创建人下任务名称必须唯一。</para>
+
+				<para>“数据源”：报表数据的来源，默认为原始数据，不可更改。</para>
+
+				<para>“报表共享范围”：设置可以查看报表的用户范围，以用户组为单位。</para>
+
+				<para>“类型”：设置报表的生成周期，默认日报，不可更改。</para>
+
+				<para>“生成延迟”：当类型选择为日报时，设置报表生成延迟天数（三天~七天），默认为三天。</para>
+
+				<para>“生成时间”：设置报表生成的时间，默认为12:00。</para>
+
+				<para>系统选择:</para>
+
+				<para>列表中显示端口所在的PTN系统信息列表，包括系统所在网管分组、网管、系统名称、系统容量、系统类型。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;新增&gt;，新增报表所含系统窗口打开，如下图所示：</para>
+
+				<figure xml:id="图-系统选择">
+					<title>系统选择</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/system_select.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/system_select.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>选则报表所含的系统后，点击&lt;确认&gt;按钮，系统选定，系统选择窗口关闭；点击&lt;取消&gt;，退出窗口，并且放弃操作。</para>
+
+				<para>点击&lt;删除&gt;，弹出提示窗口，确定后，网元相关信息删除成功。</para>
+
+				<para>点击&lt;清空&gt;，弹出提示窗口，确定后，网元列表清空。 </para>
+
+			</section>
+
+			<section xml:id="节-修改定制作业计划">
+				<title>修改定制作业计划</title>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;修改作业计划&gt;，所选类型的作业计划页面将会打开。</para>
+
+				<para>【内容说明】</para>
+
+				<para>详见对应新增作业计划内容说明。</para>
+
+				<para>【功能说明】</para>
+
+				<para>详见对应新增作业计划功能说明。</para>
+
+			</section>
+
+			<section xml:id="节-查询定制作业计划">
+				<title>查询定制作业计划</title>
+
+				<para>【描述】</para>
+
+				<para>根据查询条件进行作业计划任务查询，并在作业计划任务显示区域显示查询结果。</para>
+
+				<para>【页面显示】</para>
+
+				<para>在定制作业计划管理页面，点击&lt;高级查询条件&gt;，查询条件工具栏弹出，如下图。</para>
+
+				<figure xml:id="图-查询定制作业计划">
+					<title>查询定制作业计划</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/maintenance/query_custom_job_plan.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/maintenance/query_custom_job_plan.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>“创建人”：下拉框选择作业计划的创建人（全部、登录用户所在组的所有用户名），默认为全部。</para>
+
+				<para>“作业计划对象”：下拉框选择作业计划的作业计划对象（全部、波长转换盘作业计划、WDM光放大器作业计划、WDM光开关盘作业计划、WDM合波盘作业计划、WDM分波盘作业计划、SDH性能作业计划、PTN端口性能作业计划、PTN端口流量峰值作业计划），默认为全部。</para>
+
+				<para>“报表类型”：下拉框选择作业计划的报表类型（全部、日报、月报），默认为全部。</para>
+
+				<para>“数据源”：下拉框选择作业计划的数据源（全部、原始、异常），默认为全部。</para>
+
+				<para>“任务名称”：下拉框选择作业计划的任务名称（根据前3项条件过滤后登录用户可查看的计划任务名称），默认为空。支持输入功能，可根据输入文字进行匹配后在下拉框显示匹配结果。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;查询&gt;，按照高级查询条件，筛选符合条件的作业计划任务显示在列表中。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-定制作业计划报表下载">
+			<title>定制作业计划报表下载</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，将生成的定制作业计划报表下载到用户本地。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;定制作业计划&gt;→&lt;定制作业计划报表下载&gt;，定制作业报表下载页面将会打开，如下图。</para>
+
+			<figure xml:id="图-定制作业计划报表下载_定时报表">
+				<title>定制作业计划报表下载（定时报表）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/custom_job_report_download.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/custom_job_report_download.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>查询条件：</para>
+
+			<para>“报表类型”：选择报表定制类型（定时报表、即时报表），默认为定时报表。</para>
+
+			<para>“报表周期”：选择报表周期（全部、日报、月报），默认为全部。</para>
+
+			<para>“任务名称”：选择定制任务的名称（全部、登录用户可查看的所有任务），默认为全部。</para>
+
+			<para>“数据源”：选择报数据源（全部、原始数据、异常数据），默认为全部。</para>
+
+			<para>“创建人”：选择报表定制创建人（全部、登录用户有权限查看报表的创建人信息），默认为全部。</para>
+
+			<para>“作业计划对象”：选择作业计划对象（全部、波长转换盘作业计划、WDM光放大器作业计划、WDM光开关盘作业计划、WDM合波盘作业计划、WDM分波盘作业计划、SDH性能作业计划、PTN端口性能作业计划、PTN端口流量峰值作业计划），默认为全部。</para>
+
+			<para>“报表名称”：报表的名称</para>
+
+			<para>“作业计划对象”：报表所属作业计划对象</para>
+
+			<para>“数据源”：报表的数据源</para>
+
+			<para>“类型”：报表的类型</para>
+
+			<para>“生成时间”：报表生成的时间</para>
+
+			<para>“创建人”：报表的创建人</para>
+
+			<para>“文件大小”：生成的报表文件大小</para>
+
+			<para>【功能说明】</para>
+
+			<para>在列表中选择相应报表，点击&lt;下载&gt;可以将报表对象文件下载到用户本地PC上。</para>
+
+			<para>在列表中选择相应报表，点击&lt;预览&gt;可以预览报表对象（该功能暂时不可用）。</para>
+
+			<para>在列表中选择相应报表，点击&lt;删除&gt;可以将选定的报表对象文件删除。</para>
+
+		</section>
+
+		<section xml:id="节-定制即时报表生成">
+			<title>定制即时报表生成</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，定制个性化性能报表并即时生成。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;定制作业计划&gt;→&lt;定制即时报表生成&gt;，弹出报表设置选择框，如下图。</para>
+
+			<figure xml:id="图-报表设置">
+				<title>报表设置</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/report_setting.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/report_setting.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>作业计划类型选择：波长转换盘作业计划、WDM光放大器作业计划、WDM光开关盘作业计划、WDM和波盘作业计划、WDM分波盘作业计划、SDH性能作业计划。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;确定&gt;按钮，选择指定的作业计划类型，即跳转。</para>
+
+			<para>点击&lt;取消&gt;按钮，退出当前页面。</para>
+
+		</section>
+
+		<section xml:id="节-波分方向管理">
+			<title>波分方向管理</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，在web界面进行波分方向管理。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;定制作业计划&gt;→&lt;波分方向管理&gt;，波分方向管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-波分方向管理">
+				<title>波分方向管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/wdm_direction_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/wdm_direction_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“网管分组”：波分方向所在网元所属网管分组</para>
+
+			<para>“网管”：波分方向所在网元所属网管</para>
+
+			<para>“子网”：波分方向所在网元所属子网</para>
+
+			<para>“网元名称”：波分方向所在网元名称</para>
+
+			<para>“设备厂家”：波分方向所在网元所属厂家</para>
+
+			<para>“网元型号”：波分方向所在网元网元型号</para>
+
+			<para>“单位”：波分方向所在网元所属单位</para>
+
+			<para>“网络名称”：波分方向所属网络名称</para>
+
+			<para>“方向”：波分方向</para>
+
+			<para>“容量（波数）”：波分方向容量</para>
+
+			<para>“实开（波数）”：波分方向实开波数</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;新增&gt;，新增波分方向窗口打开，如下图所示：</para>
+
+			<figure xml:id="图-新增波分方向">
+				<title>新增波分方向</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_wdm_direction.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_wdm_direction.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>新增波分方向窗口中，选择网元，可选板卡列表自动加载该网元下的所有板卡信息，输入单位、站名、波分方向、网络名称、容量（波数）、实开（波数）。板卡选择中，选择可选板卡，点击按钮，添加波分方向所含板卡；选择波分方向所含板卡，点击按钮，删除波分方向所含板卡。</para>
+
+			<para>新增波分方向窗口中，信息录入后，点击&lt;确定&gt;按钮，新增波分方向成功，弹出提示窗口，如下图。点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+			<figure xml:id="图-波分方向保存提示">
+				<title>保存提示</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/data_save_success_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/data_save_success_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;修改&gt;，修改波分方向窗口打开，如下图所示：</para>
+
+			<figure xml:id="图-修改波分方向">
+				<title>修改波分方向</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/update_wdm_direction.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/update_wdm_direction.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>修改波分方向窗口中，点击&lt;重置&gt;按钮，波分方向所含板卡列表清空。修改内容后，点击&lt;确定&gt;，内容修改保存并且窗口关闭；点击&lt;应用&gt;按钮，内容修改保存，窗口不关闭，可以继续修改编辑；点击&lt;应用&gt;按钮，修改操作取消，窗口关闭。</para>
+
+			<para>点击&lt;删除&gt;，弹出提示窗口，确定后，波分方向相关信息删除成功。</para>
+
+		</section>
+
+		<section xml:id="节-板卡接口管理">
+			<title>板卡接口管理</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，在web界面进行板卡接口管理。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;定制作业计划&gt;→&lt;板卡接口管理&gt;，板卡接口管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-板卡接口管理">
+				<title>板卡接口管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/card_port_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/card_port_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>查询条件：</para>
+
+			<para>“板卡类型”：选择板卡的类型（全部、WDM波长转换盘、WDM光开关盘），默认为全部。</para>
+
+			<para>查询结果：</para>
+
+			<para>“网管分组”：板卡所在网元所属网管分组</para>
+
+			<para>“网管”：板卡所在网元所属网管 </para>
+
+			<para>“子网”：板卡所在网元所属子网</para>
+
+			<para>“网元名称”：板卡所在网元名称</para>
+
+			<para>“槽道”：板卡所在槽道</para>
+
+			<para>“板卡”：板卡名称</para>
+
+			<para>“板卡类型”：板卡的类型</para>
+
+			<para>“板卡规格”：板卡的规格</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;新增&gt;，新增板卡接口窗口打开，如下图所示：</para>
+
+			<figure xml:id="图-新增板卡接口配置_WDM波长转换器">
+				<title>新增板卡接口配置（WDM波长转换器）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_card_port_otu.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_card_port_otu.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-新增板卡接口配置_WDM光开关盘">
+				<title>新增板卡接口配置（WDM光开关盘）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_card_port_optical_sw.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_card_port_optical_sw.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>新增板卡接口窗口中，选择网元，可选板卡列表自动加载该网元下的所有板卡信息，输入单位、站名、波分方向、网络名称、容量（波数）、实开（波数）。板卡选择中，选择可选板卡，点击按钮，添加波分方向所含板卡；选择波分方向所含板卡，点击按钮，删除波分方向所含板卡。</para>
+
+			<para>新增板卡接口窗口中，信息录入后，点击&lt;确定&gt;按钮，新增波分方向成功，弹出提示窗口，如下图。点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+			<figure xml:id="图-新增板卡_保存成功提示">
+				<title>数据保存成功提示</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/data_save_success_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/data_save_success_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;修改&gt;，修改板卡接口窗口打开，如下图所示：</para>
+
+			<figure xml:id="图-修改板卡接口配置_WDM波长转换器">
+				<title>修改板卡接口配置（WDM波长转换器）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/update_card_port_otu.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/update_card_port_otu.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-修改板卡接口配置_WDM光开关盘">
+				<title>修改板卡接口配置（WDM光开关盘）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/update_card_port_optical_sw.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/update_card_port_optical_sw.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>修改板卡接口窗口中，点击&lt;重置&gt;按钮，波分方向所含板卡列表清空。修改内容后，点击&lt;确定&gt;，内容修改保存并且窗口关闭；点击&lt;应用&gt;按钮，内容修改保存，窗口不关闭，可以继续修改编辑；点击&lt;应用&gt;按钮，修改操作取消，窗口关闭。</para>
+
+			<para>点击&lt;删除&gt;，弹出提示窗口，确定后，板卡接口相关信息删除成功。</para>
+
+		</section>
+
+		<section xml:id="节-PTN系统管理">
+			<title>PTN系统管理</title>
+
+			<para>【描述】</para>
+
+			<para>根据用户需要，在web界面进行PTN系统管理。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;维护&gt;→&lt;定制作业计划&gt;→&lt;PTN系统管理&gt;，PTN系统管理管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-PTN系统管理">
+				<title>PTN系统管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/ptn_system_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/ptn_system_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>查询条件：</para>
+
+			<para>“网管分组”：网管分组（全部、华为、贝尔、中兴、无）默认为空。</para>
+
+			<para>“网管”：网管（具体网管名称）默认为空。</para>
+
+			<para>“类型”：PTN系统类型（全部、非业务集中型环网系统、业务集中型环网系统、业务集中型单链系统）默认为空。</para>
+
+			<para>查询结果：</para>
+
+			<para>“网管分组”：板卡所在网元所属网管分组</para>
+
+			<para>“网管”：板卡所在网元所属网管 </para>
+
+			<para>“系统名称”：系统名称</para>
+
+			<para>“系统容量”：系统容量</para>
+
+			<para>“系统类型”：系统类型</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;新增&gt;，选择系统类型（非业务集中型环网系统、业务集中型环网系统、业务集中型单链系统）新增PTN系统窗口打开，如下图所示：</para>
+
+			<figure xml:id="图-新增PTN系统_非业务集中型环网系统">
+				<title>新增PTN系统（非业务集中型环网系统）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_ptn_sys_non-service_centered_ring.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_ptn_sys_non-service_centered_ring.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-新增PTN系统_业务集中型环网系统">
+				<title>新增PTN系统（业务集中型环网系统）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_ptn_sys_service_centered_ring.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_ptn_sys_service_centered_ring.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-新增PTN系统_业务集中型单链系统">
+				<title>新增PTN系统（业务集中型单链系统）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/add_ptn_sys_service_centered_single_chain.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/add_ptn_sys_service_centered_single_chain.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>新增PTN系统窗口中，选择网元，可选端口列表自动加载该网元下的所有板卡信息、端口信息，输入系统名称、系统容量。端口选择中，选择可选端口，点击按钮，添加PTN系统所含端口；选择PTN系统所含端口，点击按钮，删除PTN系统所含端口。</para>
+
+			<para>新增PTN系统窗口中，信息录入后，点击&lt;确定&gt;按钮，新增PTN系统成功，弹出提示窗口，如下图。点击&lt;取消&gt;按钮，放弃当前操作，并且窗口关闭。</para>
+
+			<figure xml:id="图-新增PTN系统_保存成功提示">
+				<title>数据保存成功提示</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/data_save_success_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/data_save_success_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;详情&gt;，PTN系统详情窗口打开，如下图所示：</para>
+
+			<figure xml:id="图-PTN系统详情_非业务集中型环网">
+				<title>PTN系统详情（非业务集中型环网）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/ptn_sys_detail_non-service_centered_ring.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/ptn_sys_detail_non-service_centered_ring.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-PTN系统详情_业务集中型环网">
+				<title>PTN系统详情（业务集中型环网）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/ptn_sys_detail_service_centered_ring.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/ptn_sys_detail_service_centered_ring.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<figure xml:id="图-PTN系统详情_业务集中型单链">
+				<title>PTN系统详情（业务集中型单链）</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/maintenance/ptn_sys_detail_service_centered_single_chain.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/maintenance/ptn_sys_detail_service_centered_single_chain.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;删除&gt;，弹出提示窗口，确定后，板卡接口相关信息删除成功。</para>
+
+		</section>
+
+	</section>
+
+</chapter>

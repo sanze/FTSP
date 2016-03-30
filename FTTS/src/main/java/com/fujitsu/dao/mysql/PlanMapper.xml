@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.PlanMapper">
+
+	<select id="getPlanList" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_plan ftp
+		left join t_ftts_rc fr on ftp.RC_ID = fr.RC_ID
+		left join t_resource_room rr on rr.RESOURCE_ROOM_ID = fr.RESOURCE_ROOM_ID
+		left join t_resource_station rs on rr.RESOURCE_STATION_ID = rs.RESOURCE_STATION_ID
+		left join t_resource_area ra on rs.RESOURCE_AREA_ID = ra.RESOURCE_AREA_ID
+		<where>1 =1 
+			<if test="map.RESOURCE_AREA_ID!=null and map.RESOURCE_AREA_ID!=''">
+			AND ra.RESOURCE_AREA_ID = ${map.RESOURCE_AREA_ID}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getRouteListByPlanId" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_route ftr
+		<where>
+			ftr.TEST_PLAN_ID = ${map.planId}
+		</where>
+	</select>
+	
+	<update id = 'updateTestRoutePara' parameterType="hashmap">
+		UPDATE t_ftts_test_route 
+		SET OTDR_WAVE_LENGTH = #{map.otdrWaveLenght},
+		 OTDR_PLUSE_WIDTH = #{map.otdrPluseWidth},
+		 OTDR_RANGE = #{map.otdrRange},
+		 OTDR_TEST_DURATION = #{map.otdrAveCount},
+		 OTDR_REFRACT_COEFFICIENT = #{map.otdrRefractCoefficient}
+		<where>
+			TEST_ROUTE_ID = #{map.routeId}
+		</where>
+	</update>
+	
+	<update id = 'updateTestPlanStatusStartUp' parameterType="java.util.List">
+		UPDATE t_ftts_test_plan 
+		SET STATUS = '0'
+		<where>
+			TEST_PLAN_ID  in
+			<foreach collection="planIdList" item="item" open="(" separator="," close=")">   
+		        #{item}
+		    </foreach>
+		</where>
+	</update>
+	
+	<update id = 'updateTestPlanStatusPending' parameterType="java.util.List">
+		UPDATE t_ftts_test_plan 
+		SET STATUS = '1'
+		<where>
+			TEST_PLAN_ID in 
+			<foreach collection="planIdList" item="item" open="(" separator="," close=")">   
+		        #{item}
+		    </foreach>
+		</where>
+	</update>
+	
+	<update id = 'updateTestRoutePeriod' parameterType="map">
+		UPDATE t_ftts_test_route 
+		SET TEST_PERIOD = #{map.TEST_PERIOD},
+		    ATT_OFFSET = #{map.ATT_OFFSET}
+		<where>
+			TEST_ROUTE_ID = #{map.TEST_ROUTE_ID}
+		</where>
+	</update>
+	
+	<select id="getSysParam" resultType="hashmap" statementType="STATEMENT">
+		select * from t_sys_param sp
+		<where>
+			sp.PARAM_KEY = '${key}'
+		</where>
+	</select>
+	
+	<update id="updateSysParam" parameterType="hashmap" statementType="STATEMENT">
+		UPDATE t_sys_param 
+		SET PARAM_VALUE = '${map.PARAM_VALUE}'
+		<where>
+			PARAM_KEY = '${map.PARAM_KEY}'
+		</where>
+	</update>
+	
+	<select id="getNextPlan" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_plan ftp 
+		left join t_ftts_rc fr on fr.RC_ID = ftp.RC_ID
+		<where>
+			TIME_TO_SEC(ftp.START_TIME) > TIME_TO_SEC(CURRENT_TIME())
+		</where>
+		ORDER BY ftp.START_TIME ASC
+		LIMIT 1 
+		<!-- {call find_next_plan()} -->
+	</select>
+	<select id="getFirstPlan" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_plan ftp 
+		left join t_ftts_rc fr on fr.RC_ID = ftp.RC_ID
+		ORDER BY ftp.START_TIME ASC
+		LIMIT 1 
+	</select>
+	
+	<update id = 'updateRouteScanTimes' parameterType="hashmap">
+		UPDATE t_ftts_test_route 
+		SET SCAN_TIMES = #{map.SCAN_TIMES}
+		<where>
+			TEST_ROUTE_ID = #{map.TEST_ROUTE_ID}
+		</where>
+	</update>
+	
+	<select id="getRcById" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_rc fr
+		<where>
+			fr.RC_ID = ${rcId}
+		</where>
+	</select>
+	
+	<select id="getRouteByAlarmInfo" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_alarm_route_mapping farm
+		<where>
+		    <if test="map.PTP_ID!=null and map.PTP_ID!=''">
+		      farm.PTP_ID = ${map.PTP_ID}
+		    </if>
+			<if test="map.NE_NAME!=null and map.NE_NAME!=''">
+			  and farm.NE_NAME = '${map.NE_NAME}' 
+			</if>
+			<if test="map.RACK_NO!=null and map.RACK_NO!=''">
+			  and farm.RACK_NO = ${map.RACK_NO} 
+			</if>
+            <if test="map.SHELF_NO!=null and map.SHELF_NO!=''">
+              and farm.SHELF_NO = ${map.SHELF_NO} 
+            </if>
+			<if test="map.SLOT_NO!=null and map.SLOT_NO!=''">
+			  and farm.SLOT_NO = ${map.SLOT_NO} 
+			</if>
+			<if test="map.PORT_NO!=null and map.PORT_NO!=''">
+			  and farm.PORT_NO = ${map.PORT_NO}
+			</if>
+			<if test="map.ALARM_NAME!=null and map.ALARM_NAME!=''">
+			  and farm.ALARM_NAME = '${map.ALARM_NAME}' 
+			</if>
+		</where>
+	</select>
+	
+	<select id="getRouteById" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_route 
+		<where>
+			TEST_ROUTE_ID = ${id}
+		</where>
+	</select>
+	
+	<select id="getPlanById" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_plan ftp
+		left join t_ftts_rc fr on fr.RC_ID = ftp.RC_ID
+		<where>
+			TEST_PLAN_ID = ${id}
+		</where>
+	</select>
+	
+	<select id="getUnitInfo" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_unit fu
+		<where>
+			fu.RC_ID = ${map.RC_ID} 
+			and fu.NAME = 'OTDR'
+		</where>
+	</select>
+	
+	<select id="getRangeList" resultType="hashmap" statementType="STATEMENT">
+		select DISTINCT ftpp.TEST_RANGE from t_ftts_test_para_pre ftpp
+		<where>
+			ftpp.OTDR_TYPE = ${map.OTDR_TYPE} 
+		</where>
+	</select>
+	
+	<select id="getPluseWidthList" resultType="hashmap" statementType="STATEMENT">
+		select DISTINCT ftpp.PLUSE_WIDTH from t_ftts_test_para_pre ftpp
+		<where>
+			ftpp.TEST_RANGE = ${map.TEST_RANGE} 
+			and ftpp.OTDR_TYPE = ${map.OTDR_TYPE} 
+		</where>
+	</select>
+	
+	<!-- Create Data -->
+	<select id="getLinkList" resultType="hashmap" statementType="STATEMENT">
+		select * from t_base_link 
+		<where>
+			IS_DEL = 0 and LINK_TYPE = 1 and RESOURCE_FIBER_ID !=''
+		</where>
+	</select>
+	
+	<select id="getPtpInfoById" resultType="hashmap" statementType="STATEMENT">
+		select 
+		* ,bn.DISPLAY_NAME as NAME_FOR_FTTS
+		from t_base_ptp bp
+		left join t_base_ne bn on bp.BASE_NE_ID = bn.BASE_NE_ID
+		<where>
+			bp.BASE_PTP_ID = ${id}
+		</where>
+	</select>
+	
+	<!-- <select id="getCablesByfiberId" resultType="hashmap" statementType="STATEMENT">
+		select * from t_resource_cables rcs
+		left join t_resource_cable rc on rcs.RESOURCE_CABLES_ID = rc.RESOURCE_CABLES_ID
+		left join t_resource_fiber rf on rf.RESOURCE_CABLE_ID = rc.RESOURCE_CABLE_ID
+		<where>
+			rf.RESOURCE_FIBER_ID = ${id}
+		</where>
+	</select> -->
+	
+	<select id="getCablesByfiberId" resultType="hashmap" statementType="STATEMENT">
+		select * from t_resource_cable rc
+		left join t_resource_fiber rf on rf.RESOURCE_CABLE_ID = rc.RESOURCE_CABLE_ID
+		<where>
+			rf.RESOURCE_FIBER_ID = ${id}
+		</where>
+	</select>
+	
+	<select id="getRouteByCablesId" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_route ftr
+		<where>
+			ftr.CABLE_IDS like '%,${id},%' or 
+			ftr.CABLE_IDS = '${id}' or 
+			ftr.CABLE_IDS like '${id},%' or
+			ftr.CABLE_IDS like '%,${id}' 
+		</where>
+		ORDER BY ftr.TEST_ROUTE_ID ASC 
+		LIMIT 1 
+	</select>
+	
+	<insert id="addAlarmRouteMapping" parameterType="hashmap">
+		insert into t_ftts_alarm_route_mapping 
+		(PTP_ID,NE_NAME,RACK_NO,SHELF_NO,SLOT_NO,PORT_NO,ALARM_NAME,ROUTE_ID,CABLE_ID)
+		values 
+		(#{map.PTP_ID},#{map.NE_NAME},#{map.RACK_NO},#{map.SHELF_NO},#{map.SLOT_NO},#{map.PORT_NO},#{map.ALARM_NAME},#{map.ROUTE_ID},#{map.CABLE_ID})
+	</insert>
+	
+	<select id="clearAlarmRouteMapping">
+		TRUNCATE t_ftts_alarm_route_mapping
+	</select>
+	
+	
+	<update id="updateTestRouteById">
+		update t_ftts_test_route 
+		<set> 
+			<if test="TEST_PLAN_ID!=null">TEST_PLAN_ID = #{TEST_PLAN_ID},</if>  
+			<if test="NAME!=null">NAME = #{NAME},</if>
+			<if test="ROUTE_NAME!=null">ROUTE_NAME = #{ROUTE_NAME},</if> 
+			<if test="CABLE_IDS!=null">CABLE_IDS = #{CABLE_IDS},</if> 
+			<if test="TEST_EQPT_INFO!=null">TEST_EQPT_INFO = #{TEST_EQPT_INFO},</if> 
+			<if test="TEST_PERIOD!=null">TEST_PERIOD = #{TEST_PERIOD},</if> 
+			<if test="ROUTE_LENGTH!=null">ROUTE_LENGTH = #{ROUTE_LENGTH},</if> 
+			<if test="OTDR_WAVE_LENGTH!=null">OTDR_WAVE_LENGTH = #{OTDR_WAVE_LENGTH},</if> 
+			<if test="OTDR_PLUSE_WIDTH!=null">OTDR_PLUSE_WIDTH = #{OTDR_PLUSE_WIDTH},</if> 
+			<if test="OTDR_RANGE!=null">OTDR_RANGE = #{OTDR_RANGE},</if> 
+			<if test="OTDR_TEST_DURATION!=null">OTDR_TEST_DURATION = #{OTDR_TEST_DURATION},</if> 
+			<if test="OTDR_REFRACT_COEFFICIENT!=null">OTDR_REFRACT_COEFFICIENT = #{OTDR_REFRACT_COEFFICIENT},</if> 
+			<if test="UNTEST_TIMES!=null">UNTEST_TIMES = #{UNTEST_TIMES},</if> 
+			<if test="STATUS!=null">STATUS = #{STATUS},</if> 
+		</set>
+		where TEST_ROUTE_ID = #{TEST_ROUTE_ID}
+	</update> 
+	
+	<insert id="addTestResult" parameterType="com.fujitsu.model.TestResultModel" useGeneratedKeys="true" keyProperty="testRlt.id">
+		insert into t_ftts_test_result 
+		(EXE_TIME,TEST_TYPE,OTDR_WAVE_LENGTH,OTDR_PLUSE_WIDTH,
+		OTDR_RANGE,OTDR_AVE_COUNT,OTDR_REFRACT_COEFFICIENT,
+		TRANS_ATTENUATION,TRANS_OPTICAL_DISTANCE,REVERSE_ATTENUATION,
+		RESULT_POINT,TEST_ROUTE_ID,TEST_INFO,EXE_RESULT,EVALUATION,EVAL_DESCRIPTION,
+		RC_NAME,ROUTE_NAME,TEST_PERIOD)
+		values 
+		(#{testRlt.testTime},#{testRlt.testType},#{testRlt.waveLength},#{testRlt.plusWidth},
+		 #{testRlt.range},#{testRlt.testDuration},#{testRlt.refractCoefficient},
+		 #{testRlt.transAttenuation},#{testRlt.opticalDistance},#{testRlt.reverseAttenuation},
+		 #{testRlt.resultPoint},#{testRlt.testRouteId},#{testRlt.testInfo},#{testRlt.operateResult},
+		 #{testRlt.evaluation},#{testRlt.evalDescription},#{testRlt.rcName},#{testRlt.testRouteName},
+		 #{testRlt.testPeriod})
+	</insert>
+	
+	<select id="getLastTestResult" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_result ftr
+		<where>
+			ftr.EXE_TIME = '${map.EXE_TIME}'
+			and ftr.TEST_TYPE = ${map.TEST_TYPE}
+			and ftr.TEST_ROUTE_ID = ${map.TEST_ROUTE_ID}
+		</where>
+		ORDER BY ftr.TEST_RESULT_ID ASC 
+		LIMIT 1 
+	</select>
+	
+	<insert id="addTestEvent" parameterType="hashmap">
+		insert into t_ftts_test_event 
+		(SEQUENCE,EVENT_TYPE,LOCATION,
+		ATTENUATION,REFLECT_VALUE,TEST_RESULT_ID)
+		values 
+		(#{map.SEQUENCE},#{map.EVENT_TYPE},#{map.LOCATION},
+		#{map.ATTENUATION},#{map.REFLECT_VALUE},#{map.TEST_RESULT_ID})
+	</insert>
+	
+	<!-- 测试结果 -->
+	<select id="getRouteList" resultType="hashmap" statementType="STATEMENT">
+		select TEST_ROUTE_ID,ROUTE_NAME from t_ftts_test_route ftr
+		
+	</select>
+	
+	<select id="getResultList" resultType="hashmap" statementType="STATEMENT">
+		select TEST_RESULT_ID,
+		EXE_TIME, TEST_TYPE,
+		OTDR_WAVE_LENGTH, OTDR_PLUSE_WIDTH,
+		OTDR_RANGE, OTDR_AVE_COUNT,
+		OTDR_REFRACT_COEFFICIENT, TRANS_ATTENUATION,
+		TRANS_OPTICAL_DISTANCE, REVERSE_ATTENUATION,
+		TEST_ROUTE_ID, TEST_INFO,
+		ROUTE_NAME, TEST_PERIOD, TEST_ROUTE_ID,
+		EXE_RESULT, RC_NAME, EVALUATION, EVAL_DESCRIPTION
+		from t_ftts_test_result
+		<where>
+			1=1 
+			<if test="map.TEST_TYPE!=null and map.TEST_TYPE!=''">
+			and TEST_TYPE = ${map.TEST_TYPE}
+			</if>
+			<if test="map.TEST_ROUTE_ID!=null and map.TEST_ROUTE_ID!=''">
+			and TEST_ROUTE_ID = ${map.TEST_ROUTE_ID}
+			</if>
+			<if test="map.EVALUATION!=null and map.EVALUATION!='' and map.EVALUATION!=-1">
+			and EVALUATION = ${map.EVALUATION}
+			</if>
+		</where>
+		order by EXE_TIME desc
+		limit ${map.start}, ${map.limit}
+	</select>
+
+	<select id="getEventListByResult" resultType="hashmap"
+		statementType="STATEMENT">
+		select * from t_ftts_test_event
+		<where>
+			TEST_RESULT_ID = ${map.TEST_RESULT_ID}
+		</where>
+	</select>
+	
+	<select id="getResultById" resultType="hashmap" statementType="STATEMENT">
+		select * from t_ftts_test_result ftr
+		left join t_ftts_test_route ftro on ftr.TEST_ROUTE_ID = ftro.TEST_ROUTE_ID
+		<where>
+			ftr.TEST_RESULT_ID = ${map.TEST_RESULT_ID}
+		</where>
+	</select>
+	
+	<select id="getResultInfoById" resultType="hashmap" statementType="STATEMENT">
+		select * , fr.NAME as RC_NAME , ftro.NAME as ROUTE_NAME from t_ftts_test_result ftr
+		left join t_ftts_test_route ftro on ftr.TEST_ROUTE_ID = ftro.TEST_ROUTE_ID
+		left join t_ftts_test_plan ftp on ftp.TEST_PLAN_ID = ftro.TEST_PLAN_ID
+		left join t_ftts_rc fr on fr.RC_ID = ftp.RC_ID
+		<where>
+			ftr.TEST_RESULT_ID = ${map.TEST_RESULT_ID}
+		</where>
+	</select>
+	
+	<select id="getBreakpointInfo" resultType="hashmap" statementType="STATEMENT">
+        SELECT MAX(CAST(LOCATION AS DECIMAL)) LOCATION,t_ftts_test_result.TEST_ROUTE_ID,CABLE_IDS CABLE_SECTION_IDS FROM 
+        t_ftts_test_result LEFT JOIN t_ftts_test_event ON (t_ftts_test_result.`TEST_RESULT_ID` = t_ftts_test_event.`TEST_RESULT_ID`)
+        LEFT JOIN t_ftts_test_route ON (t_ftts_test_result.`TEST_ROUTE_ID` = t_ftts_test_route.`TEST_ROUTE_ID`) 
+        WHERE t_ftts_test_result.TEST_RESULT_ID = ${testResultId}
+    </select>
+    
+    <update id="updateBreakpointToCableSection">
+        UPDATE t_resource_cable
+        <set>
+            BREAKPOINT = #{breakpointStr}
+        </set>      
+        WHERE RESOURCE_CABLE_ID =#{breakCSid}
+    </update>
+    
+    <update id="updateBaseValueById" parameterType="hashmap">
+        UPDATE t_ftts_test_route
+        SET ATT_BASE = #{map.ATT_BASE},
+            EVENT_COUNT_BASE = #{map.EVENT_COUNT_BASE}
+        WHERE TEST_ROUTE_ID = #{map.TEST_ROUTE_ID}
+    </update>
+    
+    <select id="getDiagramData" resultType="hashmap">           
+        SELECT r.TEST_RESULT_ID,r.EXE_TIME,r.TRANS_ATTENUATION,r.TRANS_OPTICAL_DISTANCE,COUNT(e.TEST_EVENT_ID) EVENT_COUNT
+        FROM t_ftts_test_result r, t_ftts_test_event e
+        WHERE r.TEST_RESULT_ID = e.TEST_RESULT_ID AND
+                TEST_ROUTE_ID = #{map.testRouteId} AND TEST_TYPE = 3 AND
+                EXE_TIME BETWEEN #{map.startTime} AND #{map.endTime}
+        GROUP BY r.TEST_RESULT_ID
+    </select>
+    
+    <delete id="deleteEvent">
+        delete from t_ftts_test_event
+        <where>
+            TEST_RESULT_ID in <foreach collection="resultIds" item="item" index="index"
+            open="(" separator="," close=")">#{item}</foreach>
+        </where>
+    </delete>
+    
+    <delete id="deleteResult">
+        delete from t_ftts_test_result
+        <where>
+            TEST_RESULT_ID in <foreach collection="resultIds" item="item" index="index"
+            open="(" separator="," close=")">#{item}</foreach>
+        </where>
+    </delete>
+    
+    <select id="getRelatedInfoByRouteId" resultType="hashmap">
+        SELECT rc.NAME RC_NAME,r.ROUTE_NAME,r.TEST_PERIOD
+		FROM t_ftts_test_route r
+		LEFT JOIN t_ftts_test_plan p ON p.TEST_PLAN_ID = r.TEST_PLAN_ID
+		LEFT JOIN t_ftts_rc rc ON rc.RC_ID = p.RC_ID
+		WHERE r.TEST_ROUTE_ID = ${routeId};
+    </select>
+</mapper>

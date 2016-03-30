@@ -1,0 +1,58 @@
+.login{
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../../resource/images/otherImages/loginbg.png' ,sizingMethod= 'scale' );    
+  background:url(../../../resource/images/otherImages/loginbg.png) no-repeat ;
+  background-size:100% 100%;
+  -moz-background-size:100% 100%;
+}
+
+.userName{
+  position:relative;
+  left:20%;
+  top:35%;
+  width:200;
+  height:400;
+}
+
+.password{
+  color:blue;
+  width:150px;
+  font-style:'微软雅黑';
+  font-weight:bold;
+  font-size:30;
+}
+
+.formPanel{
+  background:url(../../../resource/images/otherImages/login_frame.png) no-repeat !important;
+  width:500px;
+  height:350px;
+  position:relative;
+  margin-left :auto;
+  margin-right :auto;
+  top:25%;
+}
+
+.button{
+	background-image: url(../../../resource/images/otherImages/button.png)!important; 
+	position:relative;
+	width:93px;
+	height:28px;
+	left:34%;
+	margin-top:20px;
+}
+.buttonHover{
+	background-image:url(../../../resource/images/otherImages/buttonHover.png) !important;
+	position:relative;
+	width:93px;
+	height:28px;
+	left:34%;
+	cursor:pointer;
+	margin-top:20px;
+}
+
+.welcome{
+  position:relative;
+  width:654px;
+  margin-left :auto;
+  margin-right :auto;
+  top:20%;
+}

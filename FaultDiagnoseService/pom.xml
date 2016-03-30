@@ -1,0 +1,48 @@
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.fujitsu</groupId>
+		<artifactId>FTSP_MultiModule</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>FaultDiagnoseService</artifactId>
+	<build>
+		<finalName>FaultDiagnoseService</finalName>
+	</build>
+
+	<dependencies>
+		<!-- *************************** 自定义jar包 ************************** -->
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>ALU_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>FENGHUO_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>HW_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>LUCENT_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>ZTEU31_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.fujitsu</groupId>
+		  <artifactId>CommonModule</artifactId>
+		  <version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>

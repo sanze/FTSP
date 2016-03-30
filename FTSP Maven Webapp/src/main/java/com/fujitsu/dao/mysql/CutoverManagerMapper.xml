@@ -1,0 +1,1892 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.CutoverManagerMapper">
+	<!--割接管理开始 -->
+	<sql id="getCutoverTaskSql">
+	<![CDATA[SELECT
+  task.SYS_TASK_ID,
+  task.TASK_NAME,
+  task.TASK_DESCRIPTION    DESCRIPTION,
+  DATE_FORMAT(task.START_TIME,'%Y-%m-%d %H:%i:%s')    START_TIME_ESTIMATE,
+  DATE_FORMAT(task.END_TIME,'%Y-%m-%d %H:%i:%s')    END_TIME_ESTIMATE,
+  user.USER_NAME,
+  DATE_FORMAT(task.CREATE_TIME,'%Y-%m-%d %H:%i:%s')    CREATE_TIME,
+  taskParam.PARAM_VALUE    STATUS,
+  task.TASK_STATUS
+FROM (SELECT *
+             FROM T_SYS_TASK 
+             where task_type = 10) task
+  LEFT JOIN (SELECT *
+             FROM T_SYS_TASK_PARAM
+             WHERE PARAM_NAME = '任务状态') taskParam
+    ON task.SYS_TASK_ID = taskParam.SYS_TASK_ID
+  LEFT JOIN (SELECT *
+             FROM T_SYS_TASK_PARAM
+             WHERE PARAM_NAME = '操作权限组') taskParam1
+    ON task.SYS_TASK_ID = taskParam1.SYS_TASK_ID
+  LEFT JOIN t_sys_user USER
+    ON task.CREATE_PERSON = user.SYS_USER_ID
+  LEFT JOIN (SELECT *
+             FROM T_SYS_TASK_PARAM
+             WHERE PARAM_NAME = 'startTimeActual') taskParam2
+    ON task.SYS_TASK_ID = taskParam2.SYS_TASK_ID
+        ]]>
+	</sql>
+	<!-- 查询割接任务 -->
+	<select id="getCutoverTask" resultType="hashmap">
+		<include refid="getCutoverTaskSql" />
+		<where>
+		
+		<if test="userGrps == null or userGrps.size()==0">
+			and (#{userId} = -1 or #{userId} = task.CREATE_PERSON)
+		</if>
+		<if test="userGrps!=null and userGrps.size()>0">
+		and
+		( #{userId} = -1 or #{userId} = task.CREATE_PERSON
+		or
+       <foreach collection="userGrps" item="item" open="(" close=")"
+			separator="or">
+			find_in_set(#{item.userGrpId},taskParam1.PARAM_VALUE)
+	   </foreach> 
+	   )
+		</if>
+		<if test="startTime != null and startTime !='' ">
+			and ((task.START_TIME &gt;= str_to_date(#{startTime}, '%Y-%m-%d %H:%i:%s')) 
+			   or (taskParam2.PARAM_VALUE != '' 
+			        and 
+			       str_to_date(taskParam2.PARAM_VALUE,'%Y-%m-%d %H:%i:%s') 
+			       	&gt;= 
+			       str_to_date(#{startTime}, '%Y-%m-%d %H:%i:%s') )
+			   )
+		</if>
+		<if test="endTime != null and endTime !=''">
+			
+			and ((task.START_TIME &lt;= str_to_date(#{endTime}, '%Y-%m-%d %H:%i:%s')) 
+			   		or 
+					   	(taskParam2.PARAM_VALUE != ''
+							and 
+							str_to_date(taskParam2.PARAM_VALUE,'%Y-%m-%d %H:%i:%s') 
+							&lt;= 
+							str_to_date(#{endTime}, '%Y-%m-%d %H:%i:%s') 
+						)
+				)
+		</if>
+		<if test="status != null and status!='' and status ==5">
+			and (taskParam.PARAM_VALUE ='1' or taskParam.PARAM_VALUE ='2')
+		</if>
+		<if test="status != null and status!='' and status == 1 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="status != null and status!='' and status == 2 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="status != null and status!='' and status == 3 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="status != null and status!='' and status == 4 ">
+			and (taskParam.PARAM_VALUE ='3' or taskParam.PARAM_VALUE ='7' or taskParam.PARAM_VALUE ='8')
+		</if>
+		<if test="status != null and status!='' and status == 7 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="status != null and status!='' and status == 8 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="cutoverTaskName != null and cutoverTaskName != '' ">
+			and task.TASK_NAME like CONCAT('%',#{cutoverTaskName},'%')
+		</if>
+		</where>
+		order by task.start_time desc
+		<if test="pageSize != null and pageSize>0">
+			LIMIT ${startNumber}, ${pageSize}
+		</if>
+	</select>
+	<!-- 查询割接任务数量 -->
+	<select id="getCutoverTaskCount" resultType="int">
+		SELECT
+		COUNT(1) AS total
+		FROM
+		(
+		<include refid="getCutoverTaskSql" />
+		<where>
+		<if test="userGrps == null or userGrps.size()==0">
+			and (#{userId} = -1 or #{userId} = task.CREATE_PERSON)
+		</if>
+		<if test="userGrps!=null and userGrps.size()>0">
+		and
+		( #{userId} = -1 or #{userId} = task.CREATE_PERSON
+		or
+       <foreach collection="userGrps" item="item" open="(" close=")"
+			separator="or">
+			find_in_set(#{item.userGrpId},taskParam1.PARAM_VALUE)
+	   </foreach> 
+	   )
+		</if>
+		<if test="startTime != null and startTime !='' ">
+			and ((task.START_TIME &gt;= str_to_date(#{startTime}, '%Y-%m-%d %H:%i:%s')) 
+			   or (taskParam2.PARAM_VALUE != '' 
+			        and 
+			       str_to_date(taskParam2.PARAM_VALUE,'%Y-%m-%d %H:%i:%s') 
+			       	&gt;= 
+			       str_to_date(#{startTime}, '%Y-%m-%d %H:%i:%s') )
+			   )
+		</if>
+		<if test="endTime != null and endTime !=''">
+			
+			and ((task.START_TIME &lt;= str_to_date(#{endTime}, '%Y-%m-%d %H:%i:%s')) 
+			   		or 
+					   	(taskParam2.PARAM_VALUE != ''
+							and 
+							str_to_date(taskParam2.PARAM_VALUE,'%Y-%m-%d %H:%i:%s') 
+							&lt;= 
+							str_to_date(#{endTime}, '%Y-%m-%d %H:%i:%s') 
+						)
+				)
+		</if>
+		<if test="status != null and status!='' and status ==5">
+			and (taskParam.PARAM_VALUE ='1' or taskParam.PARAM_VALUE ='2')
+		</if>
+		<if test="status != null and status!='' and status == 1 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="status != null and status!='' and status == 2 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="status != null and status!='' and status == 3 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="status != null and status!='' and status == 4 ">
+			and (taskParam.PARAM_VALUE =#{status})
+		</if>
+		<if test="cutoverTaskName != null and cutoverTaskName != '' ">
+			and task.TASK_NAME like CONCAT('%',#{cutoverTaskName},'%')
+		</if>
+		</where>
+		) t
+	</select>
+	<!-- 初始化割接任务 -->
+	<select id="initTaskInfo" resultType="hashmap">
+		SELECT
+		  task.SYS_TASK_ID,
+		  task.TASK_NAME,
+          task.TASK_DESCRIPTION DESCRIPTION,
+          DATE_FORMAT(task.START_TIME,'%Y/%m/%d %H:%i:%s') START_TIME_ESTIMATE,
+          DATE_FORMAT(task.END_TIME,'%Y/%m/%d %H:%i:%s') END_TIME_ESTIMATE, 
+		  param1.PARAM_VALUE    taskStatus,
+		  param2.PARAM_VALUE    filterAlarm,
+		  param3.PARAM_VALUE    snapshotTime,
+		  param4.PARAM_VALUE    privilegeString,
+		  param5.PARAM_VALUE    autoUpdateCompareValue
+		FROM T_SYS_TASK task
+		  LEFT JOIN T_SYS_TASK_PARAM param1
+		    ON task.SYS_TASK_ID = param1.SYS_TASK_ID
+		  LEFT JOIN T_SYS_TASK_PARAM param2
+		    ON task.SYS_TASK_ID = param2.SYS_TASK_ID
+		  LEFT JOIN T_SYS_TASK_PARAM param3
+		    ON task.SYS_TASK_ID = param3.SYS_TASK_ID
+		  LEFT JOIN T_SYS_TASK_PARAM param4
+		    ON task.SYS_TASK_ID = param4.SYS_TASK_ID
+		  LEFT JOIN T_SYS_TASK_PARAM param5
+		    ON task.SYS_TASK_ID = param5.SYS_TASK_ID  
+		WHERE param1.PARAM_NAME = '任务状态'
+		    AND param2.PARAM_NAME = '过滤告警'
+		    AND param3.PARAM_NAME = '快照时间'
+		    AND param4.PARAM_NAME = '操作权限组'
+		    AND param5.PARAM_NAME = 'autoUpdateCompareValue'
+		    AND task.SYS_TASK_ID = #{cutoverTaskId}
+	</select>
+	<!-- 查询割接任务参数 -->
+	<select id="getCutoverTaskParameter" resultType="hashmap">
+		SELECT
+		*
+		FROM
+		T_SYS_TASK_PARAM taskParam
+		WHERE 
+		taskParam.SYS_TASK_ID = #{cutoverTaskId}
+	</select>
+	<!-- 检查割接任务名是否重复 -->
+  	<select id="getcutoverTaskExitList"  resultType="int">
+   		select count(*) from T_SYS_TASK
+   		where TASK_NAME = #{taskName} 
+   		and TASK_TYPE = 10 
+   		<if test="cutoverTaskId != -1 ">
+			and SYS_TASK_ID != #{cutoverTaskId}
+		</if>  		
+  	</select>
+  	<!-- 查询割接任务设备列表 -->
+	<select id="getCutoverEquipList" resultType="hashmap">
+		SELECT
+		*
+		FROM
+		T_SYS_TASK_INFO  taskParam
+		WHERE 
+		taskParam.SYS_TASK_ID = #{cutoverTaskId}
+	</select>
+	<!-- 查询割接任务链路列表 -->
+	<select id="getCutoverEqptLinkList" resultType="hashmap">
+		SELECT
+		link.*
+		FROM
+		T_SYS_TASK_INFO  taskParam,T_BASE_LINK link
+		WHERE 
+		taskParam.SYS_TASK_ID = #{cutoverTaskId}
+		and taskParam.TARGET_ID = link.BASE_LINK_ID
+	</select>
+	<!-- 保存割接任务 -->
+	<insert id="saveCutoverTask" parameterType="hashmap" keyProperty="task.cutoverTaskId">
+  	    insert into t_sys_task
+	(
+		TASK_NAME,TASK_TYPE,TASK_DESCRIPTION,START_TIME,END_TIME,CREATE_TIME,CREATE_PERSON,TASK_STATUS
+	)values
+	(
+		#{task.taskName},10,#{task.taskDescription},#{task.start},#{task.end},#{task.createTime},#{task.createPerson},#{task.taskStatus}
+	)
+  	</insert>
+  	<!-- 保存割接任务设备信息 -->
+  	<insert id="saveCutoverTaskInfo">
+	    insert into T_SYS_TASK_INFO ( SYS_TASK_ID,TARGET_TYPE,TARGET_ID,TARGET_NAME,IS_SUCCESS,IS_COMPLETE ) 
+	    values 
+	    <foreach collection="equipList" item="item" index="index" separator=",">
+	        (
+			 <choose>
+				<when test="item.taskId != null">#{item.taskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.equipType != null">#{item.equipType}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.equipId != null">#{item.equipId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.equipDisplayName != null">#{item.equipDisplayName}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.isSuccess != null">#{item.isSuccess}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.isComplete != null">#{item.isComplete}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+    </insert>  
+    <!-- 保存割接任务参数信息 --> 
+    <insert id="saveCutoverTaskParameter">
+	    insert into T_SYS_TASK_PARAM ( SYS_TASK_ID,PARAM_NAME,PARAM_VALUE ) 
+	    values 
+	    <foreach collection="taskParamList" item="item" index="index" separator=",">
+	        (
+			 <choose>
+				<when test="item.taskId != null">#{item.taskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.paramName != null">#{item.paramName}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.paramValue != null">#{item.paramValue}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+    </insert>
+    	<!-- 删除任务参数 -->
+	<delete id="deleteTaskParamSingle" parameterType="int">
+        delete from T_SYS_TASK_PARAM 
+   		where SYS_TASK_ID = #{cutoverTaskId}
+    </delete>
+    <!-- 删除割接任务参数 -->
+    <delete id="deleteTaskParam" parameterType="hashmap">
+	    delete from T_SYS_TASK_PARAM 
+		where SYS_TASK_ID in 
+		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+		   #{item}
+		</foreach>
+    </delete>
+    <!-- 删除指定割接任务的指定名称的参数信息 -->
+    <delete id="deleteSpecifiedParam" >
+	    delete from T_SYS_TASK_PARAM 
+		where SYS_TASK_ID = #{cutoverTaskId}
+		and PARAM_NAME in 
+		<foreach collection="paramNameList" item="item" index="index" open="(" separator="," close=")">
+		   #{item}
+		</foreach>
+    </delete>
+    <!-- 删除割接任务设备信息 -->
+    <delete id="deleteTaskInfo" parameterType="hashmap">
+        delete from T_SYS_TASK_INFO 
+   		where SYS_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+    </delete>
+    <!-- 删除割接任务 -->
+    <delete id="deleteTask" parameterType="hashmap">
+        delete from T_SYS_TASK 
+   		where SYS_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+    </delete>
+    <!-- 删除割接任务性能信息 -->
+    <delete id="deleteTaskPerformance" parameterType="hashmap">
+        delete from T_CUTOVER_PERFORMANCE 
+   		where CUTOVER_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+   		<!-- 
+   		<if test="map.snapshotTimeFlag == 1 ">
+			and SNAPSHOT_TIME_FLAG = 1
+		</if> 
+		<if test="map.snapshotTimeFlag == 2 ">
+			and SNAPSHOT_TIME_FLAG = 2
+		</if>
+		-->
+    </delete>
+    <!-- 删除割接任务告警信息 -->
+    <delete id="deleteTaskAlarm" parameterType="hashmap">
+        delete from T_CUTOVER_ALARM 
+   		where CUTOVER_TASK_ID in 
+   		<foreach collection="map.taskIdList" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+   		<if test="map.snapshotTimeFlag == 1 ">
+			and SNAPSHOT_TIME_FLAG = 1
+		</if> 
+		<if test="map.snapshotTimeFlag == 2 ">
+			and ALARM_CATEGORY = 3
+		</if>
+    </delete>
+    <!-- 割接任务修改 -->
+    <update id="updateCutoverTask" parameterType="hashmap">
+		update T_SYS_TASK
+		<set>
+			<if test="task.taskId != null">SYS_TASK_ID = #{task.taskId},</if>
+			<if test="task.taskName != null">TASK_NAME = #{task.taskName},</if>
+			<if test="task.taskType != null">TASK_TYPE = #{task.taskType},</if>
+			<if test="task.parentTask != null">PARENT_TASK = #{task.parentTask},</if>
+			<if test="task.taskDescription != null">TASK_DESCRIPTION = #{task.taskDescription},</if>
+			<if test="task.periodType != null">PERIOD_TYPE = #{task.periodType},</if>
+			<if test="task.period != null">PERIOD = #{task.period},</if>
+			<if test="task.start != null">START_TIME = #{task.start},</if>
+			<if test="task.end != null">END_TIME = #{task.end},</if>
+			<if test="task.taskStatus != null">TASK_STATUS = #{task.taskStatus},</if>
+			<if test="task.nextTime != null">NEXT_TIME = #{task.nextTime},</if>
+			<if test="task.createPerson != null">CREATE_PERSON = #{task.createPerson},</if>
+			<if test="task.isDel != null">IS_DEL = #{task.isDel},</if>
+			<!--<if test="task.createTime != null">CREATE_TIME = #{task.createTime},</if>  -->
+			<if test="task.updateTime != null">UPDATE_TIME = #{task.createTime}</if>		
+		</set>
+		where SYS_TASK_ID = #{task.cutoverTaskId}
+	</update>
+
+    
+    	<!--链路查询-->
+	<select id="getLink" resultType="hashMap" >                                                          
+				select link.BASE_LINK_ID,
+				       link.DISPLAY_NAME as LINK_NAME,
+				       ems1.DISPLAY_NAME as A_EMS_NAME,
+				       CONCAT_WS('-',ne1.DISPLAY_NAME,ptp1.port_desc) as A_NAME,				       
+				       ems2.DISPLAY_NAME as Z_EMS_NAME,
+				       CONCAT_WS('-',ne2.DISPLAY_NAME,ptp2.port_desc) as Z_NAME,				     
+				       link.DIRECTION,
+				       link.LINK_TYPE,
+				       link.IS_MANUAL
+				  from t_base_link as link
+				  left join t_base_ptp as ptp1 on link.A_END_PTP = ptp1.BASE_PTP_ID
+				  left join t_base_ptp as ptp2 on ptp2.BASE_PTP_ID = link.Z_END_PTP
+				  left join t_base_ne as ne1 on ptp1.BASE_NE_ID = ne1.BASE_NE_ID
+				  left join t_base_ne as ne2 on ptp2.BASE_NE_ID = ne2.BASE_NE_ID
+				  left join t_base_ems_connection as ems1 on ptp1.BASE_EMS_CONNECTION_ID =
+				                                             ems1.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_connection as ems2 on ptp2.BASE_EMS_CONNECTION_ID =
+				                                             ems2.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_group as group1 on group1.BASE_EMS_GROUP_ID=ems1.BASE_EMS_GROUP_ID
+				  left join t_base_ems_group as group2 on group2.BASE_EMS_GROUP_ID=ems2.BASE_EMS_GROUP_ID
+			  <where>
+			  	<if test="id!=-1">
+			  		link.BASE_LINK_ID=#{id} or link.DISPLAY_NAME like CONCAT('%',#{linkNameOrId},'%') 
+			  	</if>
+			  	<!-- 这种情况为选择了具体的网管 -->
+			  	<if test="emsConnectionId!=-1">
+			  		 and (link.A_EMS_CONNECTION_ID=#{emsConnectionId} 
+			  		or
+			  		link.Z_EMS_CONNECTION_ID=#{emsConnectionId})  
+			  	</if>
+			  	<!-- 这种情况为只选了网管分组为无，没有选择网管 -->
+			  	<if test="emsConnectionId == -1 and emsGroup == -1">
+			  		and (link.A_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach>
+			  		or
+			  		link.Z_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach>
+					) and ems1.BASE_EMS_GROUP_ID is null
+					  and ems2.BASE_EMS_GROUP_ID is null
+			  	</if>
+			  	<!-- 这种情况为只选了网管分组为全部，没有选择网管 -->
+			  	<if test="emsConnectionId == -1 and emsGroup == -99">
+			  		and (link.A_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach>
+			  		or
+			  		link.Z_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach> 
+					)
+			  	</if>
+			  	<!-- 这种情况为选了具体的网管分组，没有选择网管 -->
+			  	<if test="emsConnectionId == -1 and emsGroup != -99 and emsGroup != -1 and emsGroup!= -2">
+			  		and (
+				  		link.A_EMS_CONNECTION_ID in
+						<foreach collection="emsIdList" index="index" item="item" open="("
+							separator="," close=")">
+							${item}
+						</foreach>
+				  		or
+				  		link.Z_EMS_CONNECTION_ID in
+						<foreach collection="emsIdList" index="index" item="item" open="("
+							separator="," close=")">
+							${item}
+						</foreach>
+					) 
+					and
+						( 
+						  ems1.BASE_EMS_GROUP_ID = #{emsGroup}
+							or
+					      ems2.BASE_EMS_GROUP_ID = #{emsGroup}
+					    )
+			  	</if>
+			  	<if test="type!=-1">
+			  		and link.LINK_TYPE=#{type} 
+			  	</if>
+			  	<if test = "id==-1 and linkNameOrId !=null and linkNameOrId != ''">
+			  		and link.DISPLAY_NAME like CONCAT('%',#{linkNameOrId},'%')  
+			  	</if>
+			  	
+  			
+		  		and link.IS_DEL=0<!-- and link.IS_MAIN=1 -->
+			  </where>  
+			  limit #{startNumber},#{pageSize}                                        
+
+	</select>
+	
+		<!-- 查询链路总数 -->
+	<select id="getLinkCount" resultType="int" parameterType="hashMap">
+		select count(*)  
+				  from t_base_link as link
+				  left join t_base_ptp as ptp1 on link.A_END_PTP = ptp1.BASE_PTP_ID
+				  left join t_base_ptp as ptp2 on ptp2.BASE_PTP_ID = link.Z_END_PTP
+				  left join t_base_ne as ne1 on ptp1.BASE_NE_ID = ne1.BASE_NE_ID
+				  left join t_base_ne as ne2 on ptp2.BASE_NE_ID = ne2.BASE_NE_ID
+				  left join t_base_ems_connection as ems1 on ptp1.BASE_EMS_CONNECTION_ID =
+				                                             ems1.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_connection as ems2 on ptp2.BASE_EMS_CONNECTION_ID =
+				                                             ems2.BASE_EMS_CONNECTION_ID
+				  left join t_base_ems_group as group1 on group1.BASE_EMS_GROUP_ID=ems1.BASE_EMS_GROUP_ID
+				  left join t_base_ems_group as group2 on group2.BASE_EMS_GROUP_ID=ems2.BASE_EMS_GROUP_ID
+			  <where>
+			  	<if test="id!=-1">
+			  		link.BASE_LINK_ID=#{id} or link.DISPLAY_NAME like CONCAT('%',#{linkNameOrId},'%') 
+			  	</if>
+			  	<!-- 这种情况为选择了具体的网管 -->
+			  	<if test="emsConnectionId!=-1">
+			  		and (link.A_EMS_CONNECTION_ID=#{emsConnectionId} 
+			  		or
+			  		link.Z_EMS_CONNECTION_ID=#{emsConnectionId}) 
+			  	</if>
+			  	<!-- 这种情况为只选了网管分组为无，没有选择网管 -->
+			  	<if test="emsConnectionId == -1 and emsGroup == -1">
+			  		and (link.A_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach>
+			  		or
+			  		link.Z_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach>
+					) and ems1.BASE_EMS_GROUP_ID is null
+					  and ems2.BASE_EMS_GROUP_ID is null
+			  	</if>
+			  	<!-- 这种情况为只选了网管分组为全部，没有选择网管 -->
+			  	<if test="emsConnectionId == -1 and emsGroup == -99">
+			  		and (link.A_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach>
+			  		or
+			  		link.Z_EMS_CONNECTION_ID in
+					<foreach collection="emsIdList" index="index" item="item" open="("
+						separator="," close=")">
+						${item}
+					</foreach> )
+			  	</if>
+			  	<!-- 这种情况为选了具体的网管分组，没有选择网管 -->
+			  	<if test="emsConnectionId == -1 and emsGroup != -99 and emsGroup != -1 and emsGroup!= -2">
+			  		and (
+				  		link.A_EMS_CONNECTION_ID in
+						<foreach collection="emsIdList" index="index" item="item" open="("
+							separator="," close=")">
+							${item}
+						</foreach>
+				  		or
+				  		link.Z_EMS_CONNECTION_ID in
+						<foreach collection="emsIdList" index="index" item="item" open="("
+							separator="," close=")">
+							${item}
+						</foreach>
+					) 
+					and
+						( 
+						  ems1.BASE_EMS_GROUP_ID = #{emsGroup}
+							or
+					      ems2.BASE_EMS_GROUP_ID = #{emsGroup}
+					    )
+			  	</if>
+			  	<if test="type!=-1">
+			  		and link.LINK_TYPE=#{type} 
+			  	</if>
+			  	<if test = "id==-1 and linkNameOrId !=null and linkNameOrId != ''">
+			  		and link.DISPLAY_NAME like CONCAT('%',#{linkNameOrId},'%') 
+			  	</if>
+			  	
+  			
+		  		and link.IS_DEL=0<!-- and link.IS_MAIN=1 -->
+			  </where>  
+			 
+	</select>
+	
+	<!-- 万能查询-->
+	<select id="getByParameter" resultType="hashmap"
+		parameterType="hashmap">
+		select ${map.VALUE} from  ${map.NAME}
+		<where>
+			<if test="map.ID_NAME != null ">
+				${map.ID_NAME} = #{map.ID_VALUE}
+			</if>
+			<if test="map.ID_NAME_2 != null " >
+				AND ${map.ID_NAME_2} = #{map.ID_VALUE_2}
+			</if>
+			<if test="map.ID_NAME_3 != null">
+				AND ${map.ID_NAME_3}=#{map.ID_VALUE_3}
+			</if>
+		</where>
+	</select>
+		<!-- 定义电路查询返回那些字段信息 -->
+	<sql id="circuitInfoStruct">
+	<![CDATA[
+		   select cir.${map.cir_id},cir_info.${map.cir_info_id} as CIR_CIRCUIT_INFO_ID,
+	       cir_info.A_END_CTP AS A_CTP_ID,
+	       cir_info.Z_END_CTP AS Z_CTP_ID,
+	       cir_info.cir_no,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	       ${map.A_END_CTP_VALUE} AS a_end_ctp,
+	       ${map.Z_END_CTP_VALUE} AS z_end_ctp,
+	       p1.port_desc as a_end_port,
+	       p2.port_desc as z_end_port,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name,
+	       ne1.display_name as a_end_ne,
+	       ems1.display_name as a_end_ems,
+	       group1.group_name as a_end_ems_group,
+	       ne2.display_name as z_end_ne,
+	       ems2.display_name as z_end_ems,
+	       group2.group_name as Z_end_ems_group
+	]]>
+	</sql>
+		<sql id="aboutCondition">
+		<![CDATA[
+		from ${map.route} as route 
+				left join ${map.crs} as crs on route.chain_id=crs.${map.crs_id} 
+				left join t_base_ptp as ptp3 on ptp3.base_ptp_id=a_end_ptp
+				left join t_base_ptp as ptp4 on ptp4.base_ptp_id=z_end_ptp
+				left join t_base_ne as ne on ne.base_ne_id=ptp3.base_ne_id
+				left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID 
+																= ne.BASE_EMS_CONNECTION_ID
+				left join t_resource_room as room on room.RESOURCE_ROOM_ID =
+					                                        ne.RESOURCE_ROOM_ID
+				left join t_resource_station as station on station.RESOURCE_STATION_ID =
+					                                        room.RESOURCE_STATION_ID
+				left join ${map.cir_table} as cir on route.${map.cir_id}=cir.${map.cir_id}
+				left join ${map.cir_info_table} as cir_info1 on cir.${map.cir_info_id}=cir_info1.${map.cir_info_id}
+				left join t_base_ptp as p1 on cir_info1.A_END_PTP = p1.BASE_PTP_ID
+			    left join t_base_ptp as p2 on cir_info1.Z_END_PTP = p2.BASE_PTP_ID
+			    left join ${map.ctp_table} as ctp1 on cir.a_end_ctp = ctp1.${map.CTP_ID}
+			    left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+			                                             p1.Base_ems_connection_id
+			    left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+			    left join t_base_ems_group as group1 on group1.base_ems_group_id =
+			                                          ems1.base_ems_group_id
+			    left join ${map.ctp_table} as ctp2 on cir.Z_end_ctp = ctp2.${map.CTP_ID}
+			    left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+			                                             p2.Base_ems_connection_id
+			    left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+			    left join t_base_ems_group as group2 on group2.base_ems_group_id =
+			                                          ems2.base_ems_group_id
+			    left join t_cir_circuit_info cir_info on cir_info.${map.cir_info_id}=cir_info1.parent_cir
+		
+		]]>
+	</sql>
+	<sql id="aboutSdhOTnCondition">
+		<![CDATA[
+		from ${map.route} as route 
+				left join ${map.crs} as crs on route.chain_id=crs.${map.crs_id} 
+				left join t_base_ptp as ptp3 on ptp3.base_ptp_id=a_end_ptp
+				left join t_base_ptp as ptp4 on ptp4.base_ptp_id=z_end_ptp
+				left join t_base_ne as ne on ne.base_ne_id=ptp3.base_ne_id
+				left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID 
+																= ne.BASE_EMS_CONNECTION_ID
+				left join t_resource_room as room on room.RESOURCE_ROOM_ID =
+					                                        ne.RESOURCE_ROOM_ID
+				left join t_resource_station as station on station.RESOURCE_STATION_ID =
+					                                        room.RESOURCE_STATION_ID
+				left join ${map.cir_table} as cir on route.${map.cir_id}=cir.${map.cir_id}
+				left join ${map.cir_info_table} as cir_info on cir.${map.cir_info_id}=cir_info.${map.cir_info_id}
+				left join t_base_ptp as p1 on cir_info.A_END_PTP = p1.BASE_PTP_ID
+			    left join t_base_ptp as p2 on cir_info.Z_END_PTP = p2.BASE_PTP_ID
+			    left join ${map.ctp_table} as ctp1 on cir.a_end_ctp = ctp1.${map.CTP_ID}
+			    left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+			                                             p1.Base_ems_connection_id
+			    left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+			    left join t_base_ems_group as group1 on group1.base_ems_group_id =
+			                                          ems1.base_ems_group_id
+			    left join ${map.ctp_table} as ctp2 on cir.Z_end_ctp = ctp2.${map.CTP_ID}
+			    left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+			                                             p2.Base_ems_connection_id
+			    left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+			    left join t_base_ems_group as group2 on group2.base_ems_group_id =
+			                                          ems2.base_ems_group_id
+		
+		]]>
+	</sql>
+	<!-- 相关性查询 -->
+	<select id="selectCircuitAbout" resultType="hashMap" parameterType="hashMap">
+  		<include refid="circuitInfoStruct" /> 
+  		<if test="map.serviceType==2">
+  		<include refid="aboutCondition"/>
+  		</if>
+		<if test="map.serviceType!=2">
+		<include refid="aboutSdhOTnCondition"/>
+		</if>
+		<where>
+				chain_TYPE=1
+				<if test="map.nodeList!=null and map.tag==2">
+				and (ptp3.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					or ptp4.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					)
+				</if>
+				<if test="map.nodeList!=null and map.tag==1">
+				and ${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+				</if>
+				<!--
+				<if test="map.aLocationLevel==5">
+					and station.RESOURCE_STATION_ID =${map.aLocationId}
+				</if>
+				<if test="map.aLocationLevel==6">
+					and room.RESOURCE_ROOM_ID=${map.aLocationId}
+				</if>
+				<if test="map.circuitNo!=null and map.circuitNo!='' and map.circuitNo!='null'">
+				    and cir_info.CIR_NO like CONCAT('%',${map.circuitNo},'%' )
+				</if>
+				<if test="map.clientName!=null and map.clientName!='' and and map.clientName!='null'">
+					and cir_info.CLIENT_NAME like '%${map.clientName}%'
+				</if>
+				<if test="map.circuitName!=null and map.circuitName!='' and map.circuitName!='null'">
+					and cir_info.cir_name like '%${map.circuitName}%'
+				</if>
+				<if test="map.systemSourceNo!=null and map.systemSourceNo!='' and map.systemSourceNo!='null'">
+					and cir_info.SOURCE_NO like CONCAT('%',${map.systemSourceNo},'%' )
+				</if>
+				<if test="map.useFor!=null and map.useFor!='' and map.useFor!='null'">
+					and cir_info.USED_FOR like '%${map.useFor}%'
+				</if>
+				<if test="map.serviceType!=null and map.serviceType!='' and map.serviceType!='null'">
+					and cir_info.SVC_TYPE=#{map.serviceType}
+				</if>
+				<if test="map.connectRate!=null and map.connectRate!='' and map.connectRate!='null' and map.serviceType!=3">
+					and cir_info.A_END_RATE= #{map.connectRate}
+				</if>
+				<if test="map.circuitState!=null and map.circuitState!='' and map.circuitState!='null'">
+					and cir_info.IS_COMPLETE_CIR= ${map.circuitState}
+				</if>
+				 -->
+					<!-- and cir.IS_MAIN_CIR=1 --> and cir_info.SELECT_TYPE=1 group by cir_no
+				</where>
+			
+	</select>
+	
+	<!-- 获得相关性查询总数 -->
+	<select id="circuitAboutTotal" resultType="hashMap" parameterType="hashMap">
+		select count(distinct(cir_info.cir_no)) as total
+  		<if test="map.serviceType==2">
+  		<include refid="aboutCondition"/>
+  		</if>
+		<if test="map.serviceType!=2">
+		<include refid="aboutSdhOTnCondition"/>
+		</if>
+  		<where>
+				chain_TYPE=1
+				<if test="map.nodeList!=null and map.tag==2">
+				and (ptp3.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					or ptp4.${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+					)
+				</if>
+				<if test="map.nodeList!=null and map.tag==1">
+				and ${map.select_id} IN 
+					  <foreach collection="map.nodeList" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+					  </foreach>
+				</if>
+				<!--
+				<if test="map.aLocationLevel==5">
+					and station.RESOURCE_STATION_ID =${map.aLocationId}
+				</if>
+				<if test="map.aLocationLevel==6">
+					and room.RESOURCE_ROOM_ID=${map.aLocationId}
+				</if>
+				<if test="map.circuitNo!=null and map.circuitNo!='' and map.circuitNo!='null'">
+				    and cir_info.CIR_NO like CONCAT('%',${map.circuitNo},'%' )
+				</if>
+				<if test="map.clientName!=null and map.clientName!='' and and map.clientName!='null'">
+					and cir_info.CLIENT_NAME like '%${map.clientName}%'
+				</if>
+				<if test="map.circuitName!=null and map.circuitName!='' and map.circuitName!='null'">
+					and cir_info.cir_name like '%${map.circuitName}%'
+				</if>
+				<if test="map.systemSourceNo!=null and map.systemSourceNo!='' and map.systemSourceNo!='null'">
+					and cir_info.SOURCE_NO like CONCAT('%',${map.systemSourceNo},'%' )
+				</if>
+				<if test="map.useFor!=null and map.useFor!='' and map.useFor!='null'">
+					and cir_info.USED_FOR like '%${map.useFor}%'
+				</if>
+				<if test="map.serviceType!=null and map.serviceType!='' and map.serviceType!='null'">
+					and cir_info.SVC_TYPE=#{map.serviceType}
+				</if>
+				<if test="map.connectRate!=null and map.connectRate!='' and map.connectRate!='null' and map.serviceType!=3">
+					and cir_info.A_END_RATE= #{map.connectRate}
+				</if>
+				<if test="map.circuitState!=null and map.circuitState!='' and map.circuitState!='null'">
+					and cir_info.IS_COMPLETE_CIR= ${map.circuitState}
+				</if>
+				 -->
+					<!-- and cir.IS_MAIN_CIR=1 --> and cir_info.SELECT_TYPE=1
+				</where>
+	</select>
+	
+	<!--端口性能值查询-->
+	<select id="searchPmValue" resultType="hashMap" >                                                          
+				SELECT
+				  t1.ID,
+				  t1.PERFORMANCE_VALUE_BEFORE VALUE_BEFORE,
+				  t1.PERFORMANCE_VALUE_AFTER VALUE_AFTER,
+				  t3.DISPLAY_NAME DISPLAY_NE,
+				  t4.PORT_DESC DISPLAY_PORT_DESC,
+				  t4.DOMAIN,
+				  t1.PERFORMANCE_NAME PM_DESCRIPTION,
+				  t1.TARGET_TYPE,
+				  t1.PM_STD_INDEX,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_BEFORE,'%Y-%m-%d %H:%i:%s')    TIME_BEFORE,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_AFTER,'%Y-%m-%d %H:%i:%s')    TIME_AFTER,
+				  t1.EXCEPTION_LV_BEFORE,
+				  t1.EXCEPTION_LV_AFTER,
+				  t1.EVALUATION_SCORE,
+				  t1.port_id BASE_PTP_ID
+				FROM T_CUTOVER_PERFORMANCE t1
+				  
+				  LEFT JOIN t_base_ne t3 ON t1.ne_id = t3.BASE_NE_ID
+				  LEFT JOIN t_base_ptp t4 ON t1.port_id = t4.BASE_PTP_ID 
+				WHERE 
+				    t1.cutover_task_id = #{cutoverTaskId}
+
+			  <if test="startNumber!=-1 and pageSize!=-1">  
+			  limit #{startNumber},#{pageSize}
+			  </if>                                        
+
+	</select>
+	
+	<!-- 查询端口性能值数量 -->
+	<select id="getPmValueCount" resultType="int">
+		SELECT
+		COUNT(1) AS total
+		FROM
+			T_CUTOVER_PERFORMANCE
+				WHERE 
+				    cutover_task_id = #{cutoverTaskId}
+		
+	</select>
+	<!-- 根据端口id查询link，从而查询link两端ptp的id及其相应的ems的id -->
+	<select id="searchPortsInLink" resultType="hashMap" >
+		SELECT
+		  t.A_EMS_CONNECTION_ID,
+		  t.Z_EMS_CONNECTION_ID,
+		  t.A_NE_ID,
+		  t.Z_NE_ID,
+		  t.A_END_PTP,
+		  t.Z_END_PTP
+		FROM t_base_link t
+		WHERE t.A_END_PTP IN 
+		<foreach collection="cutoverPortIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item.BASE_PTP_ID}
+		</foreach>
+		     OR t.Z_END_PTP IN 
+		     <foreach collection="cutoverPortIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item.BASE_PTP_ID}
+			 </foreach>
+	</select>
+	
+	<!-- 根据link id 获取两端ptp的id及其相应的ems的id -->
+	<select id="searchPortsByLink" resultType="hashMap" >
+		SELECT
+		  t.A_EMS_CONNECTION_ID,
+		  t.Z_EMS_CONNECTION_ID,
+		  t.A_NE_ID,
+		  t.Z_NE_ID,
+		  t.A_END_PTP,
+		  t.Z_END_PTP
+		FROM t_base_link t
+		WHERE t.BASE_LINK_ID IN 
+		<foreach collection="linkIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+		</foreach>
+	</select>
+	<!-- 根据各个级别的设备查询所属的端口id -->
+	<select id="searchPorts" resultType="hashMap" >
+	SELECT t.BASE_PTP_ID,t.BASE_EMS_CONNECTION_ID,t.BASE_NE_ID FROM t_base_ptp t
+	    <where>
+	    	<if test="targetType == 4">
+					t.BASE_NE_ID IN
+					<foreach collection="equipIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+			 		</foreach>
+			</if>
+			<if test="targetType == 5">
+					t.BASE_SHELF_ID IN
+					<foreach collection="equipIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+			 		</foreach>
+			</if>
+			<if test="targetType == 6">
+					t.BASE_UNIT_ID IN
+					<foreach collection="equipIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+			 		</foreach>
+			</if>
+			<if test="targetType == 7">
+					t.BASE_SUB_UNIT_ID IN
+					<foreach collection="equipIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+			 		</foreach>
+			</if>
+			<if test="targetType == 8">
+					t.BASE_PTP_ID IN
+					<foreach collection="equipIds" index="index" item="item" open="("
+		      			separator="," close=")">
+		      			${item}
+			 		</foreach>
+			</if>
+	    </where>
+	</select>
+
+	<!-- 保存性能值（前 --> 
+    <insert id="savePmValueBefore">
+	    insert into T_CUTOVER_PERFORMANCE ( CUTOVER_TASK_ID,
+										    NE_ID,
+										    PORT_ID,
+										    PERFORMANCE_NAME,
+										    PERFORMANCE_VALUE_BEFORE,
+										    TARGET_TYPE,
+										    PM_STD_INDEX,
+										    SNAPSHOT_TIME_BEFORE,
+										    SNAPSHOT_TIME_FLAG,
+										    EXCEPTION_LV_BEFORE,
+										    TYPE ) 
+	    values 
+	    <foreach collection="pmValueList" item="item" index="index" separator=",">
+	        (
+			 <choose>
+				<when test="item.cutoverTaskId != null">#{item.cutoverTaskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.neId != null">#{item.neId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.portId != null">#{item.portId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.pmName != null">#{item.pmName}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.pmValue != null">#{item.pmValue}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.targetType != null">#{item.targetType}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.pmStdIndex != null">#{item.pmStdIndex}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.snapshotTime != null">#{item.snapshotTime}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.snapshotTimeFlag != null">#{item.snapshotTimeFlag}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.exceptionLevel != null">#{item.exceptionLevel}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.type != null">#{item.type}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+	    ON DUPLICATE KEY UPDATE 
+	    PERFORMANCE_VALUE_BEFORE=VALUES(PERFORMANCE_VALUE_BEFORE),
+	    SNAPSHOT_TIME_BEFORE=VALUES(SNAPSHOT_TIME_BEFORE),
+	    SNAPSHOT_TIME_FLAG=VALUES(SNAPSHOT_TIME_FLAG),
+	    EXCEPTION_LV_BEFORE=VALUES(EXCEPTION_LV_BEFORE)
+    </insert>
+    
+    <!-- 保存性能值（后 --> 
+    <insert id="savePmValueAfter">
+	    insert into T_CUTOVER_PERFORMANCE ( CUTOVER_TASK_ID,
+										    NE_ID,
+										    PORT_ID,
+										    PERFORMANCE_NAME,
+										    PERFORMANCE_VALUE_AFTER,
+										    TARGET_TYPE,
+										    PM_STD_INDEX,
+										    SNAPSHOT_TIME_AFTER,
+										    SNAPSHOT_TIME_FLAG,
+										    EXCEPTION_LV_AFTER,
+										    TYPE ) 
+	    values 
+	    <foreach collection="pmValueList" item="item" index="index" separator=",">
+	        (
+			 <choose>
+				<when test="item.cutoverTaskId != null">#{item.cutoverTaskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.neId != null">#{item.neId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.portId != null">#{item.portId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.pmName != null">#{item.pmName}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.pmValue != null">#{item.pmValue}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.targetType != null">#{item.targetType}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.pmStdIndex != null">#{item.pmStdIndex}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.snapshotTime != null">#{item.snapshotTime}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.snapshotTimeFlag != null">#{item.snapshotTimeFlag}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.exceptionLevel != null">#{item.exceptionLevel}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.type != null">#{item.type}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+	    ON DUPLICATE KEY UPDATE 
+	    PERFORMANCE_VALUE_AFTER=VALUES(PERFORMANCE_VALUE_AFTER),
+	    SNAPSHOT_TIME_AFTER=VALUES(SNAPSHOT_TIME_AFTER),
+	    SNAPSHOT_TIME_FLAG=VALUES(SNAPSHOT_TIME_FLAG),
+	    EXCEPTION_LV_AFTER=VALUES(EXCEPTION_LV_AFTER)
+    </insert>
+    <!-- 保存割接任务告警快照信息 --> 
+    <insert id="saveCutoverAlarms">
+	    insert into T_CUTOVER_ALARM ( CUTOVER_TASK_ID,
+	    						      ALARM_CATEGORY,
+								      ALARM_LEVEL,
+								      EMS_GROUP_ID,
+								      EMS_ID,
+								      ROOM_ID,
+								      STATION_ID,
+								      NE_ID,
+								      SLOT_ID,
+								      UNIT_ID,
+								      PTP_ID,       
+								      ALARM_NAME,        
+								      RATE,              
+								      ALARM_TYPE,
+								      ALARM_DESCRIPTION,
+								     <!-- ALARM_STATUS, --> 
+								      SNAPSHOT_TIME_BEFORE,
+								      SNAPSHOT_TIME_AFTER,
+								      SNAPSHOT_TIME_FLAG,
+								      ROOM_NAME,
+								      STATION_NAME,
+								      EMS_GROUP_NAME,
+								      EMS_NAME,
+								      NE_NAME,
+								      SLOT_NAME,
+								      UNIT_NAME,
+								      PTP_NAME,
+								      CTP_NAME
+								       ) 
+	    values 
+	    <foreach collection="alarmsList" item="item" index="index" separator=",">
+	        (
+			 <choose>
+				<when test="cutoverTaskId != null">#{cutoverTaskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="snapshotTimeFlag != 1">#{item.ALARM_CATEGORY}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.PERCEIVED_SEVERITY != null">#{item.PERCEIVED_SEVERITY}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.BASE_EMS_GROUP_ID != null">#{item.BASE_EMS_GROUP_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.EMS_ID != null">#{item.EMS_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.RESOURCE_ROOM_ID != null">#{item.RESOURCE_ROOM_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.STATION_ID != null">#{item.STATION_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.NE_ID != null">#{item.NE_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.SLOT_ID != null">#{item.SLOT_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.UNIT_ID != null">#{item.UNIT_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.PTP_ID != null">#{item.PTP_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.NATIVE_PROBABLE_CAUSE != null">#{item.NATIVE_PROBABLE_CAUSE}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.INTERFACE_RATE != null">#{item.INTERFACE_RATE}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.ALARM_TYPE != null">#{item.ALARM_TYPE}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.ALARM_DESCRIPTION != null">#{item.ALARM_DESCRIPTION}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="snapshotTime == null">#{item.SNAPSHOT_TIME_BEFORE}</when>
+				<otherwise>#{snapshotTime}</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.SNAPSHOT_TIME_AFTER != null">#{item.SNAPSHOT_TIME_AFTER}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="snapshotTimeFlag != null">#{snapshotTimeFlag}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.RESOURCE_ROOM != null">#{item.DISPLAY_AREA}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.DISPLAY_STATION != null">#{item.DISPLAY_STATION}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.EMS_GROUP_NAME != null">#{item.EMS_GROUP_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.EMS_NAME != null">#{item.EMS_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.NE_NAME != null">#{item.NE_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.SLOT_DISPLAY_NAME != null">#{item.SLOT_DISPLAY_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.UNIT_NAME != null">#{item.UNIT_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.PORT_NAME != null">#{item.PORT_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.CTP_NAME != null">#{item.CTP_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+    </insert>
+    <!--相关告警查询-->
+	<select id="getCurrentAlarms" resultType="hashMap" >                                                          
+				SELECT
+				  t1.ID                AS _id,
+				  t1.EMS_GROUP_ID,
+				  t1.EMS_ID,
+				  t1.ROOM_ID,
+				  t1.STATION_ID,
+				  t1.NE_ID,
+				  t1.SLOT_ID,
+				  t1.UNIT_ID,
+				  t1.PTP_ID,
+				  t1.ALARM_CATEGORY,
+				  t1.ALARM_LEVEL       AS PERCEIVED_SEVERITY,
+				  t1.ALARM_NAME        AS NATIVE_PROBABLE_CAUSE,
+				  t1.ROOM_NAME         AS ROOM,
+				  t1.STATION_NAME      AS STATION,
+				  t1.EMS_NAME          AS NATIVE_EMS_NAME,
+				  t1.EMS_GROUP_NAME    AS EMS_GROUP_NAME,
+				  t1.NE_NAME           AS NE_NAME,
+				  t1.SLOT_NAME         AS SLOT_DISPLAY_NAME,
+				  t1.UNIT_NAME         AS UNIT_NAME,
+				  t1.PTP_NAME          AS PORT_NO,
+				  t1.RATE              AS INTERFACE_RATE,
+				  t1.CTP_NAME          AS CTP_NAME,
+				  t1.ALARM_TYPE,
+				  t1.ALARM_DESCRIPTION,
+				  t1.ALARM_STATUS,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_BEFORE,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_BEFORE,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_AFTER,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_AFTER,
+				  t2.PTP_TYPE
+				FROM t_cutover_alarm t1 
+				     left join t_base_ptp t2 on t1.PTP_ID = t2.BASE_PTP_ID
+				     
+				  
+			    
+			  WHERE 
+				    t1.cutover_task_id = #{cutoverTaskId}
+				    <!-- alarmType=2 查询割接前告警，对应告警类别为‘不变’和‘消除’或者是在割接后告警保存之前的情形：为null；alarmType=3 查询割接后告警，对应告警类别为‘不变’和‘新增’ -->
+				    <if test="alarmType == 2">
+						and (t1.ALARM_CATEGORY = 1 or t1.ALARM_CATEGORY = 2 or t1.ALARM_CATEGORY is null)
+					</if> 
+					<if test="alarmType == 3">
+						and (t1.ALARM_CATEGORY = 1 or t1.ALARM_CATEGORY = 3) 
+					</if> 
+			  <if test="startNumber!=-1 and pageSize!=-1">  
+			  limit #{startNumber},#{pageSize}
+			  </if>                                                           
+
+	</select>
+	
+	<!-- 查询相关告警数量 -->
+	<select id="getCurrentAlarmsCount" resultType="int">
+		SELECT
+		COUNT(1) AS total
+		FROM
+		(
+			SELECT
+				  t1.ID                AS _id,
+				  t1.ALARM_CATEGORY,
+				  t1.ALARM_LEVEL       AS PERCEIVED_SEVERITY,
+				  t1.ALARM_NAME        AS NATIVE_PROBABLE_CAUSE,
+				  t1.ROOM_NAME         AS ROOM,
+				  t1.STATION_NAME      AS STATION,
+				  t1.EMS_NAME          AS NATIVE_EMS_NAME,
+				  t1.EMS_GROUP_NAME    AS EMS_GROUP_NAME,
+				  t1.NE_NAME           AS NE_NAME,
+				  t1.SLOT_NAME         AS SLOT_DISPLAY_NAME,
+				  t1.UNIT_NAME         AS UNIT_NAME,
+				  t1.PTP_NAME      AS PORT_NO,
+				  t1.RATE              AS INTERFACE_RATE,
+				  t1.ALARM_TYPE,
+				  t1.ALARM_DESCRIPTION,
+				  t1.ALARM_STATUS,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_BEFORE,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_BEFORE,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_AFTER,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_AFTER
+				FROM t_cutover_alarm t1
+				  
+			    
+			  WHERE 
+				    t1.cutover_task_id = #{cutoverTaskId}
+				    <!-- alarmType=2 查询割接前告警，对应告警类别为‘不变’和‘消除’；alarmType=3 查询割接后告警，对应告警类别为‘不变’和‘新增’ -->
+				    <if test="alarmType == 2">
+						and (t1.ALARM_CATEGORY = 1 or t1.ALARM_CATEGORY = 2 or t1.ALARM_CATEGORY is null)
+					</if> 
+					<if test="alarmType == 3">
+						and (t1.ALARM_CATEGORY = 1 or t1.ALARM_CATEGORY = 3) 
+					</if> 
+		) t
+	</select>
+
+	<select id="getFilterAlarmParameters" resultType="hashMap">
+		SELECT
+		  t1.SYS_TASK_ID,
+		  t1.CREATE_PERSON,
+		  DATE_FORMAT(t1.START_TIME,'%Y-%m-%d %H:%i:%s') AS startTime,
+		  DATE_FORMAT(t1.END_TIME,'%Y-%m-%d %H:%i:%s') AS endTime,
+		  t2.PARAM_VALUE    startTimeActual,
+		  t3.PARAM_VALUE    endTimeActual
+		FROM t_sys_task t1
+		  LEFT JOIN t_sys_task_param t2
+		    ON t1.SYS_TASK_ID = t2.SYS_TASK_ID
+		  LEFT JOIN t_sys_task_param t3
+		    ON t1.SYS_TASK_ID = t3.SYS_TASK_ID
+		  LEFT JOIN t_sys_task_param t4
+		    ON t1.SYS_TASK_ID = t4.SYS_TASK_ID
+		WHERE t1.TASK_TYPE = 10
+		    AND t2.PARAM_NAME = 'startTimeActual'
+		    AND t3.PARAM_NAME = 'endTimeActual'
+		    AND t4.PARAM_NAME = '任务状态'
+		    AND (t4.PARAM_VALUE = '1' or t4.PARAM_VALUE = '2' or t4.PARAM_VALUE = '4')
+	</select>
+	<!-- 割接任务信息获取 -->
+    <select id="getCutoverTaskList" parameterType="int" resultType="hashmap">
+   		select task.*,user.USER_NAME
+        from T_SYS_TASK as task
+        left join T_SYS_USER as user
+        on task.CREATE_PERSON = user.SYS_USER_ID
+        where SYS_TASK_ID = ${cutoverTaskId}
+  	</select>
+  	<!-- 割接任务param获取 -->
+    <select id="getCutoverTaskParamList" parameterType="int" resultType="hashmap">
+   		select * 
+   		from T_SYS_TASK_PARAM
+        where SYS_TASK_ID = ${cutoverTaskId}
+  	</select>
+  	<!-- 割接任务equip获取 -->
+    <select id="getCutoverEquipmentList" parameterType="hashmap" resultType="hashmap">
+   		select * 
+   		from T_SYS_TASK_INFO
+        where SYS_TASK_ID = #{map.cutoverTaskId}
+        and TARGET_TYPE != #{map.linkType}
+  	</select>
+  	<!-- 割接任务Link获取 -->
+    <select id="getCutoverLinkList" parameterType="hashmap" resultType="hashmap">
+   		select * 
+   		from T_SYS_TASK_INFO
+        where SYS_TASK_ID = #{map.cutoverTaskId}
+        and TARGET_TYPE = #{map.linkType}
+  	</select>
+  	<!-- 根据网管Id获取网管名 -->
+    <select id="getEquipListByEmsId" parameterType="int" resultType="hashmap">
+   		select * 
+   		from T_BASE_EMS_CONNECTION
+        where BASE_EMS_CONNECTION_ID = ${emsId}
+  	</select>
+  	<!-- 根据网元Id获取网元名和网管名 -->
+    <select id="getEquipListByNeId" parameterType="int" resultType="hashmap">
+   		select ems.DISPLAY_NAME as emsName,
+   		       ne.DISPLAY_NAME as neName
+        from T_BASE_NE as ne
+        left join T_BASE_EMS_CONNECTION as ems
+        on ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+        where BASE_NE_ID = ${neId}
+  	</select>
+  	<!-- 根据网管Id获取网管名 -->
+    <select id="getEquipListByPtpId" parameterType="int" resultType="hashmap">
+   		select ems.DISPLAY_NAME as emsName,
+   		       ne.DISPLAY_NAME as neName,
+   		       ptp.DISPLAY_NAME as ptpName
+        from T_BASE_PTP as ptp
+        left join T_BASE_NE as ne
+        on ne.BASE_NE_ID = ptp.BASE_NE_ID
+        left join T_BASE_EMS_CONNECTION as ems
+        on ems.BASE_EMS_CONNECTION_ID = ptp.BASE_EMS_CONNECTION_ID 
+        where BASE_PTP_ID = ${ptpId}
+  	</select>
+  	<!-- 根据链路的Id获取链路信息 -->
+    <select id="getLinkListByLinkId" parameterType="int" resultType="hashmap">
+   		select link.DISPLAY_NAME as linkName,
+   		       A_Ne.DISPLAY_NAME as aNeName,
+   		       A_Ptp.PORT_DESC as aPortDesc,
+   		       Z_Ne.DISPLAY_NAME as zNeName,
+   		       Z_Ptp.PORT_DESC as zPortDesc   		        
+   		from T_BASE_LINK as link
+   		left join T_BASE_NE as A_Ne
+        on A_Ne.BASE_NE_ID = link.A_NE_ID
+        left join T_BASE_PTP as A_Ptp
+        on A_Ptp.BASE_PTP_ID = link.A_END_PTP 
+        
+        left join T_BASE_NE as Z_Ne
+        on Z_Ne.BASE_NE_ID = link.Z_NE_ID
+        left join T_BASE_PTP as Z_Ptp
+        on Z_Ptp.BASE_PTP_ID = link.Z_END_PTP 
+        
+        where BASE_LINK_ID = ${linkId}
+  	</select>
+  	
+  	
+  	<!-- 割接性能值列表获取 -->
+    <select id="getCutoverPMList" parameterType="int" resultType="hashmap">
+   		select cutoverPM.*, 
+   		       ne.DISPLAY_NAME as neName, 
+   		       ptp.DISPLAY_NAME as ptpName
+        from T_CUTOVER_PERFORMANCE as cutoverPM
+        
+        left join T_BASE_NE as ne
+        on ne.BASE_NE_ID = cutoverPM.NE_ID
+        
+        left join T_BASE_PTP as ptp
+        on ptp.BASE_PTP_ID = cutoverPM.PORT_ID 
+        
+        where CUTOVER_TASK_ID = ${cutoverTaskId}
+        and SNAPSHOT_TIME_FLAG = 1
+  	</select>
+  	<!-- 割接后性能值获取 -->
+    <select id="getCutoverAfterList" parameterType="hashmap" resultType="hashmap">
+   		select *
+        from T_CUTOVER_PERFORMANCE
+        where CUTOVER_TASK_ID = #{map.cutoverTaskId}
+        and PORT_ID = #{map.ptpId}
+        and PERFORMANCE_NAME = #{map.pmDescription}
+        and SNAPSHOT_TIME_FLAG = 2
+  	</select>
+  	
+  	<!-- 根据链路id的list查询链路列表 -->
+    <select id="getLinkListByLinkIdList" resultType="hashmap">
+	    select t.A_END_PTP,t.Z_END_PTP from T_BASE_LINK t
+		where BASE_LINK_ID in 
+		<foreach collection="nodeList" item="item" index="index" open="(" separator="," close=")">
+		   #{item}
+		</foreach>
+    </select>
+    
+    <!-- 查询所有未完成割接任务的ID -->
+    <select id="getAllUnfinishedTask" resultType="hashmap">
+	    select task.SYS_TASK_ID from t_sys_task task,t_sys_task_param param
+		where task.SYS_TASK_ID = param.SYS_TASK_ID 
+		and task.TASK_TYPE = 10 
+		and  param.PARAM_NAME = '任务状态' 
+		and (param.PARAM_VALUE !='3' and param.PARAM_VALUE!=7)
+    </select>
+    <!-- 根据电路id的list查询电路列表 -->
+    <select id="getCircuitsByIdList" resultType="hashmap">
+	    
+	    select cir_info.CIR_CIRCUIT_INFO_ID as CIR_CIRCUIT_INFO_ID,
+	       cir_info.A_END_CTP AS A_CTP_ID,
+	       cir_info.Z_END_CTP AS Z_CTP_ID,
+	       cir_info.cir_no,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	       ctp1.DISPLAY_NAME AS a_end_ctp,
+	       ctp2.DISPLAY_NAME AS z_end_ctp,
+	       p1.port_desc as a_end_port,
+	       p2.port_desc as z_end_port,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name,
+	       ne1.display_name as a_end_ne,
+	       ems1.display_name as a_end_ems,
+	       group1.group_name as a_end_ems_group,
+	       ne2.display_name as z_end_ne,
+	       ems2.display_name as z_end_ems,
+	       cir_info.A_END_RATE AS rate,
+	       group2.group_name as Z_end_ems_group
+	       
+	       from t_cir_circuit_info as cir_info 
+<!-- 				left join t_base_ptp as ptp3 on ptp3.base_ptp_id=cir.a_end_ptp -->
+<!-- 				left join t_base_ptp as ptp4 on ptp4.base_ptp_id=cir.z_end_ptp -->
+<!-- 				left join t_base_ne as ne on ne.base_ne_id=ptp3.base_ne_id -->
+<!-- 				left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID  -->
+<!-- 																= ne.BASE_EMS_CONNECTION_ID -->
+<!-- 				left join t_resource_room as room on room.RESOURCE_ROOM_ID = -->
+<!-- 					                                        ne.RESOURCE_ROOM_ID -->
+<!-- 				left join t_resource_station as station on station.RESOURCE_STATION_ID = -->
+<!-- 					                                        room.RESOURCE_STATION_ID -->
+				
+				left join t_base_ptp as p1 on cir_info.A_END_PTP = p1.BASE_PTP_ID
+			    left join t_base_ptp as p2 on cir_info.Z_END_PTP = p2.BASE_PTP_ID
+			    left join t_base_sdh_ctp as ctp1 on cir_info.a_end_ctp = ctp1.base_sdh_CTP_ID
+			    left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+			                                             p1.Base_ems_connection_id
+			    left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+			    left join t_base_ems_group as group1 on group1.base_ems_group_id =
+			                                          ems1.base_ems_group_id
+			    left join t_base_sdh_ctp as ctp2 on cir_info.z_end_ctp = ctp2.base_sdh_CTP_ID
+			    left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+			                                             p2.Base_ems_connection_id
+			    left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+			    left join t_base_ems_group as group2 on group2.base_ems_group_id =
+			                                          ems2.base_ems_group_id
+		where cir_info.CIR_CIRCUIT_INFO_ID in 
+		<foreach collection="duplicateCircuitIdList" item="item" index="index" open="(" separator="," close=")">
+		   #{item}
+		</foreach>
+    </select>
+    
+    <!-- 根据OTN电路id的list查询电路列表 -->
+    <select id="getOTNCircuitsByIdList" resultType="hashmap">
+    
+	   select 
+	   	   <!-- cir.CIR_OTN_CIRCUIT_ID, -->
+	   	   cir_info.CIR_OTN_CIRCUIT_INFO_ID as CIR_CIRCUIT_INFO_ID,
+	       cir_info.A_END_CTP AS A_CTP_ID,
+	       cir_info.Z_END_CTP AS Z_CTP_ID,
+	       cir_info.cir_no,
+	       cir_info.source_no,
+	       cir_info.svc_type,
+	       cir_info.IS_COMPLETE_CIR,
+	       ctp1.DISPLAY_NAME AS a_end_ctp,
+	       ctp2.DISPLAY_NAME AS z_end_ctp,
+	       p1.port_desc as a_end_port,
+	       p2.port_desc as z_end_port,
+	       cir_info.cir_name,
+	       cir_info.client_name,
+	       cir_info.USED_FOR,
+	       cir_info.a_end_user_name,
+	       cir_info.z_end_user_name,
+	       ne1.display_name as a_end_ne,
+	       ems1.display_name as a_end_ems,
+	       group1.group_name as a_end_ems_group,
+	       ne2.display_name as z_end_ne,
+	       ems2.display_name as z_end_ems,
+	       '' AS rate,
+	       group2.group_name as Z_end_ems_group
+	       
+	       from t_cir_otn_circuit_info as cir_info 
+<!-- 				left join t_base_ptp as ptp3 on ptp3.base_ptp_id=cir.a_end_ptp -->
+<!-- 				left join t_base_ptp as ptp4 on ptp4.base_ptp_id=cir.z_end_ptp -->
+<!-- 				left join t_base_ne as ne on ne.base_ne_id=ptp3.base_ne_id -->
+<!-- 				left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID  -->
+<!-- 																= ne.BASE_EMS_CONNECTION_ID -->
+<!-- 				left join t_resource_room as room on room.RESOURCE_ROOM_ID = -->
+<!-- 					                                        ne.RESOURCE_ROOM_ID -->
+<!-- 				left join t_resource_station as station on station.RESOURCE_STATION_ID = -->
+<!-- 					                                        room.RESOURCE_STATION_ID -->
+				
+				left join t_base_ptp as p1 on cir_info.A_END_PTP = p1.BASE_PTP_ID
+			    left join t_base_ptp as p2 on cir_info.Z_END_PTP = p2.BASE_PTP_ID
+			    left join T_base_otn_ctp as ctp1 on cir_info.a_end_ctp = ctp1.BASE_OTN_CTP_ID
+			    left join t_base_ems_connection as ems1 on ems1.base_ems_connection_id =
+			                                             p1.Base_ems_connection_id
+			    left join t_base_ne as ne1 on ne1.Base_ne_id = p1.base_ne_id
+			    left join t_base_ems_group as group1 on group1.base_ems_group_id =
+			                                          ems1.base_ems_group_id
+			    left join T_base_otn_ctp as ctp2 on cir_info.z_end_ctp = ctp2.BASE_OTN_CTP_ID
+			    left join t_base_ems_connection as ems2 on ems2.base_ems_connection_id =
+			                                             p2.Base_ems_connection_id
+			    left join t_base_ne as ne2 on ne2.Base_ne_id = p2.base_ne_id
+			    left join t_base_ems_group as group2 on group2.base_ems_group_id =
+			                                          ems2.base_ems_group_id
+		where cir_info.CIR_OTN_CIRCUIT_INFO_ID in 
+		<foreach collection="duplicateOTNCircuitIdList" item="item" index="index" open="(" separator="," close=")">
+		   #{item}
+		</foreach>
+    </select>
+    
+    <!--查询割接前异常性能（割接前评估用）-->
+	<select id="searchPmValueBefore" resultType="hashMap" >                                                          
+				SELECT
+				  t1.PERFORMANCE_VALUE_BEFORE VALUE_BEFORE,
+				  t3.DISPLAY_NAME DISPLAY_NE,
+				  t4.PORT_DESC DISPLAY_PORT_DESC,
+				  t1.PERFORMANCE_NAME PM_DESCRIPTION,
+				  t1.TARGET_TYPE,
+				  t1.PM_STD_INDEX,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_BEFORE,'%Y-%m-%d %H:%i:%s')    TIME_BEFORE,
+				  t1.port_id BASE_PTP_ID
+				FROM (SELECT * FROM T_CUTOVER_PERFORMANCE WHERE SNAPSHOT_TIME_BEFORE is not null and EXCEPTION_LV_BEFORE &lt;&gt; 0) t1
+				  
+				  LEFT JOIN t_base_ne t3 ON t1.ne_id = t3.BASE_NE_ID
+				  LEFT JOIN t_base_ptp t4 ON t1.port_id = t4.BASE_PTP_ID 
+				WHERE 
+				    t1.cutover_task_id = #{cutoverTaskId}
+			  <if test="startNumber!=-1 and pageSize!=-1">  
+			  limit #{startNumber},#{pageSize}
+			  </if>                                        
+
+	</select> 
+	
+	<!--查询割接前异常性能数量（割接前评估用）-->
+	<select id="searchPmValueBeforeCount" resultType="int" >                                                          
+				SELECT count(1) FROM T_CUTOVER_PERFORMANCE 
+				WHERE SNAPSHOT_TIME_BEFORE is not null 
+				and EXCEPTION_LV_BEFORE &lt;&gt; 0
+				and cutover_task_id = #{cutoverTaskId}
+	</select>
+	
+	 <!--查询割接前异常告警（割接前评估用）-->
+	<select id="searchAlarmBefore" resultType="hashMap" >                                                          
+				SELECT t1.ID                AS _id,
+				  t1.EMS_GROUP_ID,
+				  t1.EMS_ID,
+				  t1.ROOM_ID,
+				  t1.STATION_ID,
+				  t1.NE_ID,
+				  t1.SLOT_ID,
+				  t1.UNIT_ID,
+				  t1.PTP_ID,
+				  t1.ALARM_CATEGORY,
+				  t1.ALARM_LEVEL       AS PERCEIVED_SEVERITY,
+				  t1.ALARM_NAME        AS NATIVE_PROBABLE_CAUSE,
+				  t1.ROOM_NAME         AS ROOM,
+				  t1.STATION_NAME      AS STATION,
+				  t1.EMS_NAME          AS NATIVE_EMS_NAME,
+				  t1.EMS_GROUP_NAME    AS EMS_GROUP_NAME,
+				  t1.NE_NAME           AS NE_NAME,
+				  t1.SLOT_NAME         AS SLOT_DISPLAY_NAME,
+				  t1.UNIT_NAME         AS UNIT_NAME,
+				  t1.PTP_NAME          AS PORT_NO,
+				  t1.RATE              AS INTERFACE_RATE,
+				  t1.CTP_NAME          AS CTP_NAME,
+				  t1.ALARM_TYPE,
+				  t1.ALARM_DESCRIPTION,
+				  t1.ALARM_STATUS,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_BEFORE,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_BEFORE,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_AFTER,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_AFTER
+				  FROM T_CUTOVER_ALARM t1
+				WHERE (t1.ALARM_CATEGORY is null or t1.ALARM_CATEGORY=1 or t1.ALARM_CATEGORY=2)
+				and t1.cutover_task_id = #{cutoverTaskId}
+			  <if test="startNumber!=-1 and pageSize!=-1">  
+			  limit #{startNumber},#{pageSize}
+			  </if>                                        
+
+	</select> 
+	
+	<!--查询割接前异常告警数量（割接前评估用）-->
+	<select id="searchAlarmBeforeCount" resultType="int" >                                                          
+				SELECT count(1) FROM T_CUTOVER_ALARM 
+				WHERE (ALARM_CATEGORY is null or ALARM_CATEGORY=1 or ALARM_CATEGORY=2)
+				and cutover_task_id = #{cutoverTaskId}
+	</select>
+	
+	 <!--查询割接后异常性能（评分不为0的，割接后评估用）-->
+	<select id="searchPmValueAfter" resultType="hashMap" >                                                          
+				SELECT
+				  t1.PERFORMANCE_VALUE_BEFORE VALUE_BEFORE,
+				  t1.PERFORMANCE_VALUE_AFTER VALUE_AFTER,
+				  t3.DISPLAY_NAME DISPLAY_NE,
+				  t4.PORT_DESC DISPLAY_PORT_DESC,
+				  t1.PERFORMANCE_NAME PM_DESCRIPTION,
+				  t1.TARGET_TYPE,
+				  t1.PM_STD_INDEX,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_BEFORE,'%Y-%m-%d %H:%i:%s')    TIME_BEFORE,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_AFTER,'%Y-%m-%d %H:%i:%s')    TIME_AFTER,
+				  t1.port_id BASE_PTP_ID,
+				  t1.EVALUATION_SCORE
+				FROM T_CUTOVER_PERFORMANCE  t1
+				  LEFT JOIN t_base_ne t3 ON t1.ne_id = t3.BASE_NE_ID
+				  LEFT JOIN t_base_ptp t4 ON t1.port_id = t4.BASE_PTP_ID 
+				WHERE 
+				    t1.cutover_task_id = #{cutoverTaskId}
+				    and t1.EVALUATION_SCORE &lt;&gt;0
+			  <if test="startNumber!=-1 and pageSize!=-1">  
+			  limit #{startNumber},#{pageSize}
+			  </if>                                        
+
+	</select> 
+	
+	<!--查询割接后异常性能数量（割接后评估用）-->
+	<select id="searchPmValueAfterCount" resultType="int" >                                                          
+				SELECT count(1) FROM T_CUTOVER_PERFORMANCE 
+				WHERE EVALUATION_SCORE &lt;&gt;0
+				and cutover_task_id = #{cutoverTaskId}
+	</select>
+	
+	 <!--查询割接后异常告警（割接后评估用）-->
+	<select id="searchAlarmAfter" resultType="hashMap" >                                                          
+				SELECT t1.ID                AS _id,
+				  t1.EMS_GROUP_ID,
+				  t1.EMS_ID,
+				  t1.ROOM_ID,
+				  t1.STATION_ID,
+				  t1.NE_ID,
+				  t1.SLOT_ID,
+				  t1.UNIT_ID,
+				  t1.PTP_ID,
+				  t1.ALARM_CATEGORY,
+				  t1.ALARM_LEVEL       AS PERCEIVED_SEVERITY,
+				  t1.ALARM_NAME        AS NATIVE_PROBABLE_CAUSE,
+				  t1.ROOM_NAME         AS ROOM,
+				  t1.STATION_NAME      AS STATION,
+				  t1.EMS_NAME          AS NATIVE_EMS_NAME,
+				  t1.EMS_GROUP_NAME    AS EMS_GROUP_NAME,
+				  t1.NE_NAME           AS NE_NAME,
+				  t1.SLOT_NAME         AS SLOT_DISPLAY_NAME,
+				  t1.UNIT_NAME         AS UNIT_NAME,
+				  t1.PTP_NAME          AS PORT_NO,
+				  t1.RATE              AS INTERFACE_RATE,
+				  t1.CTP_NAME          AS CTP_NAME,
+				  t1.ALARM_TYPE,
+				  t1.ALARM_DESCRIPTION,
+				  t1.ALARM_STATUS,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_BEFORE,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_BEFORE,
+				  DATE_FORMAT(t1.SNAPSHOT_TIME_AFTER,'%Y/%m/%d %H:%i:%s') SNAPSHOT_TIME_AFTER
+				  FROM T_CUTOVER_ALARM t1 
+				WHERE t1.ALARM_CATEGORY=3
+				and t1.cutover_task_id = #{cutoverTaskId}
+			  <if test="startNumber!=-1 and pageSize!=-1">  
+			  limit #{startNumber},#{pageSize}
+			  </if>                                        
+
+	</select> 
+	
+	<!--查询割接后异常告警数量（割接后评估用）-->
+	<select id="searchAlarmAfterCount" resultType="int" >                                                          
+				SELECT count(1) FROM T_CUTOVER_ALARM 
+				WHERE ALARM_CATEGORY=3
+				and cutover_task_id = #{cutoverTaskId}
+	</select>
+	<!--根据id列表查询割接性能-->
+	<select id="searchPmValueByIdList" resultType="hashMap" >                                                          
+				SELECT
+				  t1.PERFORMANCE_VALUE_BEFORE VALUE_BEFORE,
+				  t1.PERFORMANCE_VALUE_AFTER PM_VALUE,
+				  t3.DISPLAY_NAME DISPLAY_NE,
+				  t4.PORT_DESC DISPLAY_PORT_DESC,
+				  t4.DOMAIN,
+				  t1.PERFORMANCE_NAME PM_DESCRIPTION,
+				  t1.TARGET_TYPE,
+				  t1.PM_STD_INDEX,
+				  t1.SNAPSHOT_TIME_BEFORE TIME_BEFORE,
+				  t1.SNAPSHOT_TIME_BEFORE TIME_AFTER,
+				  t1.EXCEPTION_LV_BEFORE,
+				  t1.EXCEPTION_LV_AFTER,
+				  t1.port_id BASE_PTP_ID
+				FROM T_CUTOVER_PERFORMANCE t1
+				  
+				  LEFT JOIN t_base_ne t3 ON t1.ne_id = t3.BASE_NE_ID
+				  LEFT JOIN t_base_ptp t4 ON t1.port_id = t4.BASE_PTP_ID 
+				WHERE 
+				     t1.ID in 
+		<foreach collection="pmIdList" item="item" index="index" open="(" separator="," close=")">
+		   #{item}
+		</foreach>
+	</select>
+	
+	    <!-- 设置性能数据的评分 --> 
+    <insert id="setPMEvaluationScore">
+	    insert into T_CUTOVER_PERFORMANCE ( ID,EVALUATION_SCORE ) 
+	    values 
+	    <foreach collection="pmList" item="item" index="index" separator=",">
+	        (
+			 <choose>
+				<when test="item.ID != null">#{item.ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.evaluationScore != null">#{item.evaluationScore}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+	    ON DUPLICATE KEY UPDATE 
+	    EVALUATION_SCORE=VALUES(EVALUATION_SCORE)
+    </insert>
+    
+    <!--根据id列表查询割接影响电路-->
+	<select id="selectAllCircuitAbout" resultType="hashMap" >  
+	    <if test="map.nodeLevel == 4 or map.nodeLevel == 8 ">                                                      
+			select  distinct ti.CIR_CIRCUIT_INFO_ID ,0 as CIR_OTN_CIRCUIT_INFO_ID
+			from 	t_base_sdh_crs ts,
+					t_cir_circuit_route  tr,
+					t_cir_circuit tc,
+					t_cir_circuit_info ti
+			where	ti.CIR_CIRCUIT_INFO_ID = tc.CIR_CIRCUIT_INFO_ID
+			and		tr.cir_circuit_id = tc.cir_circuit_id
+			and		tr.chain_type = 1
+			and 	tr.chain_id = ts.BASE_SDH_CRS_ID
+			<if test="map.nodeLevel == 4">  
+			and 	ts.base_ne_id in
+				<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+		  			 #{item}
+				</foreach>			 
+			</if>   
+			<if test="map.nodeLevel == 8">  
+			and     (ts.A_END_PTP in 
+						<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+				  			 #{item}
+						</foreach>
+					or 
+				 	ts.Z_END_PTP in 
+				  		<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+		  		 			#{item}
+						</foreach>)			 
+			</if>
+			and 	ts.IS_DEL  = 0
+		</if>
+		<if test="map.nodeLevel == 99">  	
+			select  distinct ti.CIR_CIRCUIT_INFO_ID ,0 as CIR_OTN_CIRCUIT_INFO_ID
+			from 	t_cir_circuit_route  tr,
+					t_cir_circuit tc,
+					t_cir_circuit_info ti
+			where	ti.CIR_CIRCUIT_INFO_ID = tc.CIR_CIRCUIT_INFO_ID
+			and		tr.cir_circuit_id = tc.cir_circuit_id
+			and		tr.chain_type = 4
+			and 	tr.chain_id in
+			<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+		  		 #{item}
+			</foreach>	
+		</if>
+		union
+		<if test="map.nodeLevel == 4 or map.nodeLevel == 8 ">
+			select  distinct 0 as CIR_CIRCUIT_INFO_ID,  ti.CIR_OTN_CIRCUIT_INFO_ID 
+			from 	t_base_otn_crs ts,
+					t_cir_otn_circuit_route  tr,
+					t_cir_otn_circuit tc,
+					t_cir_otn_circuit_info ti
+			where	ti.CIR_OTN_CIRCUIT_INFO_ID = tc.CIR_OTN_CIRCUIT_INFO_ID
+			and		tr.cir_otn_circuit_id = tc.cir_otn_circuit_id
+			and		tr.chain_type = 2
+			and 	tr.chain_id = ts.BASE_OTN_CRS_ID
+			<if test="map.nodeLevel == 4">  
+			and 	ts.base_ne_id in
+						<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+		  					 #{item}
+						</foreach>	
+			</if>
+			<if test="map.nodeLevel == 8">
+			and     (ts.A_END_PTP in 
+						<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+		  		 			#{item}
+						</foreach>	
+					or 
+					ts.Z_END_PTP in 
+						<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+		  			 		#{item}
+						</foreach>	
+					 )
+			</if>
+			and 	ts.IS_DEL  = 0
+		</if>                                     
+		<if test="map.nodeLevel == 99" >
+			select  distinct 0 as CIR_CIRCUIT_INFO_ID,  ti.CIR_OTN_CIRCUIT_INFO_ID
+			from 	t_cir_otn_circuit_route  tr,
+					t_cir_otn_circuit tc,
+					t_cir_otn_circuit_info ti
+			where	ti.CIR_OTN_CIRCUIT_INFO_ID = tc.CIR_OTN_CIRCUIT_INFO_ID
+			and     tr.cir_otn_circuit_id = tc.cir_otn_circuit_id
+			and		tr.chain_type = 3
+			and 	tr.chain_id in 
+						<foreach collection="map.nodeList" item="item" index="index" open="(" separator="," close=")">
+		  		 			#{item}
+						</foreach>	
+		</if>
+	</select>
+    
+    <!-- 保存割接影响电路信息 --> 
+    <insert id="saveCutoverCircuit">
+	    insert into T_CUTOVER_CIRCUIT ( CUTOVER_TASK_ID,CIRCUIT_ID,CIRCUIT_TYPE ) 
+	    values 
+	    <foreach collection="cutoverCircuitList" item="item" index="index" separator=",">
+	        (
+			 
+			 <choose>
+				<when test="item.cutoverTaskId != null">#{item.cutoverTaskId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.circuitId != null">#{item.circuitId}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.circuitType != null">#{item.circuitType}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+	    
+    </insert>
+    
+    <!--查询未完成任务的影响电路-->
+	<select id="searchCircuitOfUnfinishedTask" resultType="hashMap" >                                                          
+			  select circuit.* from t_cutover_circuit circuit,t_sys_task task,t_sys_task_param param
+			  where task.SYS_TASK_ID = param.SYS_TASK_ID
+			  and task.SYS_TASK_ID = circuit.CUTOVER_TASK_ID 
+			  and task.TASK_TYPE = 10 
+			  and  param.PARAM_NAME = '任务状态' 
+			  and (param.PARAM_VALUE !='3' and param.PARAM_VALUE!='7' and param.PARAM_VALUE!='8')
+	</select>
+    
+</mapper>

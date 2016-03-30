@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- bean懒加载 -->
+<beans default-lazy-init="true"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+									http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+									http://www.springframework.org/schema/context  
+						           http://www.springframework.org/schema/context/spring-context-2.5.xsd  
+						           http://www.springframework.org/schema/aop  
+						           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd  
+						           http://www.springframework.org/schema/tx   
+						           http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+						           http://cxf.apache.org/jaxws 
+    							   http://cxf.apache.org/schemas/jaxws.xsd">
+    							   
+	<!-- ********************************** -->
+	<!-- 配置文件地址 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	        <property name="ignoreResourceNotFound" value="true" />
+	        <property name="locations">
+	            <list>
+	                <value> classpath:resourceConfig/springConfig/config.properties</value>
+	                <value>file:../conf/config.properties</value>
+					<value>file:../../conf/config.properties</value>
+	            </list>
+	        </property>
+	</bean>
+	
+    <!-- 自动为配置@aspectJ切面的bean创建代理织入切面 -->
+    <aop:aspectj-autoproxy />					     
+	<!-- 开启注解驱动支持 -->
+	<context:annotation-config/>
+	
+	<bean id="transactionManager-mysql"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="globalRollbackOnParticipationFailure" value="false" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager-mysql"/>
+
+	
+	<bean id="sqlSessionFactory-mysql" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource-mysql" />
+		<property name="configLocation"
+			value="classpath:resourceConfig/mybatisConfig/mybatisConfig-mysql.xml" />
+	</bean>
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory-mysql" />
+	</bean>
+  
+    <!-- jms相关配置connectionFactory -->  
+    <bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory"  
+        destroy-method="stop">  
+        <property name="connectionFactory">  
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">  
+                <property name="brokerURL">  
+                    <value>${jms.url}</value>   
+                </property>
+            </bean>
+        </property>  
+    </bean>
+    
+    <bean id="destination" class="org.apache.activemq.command.ActiveMQTopic">  
+        <!-- 设置消息队列的名字 -->  
+        <constructor-arg index="0" value="subject" />  
+    </bean>
+    <!-- Spring JMS Template -->  
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">  
+        <property name="connectionFactory">  
+            <ref local="jmsFactory" />  
+        </property>  
+        <property name="defaultDestination" ref="destination" />  
+        <!-- 区别它采用的模式为false是p2p为true是订阅 -->  
+        <property name="pubSubDomain" value="true" />  
+    </bean>
+    
+    <!-- 消息监听     -->
+    <bean id="jmsReceiver" class="com.fujitsu.activeMq.JMSReceiver">  
+    </bean>   
+       
+    <bean id="alarmConvergeService" class="com.fujitsu.manager.alarmConvergeManager.serviceImpl.AlarmConvergeServiceImpl" >
+    </bean>
+    <bean name="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+       <property name="service" ref="alarmConvergeService"/>
+       <property name="serviceName" value="alarmConvergeService"/>
+       <property name="serviceInterface" value="com.fujitsu.IService.IAlarmConvergeService"/>
+       <property name="registryPort" value="1022"/>
+    </bean>
+    
+</beans>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.TopoManagerMapper">
+	<select id="getAllEMSGroup" resultType="hashmap">
+   		select * from T_BASE_EMS_GROUP where IS_DEL = 0
+  	</select>
+  	
+  	<select id="getAllEMS" resultType="hashmap">
+   		select * from T_BASE_EMS_CONNECTION where IS_DEL = 0
+  	</select>
+  	
+  	<select id="getAllEMSInFTSP" resultType="hashmap">
+   		select BASE_EMS_CONNECTION_ID,DISPLAY_NAME from T_BASE_EMS_CONNECTION 
+   		where BASE_EMS_GROUP_ID is null and IS_DEL = 0
+  	</select>
+  	
+  	<select id="getEMSInGroup" resultType="hashmap">
+   		select * from T_BASE_EMS_CONNECTION 
+   		where BASE_EMS_GROUP_ID = #{nodeId} and IS_DEL = 0
+  	</select>
+  	
+  	<!-- @@@分权分域到网元@@@ -->
+  	<select id="getDirectSubnetInEMS" resultType="hashmap">
+   		select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_SUBNET"/> ) as a 
+		 where a.BASE_EMS_CONNECTION_ID = #{nodeId} 
+   		and a.PARENT_SUBNET is null and a.IS_DEL = 0
+  	</select>
+  	
+  	<select id="getAllSubnet" resultType="hashmap">
+   		select * from T_BASE_SUBNET 
+   		where BASE_EMS_CONNECTION_ID = #{nodeId} and IS_DEL = 0
+  	</select>
+  	
+  	<!-- @@@分权分域到网元@@@ -->
+  	<select id="getDirectNeInEMS" resultType="hashmap">
+  		select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/> ) as a 
+   		where a.BASE_EMS_CONNECTION_ID = #{nodeId} 
+   		and a.BASE_SUBNET_ID is null and a.IS_DEL = 0
+  	</select>
+
+  	<!-- @@@分权分域到网元@@@ -->  	
+	<sql id="getBaseNe">
+  		select a.BASE_NE_ID from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) as a
+   		where a.BASE_EMS_CONNECTION_ID = #{nodeId}  
+  	</sql>
+  	
+  	<select id="getLinkInEMS" resultType="hashmap">
+   		select * from T_BASE_LINK where A_EMS_CONNECTION_ID = #{nodeId}
+   		and LINK_TYPE = 1 and IS_DEL = 0
+   		and A_NE_ID IN (<include refid = "getBaseNe"/>)
+   		and Z_NE_ID IN (<include refid = "getBaseNe"/>)
+  	</select>
+  	
+  	<select id="getNeByNeId" resultType="hashmap">
+   		select * from T_BASE_NE where BASE_NE_ID = #{neId} and IS_DEL = 0
+  	</select>
+  	
+  	<select id="getNeIdByPtpId" resultType="hashmap">
+   		select * from T_BASE_PTP where BASE_PTP_ID = #{ptpId} and IS_DEL = 0
+  	</select>
+
+  	<!-- @@@分权分域到网元@@@ -->  	
+  	<select id="getSubnetBySubnetId" resultType="hashmap">
+ 	 	select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_SUBNET"/> ) as a 
+   		where a.BASE_SUBNET_ID = #{subnetId} and a.IS_DEL = 0
+  	</select>
+ 
+  	<!-- @@@分权分域到网元@@@ -->	
+  	<select id="getDirectSubnetInSubnet" resultType="hashmap">
+   		select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_SUBNET"/> ) as a 
+   		where a.PARENT_SUBNET = #{subnetId} and a.IS_DEL = 0
+  	</select>
+
+  	<!-- @@@分权分域到网元@@@ --> 	
+  	<select id="getDirectNeInSubnet" resultType="hashmap">
+ 	 	select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/> ) as a 
+   		where a.BASE_SUBNET_ID = #{subnetId} and a.IS_DEL = 0
+  	</select>
+  	
+  	<select id="saveEMSGroupPosition" resultType="hashmap">
+   		update T_BASE_EMS_GROUP set POSITION_X = #{position_X},POSITION_Y = #{position_Y}
+   		where BASE_EMS_GROUP_ID = #{emsGroupId}
+  	</select>
+  	
+  	<select id="saveEMSPosition" resultType="hashmap">
+   		update T_BASE_EMS_CONNECTION set POSITION_X = #{position_X},POSITION_Y = #{position_Y}
+   		where BASE_EMS_CONNECTION_ID = #{emsId}
+  	</select>
+  	
+  	<select id="saveSubnetPosition" resultType="hashmap">
+   		update T_BASE_SUBNET set POSITION_X = #{position_X},POSITION_Y = #{position_Y}
+   		where BASE_SUBNET_ID = #{subnetId}
+  	</select>
+  	
+  	<select id="saveNePosition" resultType="hashmap">
+   		update T_BASE_NE set POSITION_X = #{position_X},POSITION_Y = #{position_Y}
+   		where BASE_NE_ID = #{neId}
+  	</select>
+
+  	<!-- @@@分权分域到网元@@@ -->  	
+  	<select id="getTreeNeLike" resultType="hashmap">
+   		 select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/> ) as a 
+   		 where a.DISPLAY_NAME like CONCAT('%','${displayName}','%' ) and a.IS_DEL = 0
+  	</select>
+
+  	<!-- @@@分权分域到网元@@@ --> 	
+  	<select id="getEMSGroupByEMSGroupId" resultType="hashmap">
+   		 select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_GROUP"/> ) as a 	
+   		 where a.BASE_EMS_GROUP_ID = #{emsGroupId} and a.IS_DEL = 0
+  	</select>
+
+  	<!-- @@@分权分域到网元@@@ --> 	
+  	<select id="getEMSByEMSId" resultType="hashmap">
+   		 select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION"/> ) as a 
+   		 where a.BASE_EMS_CONNECTION_ID = #{emsId} and a.IS_DEL = 0
+  	</select>
+  	
+  	<select id="getEMSGroupByDisplayName" resultType="hashmap">
+   		select * from T_BASE_EMS_GROUP where GROUP_NAME = #{displayName} and IS_DEL = 0
+  	</select>
+  	
+  	<select id="getSubnetInEMSByName" resultType="hashmap">
+   		select * from T_BASE_SUBNET where BASE_EMS_CONNECTION_ID = #{emsId} and
+   		  DISPLAY_NAME = #{displayName} and IS_DEL = 0
+  	</select>
+  	
+  	<select id="getSubnetInSubnetByName" resultType="hashmap">
+   		select * from T_BASE_SUBNET where PARENT_SUBNET = #{subnetId} and
+   		  DISPLAY_NAME = #{displayName} and IS_DEL = 0
+  	</select>
+  	
+  	<insert id="addEMSGroup">
+  		insert into T_BASE_EMS_GROUP(GROUP_NAME) values(#{displayName})
+  	</insert>
+  	
+  	<insert id="addSubnetInEMS">
+  		insert into T_BASE_SUBNET(BASE_EMS_CONNECTION_ID,DISPLAY_NAME) 
+  			values(#{emsId},#{displayName})
+  	</insert>
+  	
+  	<insert id="addSubnetInSubnet">
+  		insert into T_BASE_SUBNET(BASE_EMS_CONNECTION_ID,PARENT_SUBNET,DISPLAY_NAME) 
+  			values(#{emsId},#{subnetId},#{displayName})
+  	</insert>
+  	
+  	
+  	<update id="modifyEMSGroupName">
+  		update T_BASE_EMS_GROUP 
+  		<set>
+  			GROUP_NAME = #{displayName}
+  		</set>
+  		where BASE_EMS_GROUP_ID = #{emsGroupId} and IS_DEL = 0
+  	</update>
+  	
+  	<update id="modifySubnetName">
+  		update T_BASE_SUBNET
+  		<set>
+  			DISPLAY_NAME = #{displayName}
+  		</set>
+  		where BASE_SUBNET_ID = #{subnetId} and IS_DEL = 0
+  	</update>
+  	
+  	<delete id="dltEMSGroupById">
+  		delete from T_BASE_EMS_GROUP where BASE_EMS_GROUP_ID = #{emsGroupId} and IS_DEL = 0
+  	</delete>
+  	
+  	<delete id="dltSubnetById">
+  		delete from T_BASE_SUBNET where BASE_SUBNET_ID = #{subnetId} and IS_DEL = 0
+  	</delete>
+  	
+  	<select id="getPtpListByPtpIds" resultType="hashmap">
+  		select * from T_BASE_PTP where BASE_PTP_ID 
+  		in
+		<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+			separator=",">
+			${ptpId}
+		</foreach> 
+		and IS_DEL = 0
+  	</select>
+  	
+  	<select id="getNeListByNeIds" resultType="hashmap">
+  		select * from T_BASE_NE where BASE_NE_ID in
+		<foreach collection="neIds" item="neId" open="(" close=")"
+			separator=",">
+			${neId}
+		</foreach> 
+		and IS_DEL = 0
+  	</select>
+  	
+  	<select id="getAllNeInEMS" resultType="hashmap">
+  		select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/> ) as a 
+   		where a.BASE_EMS_CONNECTION_ID = #{nodeId} 
+   		and a.IS_DEL = 0
+  	</select>
+  	
+  	<select id="getEMSListByIds" resultType="hashmap">
+   		 select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION"/> ) as a 
+   		 where a.BASE_EMS_CONNECTION_ID in 
+   		 <foreach collection="emsIds" item="emsId" open="(" close=")"
+			separator=",">
+			${emsId}
+		</foreach> 
+		and a.IS_DEL = 0
+  	</select>
+  	
+  	
+</mapper>

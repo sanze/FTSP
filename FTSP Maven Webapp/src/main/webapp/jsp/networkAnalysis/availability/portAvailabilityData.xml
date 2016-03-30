@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<chart yAxisName='可用率' caption='各类端口可用率' bgColor='165919' bgAlpha='0' numberSuffix='%' showBorder='0' imageSave='1' imageSaveURL='http://www.fusioncharts.com/ExportHandlers/PHP/_FCExporter.php'>
+	<set label='STM-64' value='2'  /> 
+	<set label='STM-16' value='24'  /> 
+	<set label='STM-4' value='3'  /> 
+	<set label='STM-1' value='55'  /> 
+	<set label='E4' value='67'  /> 
+	<set label='E3' value='33'  /> 
+	<set label='E1' value='21'  /> 
+	<set label='GE' value='80'  /> 
+	<set label='FE' value='21'  /> 
+	<set label='OUT' value='56'  /> 
+	<set label='OTHERS' value='37'  /> 
+</chart>

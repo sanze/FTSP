@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.IColorMapper">
+	
+	<!--  根据告警级别获取指定告警信息-->
+	<select id="getAlarmSetInfoByLevel" resultType="hashmap" parameterType="string">
+		select t.alarm_type,t.color_code,t.character_color_code,
+			t.display_flag,t.number_type
+			from t_alarm_color_config t
+			where t.alarm_type=#{alarmLevel}
+	</select>
+	
+	
+	
+		<!-- 插入告警信息-->
+   	<insert id="insertAlarmSetInfo" parameterType="hashmap">
+		INSERT INTO t_alarm_color_config(ALARM_TYPE,COLOR_CODE,CHARACTER_COLOR_CODE,DISPLAY_FLAG,NUMBER_TYPE,CREATE_TIME,UPDATE_TIME)
+			VALUES(#{map.alarmLevel},#{map.backgroudColor},#{map.characterColor},#{map.alramLightShow},
+			#{map.showDigital},NOW(),NOW())
+	</insert>
+	
+  	<!-- 修改告警信息 -->
+	<update id="updateAlarmSetInfo" parameterType="hashmap">
+		update 
+			t_alarm_color_config
+		set
+			COLOR_CODE=#{map.backgroudColor},
+			CHARACTER_COLOR_CODE=#{map.characterColor},
+			DISPLAY_FLAG=#{map.alramLightShow},
+			NUMBER_TYPE=#{map.showDigital},
+			UPDATE_TIME=NOW()
+		where
+			ALARM_TYPE=#{map.alarmLevel}
+	</update>
+	
+	
+		<!--  获取各个告警等级的配置信息-->
+	<select id="getAlarmColorConfig" resultType="hashmap" parameterType="string">
+		select t.alarm_type,t.color_code,t.character_color_code,
+			t.display_flag,t.number_type
+			from t_alarm_color_config t
+			order by t.alarm_type
+	</select>
+	
+</mapper>

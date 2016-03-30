@@ -1,0 +1,98 @@
+/*!
+ * 必输项后加*的css
+ */    
+.x-form-sideText {     
+	 padding-left: 2px;     
+	 display: inline-block;     
+	 display: inline;  
+ }
+ 
+ /*!
+ * xuxj add at 20120411 for select grid panel's text
+ */
+ .x-selectable, .x-selectable * {   
+	-moz-user-select: text! important;   
+	-khtml-user-select: text! important;   
+ } 
+  /*!
+ * end
+ */
+ 
+ .x-portal .x-panel-dd-spacer {
+    margin-bottom:10px;
+}
+
+.x-portlet {
+    margin-bottom:10px;
+}
+
+/* Clean up the look of the portlets */
+.x-portlet .x-panel-ml {
+    padding-left:2px;
+}
+.x-portlet .x-panel-mr {
+    padding-right:2px;
+}
+.x-portlet .x-panel-bl {
+    padding-left:2px;
+}
+
+.x-portlet .x-panel-br {
+    padding-right:2px;
+}
+.x-portlet .x-panel-body {
+    background:white;
+}
+.x-portlet .x-panel-mc {
+    padding-top:2px;
+}
+.x-portlet .x-panel-bc .x-panel-footer {
+    padding-bottom:2px;
+}
+.x-portlet .x-panel-nofooter .x-panel-bc {
+    height:2px;
+}
+
+.x-grid-font-red{
+	color:red;
+}
+
+.x-grid-font-blue{
+	color:blue;
+}
+
+.x-grid-font-pink{
+	color:#ee0099;
+}
+
+.x-grid-font-orange{
+	color:orange;
+}
+
+.x-grid-background-red{
+	background-color:red;
+}
+
+.x-grid-background-brown{
+	background-color:brown;
+}
+
+.x-grid-background-orange{
+	background-color:orange;
+}
+
+.x-grid-background-yellow{
+	background-color:yellow;
+}
+
+.x-grid-background-grey{
+	background-color:grey;
+}
+
+.x-grid-background-green{
+	background-color:green;
+}
+
+.x-grid-background-blue{
+	background-color:blue;
+}

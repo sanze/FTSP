@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.EmergencyPlanManagerMapper">
+
+     <insert id="insertFactoryContact" parameterType="hashmap" keyProperty="FAULT_FACTORY_CONTACT_ID">
+        insert into T_FAULT_FACTORY_CONTACT
+        (
+        FAULT_FACTORY_CONTACT_ID,
+        FACTORY,
+        CONTACT_PERSON,
+        TEL,
+        AREA,
+        ADDRESS,
+        HOT_LINE,
+        NOTE,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{FAULT_FACTORY_CONTACT_ID},
+            #{FACTORY},
+            #{CONTACT_PERSON}, 
+            #{TEL},
+            #{AREA}, 
+            #{ADDRESS}, 
+            #{HOT_LINE}, 
+            #{NOTE}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+           )
+    </insert>
+    
+    <update id="updateFactoryContactById" parameterType="hashmap">
+        update T_FAULT_FACTORY_CONTACT
+        <set>
+            <if test="FACTORY != null">
+                FACTORY = #{FACTORY},
+            </if>
+            <if test="CONTACT_PERSON != null">
+                CONTACT_PERSON = #{CONTACT_PERSON},
+            </if>
+            <if test="TEL != null">
+                TEL = #{TEL},
+            </if>
+            <if test="AREA != null">
+                AREA = #{AREA},
+            </if>
+            <if test="ADDRESS != null">
+                ADDRESS = #{ADDRESS},
+            </if>
+            <if test="HOT_LINE != null">
+                HOT_LINE = #{HOT_LINE},
+            </if>
+            <if test="NOTE != null">
+                NOTE = #{NOTE},
+            </if>
+            <if test="CREATE_TIME != null">
+                CREATE_TIME = #{CREATE_TIME}
+            </if>
+        </set>
+         where FAULT_FACTORY_CONTACT_ID = #{FAULT_FACTORY_CONTACT_ID}
+    </update>
+    
+    <delete id="deleteFactoryContactByIds" parameterType="java.util.List">
+        delete from T_FAULT_FACTORY_CONTACT where FAULT_FACTORY_CONTACT_ID in
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+			  #{item}   
+		</foreach>
+    </delete>
+    
+    <select id="getEmergencyPlanList" resultType="hashmap" >
+		SELECT t1.*,
+			DATE_FORMAT(t1.CREATE_TIME,'%Y-%c-%d %H:%i:%s') AS CREATE_TIME_DISPLAY,
+			DATE_FORMAT(t1.UPDATE_TIME,'%Y-%c-%d %H:%i:%s') AS UPDATE_TIME_DISPLAY,
+			t2.USER_NAME
+		FROM T_FAULT_EP t1
+			LEFT JOIN
+    	T_SYS_USER t2 ON t1.CREATE_USER = t2.SYS_USER_ID
+    	where 1=1
+   		   <if test="emergencyPlanName != null">
+               and t1.DISPALY_NAME like CONCAT('%','${emergencyPlanName}','%' )
+           </if>
+           <if test="keyWord != null" >
+               and t1.KEY_WORD like CONCAT('%','${keyWord}','%' )
+           </if>
+           <if test="emergencyType != null">
+               and t1.EP_TYPE = #{emergencyType}
+           </if>
+		<if test="pageSize != null and pageSize>0">
+			LIMIT #{startNumber}, #{pageSize}
+		</if>
+	</select>
+	
+	<select id="getEmergencyPlanListCount" resultType="int" >
+		SELECT count(1)
+		FROM T_FAULT_EP t1
+    	where 1=1
+   		   <if test="emergencyPlanName != null">
+               and t1.DISPALY_NAME like CONCAT('%','${emergencyPlanName}','%' )
+           </if>
+           <if test="keyWord != null" >
+               and t1.KEY_WORD like CONCAT('%','${keyWord}','%' )
+           </if>
+           <if test="emergencyType != null">
+               and t1.EP_TYPE = #{emergencyType}
+           </if>
+	</select>
+    
+    <insert id="insertEmergencyPlan" parameterType="hashmap" keyProperty="FAULT_EP_ID">
+        insert into T_FAULT_EP
+        (
+        FAULT_EP_ID,
+        DISPALY_NAME,
+        EP_TYPE,
+        KEY_WORD,
+        NOTE,
+        CREATE_USER,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{FAULT_EP_ID},
+            #{DISPALY_NAME},
+            #{EP_TYPE}, 
+            #{KEY_WORD},
+            #{NOTE}, 
+            #{CREATE_USER}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+           )
+    </insert>
+    
+    <update id="updateEmergencyPlanById" parameterType="hashmap">
+        update T_FAULT_EP
+        <set>
+            <if test="DISPALY_NAME != null">
+                DISPALY_NAME = #{DISPALY_NAME},
+            </if>
+            <if test="EP_TYPE != null">
+                EP_TYPE = #{EP_TYPE},
+            </if>
+            <if test="KEY_WORD != null">
+                KEY_WORD = #{KEY_WORD},
+            </if>
+            <if test="NOTE != null">
+                NOTE = #{NOTE},
+            </if>
+            <if test="CREATE_USER != null">
+                CREATE_USER = #{CREATE_USER},
+            </if>
+            <if test="CREATE_TIME != null">
+                CREATE_TIME = #{CREATE_TIME}
+            </if>
+        </set>
+         where FAULT_EP_ID = #{FAULT_EP_ID}
+    </update>
+    
+    <delete id="deleteEmergencyPlanContentById" parameterType="int">
+        delete from T_FAULT_EP_CONTENT where FAULT_EP_ID = #{epId}
+    </delete>
+    
+    <insert id="insertEmergencyPlanContentBatch" parameterType="java.util.List" >
+        insert into T_FAULT_EP_CONTENT
+        (
+        FAULT_EP_CONTENT_ID,
+        FAULT_EP_ID,
+        DISPALY_NAME,
+        FILE_PATH,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+         <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.FAULT_EP_CONTENT_ID},
+            #{item.FAULT_EP_ID},
+            #{item.DISPALY_NAME},
+            #{item.FILE_PATH}, 
+            #{item.CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+           )
+         </foreach>
+    </insert>
+
+    <delete id="deleteEmergencyPlanByIds" parameterType="java.util.List">
+        delete from T_FAULT_EP where FAULT_EP_ID in
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+			  #{item}   
+		</foreach>
+    </delete>
+    
+    <insert id="insertExercise" parameterType="hashmap" keyProperty="FAULT_EP_EXERCISE_ID">
+        insert into T_FAULT_EP_EXERCISE
+        (
+        FAULT_EP_EXERCISE_ID,
+        FAULT_EP_ID,
+        DISPALY_NAME,
+        START_TIME,
+        END_TIME,
+        PARTICIPANTS,
+        RESULT,
+        ASSESSMENT,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+            (
+            #{FAULT_EP_EXERCISE_ID},
+            #{FAULT_EP_ID},
+            #{DISPALY_NAME},
+            #{START_TIME}, 
+            #{END_TIME},
+            #{PARTICIPANTS}, 
+            #{RESULT}, 
+            #{ASSESSMENT}, 
+            #{CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+           )
+    </insert>
+    
+    <update id="updateExerciseById" parameterType="hashmap">
+        update T_FAULT_EP_EXERCISE
+        <set>
+        	<if test="FAULT_EP_ID != null">
+                FAULT_EP_ID = #{FAULT_EP_ID},
+            </if>
+            <if test="DISPALY_NAME != null">
+                DISPALY_NAME = #{DISPALY_NAME},
+            </if>
+            <if test="START_TIME != null">
+                START_TIME = #{START_TIME},
+            </if>
+            <if test="END_TIME != null">
+                END_TIME = #{END_TIME},
+            </if>
+            <if test="PARTICIPANTS != null">
+                PARTICIPANTS = #{PARTICIPANTS},
+            </if>
+            <if test="RESULT != null">
+                RESULT = #{RESULT},
+            </if>
+            <if test="ASSESSMENT != null">
+                ASSESSMENT = #{ASSESSMENT},
+            </if>
+            <if test="CREATE_TIME != null">
+                CREATE_TIME = #{CREATE_TIME}
+            </if>
+        </set>
+         where FAULT_EP_EXERCISE_ID = #{FAULT_EP_EXERCISE_ID}
+    </update>
+    
+    <delete id="deleteExerciseByIds" parameterType="java.util.List">
+        delete from T_FAULT_EP_EXERCISE where FAULT_EP_EXERCISE_ID in
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+			  #{item}   
+		</foreach>
+    </delete>
+    
+    <insert id="insertExerciseDetailBatch" parameterType="java.util.List" >
+        insert into T_FAULT_EP_EXERCISE_DETAIL
+        (
+        FAULT_EP_EXERCISE_DETAIL_ID,
+        FAULT_EP_EXERCISE_ID,
+        ACTION_DESC,
+        START_TIME,
+        END_TIME,
+        PARTICIPANTS,
+        RESULT,
+        CREATE_TIME
+<!--         UPDATE_TIME -->
+        )values
+         <foreach collection="list" item="item" index="index"  separator=",">  
+            (
+            #{item.FAULT_EP_EXERCISE_DETAIL_ID},
+            #{item.FAULT_EP_EXERCISE_ID},
+            #{item.ACTION_DESC},
+            #{item.START_TIME}, 
+            #{item.END_TIME},
+            #{item.PARTICIPANTS}, 
+            #{item.RESULT}, 
+            #{item.CREATE_TIME}
+<!--             #{UPDATE_TIME} -->
+           )
+         </foreach>
+    </insert>
+    
+    <update id="updateExerciseDetailById" parameterType="hashmap">
+        update T_FAULT_EP_EXERCISE_DETAIL
+        <set>
+        	<if test="FAULT_EP_EXERCISE_ID != null">
+                FAULT_EP_EXERCISE_ID = #{FAULT_EP_EXERCISE_ID},
+            </if>
+            <if test="ACTION_DESC != null">
+                ACTION_DESC = #{ACTION_DESC},
+            </if>
+            <if test="START_TIME != null">
+                START_TIME = #{START_TIME},
+            </if>
+            <if test="END_TIME != null">
+                END_TIME = #{END_TIME},
+            </if>
+            <if test="PARTICIPANTS != null">
+                PARTICIPANTS = #{PARTICIPANTS},
+            </if>
+            <if test="RESULT != null">
+                RESULT = #{RESULT},
+            </if>
+            <if test="CREATE_TIME != null">
+                CREATE_TIME = #{CREATE_TIME}
+            </if>
+        </set>
+         where FAULT_EP_EXERCISE_ID = #{FAULT_EP_EXERCISE_ID}
+    </update>
+    
+    <delete id="deleteExerciseDetailById" parameterType="int">
+        delete from T_FAULT_EP_EXERCISE_DETAIL where FAULT_EP_EXERCISE_ID = #{exerciseId}
+    </delete>
+    
+    <delete id="deleteExerciseDetailByIds" parameterType="java.util.List">
+        delete from T_FAULT_EP_EXERCISE_DETAIL where FAULT_EP_EXERCISE_DETAIL_ID in
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">  
+			  #{item}   
+		</foreach>
+    </delete>
+</mapper>

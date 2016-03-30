@@ -1,0 +1,20 @@
+@CHARSET "UTF-8";
+
+body {
+	width:900px;margin:0 auto;
+}
+
+div.toc p {  
+    text-indent: 0;  
+    color: #ccc;  
+}  
+  
+div.toc {  
+    border: 1px dashed gray;  
+    padding: 0.5em;  
+    margin-left: 2em;  
+}  
+  
+div.toc dl dd dl {  
+    margin-top: 0px;  
+}  

@@ -1,0 +1,1281 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.fujitsu.dao.mysql.AlarmManagementMapper">
+	<!--  查询所有的网管分组 -->
+	<!-- <select id="getAllEmsGroups" resultType="hashmap" parameterType="hashmap">
+		select 'all' as BASE_EMS_GROUP_ID,'全部' as GROUP_NAME
+		union all
+		select '-1' as BASE_EMS_GROUP_ID,'无' as GROUP_NAME
+		union all
+		select BASE_EMS_GROUP_ID,GROUP_NAME from t_base_ems_group
+	</select> -->
+	
+	<!--  查询所有的网管分组(不包括全部) -->
+	<!-- <select id="getAllEmsGroupsNoAll" resultType="hashmap" parameterType="hashmap">
+		select '-1' as BASE_EMS_GROUP_ID,'无' as GROUP_NAME
+		union all
+		select BASE_EMS_GROUP_ID,GROUP_NAME from t_base_ems_group
+	</select> -->
+	
+	<!--  查询某个网管分组下的所有网管 -->
+	<!-- <select id="getAllEmsByEmsGroupId" resultType="hashmap" parameterType="hashmap">
+		select 'all' as BASE_EMS_CONNECTION_ID,'全部' as DISPLAY_NAME
+		union all
+		select BASE_EMS_CONNECTION_ID,DISPLAY_NAME from t_base_ems_connection
+		<if test="map.emsGroupId!='-99'">
+			 <if test="map.emsGroupId!='-1'">
+				 where BASE_EMS_GROUP_ID = #{map.emsGroupId}
+			</if>
+			 <if test="map.emsGroupId=='-1'">
+				 where BASE_EMS_GROUP_ID is null
+			</if>
+		</if>
+	</select> -->
+	
+	<!--  查询某个网管分组下的所有网管 (不包括全部)-->
+	<!-- <select id="getAllEmsByEmsGroupIdNoAll" resultType="hashmap" parameterType="hashmap">
+		select BASE_EMS_CONNECTION_ID,DISPLAY_NAME from t_base_ems_connection
+		<if test="map.emsGroupId!='-1'">
+			 where BASE_EMS_GROUP_ID = #{map.emsGroupId}
+		</if>
+		<if test="map.emsGroupId=='-1'">
+			 where BASE_EMS_GROUP_ID is null
+		</if>
+	</select> -->
+	
+	<!--  模糊查询某个网管下的所有网元 -->
+	<!-- <select id="getAllNeByEmsIdAndNename" resultType="hashmap" parameterType="hashmap">
+		select 'all' as BASE_NE_ID,'全部' as DISPLAY_NAME
+		union all
+		select BASE_NE_ID,DISPLAY_NAME from t_base_ne
+		 where DISPLAY_NAME like "%"#{map.neName}"%"
+		<if test="map.emsId!='-99'">
+			and BASE_EMS_CONNECTION_ID = #{map.emsId}
+		</if>
+	</select> -->
+
+	<!--  根据创建人ID查询过滤器总数 -->
+	<select id="getAlarmFilterCountByUserId" resultType="hashmap" parameterType="hashmap">
+		select count(1) as total from t_alarm_filter_detail
+		where FILTER_FLAG = #{map.filterFlag}
+		and SYS_USER_ID = #{map.sysUserId}
+	</select>
+	
+	<!--  根据创建人ID查询过滤器信息 -->
+	<select id="getAlarmFilterByUserId" resultType="hashmap" parameterType="hashmap">
+		select    
+		   FILTER_ID, 
+		   FILTER_NAME,
+		   CREATOR,
+		   STATUS, 
+		   DESCRIPTION, 
+		   DATE_FORMAT(START_TIME,'%Y/%m/%d %H:%i:%s') START_TIME,
+           DATE_FORMAT(END_TIME,'%Y/%m/%d %H:%i:%s') END_TIME, 
+		   START_TIME, 
+		   END_TIME, 
+		   FILTER_TYPE, 
+		   CTP_ALARM_FLAG,
+		   FILTER_FLAG, 
+		   ALARM_SOURCE_FLAG, 
+		   SYS_USER_ID, 
+		   CREATE_TIME, 
+		   UPDATE_TIME  
+		   from t_alarm_filter_detail
+		where FILTER_FLAG = #{map.filterFlag} 
+		and SYS_USER_ID = #{map.sysUserId}
+		limit #{start},#{limit}
+	</select>
+	
+	<!-- 根据创建人ID查询过滤器摘要信息 -->
+	<select id="getAlarmFilterSummaryByUserId" resultType="hashmap" parameterType="hashmap">
+        select FILTER_ID, FILTER_NAME, STATUS from t_alarm_filter_detail
+        where FILTER_FLAG = #{map.filterFlag} 
+        and SYS_USER_ID = #{map.sysUserId}
+        order by FILTER_NAME
+    </select>
+	
+	<!--  根据创建人ID查询已启用的过滤器信息 -->
+	<select id="getAlarmFilterEnableByUserId" resultType="hashmap" parameterType="hashmap">
+		select * from t_alarm_filter_detail
+		where FILTER_FLAG = #{map.filterFlag} and STATUS =  #{map.status}
+		and SYS_USER_ID = #{map.sysUserId}
+	</select>
+	
+	<!-- 插入当前告警过滤器并返回主键 -->
+	<insert id="addAlarmFilter" parameterType="com.fujitsu.model.AlarmFilterModel" useGeneratedKeys="true" keyProperty="alarmFilterModel.filterId" >
+		insert t_alarm_filter_detail (FILTER_NAME,SYS_USER_ID,CREATOR,ALARM_SOURCE_FLAG,STATUS,CREATE_TIME,DESCRIPTION,CTP_ALARM_FLAG,FILTER_FLAG) 
+		values (#{alarmFilterModel.filterName}, #{alarmFilterModel.sysUserId}, #{alarmFilterModel.creator},#{alarmFilterModel.alarmSourceFlag},
+		#{alarmFilterModel.status},#{alarmFilterModel.createTime},#{alarmFilterModel.description},#{alarmFilterModel.ctpAlarmFlag},#{alarmFilterModel.filterFlag})
+	</insert>
+	
+	<!-- 插入综告接口过滤器并返回主键 -->
+	<insert id="addAlarmFilterComReport" parameterType="com.fujitsu.model.AlarmFilterModel" useGeneratedKeys="true" keyProperty="alarmFilterModel.filterId" >
+		insert t_alarm_filter_detail (FILTER_NAME,SYS_USER_ID,CREATOR,STATUS,CREATE_TIME,DESCRIPTION,FILTER_FLAG,FILTER_TYPE,START_TIME,END_TIME,ALARM_SOURCE_FLAG) 
+		values (#{alarmFilterModel.filterName}, #{alarmFilterModel.sysUserId}, #{alarmFilterModel.creator},
+		#{alarmFilterModel.status},#{alarmFilterModel.createTime},#{alarmFilterModel.description},#{alarmFilterModel.filterFlag},#{alarmFilterModel.filterType},
+		 <choose>
+				<when test="alarmFilterModel.startTime != null">str_to_date(#{alarmFilterModel.startTime}, '%Y/%m/%d %H:%i:%s')</when>
+				<otherwise>null</otherwise>
+	     </choose>,
+	     <choose>
+				<when test="alarmFilterModel.endTime != null">str_to_date(#{alarmFilterModel.endTime}, '%Y/%m/%d %H:%i:%s')</when>
+				<otherwise>null</otherwise>
+	     </choose>,
+	     1)
+	</insert>
+	
+	<!-- 新增告警过滤器名称关联关系 -->
+	<insert id="addAlarmFilterRelation" parameterType="hashmap">
+		insert t_alarm_filter_relation (FILTER_ID,NATIVE_PROBABLE_CAUSE,FACTORY,CREATE_TIME) 
+		values (#{map.filterId}, #{map.nativeProbableCause}, #{map.factory},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警过滤器类型关联关系 -->
+	<insert id="addAlarmFilterTypeRelation" parameterType="hashmap">
+		insert t_alarm_filter_type_relation (FILTER_ID,ALARM_TYPE,CREATE_TIME) 
+		values (#{map.filterId}, #{map.alarmType},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警过滤器级别关联关系 -->
+	<insert id="addAlarmFilterLevelRelation" parameterType="hashmap">
+		insert t_alarm_filter_level_relation (FILTER_ID,ALARM_LEVEL,CREATE_TIME) 
+		values (#{map.filterId}, #{map.alarmLevel},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警过滤器业务影响关联关系 -->
+	<insert id="addAlarmFilterAffectRelation" parameterType="hashmap">
+		insert t_alarm_filter_affecting_relation (FILTER_ID,ALARM_AFFECTING,CREATE_TIME) 
+		values (#{map.filterId}, #{map.affectType},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警过滤器源(设备)关联关系 -->
+	<insert id="addAlarmFilterResourceRelation" parameterType="hashmap">
+		insert t_alarm_filter_source_relation (FILTER_ID,DEVICE_ID,DEVICE_TYPE,CREATE_TIME) 
+		values (#{map.filterId}, #{map.id},#{map.lv},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警过滤器源类型(网元型号)关联关系 -->
+	<insert id="addAlarmFilterResourceTypeRelation" parameterType="hashmap">
+		insert t_alarm_filter_sor_type_relation (FILTER_ID,NE_MODEL_ID,CREATE_TIME,FACTORY) 
+		values (#{map.filterId}, #{map.neModelId},#{map.createTime},#{map.factory})
+	</insert>
+	
+	<!-- 新增告警过滤器端口型号关联关系 -->
+	<insert id="addAlarmFilterPtpModelRelation" parameterType="hashmap">
+		insert t_alarm_filter_ptp_model_relation (FILTER_ID,PTP_MODEL,CREATE_TIME) 
+		values (#{map.filterId}, #{map.ptpModel},#{map.createTime})
+	</insert>
+	
+	<!--  根据网管分组ID，查询详细信息 -->
+	<select id="getDetailByNode_emsGroupId" resultType="hashmap">
+		select BASE_EMS_GROUP_ID,GROUP_NAME from t_base_ems_group 
+	    where BASE_EMS_GROUP_ID = #{emsGroupId}
+	</select>
+	
+	<!--  根据网管ID，查询详细信息 -->
+	<select id="getDetailByNode_emsId" resultType="hashmap">
+		select ems.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME as EMS_NAME,emsGroup.BASE_EMS_GROUP_ID,emsGroup.GROUP_NAME from t_base_ems_connection as ems
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where ems.BASE_EMS_CONNECTION_ID = #{emsId}
+	</select>
+	
+	<!--  根据子网ID，查询详细信息 -->
+	<select id="getDetailByNode_subnetId" resultType="hashmap">
+		select ems.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME as EMS_NAME,emsGroup.BASE_EMS_GROUP_ID,emsGroup.GROUP_NAME from t_base_subnet as subnet
+		left join t_base_ems_connection as ems
+		on subnet.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where subnet.BASE_SUBNET_ID = #{subnetId}
+	</select>
+	
+	<!--  根据网元ID，查询详细信息 -->
+	<select id="getDetailByNode_neId" resultType="hashmap">
+		select ne.DISPLAY_NAME as NE_NAME,ems.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME as EMS_NAME,
+		emsGroup.BASE_EMS_GROUP_ID,emsGroup.GROUP_NAME from t_base_ne as ne
+		left join t_base_ems_connection as ems
+		on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where ne.BASE_NE_ID = #{neId}
+	</select>
+	
+	<!--  根据子架ID，查询详细信息 -->
+	<select id="getDetailByNode_shelfId" resultType="hashmap">
+		select ne.DISPLAY_NAME as NE_NAME,ems.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME as EMS_NAME,
+		emsGroup.BASE_EMS_GROUP_ID,emsGroup.GROUP_NAME from t_base_shelf as shelf
+		left join t_base_ne as ne
+		on shelf.BASE_NE_ID = ne.BASE_NE_ID
+		left join t_base_ems_connection as ems
+		on shelf.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where shelf.BASE_SHELF_ID = #{shelfId}
+	</select>
+	
+	<!--  根据板卡ID，查询详细信息 -->
+	<select id="getDetailByNode_unitId" resultType="hashmap">
+		select slot.DISPLAY_NAME as SLOT_NAME,shelf.DISPLAY_NAME as SHELF_NAME,rack.DISPLAY_NAME as RACK_NAME,unit.DISPLAY_NAME as UNIT_NAME,
+		ne.DISPLAY_NAME as NE_NAME,ems.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME as EMS_NAME,emsGroup.BASE_EMS_GROUP_ID,emsGroup.GROUP_NAME 
+		from t_base_unit as unit
+		left join t_base_slot as slot
+		on unit.BASE_SLOT_ID = slot.BASE_SLOT_ID
+		left join t_base_shelf as shelf
+		on unit.BASE_SHELF_ID = shelf.BASE_SHELF_ID
+		left join t_base_rack as rack
+		on unit.BASE_RACK_ID = rack.BASE_RACK_ID
+		left join t_base_ne as ne
+		on unit.BASE_NE_ID = ne.BASE_NE_ID
+		left join t_base_ems_connection as ems
+		on unit.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where unit.BASE_UNIT_ID = #{unitId}
+	</select>
+	
+	<!--  根据子板卡ID，查询详细信息 -->
+	<select id="getDetailByNode_subunitId" resultType="hashmap">
+		select slot.DISPLAY_NAME as SLOT_NAME,shelf.DISPLAY_NAME as SHELF_NAME,rack.DISPLAY_NAME as RACK_NAME,subunit.DISPLAY_NAME as UNIT_NAME,
+		ne.DISPLAY_NAME as NE_NAME,ems.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME as EMS_NAME,emsGroup.BASE_EMS_GROUP_ID,emsGroup.GROUP_NAME 
+		from t_base_sub_unit as subunit
+		left join t_base_sub_slot as subslot
+		on subunit.BASE_SUB_SLOT_ID = subslot.BASE_SUB_SLOT_ID
+		left join t_base_slot as slot
+		on subslot.BASE_SLOT_ID = slot.BASE_SLOT_ID
+		left join t_base_shelf as shelf
+		on slot.BASE_SHELF_ID = shelf.BASE_SHELF_ID
+		left join t_base_rack as rack
+		on slot.BASE_RACK_ID = rack.BASE_RACK_ID
+		left join t_base_ne as ne
+		on subunit.BASE_NE_ID = ne.BASE_NE_ID
+		left join t_base_ems_connection as ems
+		on subunit.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where subunit.BASE_SUB_UNIT_ID = #{subunitId}
+	</select>
+	
+	<!--  根据端口ID，查询详细信息 -->
+	<select id="getDetailByNode_ptpId" resultType="hashmap">
+		select ptp.DISPLAY_NAME as PTP_NAME,slot.DISPLAY_NAME as SLOT_NAME,shelf.DISPLAY_NAME as SHELF_NAME,rack.DISPLAY_NAME as RACK_NAME,
+		unit.DISPLAY_NAME as UNIT_NAME,ne.DISPLAY_NAME as NE_NAME,ems.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME as EMS_NAME,emsGroup.BASE_EMS_GROUP_ID,emsGroup.GROUP_NAME 
+		from t_base_ptp as ptp
+		left join t_base_unit as unit
+		on ptp.BASE_UNIT_ID = unit.BASE_UNIT_ID
+		left join t_base_slot as slot
+		on ptp.BASE_SLOT_ID = slot.BASE_SLOT_ID
+		left join t_base_shelf as shelf
+		on ptp.BASE_SHELF_ID = shelf.BASE_SHELF_ID
+		left join t_base_rack as rack
+		on ptp.BASE_RACK_ID = rack.BASE_RACK_ID
+		left join t_base_ne as ne
+		on ptp.BASE_NE_ID = ne.BASE_NE_ID
+		left join t_base_ems_connection as ems
+		on ptp.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup
+		on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+		where ptp.BASE_PTP_ID = #{ptpId}
+	</select>
+	
+	<!--  查询某厂家的所有网元型号 -->
+	<select id="getAllNeModelByFactory" resultType="hashmap" parameterType="hashmap">
+		select BASE_PRODUCT_MAPPING_ID,PRODUCT_NAME from t_base_product_mapping
+		where FACTORY = #{map.factory}
+	</select>
+	
+	<!--  根据ID查询第一个窗口的名称、描述 、选择源-->
+	<select id="getAlarmFilterFirstDetail_MainById" resultType="hashmap">
+		select FILTER_NAME,DESCRIPTION,ALARM_SOURCE_FLAG from t_alarm_filter_detail
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第一个窗口的已选告警名称 -->
+	<select id="getAlarmFilterFirstDetail_AlarmNameById" resultType="hashmap">
+		select NATIVE_PROBABLE_CAUSE,FACTORY from t_alarm_filter_relation
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第一个窗口的告警类型 -->
+	<select id="getAlarmFilterFirstDetail_AlarmTypeById" resultType="hashmap">
+		select ALARM_TYPE from t_alarm_filter_type_relation
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第一个窗口的告警级别 -->
+	<select id="getAlarmFilterFirstDetail_AlarmLevelById" resultType="hashmap">
+		select ALARM_LEVEL from t_alarm_filter_level_relation
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第一个窗口的业务影响 -->
+	<select id="getAlarmFilterFirstDetail_AlarmAffectlById" resultType="hashmap">
+		select ALARM_AFFECTING from t_alarm_filter_affecting_relation
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第二个窗口信息 -->
+	<select id="getAlarmFilterSecondtDetailById" resultType="hashmap">
+		select DEVICE_ID,DEVICE_TYPE from t_alarm_filter_source_relation
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第三个窗口网元型号信息 -->
+	<select id="getAlarmFilterThirdNeModelById" resultType="hashmap">
+		select A.NE_MODEL_ID,B.FACTORY,B.PRODUCT_NAME from t_alarm_filter_sor_type_relation as A
+		left join t_base_product_mapping as B
+		on A.NE_MODEL_ID = B.BASE_PRODUCT_MAPPING_ID
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第三个窗口端口型号信息 -->
+	<select id="getAlarmFilterThirdPtpModelById" resultType="hashmap">
+		select PTP_MODEL from t_alarm_filter_ptp_model_relation
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!--  根据ID查询第三个窗口通道告警信息 -->
+	<select id="getAlarmFilterThirdPtpAlarmStatusById" resultType="hashmap">
+		select CTP_ALARM_FLAG from t_alarm_filter_detail
+		where FILTER_ID = #{filterId}
+	</select>
+	
+	<!-- 删除当前告警过滤器 -->
+	<delete id="deleteAlarmFilter">
+		delete from t_alarm_filter_detail
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 删除告警过滤器名称关联关系 -->
+	<delete id="deleteAlarmFilterRelation">
+		delete from t_alarm_filter_relation
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 删除告警过滤器类型关联关系 -->
+	<delete id="deleteAlarmFilterTypeRelation">
+		delete from t_alarm_filter_type_relation
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 删除告警过滤器级别关联关系 -->
+	<delete id="deleteAlarmFilterLevelRelation">
+		delete from t_alarm_filter_level_relation
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 删除告警过滤器业务影响关联关系 -->
+	<delete id="deleteAlarmFilterAffectRelation">
+		delete from t_alarm_filter_affecting_relation
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 删除告警过滤器源(设备)关联关系 -->
+	<delete id="deleteAlarmFilterResourceRelation">
+		delete from t_alarm_filter_source_relation
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 删除告警过滤器源类型(网元型号)关联关系 -->
+	<delete id="deleteAlarmFilterResourceTypeRelation">
+		delete from t_alarm_filter_sor_type_relation
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 删除告警过滤器端口型号关联关系 -->
+	<delete id="deleteAlarmFilterPtpModelRelation">
+		delete from t_alarm_filter_ptp_model_relation
+		where FILTER_ID = #{filterId}
+	</delete>
+	
+	<!-- 更新当前告警过滤器 -->
+	<update id="updateAlarmFilter" parameterType="hashmap">
+		update t_alarm_filter_detail
+		<set>
+			FILTER_NAME = #{map.filterName},
+			DESCRIPTION = #{map.filterDesc},
+			ALARM_SOURCE_FLAG = #{map.alarmSourceStatus},
+			CTP_ALARM_FLAG = #{map.ptpAlarmStatus},
+			CREATE_TIME = #{map.createTime}
+		</set>
+		where FILTER_ID = #{map.filterId}
+	</update>
+	
+	<!-- 更新综告接口过滤器 -->
+	<update id="updateAlarmFilterComReport" parameterType="hashmap">
+		update t_alarm_filter_detail
+		<set>
+			FILTER_NAME = #{map.filterName},
+			DESCRIPTION = #{map.filterDesc},
+			CREATE_TIME = #{map.createTime}
+		</set>
+		where FILTER_ID = #{map.filterId}
+	</update>
+	
+	<!-- 更新当前告警过滤器状态为启用 -->
+	<update id="updateAlarmFilterEnable" parameterType="hashmap">
+		update t_alarm_filter_detail
+		<set>
+			STATUS = 1
+		</set>
+		where FILTER_ID = #{map.filterId}
+	</update>
+	
+	<!-- 更新当前告警过滤器状态为挂起 -->
+	<update id="updateAlarmFilterPending" parameterType="hashmap">
+		update t_alarm_filter_detail
+		<set>
+			STATUS = 2
+		</set>
+		where FILTER_ID = #{map.filterId}
+	</update>
+	
+	<!--  查询告警屏蔽器总数 -->
+	<select id="getAlarmShieldCounts" resultType="hashmap">
+        select count(*) as total from (
+            <if test="map.emsList!=null and map.neList!=null">
+                select SHIELD_ID where DEVICE_TYPE = 2 and DEVICE_ID in ${map.emsList} union
+                    select SHIELD_ID where DEVICE_TYPE = 4 and DEVICE_ID in ${map.neList}
+            </if>
+            <if test="map.emsList!=null and map.neList==null">
+                select distinct SHIELD_ID where DEVICE_TYPE = 2 and DEVICE_ID in ${map.emsList}
+            </if>
+            <if test="map.emsList==null and map.neList!=null">
+                select distinct SHIELD_ID where DEVICE_TYPE = 4 and DEVICE_ID in ${map.neList}
+            </if>
+        )
+	</select>
+	
+	<!--  查询所有告警屏蔽器信息 -->
+	<select id="getAllAlarmShield" resultType="hashmap">
+        select SHIELD_ID,SHIELD_NAME,CREATOR,STATUS,DESCRIPTION from t_alarm_shield_detail
+        where SHIELD_ID in (
+	        <if test="map.emsList!=null and map.neList!=null">
+	            select SHIELD_ID where DEVICE_TYPE = 2 and DEVICE_ID in ${map.emsList} union
+	                select SHIELD_ID where DEVICE_TYPE = 4 and DEVICE_ID in ${map.neList}
+	        </if>
+	        <if test="map.emsList!=null and map.neList==null">
+	            select distinct SHIELD_ID where DEVICE_TYPE = 2 and DEVICE_ID in ${map.emsList}
+	        </if>
+	        <if test="map.emsList==null and map.neList!=null">
+	            select distinct SHIELD_ID where DEVICE_TYPE = 4 and DEVICE_ID in ${map.neList}
+	        </if>
+        )
+	</select>
+	
+	<!--  根据条件,查询告警屏蔽器总数 -->
+	<select id="getAlarmShieldCountsByCondition" parameterType="hashmap" resultType="hashmap">
+	    SELECT count(1) as total FROM t_alarm_shield_detail d
+        <where>
+          <if test="map.factory!='' or map.alarmName!=''">
+              d.SHIELD_ID IN (SELECT DISTINCT r.SHIELD_ID FROM t_alarm_shield_relation r
+              <where>
+                  <if test="map.factory!=''">AND r.FACTORY = #{map.factory}</if>
+                  <if test="map.alarmName!=''">AND r.NATIVE_PROBABLE_CAUSE = #{map.alarmName}</if>
+              </where>)
+          </if>
+          <if test="map.emsGroupId!='' or map.emsId!='' or map.neId!=''">
+              AND d.SHIELD_ID IN (SELECT DISTINCT s.SHIELD_ID FROM t_alarm_shield_source_relation s
+              <where>
+                  <if test="map.emsId=='' and map.emsGroupId=='-1'">
+                      s.DEVICE_TYPE=2 AND s.DEVICE_ID IN (SELECT BASE_EMS_CONNECTION_ID FROM t_base_ems_connection WHERE BASE_EMS_GROUP_ID IS NULL)
+                  </if>
+                  <if test="map.emsId!='' and map.neId!=''">
+                      (s.DEVICE_TYPE=2 AND s.DEVICE_ID = #{map.emsId}) OR (s.DEVICE_TYPE=4 AND s.DEVICE_ID = #{map.neId})
+                  </if>
+                  <if test="map.emsId!='' and map.neId==''">
+                      s.DEVICE_TYPE=2 AND s.DEVICE_ID = #{map.emsId}
+                  </if>
+              </where>)
+          </if>
+        </where>
+	</select>
+	
+	<!--   根据条件,查询所有告警屏蔽器信息 -->
+	<select id="getAllAlarmShieldByCondition" parameterType="hashmap" resultType="hashmap">
+		SELECT d.SHIELD_ID,d.SHIELD_NAME,d.CREATOR,d.STATUS,d.DESCRIPTION FROM t_alarm_shield_detail d
+		<where>
+		  <if test="map.factory!='' or map.alarmName!=''">
+		      d.SHIELD_ID IN (SELECT DISTINCT r.SHIELD_ID FROM t_alarm_shield_relation r
+		      <where>
+		          <if test="map.factory!=''">AND r.FACTORY = #{map.factory}</if>
+		          <if test="map.alarmName!=''">AND r.NATIVE_PROBABLE_CAUSE = #{map.alarmName}</if>
+		      </where>)
+		  </if>
+		  <if test="map.emsGroupId!='' or map.emsId!='' or map.neId!=''">
+		      AND d.SHIELD_ID IN (SELECT DISTINCT s.SHIELD_ID FROM t_alarm_shield_source_relation s
+		      <where>
+		          <if test="map.emsId=='' and map.emsGroupId=='-1'">
+		              s.DEVICE_TYPE=2 AND s.DEVICE_ID IN (SELECT BASE_EMS_CONNECTION_ID FROM t_base_ems_connection WHERE BASE_EMS_GROUP_ID IS NULL)
+		          </if>
+		          <if test="map.emsId!='' and map.neId!=''">
+		              (s.DEVICE_TYPE=2 AND s.DEVICE_ID = #{map.emsId}) OR (s.DEVICE_TYPE=4 AND s.DEVICE_ID = #{map.neId})
+		          </if>
+		          <if test="map.emsId!='' and map.neId==''">
+		              s.DEVICE_TYPE=2 AND s.DEVICE_ID = #{map.emsId}
+		          </if>
+		      </where>)
+		  </if>
+		</where>
+		limit #{start},#{limit}
+	</select>
+	
+	<!-- 插入告警屏蔽器并返回主键 -->
+	<insert id="addAlarmShield" parameterType="com.fujitsu.model.AlarmShieldModel" useGeneratedKeys="true" keyProperty="alarmShieldModel.shieldId" >
+		insert t_alarm_shield_detail (SHIELD_NAME,SYS_USER_ID,CREATOR,STATUS,CREATE_TIME,DESCRIPTION) 
+		values (#{alarmShieldModel.shieldName}, #{alarmShieldModel.sysUserId}, #{alarmShieldModel.creator},
+		#{alarmShieldModel.status},#{alarmShieldModel.createTime},#{alarmShieldModel.description})
+	</insert>
+	
+	<!-- 新增告警屏蔽器名称关联关系 -->
+	<insert id="addAlarmShieldRelation" parameterType="hashmap">
+		insert t_alarm_shield_relation (SHIELD_ID,NATIVE_PROBABLE_CAUSE,FACTORY,CREATE_TIME) 
+		values (#{map.shieldId}, #{map.nativeProbableCause}, #{map.factory},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警屏蔽器类型关联关系 -->
+	<insert id="addAlarmShieldTypeRelation" parameterType="hashmap">
+		insert t_alarm_shield_type_relation (SHIELD_ID,ALARM_TYPE,CREATE_TIME) 
+		values (#{map.shieldId}, #{map.alarmType},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警屏蔽器级别关联关系 -->
+	<insert id="addAlarmShieldLevelRelation" parameterType="hashmap">
+		insert t_alarm_shield_level_relation (SHIELD_ID,ALARM_LEVEL,CREATE_TIME) 
+		values (#{map.shieldId}, #{map.alarmLevel},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警屏蔽器业务影响关联关系 -->
+	<insert id="addAlarmShieldAffectRelation" parameterType="hashmap">
+		insert t_alarm_shield_affecting_relation (SHIELD_ID,ALARM_AFFECTING,CREATE_TIME) 
+		values (#{map.shieldId}, #{map.affectType},#{map.createTime})
+	</insert>
+	
+	<!-- 新增告警屏蔽器源(设备)关联关系 -->
+	<insert id="addAlarmShieldResourceRelation" parameterType="hashmap">
+		insert t_alarm_shield_source_relation (SHIELD_ID,DEVICE_ID,DEVICE_TYPE,CREATE_TIME) 
+		values (#{map.shieldId}, #{map.id},#{map.lv},#{map.createTime})
+	</insert>
+	
+	<!-- 删除告警屏蔽器 -->
+	<delete id="deleteAlarmShield">
+		delete from t_alarm_shield_detail
+		where SHIELD_ID = #{shieldId}
+	</delete>
+	
+	<!-- 删除告警屏蔽器名称关联关系 -->
+	<delete id="deleteAlarmShieldRelation">
+		delete from t_alarm_shield_relation
+		where SHIELD_ID = #{shieldId}
+	</delete>
+	
+	<!-- 删除告警屏蔽器类型关联关系 -->
+	<delete id="deleteAlarmShieldTypeRelation">
+		delete from t_alarm_shield_type_relation
+		where SHIELD_ID = #{shieldId}
+	</delete>
+	
+	<!-- 删除告警屏蔽器级别关联关系 -->
+	<delete id="deleteAlarmShieldLevelRelation">
+		delete from t_alarm_shield_level_relation
+		where SHIELD_ID = #{shieldId}
+	</delete>
+	
+	<!-- 删除告警屏蔽器业务影响关联关系 -->
+	<delete id="deleteAlarmShieldAffectRelation">
+		delete from t_alarm_shield_affecting_relation
+		where SHIELD_ID = #{shieldId}
+	</delete>
+	
+	<!-- 删除告警屏蔽器源(设备)关联关系 -->
+	<delete id="deleteAlarmShieldResourceRelation">
+		delete from t_alarm_shield_source_relation
+		where SHIELD_ID = #{shieldId}
+	</delete>
+	
+	<!--  根据ID查询屏蔽器第一个窗口的名称、描述 -->
+	<select id="getAlarmShieldFirstDetail_MainById" resultType="hashmap">
+		select SHIELD_NAME,DESCRIPTION from t_alarm_shield_detail
+		where SHIELD_ID = #{shieldId}
+	</select>
+	
+	<!--  根据ID查询屏蔽器第一个窗口的已选告警名称 -->
+	<select id="getAlarmShieldFirstDetail_AlarmNameById" resultType="hashmap">
+		select NATIVE_PROBABLE_CAUSE,FACTORY from t_alarm_shield_relation
+		where SHIELD_ID = #{shieldId}
+	</select>
+	
+	<!--  根据ID查询屏蔽器第一个窗口的告警类型 -->
+	<select id="getAlarmShieldFirstDetail_AlarmTypeById" resultType="hashmap">
+		select ALARM_TYPE from t_alarm_shield_type_relation
+		where SHIELD_ID = #{shieldId}
+	</select>
+	
+	<!--  根据ID查询屏蔽器第一个窗口的告警级别 -->
+	<select id="getAlarmShieldFirstDetail_AlarmLevelById" resultType="hashmap">
+		select ALARM_LEVEL from t_alarm_shield_level_relation
+		where SHIELD_ID = #{shieldId}
+	</select>
+	
+	<!--  根据ID查询屏蔽器第一个窗口的业务影响 -->
+	<select id="getAlarmShieldFirstDetail_AlarmAffectlById" resultType="hashmap">
+		select ALARM_AFFECTING from t_alarm_shield_affecting_relation
+		where SHIELD_ID = #{shieldId}
+	</select>
+	
+	<!--  根据ID查询屏蔽器第二个窗口信息 -->
+	<select id="getAlarmShieldSecondtDetailById" resultType="hashmap">
+		select DEVICE_ID,DEVICE_TYPE from t_alarm_shield_source_relation
+		where SHIELD_ID = #{shieldId}
+	</select>
+	
+	<!-- 更新告警屏蔽器 -->
+	<update id="updateAlarmShield" parameterType="hashmap">
+		update t_alarm_shield_detail
+		<set>
+			SHIELD_NAME = #{map.shieldName},
+			DESCRIPTION = #{map.shieldDesc},
+			CREATE_TIME = #{map.createTime}
+		</set>
+		where SHIELD_ID = #{map.shieldId}
+	</update>
+	
+	<!-- 更新告警屏蔽器状态为启用 -->
+	<update id="updateAlarmShieldEnable" parameterType="hashmap">
+		update t_alarm_shield_detail
+		<set>
+			STATUS = 1
+		</set>
+		where SHIELD_ID = #{map.shieldId}
+	</update>
+	
+	<!-- 更新告警屏蔽器状态为挂起 -->
+	<update id="updateAlarmShieldPending" parameterType="hashmap">
+		update t_alarm_shield_detail
+		<set>
+			STATUS = 2
+		</set>
+		where SHIELD_ID = #{map.shieldId}
+	</update>
+	
+	<!--  查询屏蔽器中某厂家的所有告警名称 -->
+	<select id="getAlarmNameByFactoryFromShield" resultType="hashmap" parameterType="hashmap">
+		select distinct NATIVE_PROBABLE_CAUSE from t_alarm_shield_relation
+		where FACTORY = #{map.factory}
+	</select>
+	
+	<!--  根据网元ID,查询网管ID -->
+	<select id="getEmsIdByneId" resultType="hashmap" parameterType="hashmap">
+		select BASE_EMS_CONNECTION_ID from t_base_ne
+		where BASE_NE_ID = #{neId}
+	</select>
+	
+	<!--  根据网管分组ID，查询网管 -->
+	<select id="getEmsByEmsGroupId" resultType="hashmap" parameterType="hashmap">
+		select BASE_EMS_CONNECTION_ID from t_base_ems_connection
+		where BASE_EMS_GROUP_ID = #{emsGroupId}
+	</select>
+	
+	<!--  查询所有的网管 -->
+	<select id="getAllEms" resultType="hashmap" parameterType="hashmap">
+		select BASE_EMS_CONNECTION_ID from t_base_ems_connection
+	</select>
+	
+	<!--  根据网管ID,查询告警自动确认设置  @@@分权分域到网元@@@ -->
+	<select id="getAlarmAutoConfirmByEmsGroup" resultType="hashmap" parameterType="hashmap">
+		select t_select.BASE_EMS_CONNECTION_ID,t_select.DISPLAY_NAME as EMS_NAME,t_select.TYPE,C.AUTO_CONFIRM_ID,B.GROUP_NAME,C.PS_CRITICAL_CONFIRM,C.PS_MAJOR_CONFIRM,
+		C.PS_MINOR_CONFIRM,C.PS_WARNING_CONFIRM,C.TIMING_TIME from <include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION" /> t_select
+		left join T_BASE_EMS_GROUP B
+		on t_select.BASE_EMS_GROUP_ID = B.BASE_EMS_GROUP_ID
+		left join t_alarm_auto_confirm as C
+		on t_select.BASE_EMS_CONNECTION_ID = C.BASE_EMS_CONNECTION_ID
+		where <include refid="com.fujitsu.dao.mysql.CommonManagerMapper.IS_NOT_DEL" />
+			<if test="map.emsGroupId!=null">
+	 			and B.BASE_EMS_GROUP_ID in ${map.emsGroupId}
+		 	</if>
+		 	<if test="map.emsGroupIdNull=='-1'">
+		 		and B.BASE_EMS_GROUP_ID is null
+		 	</if>
+		limit #{start},#{limit}
+	</select>
+	<!-- @@@分权分域到网元@@@ -->
+	<select id="getAlarmAutoConfirmCountByEmsGroup" resultType="hashmap" parameterType="hashmap">
+		select count(1) as total from <include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION" /> t_select
+		left join T_BASE_EMS_GROUP B
+		on t_select.BASE_EMS_GROUP_ID = B.BASE_EMS_GROUP_ID
+		left join t_alarm_auto_confirm as C
+		on t_select.BASE_EMS_CONNECTION_ID = C.BASE_EMS_CONNECTION_ID
+		where <include refid="com.fujitsu.dao.mysql.CommonManagerMapper.IS_NOT_DEL" />
+			<if test="map.emsGroupId!=null">
+	 			and B.BASE_EMS_GROUP_ID in ${map.emsGroupId}
+		 	</if>
+		 	<if test="map.emsGroupIdNull=='-1'">
+		 		and B.BASE_EMS_GROUP_ID is null
+		 	</if>
+	</select>
+	
+	<!--  查询所有的告警自动确认设置 -->
+	<select id="getAlarmAutoConfirm" resultType="hashmap" parameterType="hashmap">
+		SELECT BASE_EMS_CONNECTION_ID,PS_CRITICAL_CONFIRM,PS_MAJOR_CONFIRM,PS_MINOR_CONFIRM,PS_WARNING_CONFIRM,TIMING_TIME
+		FROM t_alarm_auto_confirm 
+		WHERE EXISTS(
+		SELECT 1 FROM t_base_ems_connection t
+		 WHERE t_alarm_auto_confirm.BASE_EMS_CONNECTION_ID=t.BASE_EMS_CONNECTION_ID
+		 AND t.IS_DEL=0
+		)
+	</select>
+	
+	<!-- 新增告警自动确认设置 -->
+	<insert id="addAlarmAutoConfirm" parameterType="hashmap">
+		insert t_alarm_auto_confirm (BASE_EMS_CONNECTION_ID,PS_CRITICAL_CONFIRM,PS_MAJOR_CONFIRM,PS_MINOR_CONFIRM,PS_WARNING_CONFIRM,TIMING_TIME,CREATE_TIME) 
+		values (#{map.BASE_EMS_CONNECTION_ID}, #{map.PS_CRITICAL_CONFIRM},#{map.PS_MAJOR_CONFIRM},#{map.PS_MINOR_CONFIRM},#{map.PS_WARNING_CONFIRM},
+				#{map.TIMING_TIME},#{map.CREATE_TIME})
+	</insert>
+	
+	<!-- 更新告警自动确认设置-->
+	<update id="updateAlarmAutoConfirm" parameterType="hashmap">
+		update t_alarm_auto_confirm
+		<set>
+			BASE_EMS_CONNECTION_ID = #{map.BASE_EMS_CONNECTION_ID},
+			PS_CRITICAL_CONFIRM = #{map.PS_CRITICAL_CONFIRM},
+			PS_MAJOR_CONFIRM = #{map.PS_MAJOR_CONFIRM},
+			PS_MINOR_CONFIRM = #{map.PS_MINOR_CONFIRM},
+			PS_WARNING_CONFIRM = #{map.PS_WARNING_CONFIRM},
+			TIMING_TIME = #{map.TIMING_TIME}
+		</set>
+		where AUTO_CONFIRM_ID = #{map.AUTO_CONFIRM_ID}
+	</update>
+	
+		<!--  根据网管分组ID,查询告警重定义设置总数 @@@分权分域到网元@@@-->
+	<select id="getAlarmRedefineCountByEmsGroup" resultType="hashmap" parameterType="hashmap">
+		select count(1) as total from t_alarm_redefine as A,
+		(<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION" />) as B
+		where A.EMS_ID = B.BASE_EMS_CONNECTION_ID
+		<if test="map.emsGroupIdNull==null">
+	 			and B.BASE_EMS_GROUP_ID in ${map.emsGroupId}
+	 	</if>
+	 	<if test="map.emsGroupIdNull=='-1'">
+	 		and (B.BASE_EMS_GROUP_ID in ${map.emsGroupId} or B.BASE_EMS_GROUP_ID is null)
+	 	</if>
+	</select>
+	
+	<!--  根据网管分组ID,查询告警重定义设置  @@@分权分域到网元@@@ -->
+	<select id="getAlarmRedefineByEmsGroup" resultType="hashmap" parameterType="hashmap">
+	select aa.*,IFNULL( C.GROUP_NAME ,'无') as GROUP_NAME  from (
+		select A.ID,A.NATIVE_PROBABLE_CAUSE,A.ALARM_LEVEL,A.EMS_ID,A.NEW_ALARM_LEVEL,A.STATUS,B.DISPLAY_NAME as EMS_NAME,B.BASE_EMS_GROUP_ID
+		from t_alarm_redefine as A,
+		 (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION" />) as B
+		where  A.EMS_ID = B.BASE_EMS_CONNECTION_ID
+		<!-- where B.BASE_EMS_GROUP_ID in ${map.emsGroupId} -->
+		<if test="map.emsGroupIdNull==null">
+	 			and B.BASE_EMS_GROUP_ID in ${map.emsGroupId}
+		 	</if>
+		 	<if test="map.emsGroupIdNull=='-1'">
+		 		and (B.BASE_EMS_GROUP_ID in ${map.emsGroupId} or B.BASE_EMS_GROUP_ID is null)
+		 	</if>
+		<!-- <if test="map.emsGroupId!='-99'">
+			<if test="map.emsGroupId!='-1'">
+				where B.BASE_EMS_GROUP_ID = #{map.emsGroupId}
+			</if>
+			<if test="map.emsGroupId=='-1'">
+				where B.BASE_EMS_GROUP_ID is null
+			</if>
+		</if> -->
+		) as aa left join t_base_ems_group as C on C.BASE_EMS_GROUP_ID =aa.BASE_EMS_GROUP_ID
+		limit #{start},#{limit}
+	</select>
+	
+	<!-- 新增告警重定义设置 -->
+	<insert id="addAlarmRedefine" parameterType="hashmap">
+		insert t_alarm_redefine (NATIVE_PROBABLE_CAUSE,ALARM_LEVEL,EMS_ID,NEW_ALARM_LEVEL,STATUS,CREATE_TIME) 
+		values (#{map.alarmName}, #{map.alarmLevel},#{map.emsId},#{map.newAlarmLevel},#{map.status},#{map.createTime})
+	</insert>
+	
+	<!-- 删除告警重定义设置 -->
+	<delete id="deleteAlarmRedefine">
+		delete from t_alarm_redefine
+		where ID = #{redefineId}
+	</delete>
+	
+	<!--  根据ID,查询告警及事件重定义 -->
+	<select id="getAlarmRedefineById" resultType="hashmap" parameterType="hashmap">
+		select A.NATIVE_PROBABLE_CAUSE,A.ALARM_LEVEL,A.EMS_ID,A.NEW_ALARM_LEVEL,A.STATUS,IFNULL(B.BASE_EMS_GROUP_ID,'-1') as BASE_EMS_GROUP_ID from t_alarm_redefine as A
+		left join t_base_ems_connection as B
+		on A.EMS_ID = B.BASE_EMS_CONNECTION_ID
+		where ID = #{redefineId}
+	</select>
+	
+	<!-- 修改告警重定义设置 -->
+	<update id="modifyAlarmRedefine" parameterType="hashmap">
+		update t_alarm_redefine
+		<set>
+			NATIVE_PROBABLE_CAUSE = #{map.alarmName},
+			ALARM_LEVEL = #{map.alarmLevel},
+			EMS_ID = #{map.emsId},
+			NEW_ALARM_LEVEL = #{map.newAlarmLevel}
+		</set>
+		where ID = #{map.redefineId}
+	</update>
+	
+	<!-- 更新告警重定义状态为启用 -->
+	<update id="updateAlarmRedefineEnable" parameterType="hashmap">
+		update t_alarm_redefine
+		<set>
+			STATUS = 1
+		</set>
+		where ID = #{map.redefineId}
+	</update>
+	
+	<!-- 更新告警重定义状态为挂起 -->
+	<update id="updateAlarmRedefinePending" parameterType="hashmap">
+		update t_alarm_redefine
+		<set>
+			STATUS = 2
+		</set>
+		where ID = #{map.redefineId}
+	</update>
+	
+
+	
+	<!-- 更新告警自动同步设置-->
+	<update id="updateAlarmAutoSynch" parameterType="hashmap">
+		update t_alarm_auto_synchro_and_confirm
+		<set>
+			SYNCHRONIZATION_CIRCLE = #{map.SYNCHRONIZATION_CIRCLE},
+			TASK_STATUS = #{map.TASK_STATUS},
+			SYNCHRONIZATION_FLAG = #{map.SYNCHRONIZATION_FLAG},
+			DELAY_TIME = #{map.DELAY_TIME}
+		</set>
+		where ID = #{map.ID}
+	</update>
+	
+	<!--  根据网管分组ID,查询所有的网管  @@@分权分域到网元@@@ -->
+	<select id="getAlarmAutoSynchByEmsGroup" resultType="hashmap" parameterType="hashmap">
+		select A.BASE_EMS_CONNECTION_ID,A.DISPLAY_NAME as EMS_NAME,A.TYPE,C.ID,B.GROUP_NAME,SYNCHRONIZATION_FLAG,
+		 C.SYNCHRONIZATION_CIRCLE,C.TASK_STATUS,C.EXECUTE_STATUS,C.LATEST_SYNCHRONIZATION_TIME,C.DELAY_TIME,
+		 DATE_ADD(C.LATEST_SYNCHRONIZATION_TIME, INTERVAL C.SYNCHRONIZATION_CIRCLE HOUR) NEXT_SYNCHRONIZATION_TIME
+		 from (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION" />) as A
+		left join t_base_ems_group as B
+		on A.BASE_EMS_GROUP_ID = B.BASE_EMS_GROUP_ID
+		left join t_alarm_auto_synchro_and_confirm as C
+		on A.BASE_EMS_CONNECTION_ID = C.BASE_EMS_CONNECTION_ID
+		<!-- where B.BASE_EMS_GROUP_ID in ${map.emsGroupId} -->
+		<if test="map.emsGroupIdNull==null">
+	 			where B.BASE_EMS_GROUP_ID in ${map.emsGroupId} and A.IS_DEL = 0
+		 	</if>
+		 	<if test="map.emsGroupIdNull=='-1'">
+		 		where (B.BASE_EMS_GROUP_ID in ${map.emsGroupId} or B.BASE_EMS_GROUP_ID is null) and A.IS_DEL = 0
+		 	</if>
+		<!-- <if test="map.emsGroupId!='-99'">
+			<if test="map.emsGroupId!='-1'">
+				where B.BASE_EMS_GROUP_ID = #{map.emsGroupId}
+			</if>
+			<if test="map.emsGroupId=='-1'">
+				where B.BASE_EMS_GROUP_ID is null
+			</if>
+		</if> -->
+		limit #{start},#{limit}
+	</select>
+	
+	<!--  @@@分权分域到网元@@@ -->
+	<select id="getAlarmAutoSynchCountByEmsGroup" resultType="hashmap" parameterType="hashmap">
+		select count(1) as total
+		 from (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION" />)  as A
+		left join t_base_ems_group as B
+		on A.BASE_EMS_GROUP_ID = B.BASE_EMS_GROUP_ID
+		left join t_alarm_auto_synchro_and_confirm as C
+		on A.BASE_EMS_CONNECTION_ID = C.BASE_EMS_CONNECTION_ID
+		<!-- where B.BASE_EMS_GROUP_ID in ${map.emsGroupId} -->
+		<if test="map.emsGroupIdNull==null">
+	 			where B.BASE_EMS_GROUP_ID in ${map.emsGroupId} and A.IS_DEL = 0
+		 	</if>
+		 	<if test="map.emsGroupIdNull=='-1'">
+		 		where (B.BASE_EMS_GROUP_ID in ${map.emsGroupId} or B.BASE_EMS_GROUP_ID is null) and A.IS_DEL = 0
+		 	</if>
+	</select>
+	
+	<!-- 新增告警自动同步 -->
+	<insert id="addAlarmAutoSynch"  parameterType="com.fujitsu.model.AlarmAutoSynchModel" useGeneratedKeys="true" keyProperty="alarmAutoSynchModel.ID" >
+		insert t_alarm_auto_synchro_and_confirm (BASE_EMS_CONNECTION_ID,SYNCHRONIZATION_CIRCLE,TASK_STATUS,SYNCHRONIZATION_FLAG,DELAY_TIME,CREATE_TIME) 
+		values (#{alarmAutoSynchModel.BASE_EMS_CONNECTION_ID}, #{alarmAutoSynchModel.SYNCHRONIZATION_CIRCLE},#{alarmAutoSynchModel.TASK_STATUS},#{alarmAutoSynchModel.SYNCHRONIZATION_FLAG},#{alarmAutoSynchModel.DELAY_TIME},
+				#{alarmAutoSynchModel.CREATE_TIME})
+	</insert>
+	
+	
+	
+	<!-- 根据厂家ID查找归一化设置总数 -->
+	<select id="getAlarmNormlizedCountByFactory" resultType="hashmap" parameterType="hashmap">
+		select COUNT(1) AS total
+		from t_alarm_normalized
+		<if test="map.factoryId!='-99'">
+			where FACTORY_ID = #{map.factoryId}
+		</if>
+	</select>
+	
+	<!-- 根据厂家ID查找归一化设置 -->
+	<select id="getAlarmNormlizedByFactory" resultType="hashmap" parameterType="hashmap">
+		select ID,FACTORY_ID,NATIVE_PROBABLE_CAUSE,NORM_PROBABLE_CAUSE,REDEFINE_PROBABLE_CAUSE,UPDATE_TIME 
+		from t_alarm_normalized
+	<if test="map.factoryId!='-99'">
+		where FACTORY_ID = #{map.factoryId}
+	</if>
+	   limit #{start},#{limit}
+	</select>
+	
+	
+	<!--  根据ID,查询告警归一化 -->
+	<select id="getAlarmNormlizedById" resultType="hashmap" parameterType="hashmap">
+		select  ID,FACTORY_ID,NATIVE_PROBABLE_CAUSE,NORM_PROBABLE_CAUSE,REDEFINE_PROBABLE_CAUSE,UPDATE_TIME 
+		from t_alarm_normalized
+		where ID = #{redefineId}
+	</select>
+	
+	<!-- 修改告警归一化 -->
+	<update id="modifyAlarmNormlized" parameterType="hashmap">
+		update t_alarm_normalized
+		<set>
+			FACTORY_ID = #{map.FACTORY_ID},
+			NATIVE_PROBABLE_CAUSE = #{map.NATIVE_PROBABLE_CAUSE},
+			NORM_PROBABLE_CAUSE = #{map.NORM_PROBABLE_CAUSE},
+			REDEFINE_PROBABLE_CAUSE = #{map.REDEFINE_PROBABLE_CAUSE}
+		</set>
+		where ID = #{map.redefineId}
+	</update>
+	
+	<!-- 新增告警归一化 -->
+	<insert id="addAlarmNormlized" parameterType="hashmap">
+		insert t_alarm_normalized (FACTORY_ID,NATIVE_PROBABLE_CAUSE,NORM_PROBABLE_CAUSE,REDEFINE_PROBABLE_CAUSE,CREATE_TIME) 
+		values (#{map.FACTORY_ID}, #{map.NATIVE_PROBABLE_CAUSE},#{map.NORM_PROBABLE_CAUSE},#{map.REDEFINE_PROBABLE_CAUSE},#{map.createTime})
+	</insert>
+	
+	<!-- 删除告警归一化 -->
+	<delete id="deleteAlarmNormlized">
+		delete from t_alarm_normalized
+		where ID = #{redefineId}
+	</delete>
+	
+	
+	<!-- 删除告警参数设置 -->
+	<delete id="deleteAlarmParam">
+		delete from t_sys_param
+		where PARAM_KEY = #{map.paramKey}
+	</delete>
+	
+	<!-- 更新告警参数设置 -->
+	<update id="modifyAlarmParam" parameterType="hashmap">
+	  INSERT INTO t_sys_param(param_key,param_value,param_description,is_del,create_time)
+	    values(#{map.paramKey},#{map.alarmParam},#{map.description},0,now())
+	</update>
+	
+	<!--  查询系统参数设置 -->
+	<select id="getSystemParam" resultType="hashmap" parameterType="hashmap">
+		select PARAM_VALUE,SHOW_ORDER from t_sys_param
+		where PARAM_KEY = #{paramKey}
+	</select>
+	<update id="updateDBbackup" parameterType="hashmap">
+	  update t_sys_param
+	  set SHOW_ORDER=#{map.showorder}
+	  WHERE PARAM_KEY = #{map.paramKey}
+	</update>
+
+	<!-- 更新告警自动同步最近一次同步时间-->
+	<update id="updateLatestAlarmAutoSynchTime" parameterType="hashmap">
+		update t_alarm_auto_synchro_and_confirm
+		set
+		<if test="map.LATEST_SYNCHRONIZATION_TIME!=null">
+			LATEST_SYNCHRONIZATION_TIME = #{map.LATEST_SYNCHRONIZATION_TIME},
+		</if>
+			EXECUTE_STATUS = #{map.EXECUTE_STATUS}
+		where ID = #{map.ID}
+	</update>
+
+	<!--  查询延时种类 -->
+	<select id="getDistinctDelayTime" resultType="hashmap" parameterType="hashmap">
+		SELECT DISTINCT DELAY_TIME 
+		FROM t_alarm_auto_synchro_and_confirm 
+		WHERE SYNCHRONIZATION_FLAG =1
+	</select>
+
+	<!--  根据延时查找-->
+	<select id="getCanDelaySync" resultType="hashmap" >
+		select  ID,BASE_EMS_CONNECTION_ID
+		from t_alarm_auto_synchro_and_confirm
+		where DELAY_TIME = #{delayTime} and SYNCHRONIZATION_FLAG =1
+	</select>
+	
+	<!-- 获取用户组的所有用户ID-->
+	<select id="getUserListByUserGroupId" resultType="hashmap">
+		select SYS_USER_ID from t_sys_user_ref_group
+		where SYS_USER_GROUP_ID = #{userGroupId}
+	</select>
+	
+	<!-- 查询告警灯颜色信息-->
+	<select id="getAlarmColor" resultType="hashmap">
+		select * from t_alarm_color_config
+	</select>
+	
+	<!--  查找已经存在的告警自动同步设置 -->
+	<select id="getAlarmAutoSynchExist" resultType="hashmap" parameterType="hashmap">
+		select * from t_alarm_auto_synchro_and_confirm
+	</select>
+	
+	<select id="findAlarmAutoSynch" resultType="hashmap" parameterType="int">
+		select * from t_alarm_auto_synchro_and_confirm where BASE_EMS_CONNECTION_ID=#{emsConnectionId}
+	</select>
+	
+	<delete id="deleteAlarmAutoSynch" parameterType="int">
+		delete from t_alarm_auto_synchro_and_confirm
+		where BASE_EMS_CONNECTION_ID=#{emsConnectionId}
+	</delete>
+	
+	<update id="changeDatabackupToCancel" parameterType="string">
+		UPDATE t_sys_param SET param_value=CONCAT(SUBSTRING(param_value,1,2),'1',SUBSTRING(param_value,4))
+		WHERE param_key=#{param}
+	</update>
+	
+	<select id="getAutoAlarmSyncByEmsId"  resultType="hashmap">
+		select * from t_alarm_auto_synchro_and_confirm where  BASE_EMS_CONNECTION_ID in 
+			<foreach collection="emsIds" index="index" item="list"
+						open="(" close=")" separator=",">
+						${list}
+			</foreach>
+	</select>
+	
+		<!-- 获取指定PTP端口的Link信息 -->
+	<select id="getLinkByPtpId" resultType="hashmap" parameterType="int">
+        select * from t_base_link
+        where IS_DEL = 0 and
+            (A_END_PTP=#{ptpId} or Z_END_PTP=#{ptpId})
+    </select>
+      
+    <!-- 获取指定网元的台站名称 -->
+    <select id="getStationNameByNeId" resultType="hashmap" parameterType="int">
+        SELECT sta.STATION_NAME STATION_NAME
+        FROM t_base_ne ne LEFT JOIN t_resource_station sta ON ne.RESOURCE_ROOM_ID = sta.RESOURCE_STATION_ID
+        WHERE ne.BASE_NE_ID = #{neId}
+    </select>
+    
+    <!-- 插入故障记录并返回主键 -->
+    <insert id="addFault" parameterType="com.fujitsu.model.FaultAnalysisModel" useGeneratedKeys="true" keyProperty="faultModel.id" >
+        insert t_fault (SOURCE,TYPE,REASON1,SYSTEM_NAME,EMS_NAME,STATION_NAME,NE_NAME,UNIT_NAME,UNIT_ID,A_STATION,
+            Z_STATION,START_TIME,STATUS,MEMO) 
+        values (#{faultModel.source}, #{faultModel.type}, #{faultModel.reason1},#{faultModel.sysName},
+                #{faultModel.emsName},#{faultModel.stationName},#{faultModel.neName},#{faultModel.unitDesc},
+                #{faultModel.unitId},#{faultModel.aStation},#{faultModel.zStation},
+                #{faultModel.startTime},#{faultModel.status},#{faultModel.memo})
+    </insert>
+    
+    <!-- 插入故障告警信息 --> 
+    <insert id="addFaultAlarmInfo">
+        insert into T_FAULT_ALARM(FAULT_ID,ALARM_ID,RELATION,ALARM_NAME,SEVERITY,NE_NAME,START_TIME) 
+        values 
+        <foreach collection="faultAlarmInfoList" item="item" index="index" separator=",">
+            (#{item.faultId},#{item.alarmId},#{item.relation},#{item.alarmName},
+             #{item.severity},#{item.neName},#{item.startTime})
+        </foreach>
+    </insert>
+    
+        <!-- 获取指定故障的告警ID列表 -->
+    <select id="getAlarmIdByFaultId" resultType="int" parameterType="int">
+        select alm.ALARM_ID
+        from t_fault_alarm alm
+        where alm.FAULT_ID = #{faultId}
+    </select>
+    
+    <!-- 获取未确认的故障记录 -->
+    <select id="getFaultByNoAck" resultType="hashmap">
+        select * from t_fault where t_fault.STATUS = 1
+    </select>
+
+        <!-- 获取指定PTP端口的光口标准信息 -->
+    <select id="getPmStdOptPortByPtpId" resultType="hashmap" parameterType="int">
+        SELECT * FROM T_PM_STD_OPT_PORT opt 
+        WHERE opt.PM_STD_OPT_PORT_ID = 
+            (SELECT ptp.OPT_STD_ID FROM T_BASE_PTP ptp WHERE ptp.BASE_PTP_ID=#{ptpId})
+    </select>
+	<!-- 获取指定用户的设备域（网管） -->
+	<select id="getEmsIdListByUserId" resultType="hashmap" parameterType="int">
+	   select t.BASE_EMS_CONNECTION_ID
+	   from (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_EMS_CONNECTION"/>) as t
+	</select>
+    <!-- 获取指定用户的设备域（子网） -->
+    <select id="getSubnetIdListByUserId" resultType="hashmap" parameterType="int">
+       select t.BASE_SUBNET_ID
+       from (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_SUBNET"/>) as t
+    </select>
+    <!-- 获取指定用户的设备域（网元） -->
+    <select id="getNeIdListByUserId" resultType="hashmap" parameterType="int">
+       select t.BASE_NE_ID
+       from (<include refid="com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) as t
+    </select>	
+    <select id="getProtectionSwitch" resultType="hashmap">
+        SELECT 
+            (select tg.GROUP_NAME from t_base_ems_group tg where te.BASE_EMS_GROUP_ID = tg.BASE_EMS_GROUP_ID ) as 'EMS_GROUP_NAME' ,
+            te.DISPLAY_NAME as 'EMS_NAME' ,
+            (select ts.DISPLAY_NAME from t_base_subnet ts where tn.BASE_SUBNET_ID = ts.BASE_SUBNET_ID ) as 'SUBNET_NAME' ,
+            tn.DISPLAY_NAME as 'NE_NAME',
+            tp.*
+        from
+            t_alarm_pro_switch tp,t_base_ems_connection te,t_base_ne tn
+        where
+            tp.BASE_EMS_CONNECTION_ID = te.BASE_EMS_CONNECTION_ID
+		and tp.base_ne_id = tn.BASE_NE_ID
+        and tp.EMS_TIME between str_to_date('${map.startTime}', '%Y-%m-%d %H:%i:%s') and str_to_date('${map.endTime}', '%Y-%m-%d %H:%i:%s')
+        and ( 1 > 2 
+        <if test="map.emsGroup != null">
+             or te.BASE_EMS_GROUP_ID in ${map.emsGroup}
+        </if>
+        <if test="map.ems != null">
+             or tn.BASE_EMS_CONNECTION_ID in ${map.ems}
+        </if>
+        <if test="map.subnet != null">
+             or tn.BASE_SUBNET_ID in ${map.subnet}
+        </if>
+        <if test="map.ne != null">
+             or tn.BASE_NE_ID in ${map.ne}
+        </if>
+        )
+        limit #{start},#{limit}
+    </select>
+    <select id="getProtectionSwitchCount" resultType="int">
+        SELECT 
+            count(*)
+        from
+            t_alarm_pro_switch tp,t_base_ems_connection te,t_base_ne tn
+        where
+            tp.BASE_EMS_CONNECTION_ID = te.BASE_EMS_CONNECTION_ID
+		and tp.base_ne_id = tn.BASE_NE_ID
+        and tp.EMS_TIME between str_to_date('${map.startTime}', '%Y-%m-%d %H:%i:%s') and str_to_date('${map.endTime}', '%Y-%m-%d %H:%i:%s')
+        and ( 1 > 2 
+        <if test="map.emsGroup != null">
+             or te.BASE_EMS_GROUP_ID in ${map.emsGroup}
+        </if>
+        <if test="map.ems != null">
+             or tn.BASE_EMS_CONNECTION_ID in ${map.ems}
+        </if>
+        <if test="map.subnet != null">
+             or tn.BASE_SUBNET_ID in ${map.subnet}
+        </if>
+        <if test="map.ne != null">
+             or tn.BASE_NE_ID in ${map.ne}
+        </if>
+        )
+    </select>
+    <select id="getPmExceedData" resultType="hashmap">
+        SELECT 
+            tca.*
+        from
+            t_alarm_tca tca
+        where
+            tca.CLEAR_STATUS = ${map.eventType}
+        and tca.GRANULARITY in ${map.periodString}
+        and tca.PM_STD_INDEX in ${map.pmStdIndex}
+        and tca.ARISES_TIME between str_to_date('${map.startTime}', '%Y-%m-%d %H:%i:%s') and str_to_date('${map.endTime}', '%Y-%m-%d %H:%i:%s')
+        and ( 1 > 2 
+        <if test="map.emsGroup != null">
+             or tca.BASE_EMS_GROUP_ID in ${map.emsGroup}
+        </if>
+        <if test="map.ems != null">
+             or tca.BASE_EMS_CONNECTION_ID in ${map.ems}
+        </if>
+        <if test="map.subnet != null">
+             or tca.BASE_SUBNET_ID in ${map.subnet}
+        </if>
+        <if test="map.ne != null">
+             or tca.BASE_NE_ID in ${map.ne}
+        </if>
+        )
+        limit #{start},#{limit}
+    </select>
+    <select id="getSubnetIds" resultType="hashmap">
+		select BASE_SUBNET_ID from t_base_subnet_ref  
+		where PARENT_SUBNET_ID in ${subIds}
+	</select>
+	
+	<select id="getPtpListByCableIds" resultType="hashmap">
+		select * from (
+			select LINK.A_END_PTP as PTP_ID,FIBER.RESOURCE_CABLE_ID from T_BASE_LINK LINK 
+			left join T_RESOURCE_FIBER FIBER on LINK.RESOURCE_FIBER_ID = FIBER.RESOURCE_FIBER_ID 
+			union
+			select LINK.Z_END_PTP as PTP_ID,FIBER.RESOURCE_CABLE_ID from T_BASE_LINK LINK 
+			left join T_RESOURCE_FIBER FIBER on LINK.RESOURCE_FIBER_ID = FIBER.RESOURCE_FIBER_ID ) R 
+		where R.RESOURCE_CABLE_ID in 
+		<foreach collection="cableIds" index="index" item="cableId"
+				open="(" close=")" separator=",">
+				${cableId}
+		</foreach>
+	</select>
+	
+	<delete id="deleteTempAlarmForGis">
+		delete from T_TEMP_ALARM_GIS 
+		where RESOURCE_TYPE = #{type} 
+		and RESOURCE_ID = #{id}
+	</delete>
+	
+	<delete id="deleteTempAlarmListForGis">
+		delete from T_TEMP_ALARM_GIS 
+		where (RESOURCE_TYPE,RESOURCE_ID) in 
+		<foreach collection="list" index="index" item="map"
+				open="(" close=")" separator=",">
+			(${map.type}, ${map.id})
+		</foreach>
+	</delete>
+	
+	<insert id="addTempAlarmForGis">
+		insert T_TEMP_ALARM_GIS(RESOURCE_ID, RESOURCE_TYPE, SEVERITY) 
+		values(#{id}, #{type}, #{severity})
+	</insert>
+	
+	<update id="updateTempAlarmForGis">
+		update T_TEMP_ALARM_GIS set SEVERITY = #{severity} 
+		where RESOURCE_ID = #{id} and RESOURCE_TYPE = #{type}
+	</update>
+	
+	<insert id="addTempAlarmListForGis">
+		insert T_TEMP_ALARM_GIS(RESOURCE_ID, RESOURCE_TYPE, SEVERITY) 
+		values
+		 <foreach collection="list" item="item" index="index" separator="," >  
+        	(#{item.id}, #{item.type}, #{item.severity})
+    	</foreach>
+	</insert>
+	
+	<select id="getTempAlarmForGis" resultType="hashmap">
+		select * from T_TEMP_ALARM_GIS 
+		where RESOURCE_TYPE = #{type} 
+		and RESOURCE_ID = #{id} 
+		limit 0,1
+	</select>
+	
+	<select id="getCableIdByPtpId" resultType="integer">
+		select FIBER.RESOURCE_CABLE_ID from T_BASE_LINK LINK 
+		left join T_RESOURCE_FIBER FIBER on LINK.RESOURCE_FIBER_ID = FIBER.RESOURCE_FIBER_ID 
+		where (LINK.A_END_PTP = #{ptpId} or LINK.Z_END_PTP = #{ptpId}) 
+		and FIBER.RESOURCE_CABLE_ID is not null
+	</select>
+	
+	<select id="isTempTableExistForGis" resultType="integer">
+		SELECT 
+		    count(1)
+		FROM
+		    INFORMATION_SCHEMA.TABLES t
+		WHERE
+		    t.table_name = #{tableName}
+		        AND t.table_schema = #{schemaName}
+	</select>
+	
+	<select id="dropGisTempTable">
+		DROP TABLE IF EXISTS t_temp_alarm_gis;
+	</select>
+	
+	<select id="createGisTempTable">
+		CREATE TABLE t_temp_alarm_gis(
+	    TEMP_ALARM_GIS_ID  INT NOT NULL AUTO_INCREMENT COMMENT   'ID',
+	    RESOURCE_ID        INT   COMMENT   '资源ID',
+	    RESOURCE_TYPE      INT   COMMENT   '资源类型 1:局站 2：光缆段',
+	    SEVERITY           INT   COMMENT   '告警级别  1：紧急 2：严重 3：一般 4：提示',
+	    PRIMARY KEY (TEMP_ALARM_GIS_ID)
+		);
+	</select>
+	
+</mapper>

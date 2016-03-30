@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.GisManagerMapper">
+
+	<select id="getCableSections" resultType="hashmap" statementType="STATEMENT">
+		SELECT RESOURCE_CABLE_ID CABLE_SECTION_ID ,
+		RESOURCE_CABLES_ID CABLE_ID,
+		CABLE_NAME CABLE_SECTION_NAME,
+		CABLE_NO CABLE_SECTION_NO,
+		CABLE_LENGTH CABLE_SECTION_LENGTH,
+		CABLE_FIBER_COUNT CABLE_SECTION_FIBER_COUNT,
+		CABLE_TYPE CABLE_SECTION_TYPE,
+		CABLE_FIBER_TYPE CABLE_SECTION_FIBER_TYPE,
+		CABLE_COVER CABLE_SECTION_COVER,
+		A_END,Z_END,BUILD_TIME,
+		BREAKPOINT
+		FROM t_resource_cable   
+	</select>
+	
+	<select id="getCableSectionById" resultType="hashmap" statementType="STATEMENT">
+		SELECT RESOURCE_CABLE_ID CABLE_SECTION_ID ,
+		RESOURCE_CABLES_ID CABLE_ID,
+		CABLE_NAME CABLE_SECTION_NAME,
+		CABLE_NO CABLE_SECTION_NO,
+		CABLE_LENGTH CABLE_SECTION_LENGTH,
+		CABLE_FIBER_COUNT CABLE_SECTION_FIBER_COUNT,
+		CABLE_TYPE CABLE_SECTION_TYPE,
+		CABLE_FIBER_TYPE CABLE_SECTION_FIBER_TYPE,
+		CABLE_COVER CABLE_SECTION_COVER,
+		A_END,Z_END,BUILD_TIME,
+		BREAKPOINT
+		FROM t_resource_cable WHERE RESOURCE_CABLE_ID = ${cableSectionId}  
+	</select>
+	
+	<select id="getStartAndEndLngLat" resultType="hashmap" statementType="STATEMENT">
+		SELECT RESOURCE_STATION_ID ID,STATION_NAME NAME, LONGITUDE LNG,LATITUDE LAT,TYPE FROM t_resource_station 
+		WHERE RESOURCE_STATION_ID = (SELECT A_END FROM t_resource_cable WHERE RESOURCE_CABLE_ID = ${cableSectionId})
+		UNION ALL
+		SELECT RESOURCE_STATION_ID ID,STATION_NAME NAME, LONGITUDE LNG,LATITUDE LAT,TYPE FROM t_resource_station 
+		WHERE RESOURCE_STATION_ID = (SELECT Z_END FROM t_resource_cable WHERE RESOURCE_CABLE_ID = ${cableSectionId})
+	</select>
+	
+	<select id="getTestRoutesByCsId" resultType="hashmap" statementType="STATEMENT">
+		SELECT TEST_ROUTE_ID,ROUTE_NAME,CABLE_IDS FROM t_ftts_test_route 
+        WHERE FIND_IN_SET(${cableSectionId},CABLE_IDS);
+	</select>
+	
+	<select id="getTestingRoutesByCsId" resultType="hashmap" statementType="STATEMENT">
+		SELECT TEST_ROUTE_ID,ROUTE_NAME,CABLE_IDS FROM t_ftts_test_route 
+		WHERE t_ftts_test_route.STATUS = 1 AND CABLE_IDS LIKE CONCAT(${cableSectionId},',%') 
+		OR t_ftts_test_route.STATUS = 1 AND CABLE_IDS LIKE CONCAT('%,', ${cableSectionId}) 
+		OR t_ftts_test_route.STATUS = 1 AND CABLE_IDS LIKE CONCAT('%,', ${cableSectionId} ,',%') 
+		OR t_ftts_test_route.STATUS = 1 AND CABLE_IDS = ${cableSectionId}
+	</select>
+	
+	<select id="getAllTestingRoutes" resultType="hashmap" statementType="STATEMENT">
+		SELECT TEST_ROUTE_ID,ROUTE_NAME,CABLE_IDS FROM t_ftts_test_route 
+		WHERE STATUS = 1
+	</select>
+	
+	<select id="getCableSectionsThroughAZ" resultType="hashmap" statementType="STATEMENT">
+		SELECT RESOURCE_CABLE_ID CABLE_SECTION_ID ,
+		CABLE_NAME CABLE_SECTION_NAME,
+		CABLE_NO CABLE_SECTION_NO  
+		FROM t_resource_cable WHERE A_END = ${map.A_END} AND Z_END = ${map.Z_END}
+	</select>
+	
+	<select id="getTransSystemsByArea" resultType="hashmap" >
+		SELECT RESOURCE_TRANS_SYS_ID,SYS_NAME,NET_LEVEL
+		FROM t_resource_trans_sys 
+		WHERE RESOURCE_AREA_ID = #{area}
+	</select>
+	
+	<select id="getStationsNotInCable" resultType="hashmap" statementType="STATEMENT">
+	<![CDATA[
+		SELECT RESOURCE_STATION_ID ID,STATION_NAME NAME, LONGITUDE LNG,LATITUDE LAT, TYPE
+		FROM t_resource_station 
+		WHERE RESOURCE_STATION_ID NOT IN (
+		SELECT A_END FROM t_resource_cable 
+		UNION  
+		SELECT Z_END FROM t_resource_cable )
+		AND LONGITUDE >= ${map.minLng} AND LONGITUDE <= ${map.maxLng}
+		AND LATITUDE >= ${map.minLat} AND LATITUDE <= ${map.maxLat}
+	]]>		
+	</select>
+	
+	<select id="getRangeList" resultType="hashmap" statementType="STATEMENT">
+        select DISTINCT ftpp.TEST_RANGE from t_ftts_test_para_pre ftpp
+        <where>
+            ftpp.OTDR_TYPE = ${map.OTDR_TYPE} 
+        </where>
+    </select>
+    
+    <select id="getPluseWidthList" resultType="hashmap" statementType="STATEMENT">
+        select DISTINCT ftpp.PLUSE_WIDTH from t_ftts_test_para_pre ftpp
+        <where>
+            ftpp.TEST_RANGE = ${map.TEST_RANGE} 
+            and ftpp.OTDR_TYPE = ${map.OTDR_TYPE} 
+        </where>
+    </select>
+	   
+</mapper>

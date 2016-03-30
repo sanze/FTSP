@@ -1,0 +1,2946 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.NxReportManagerMapper">
+	<!-- ==============THJ============= -->
+	<!-- 获取板卡下的端口 -->
+	<select id="getUnitInterface" resultType="hashmap">
+		SELECT
+		*
+		FROM
+		t_resource_unit_interface ui
+		<where>
+			ui.IS_DEL != 1
+			and
+			ui.RESOURCE_UNIT_INTERFACE_ID = #{paramMap.unitInterfaceId}
+		</where>
+	</select>
+	<select id="getPtpByUnitId" resultType="hashmap">
+		SELECT
+		opt.MAX_IN,
+		opt.MAX_OUT,
+		ptp.DIRECTION as PTP_DIRECTION,
+		ptp.PORT_NO,
+		ptp.DISPLAY_NAME,
+		ptp.SLOT_NO,
+		ptp.BASE_UNIT_ID,
+		ptp.BASE_PTP_ID,
+		ems.FACTORY,
+		slot.DISPLAY_NAME as SLOT_NAME,
+		unit.WAVE_LENGTH
+		FROM
+		t_base_ptp ptp
+			left join T_PM_STD_OPT_PORT opt on opt.PM_STD_OPT_PORT_ID = ptp.OPT_STD_ID
+			left join T_base_slot slot on slot.BASE_SLOT_ID = ptp.BASE_SLOT_ID
+            left join T_base_unit unit on unit.BASE_unit_ID = ptp.BASE_unit_ID
+            left join T_BASE_EMS_CONNECTION ems on ptp.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		<where>
+			ptp.IS_DEL != 1
+			and
+			ptp.BASE_UNIT_ID = #{unitId}
+		</where>
+	</select>
+	<select id="getUsedPtpInfo" resultType="hashmap">
+		SELECT
+		ptp.*,
+		tp.BASE_PTP_ID,
+		tp.DIRECTION as PTP_DIRECTION,
+		tp.PORT_NO,
+		tp.DISPLAY_NAME,
+		opt.*,
+		ems.FACTORY
+		FROM
+		t_resource_unit_interface_rel_ptp ptp
+		left join T_BASE_PTP tp on tp.BASE_PTP_ID = ptp.BASE_PTP_ID
+		left join T_PM_STD_OPT_PORT opt on opt.PM_STD_OPT_PORT_ID = tp.OPT_STD_ID
+		left join T_BASE_EMS_CONNECTION ems on tp.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		<where>
+			ptp.IS_DEL != 1
+			and
+			ptp.RESOURCE_UNIT_INTERFACE_ID = #{paramMap.unitInterfaceId}
+			and
+			ptp.PTP_TYPE = #{paramMap.ptpType}
+            <if test="paramMap.groupNum!=null">
+                and
+                ptp.GROUP_NUM = #{paramMap.groupNum}
+            </if>
+		</where>
+	</select>
+	<insert id="saveUnitInterface" keyProperty="idMap.newId">
+        INSERT INTO
+        `t_resource_unit_interface`
+        (
+        `BASE_UNIT_ID`,
+        `DISPLAY_NAME`,
+        `UNIT_TYPE`,
+        `BUSINESS_PORT_NUM`,
+        `WAVE_PORT_NUM`,
+        `PROTECT_GROUP_COUNT`,
+        `IS_DEL`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`)
+        VALUES
+        (
+        #{paramMap.BASE_UNIT_ID},
+        #{paramMap.DISPLAY_NAME},
+        #{paramMap.UNIT_TYPE},
+        #{paramMap.BUSINESS_PORT_NUM},
+        #{paramMap.WAVE_PORT_NUM},
+        #{paramMap.PROTECT_GROUP_COUNT},
+        0,
+        CURRENT_TIMESTAMP(),
+        CURRENT_TIMESTAMP()
+        )
+	</insert>
+	<insert id="saveUnitInterfacePtp" keyProperty="idMap.newId">
+        INSERT INTO
+        `t_resource_unit_interface_rel_ptp`
+        (
+        `RESOURCE_UNIT_INTERFACE_ID`,
+        `BASE_PTP_ID`,
+        `GROUP_NUM`,
+        `PTP_TYPE`,
+        `POWER_BUDGET`,
+        `BUSSINESS_NAME`,
+        `SWITCH_THRESHOLD`,
+        `DIRECTION`,
+        `WAVE_LENGTH`,
+        `IS_DEL`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`)
+        VALUES
+        (
+        #{paramMap.RESOURCE_UNIT_INTERFACE_ID},
+        #{paramMap.BASE_PTP_ID},
+        #{paramMap.GROUP_NUM},
+        #{paramMap.PTP_TYPE},
+        #{paramMap.POWER_BUDGET},
+        #{paramMap.BUSSINESS_NAME},
+        #{paramMap.SWITCH_THRESHOLD},
+        #{paramMap.DIRECTION},
+        #{paramMap.WAVE_LENGTH},
+        0,
+        CURRENT_TIMESTAMP(),
+        CURRENT_TIMESTAMP()
+        )
+	</insert>
+    <select id="isUnitInterfaceExist" resultType="int">
+        select
+        count(1)
+        from
+        t_resource_unit_interface
+        where
+        is_del != 1
+        and
+        UNIT_TYPE = 1
+        and
+        BASE_UNIT_ID = #{paramMap.BASE_UNIT_ID}
+    </select>
+    <select id="isOptSwitchExist" resultType="int">
+        select
+        count(1)
+        from
+        t_resource_unit_interface
+        where
+        is_del != 1
+        and
+        UNIT_TYPE = 2
+        and
+        BASE_UNIT_ID = #{paramMap.BASE_UNIT_ID}
+    </select>
+
+	<sql id="searchUnitInterfaceByNeListSql">
+		SELECT
+		ui.RESOURCE_UNIT_INTERFACE_ID AS UNIT_INTERFACE_ID,
+        ui.UNIT_TYPE,
+		grp.GROUP_NAME AS EMS_GROUP_NAME,
+		ems.DISPLAY_NAME AS EMS_NAME,
+		subnet.DISPLAY_NAME AS SUBNET_NAME,
+		ne.DISPLAY_NAME AS NE_NAME,
+		unit.BASE_UNIT_ID AS BASE_UNIT_ID,
+		unit.SLOT_NO AS SLOT_NO,
+		unit.DISPLAY_NAME AS UNIT_NAME,
+		unit.INSTALLED_EQUIP_OBJ_TYPE AS
+		UNIT_MODEL,
+		CONCAT(unit.DISPLAY_NAME , " " , ui.BUSINESS_PORT_NUM , "/"
+		, ui.WAVE_PORT_NUM) AS UNIT_INFO_WAVE,
+		CONCAT(unit.DISPLAY_NAME , " " , ui.PROTECT_GROUP_COUNT) AS UNIT_INFO_SWITCH
+		FROM
+		t_resource_unit_interface ui
+		LEFT JOIN
+		t_base_UNIT unit
+		ON (
+		ui.BASE_UNIT_ID = unit.BASE_UNIT_ID
+		AND ui.IS_DEL != 1
+		AND unit.IS_DEL
+		!= 1
+		)
+		LEFT JOIN
+		t_base_ems_connection ems
+		ON (
+		ems.BASE_EMS_CONNECTION_ID = unit.BASE_EMS_CONNECTION_ID
+		AND
+		ems.IS_DEL != 1
+		)
+		LEFT JOIN
+		t_base_ne ne
+		ON (
+		unit.BASE_NE_ID = ne.BASE_NE_ID
+		AND ne.IS_DEL
+		!= 1
+		)
+		LEFT JOIN
+		t_base_subnet subnet
+		ON (
+		ne.BASE_SUBNET_ID = subnet.BASE_SUBNET_ID
+		AND subnet.IS_DEL != 1
+		)
+		LEFT JOIN
+		t_base_ems_group grp
+		ON(
+		ems.BASE_EMS_GROUP_ID = grp.BASE_EMS_GROUP_ID
+		AND grp.IS_DEL != 1
+		)
+		where
+		ne.BASE_NE_ID
+		IN
+		<foreach collection="neList" item="neId" open="(" close=")"
+			separator=",">
+			#{neId}
+		</foreach>
+		<if test="paramMap.UNIT_TYPE &gt; 0">
+			and
+			ui.UNIT_TYPE = #{paramMap.UNIT_TYPE}
+		</if>
+	</sql>
+	<select id="searchUnitInterfaceByNeList" resultType="hashmap">
+		<include refid="searchUnitInterfaceByNeListSql" />
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if>
+	</select>
+	<select id="searchUnitInterfaceByNeListCount" resultType="int">
+		select count(1) from (
+		<include refid="searchUnitInterfaceByNeListSql" />
+		) t
+	</select>
+	<update id="relateOpticalStandardValue">
+		update
+		t_base_ptp
+		<set>
+			OPT_STD_ID = ${paramMap.optStdId}
+		</set>
+		where
+		BASE_PTP_ID in (${paramMap.ptpIds})
+	</update>
+
+	<update id="deleteUnitInterface">
+		update
+		t_resource_unit_interface
+		<set>
+			IS_DEL = 1
+		</set>
+		where
+		BASE_UNIT_ID in (${paramMap.unitIdToDel})
+	</update>
+	<update id="clearUnitInterfaceInfo">
+		update
+		t_resource_unit_interface_rel_ptp ptp,
+		t_resource_unit_interface ui
+		<set>
+			ptp.IS_DEL = 1
+		</set>
+		<where>
+			ui.RESOURCE_UNIT_INTERFACE_ID = ptp.RESOURCE_UNIT_INTERFACE_ID
+			and ui.BASE_UNIT_ID in (${paramMap.unitIdToDel})
+		</where>
+	</update>
+	<delete id="delUnitInterfacePtp">
+		delete
+		from
+		t_resource_unit_interface_rel_ptp
+		<where>
+			RESOURCE_UNIT_INTERFACE_ID = ${paramMap.RESOURCE_UNIT_INTERFACE_ID}
+		</where>
+	</delete>
+	<update id="updateUnitInterface">
+		update
+		t_resource_unit_interface
+		<set>
+			`BUSINESS_PORT_NUM`=#{paramMap.BUSINESS_PORT_NUM},
+			`WAVE_PORT_NUM`=#{paramMap.WAVE_PORT_NUM},
+			`UPDATE_TIME`=CURRENT_TIMESTAMP()
+		</set>
+		where
+		RESOURCE_UNIT_INTERFACE_ID = #{paramMap.UNIT_INTERFACE_ID}
+	</update>
+	<select id="selectIn" resultType="hashmap">
+		SELECT
+		*
+		FROM
+		${TABLE_NAME} tab
+		<where>
+			tab.${KEY} in
+			<foreach collection="neList" item="neId" open="(" close=")"
+				separator=",">
+				#{neId}
+			</foreach>
+		</where>
+	</select>
+	<select id="selectEq" resultType="hashmap">
+		SELECT
+		*
+		FROM
+		${TABLE_NAME} tab
+		<where>
+			tab.${KEY} = ${VALUE}
+		</where>
+	</select>
+	<select id="getWaveDirInfo" resultType="hashmap">
+		SELECT
+		ne.PRODUCT_NAME
+		, ne.DISPLAY_NAME
+		, wave.UNIT
+		, wave.DIRECTION
+		, wave.STATION
+		, wave.NET_WORK_NAME
+		, wave.STD_WAVE_NUM
+		, wave.ACTUAL_WAVE_NUM
+		, wave.RESOURCE_WAVE_DIR_ID
+		FROM
+		t_base_ne ne
+		INNER JOIN t_resource_wave_dir wave
+		ON (ne.BASE_NE_ID = wave.BASE_NE_ID)
+		WHERE (wave.RESOURCE_WAVE_DIR_ID =
+		${waveId});
+	</select>
+	<select id="searchWaveTransOUT_BasePtp" resultType="hashmap">
+		SELECT
+		ems.FACTORY,
+		ptp.DIRECTION,
+		unit.DISPLAY_NAME as MODEL,
+		unit.PROTECT_MODE,
+		unit.WAVE_LENGTH,
+		unit.UNIT_DESC as SLOT,
+		unit.WAVE_LENGTH as WAVE_LENGTH,
+		unit.BASE_UNIT_ID,
+		ui.BUSINESS_PORT_NUM,
+		ui.WAVE_PORT_NUM,
+		ptp.BASE_PTP_ID,
+		ptp.DISPLAY_NAME as PORT_NO,
+		rPtp.PTP_TYPE,
+		op.MAX_IN,
+		op.MIN_IN
+		FROM
+		t_base_unit unit
+		LEFT JOIN t_resource_unit_interface ui
+		ON (unit.BASE_UNIT_ID = ui.BASE_UNIT_ID and ui.IS_DEL = 0)
+		LEFT JOIN t_resource_unit_interface_rel_ptp rPtp
+		ON (rPtp.RESOURCE_UNIT_INTERFACE_ID = ui.RESOURCE_UNIT_INTERFACE_ID and
+		rPtp.IS_DEL = 0)
+		LEFT JOIN t_base_ptp ptp
+		ON (rPtp.BASE_PTP_ID = ptp.BASE_PTP_ID)
+		LEFT JOIN t_pm_std_opt_port op
+		ON (ptp.OPT_STD_ID = op.PM_STD_OPT_PORT_ID)
+		LEFT JOIN t_base_ems_connection ems
+		ON (ptp.base_ems_connection_id = ems.base_ems_connection_id)
+		<where>
+			unit.RESOURCE_WAVE_DIR_ID = ${waveId}
+		</where>
+		order by unit.INDEX_IN_DIR,rPtp.RESOURCE_UNIT_INTERFACE_REL_PTP_ID
+	</select>
+	<select id="searchWaveTransOUT_PM" resultType="hashmap">
+		SELECT
+		pm.PM_STD_INDEX,
+		pm.PM_VALUE,
+		pm.PM_DESCRIPTION,
+		pm.BASE_PTP_ID,
+		date_format(pm.RETRIEVAL_TIME,'%Y%m%d') as RTRV_TIME
+		FROM
+		${paramMap.TABLE_NAME} pm
+		<where>
+			pm.BASE_PTP_ID in
+			<foreach collection="ptpList" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				pm.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.start}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.end}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and pm.EXCEPTION_LV != 0
+				and pm.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			<if test="paramMap.wdmPm!=null and paramMap.wdmPm!=''">
+				and
+				pm.PM_STD_INDEX in (${paramMap.wdmPm} )
+			</if>
+			<if test="paramMap.wdmTpOther==1">
+				<if test="paramMap.wdmTp!=''and paramMap.wdmTp!=null">
+					AND pm.PTP_TYPE not IN (${paramMap.wdmTp})
+				</if>
+			</if>
+			<if test="paramMap.wdmTpOther==0">
+				<if test="paramMap.wdmTp!=''and paramMap.wdmTp!=null">
+					AND pm.PTP_TYPE IN (${paramMap.wdmTp})
+				</if>
+				<if test="paramMap.wdmTp==''">
+					AND pm.PTP_TYPE IS NULL
+				</if>
+			</if>
+			and pm.LOCATION in
+			(
+			${paramMap.nendRx},${paramMap.nendTx}
+			)
+		</where>
+		ORDER BY pm.BASE_PTP_ID ASC;
+	</select>
+    <insert id="saveOptSwitch" keyProperty="idMap.newId">
+        INSERT INTO
+        `t_resource_unit_interface`
+        (
+        `BASE_UNIT_ID`,
+        `DISPLAY_NAME`,
+        `UNIT_TYPE`,
+        `PROTECT_GROUP_COUNT`,
+        `IS_DEL`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`)
+        VALUES
+        (
+        #{paramMap.BASE_UNIT_ID},
+        #{paramMap.DISPLAY_NAME},
+        #{paramMap.UNIT_TYPE},
+        #{paramMap.PROTECT_GROUP_COUNT},
+        0,
+        CURRENT_TIMESTAMP(),
+        CURRENT_TIMESTAMP()
+        )
+    </insert>
+    <insert id="saveOptSwitchPtp" keyProperty="idMap.newId">
+        INSERT INTO
+        `t_resource_unit_interface_rel_ptp`
+        (
+        `RESOURCE_UNIT_INTERFACE_ID`,
+        `BASE_PTP_ID`,
+        `GROUP_NUM`,
+        `PTP_TYPE`,
+        `POWER_BUDGET`,
+        `BUSSINESS_NAME`,
+        `SWITCH_THRESHOLD`,
+        `DIRECTION`,
+        `WAVE_LENGTH`,
+        `IS_DEL`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`)
+        VALUES
+        (
+        #{paramMap.RESOURCE_UNIT_INTERFACE_ID},
+        #{paramMap.BASE_PTP_ID},
+        #{paramMap.GROUP_NUM},
+        #{paramMap.PTP_TYPE},
+        #{paramMap.POWER_BUDGET},
+        #{paramMap.BUSSINESS_NAME},
+        #{paramMap.SWITCH_THRESHOLD},
+        #{paramMap.DIRECTION},
+        #{paramMap.WAVE_LENGTH},
+        0,
+        CURRENT_TIMESTAMP(),
+        CURRENT_TIMESTAMP()
+        )
+    </insert>
+    <select id="getBusinessPtpInfo" resultType="hashmap">
+		select 
+		t.DISPLAY_NAME as PTP_NAME
+		,t.BASE_PTP_ID
+		,u.DISPLAY_NAME as UNIT_NAME
+		,s.DISPLAY_NAME as SLOT_NAME
+		,o.MIN_IN
+		from
+		    t_base_ptp t
+		    join t_base_unit u on u.BASE_UNIT_ID = t.BASE_UNIT_ID
+		    join t_base_slot s on s.BASE_SLOT_ID = t.BASE_SLOT_ID
+		    left join t_pm_std_opt_port o on o.PM_STD_OPT_PORT_ID = t.OPT_STD_ID
+        <where>
+            t.IS_DEL != 1
+            and
+            t.BASE_PTP_ID = #{ptpId}
+        </where>
+    </select>
+    <select id="getSavedBusinessPtpInfo" resultType="hashmap">
+		SELECT
+			ptp.`GROUP_NUM`
+            ,ptp.`WAVE_LENGTH`
+            ,ptp.`BASE_PTP_ID`
+			,opt.`MIN_IN`
+			,tp.`DISPLAY_NAME` AS PTP_NAME
+			,ts.`DISPLAY_NAME` AS SLOT_NAME
+			,tu.`DISPLAY_NAME` AS UNIT_NAME
+		FROM
+			t_resource_unit_interface_rel_ptp ptp
+			LEFT JOIN T_BASE_PTP tp ON tp.BASE_PTP_ID = ptp.BASE_PTP_ID
+			LEFT JOIN T_BASE_SLOT ts ON ts.BASE_SLOT_ID = tp.BASE_SLOT_ID
+			LEFT JOIN T_BASE_UNIT tu ON tu.BASE_UNIT_ID = tp.BASE_UNIT_ID
+	        LEFT JOIN T_PM_STD_OPT_PORT opt ON opt.PM_STD_OPT_PORT_ID = tp.OPT_STD_ID
+        <where>
+            ptp.IS_DEL != 1
+            and
+            ptp.RESOURCE_UNIT_INTERFACE_ID = #{paramMap.unitInterfaceId}
+            and
+            ptp.PTP_TYPE = #{paramMap.ptpType}
+            <if test="paramMap.groupNum!=null">
+                and
+                ptp.GROUP_NUM = #{paramMap.groupNum}
+            </if>
+        </where>
+    </select>
+	<!-- ==============THJ============= -->
+
+
+	<!-- ==============WSS============= -->
+
+	<!-- 获取网元下的板卡 -->
+	<select id="getUnitByNeOrWaveDirId" resultType="hashmap">
+		SELECT
+		rack.DISPLAY_NAME as rack,
+		shelf.DISPLAY_NAME as shelf,
+		slot.DISPLAY_NAME as slot,
+		unit.DISPLAY_NAME as unit,
+		unit.BASE_UNIT_ID as unitId,
+		unit.UNIT_DESC as unitDesc,
+		unit.PROTECT_MODE as proMode,
+		unit.WAVE_LENGTH as waveLength,
+		CONCAT(unit.DISPLAY_NAME," ",ui.PROTECT_GROUP_COUNT) as UNIT_INFO
+		FROM
+		T_BASE_UNIT unit
+		left join
+		T_BASE_RACK rack on unit.BASE_RACK_ID = rack.BASE_RACK_ID and rack.IS_DEL != 1
+		left join
+		T_BASE_SHELF shelf on unit.BASE_SHELF_ID = shelf.BASE_SHELF_ID and shelf.IS_DEL !=
+		1
+		left join
+		T_BASE_SLOT slot on unit.BASE_SLOT_ID = slot.BASE_SLOT_ID and slot.IS_DEL != 1
+		left join
+		t_resource_unit_interface ui on ui.BASE_UNIT_ID = unit.BASE_UNIT_ID
+		<where>
+			unit.IS_DEL != 1
+			<if test="paramMap.neId!=null and paramMap.neId!=''">
+				and
+				unit.BASE_NE_ID = #{paramMap.neId}
+			</if>
+			<choose>
+				<when test="paramMap.waveDirId != null and paramMap.waveDirId != ''">
+					and
+					unit.RESOURCE_WAVE_DIR_ID = #{paramMap.waveDirId}
+				</when>
+				<otherwise>
+					and
+					unit.RESOURCE_WAVE_DIR_ID is null
+				</otherwise>
+			</choose>
+			ORDER BY unit.INDEX_IN_DIR
+		</where>
+	</select>
+
+
+	<insert id="saveWaveDir" keyProperty="idMap.newId">
+		INSERT INTO
+		`t_resource_wave_dir`
+		(
+		`BASE_NE_ID`,
+		`UNIT`,
+		`DIRECTION`,
+		`STATION`,
+		`NET_WORK_NAME`,
+		`STD_WAVE_NUM`,
+		`ACTUAL_WAVE_NUM`,
+		`CREATE_TIME`)
+		VALUES
+		(
+		#{paramMap.neInfo},
+		#{paramMap.unitInfoField},
+		#{paramMap.waveDirInfo},
+		#{paramMap.stationInfo},
+		#{paramMap.networkInfo},
+		#{paramMap.waveCountInfo},
+		#{paramMap.waveCountActInfo},
+		CURRENT_TIMESTAMP()
+		)
+	</insert>
+
+	<select id="isDirNameExist" resultType="int">
+		select
+		count(1)
+		from
+		t_resource_wave_dir
+		where
+		is_del != 1
+		and
+		base_ne_id = #{paramMap.neInfo}
+		and
+		direction = #{paramMap.waveDirInfo}
+		<if test="paramMap.waveDirId != null and paramMap.waveDirId != ''">
+			and RESOURCE_WAVE_DIR_ID != #{paramMap.waveDirId}
+		</if>
+	</select>
+
+	<update id="saveUnitInfo">
+		update
+		T_BASE_UNIT
+		<set>
+			RESOURCE_WAVE_DIR_ID = #{unit.dirId},
+			INDEX_IN_DIR = #{unit.index},
+			PROTECT_MODE =
+			<choose>
+				<when test="unit.proMode!=null and unit.proMode!=''">#{unit.proMode}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			WAVE_LENGTH =
+			<choose>
+				<when test="unit.waveLength!=null and unit.waveLength!=''">#{unit.waveLength}</when>
+				<otherwise>null</otherwise>
+			</choose>
+		</set>
+		<where>
+			BASE_UNIT_ID = #{unit.unitId}
+		</where>
+	</update>
+
+	<sql id="searchWaveDirByNeListSql">
+		select
+		grp.GROUP_NAME as emsGroup,
+		ems.DISPLAY_NAME as ems,
+		subnet.DISPLAY_NAME as subnet,
+		ne.DISPLAY_NAME as ne,
+		ne.BASE_NE_ID as
+		neId,
+		ne.FACTORY as factory,
+		ne.PRODUCT_NAME as neType,
+		dir.NET_WORK_NAME as networkName,
+		dir.UNIT as unit,
+		dir.RESOURCE_WAVE_DIR_ID as waveDirId,
+		dir.DIRECTION as waveDir,
+		dir.STD_WAVE_NUM as stdWaveNum,
+		dir.STATION as station,
+		dir.ACTUAL_WAVE_NUM as actWaveNum
+		from
+		t_resource_wave_dir dir
+		left join
+		t_base_ne ne
+		on (
+		dir.BASE_NE_ID =
+		ne.BASE_NE_ID
+		and dir.IS_DEL != 1
+		and ne.IS_DEL != 1
+		)
+		left join
+		t_base_ems_connection ems
+		ON (
+		ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+		and ems.IS_DEL
+		!= 1
+		)
+		left join
+		t_base_subnet subnet
+		ON (
+		ne.BASE_SUBNET_ID = subnet.BASE_SUBNET_ID
+		and subnet.IS_DEL != 1
+		)
+		left join
+		t_base_ems_group grp
+		on(
+		ems.BASE_EMS_GROUP_ID = grp.BASE_EMS_GROUP_ID
+		and ems.IS_DEL != 1
+		and grp.IS_DEL != 1
+		)
+		where
+		ne.BASE_NE_ID
+		IN
+		<foreach collection="neList" item="neId" open="(" close=")"
+			separator=",">
+			#{neId}
+		</foreach>
+	</sql>
+	<select id="searchWaveDirByNeList" resultType="hashmap">
+		<include refid="searchWaveDirByNeListSql" />
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if>
+	</select>
+	<select id="searchWaveDirByNeListCount" resultType="int">
+		select count(1) from (
+		<include refid="searchWaveDirByNeListSql" />
+		) t
+	</select>
+
+	<update id="updateWaveDir">
+		update
+		t_resource_wave_dir
+		<set>
+			`UNIT`=#{paramMap.unitInfoField},
+			`DIRECTION`=#{paramMap.waveDirInfo},
+			`STATION`=#{paramMap.stationInfo},
+			`NET_WORK_NAME`=#{paramMap.networkInfo},
+			`STD_WAVE_NUM`=#{paramMap.waveCountInfo},
+			`ACTUAL_WAVE_NUM`=#{paramMap.waveCountActInfo},
+			`UPDATE_TIME`=CURRENT_TIMESTAMP()
+		</set>
+		where
+		RESOURCE_WAVE_DIR_ID = #{paramMap.waveDirId}
+	</update>
+
+	<update id="clearUnitDirInfo">
+		update
+		T_BASE_UNIT
+		<set>
+			RESOURCE_WAVE_DIR_ID = null,
+			INDEX_IN_DIR = null,
+			PROTECT_MODE = null,
+			WAVE_LENGTH = null
+		</set>
+		<where>
+			<if test="paramMap.unitIdRemoved != null and paramMap.unitIdRemoved != ''">
+				BASE_UNIT_ID in (${paramMap.unitIdRemoved})
+			</if>
+			<if test="paramMap.waveDirIdDel != null and paramMap.waveDirIdDel != ''">
+				RESOURCE_WAVE_DIR_ID in (${paramMap.waveDirIdDel})
+			</if>
+		</where>
+	</update>
+
+	<update id="deleteWaveDir">
+		update
+		t_resource_wave_dir
+		<set>
+			IS_DEL = 1
+		</set>
+		where
+		RESOURCE_WAVE_DIR_ID in (${paramMap.waveDirIdDel})
+	</update>
+
+	<insert id="saveReportSysTask" keyProperty="idMap.newId">
+		insert into
+		t_sys_task
+		(TASK_NAME,TASK_TYPE,PERIOD_TYPE,CREATE_PERSON,CREATE_TIME)
+		values
+		(
+		#{paramMap.taskName},
+		#{paramMap.taskType},
+		#{paramMap.period},
+		#{sysUserId},
+		now()
+		)
+	</insert>
+
+
+	<insert id="saveReportSysTaskInfo">
+		insert into
+		t_sys_task_info
+		(SYS_TASK_ID,TARGET_ID)
+		values
+		<foreach collection="targetList" item="target" open="(" close=")"
+			separator="),(">
+			#{idMap.newId},
+			#{target.targetId}
+		</foreach>
+	</insert>
+
+	<insert id="saveReportTaskParam">
+		insert into
+		t_pm_report_task_param
+		(
+		SYS_TASK_ID,
+		SDH_PM,
+		SDH_TP,
+		SDH_TP_OTHER,
+		WDM_PM,
+		WDM_TP,
+		WDM_TP_OTHER,
+		DATA_SRC,
+		NEED_EXPORT,
+		CONTINUE_ABNORMAL,
+		PRIVILEGE,
+		HOUR_AFTER,
+		DELAY,
+		SDH_PHY_CHECKED_STATUS,
+		SDH_NUM_CHECKED_STATUS,
+		SDH_TP_CHECKED_STATUS,
+		WDM_PHY_CHECKED_STATUS,
+		WDM_NUM_CHECKED_SATUS,
+		WDM_TP_CHECKED_STATUS,
+		SDH_MAXMIN,
+		WDM_MAXMIN
+		)
+		values
+		(
+		#{idMap.newId},
+		<choose>
+			<when test="paramMap.SdhPm!=null and paramMap.SdhPm!=''">#{paramMap.SdhPm}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.SdhTp!=null and paramMap.SdhTp!=''">#{paramMap.SdhTp}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.otherSDHTP!=null and paramMap.otherSDHTP!=''">#{paramMap.otherSDHTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.WdmPm!=null and paramMap.WdmPm!=''">#{paramMap.WdmPm}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.WdmTp!=null and paramMap.WdmTp!=''">#{paramMap.WdmTp}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.otherWDMTP!=null and paramMap.otherWDMTP!=''">#{paramMap.otherWDMTP}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.dataSrc!=null and paramMap.dataSrc!=''">#{paramMap.dataSrc}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.needExport!=null and paramMap.needExport!=''">#{paramMap.needExport}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when
+				test="paramMap.continueAbnormal!=null and paramMap.continueAbnormal!=''">#{paramMap.continueAbnormal}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.privilege!=null and paramMap.privilege!=''">#{paramMap.privilege}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.hour!=null and paramMap.hour!=''">#{paramMap.hour}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.delay!=null and paramMap.delay!=''">#{paramMap.delay}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when
+				test="paramMap.SDHPhyCheckedStatus!=null and paramMap.SDHPhyCheckedStatus!=''">#{paramMap.SDHPhyCheckedStatus}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when
+				test="paramMap.SDHNumCheckedStatus!=null and paramMap.SDHNumCheckedStatus!=''">#{paramMap.SDHNumCheckedStatus}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when
+				test="paramMap.SDHTpCheckedStatus!=null and paramMap.SDHTpCheckedStatus!=''">#{paramMap.SDHTpCheckedStatus}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when
+				test="paramMap.WDMPhyCheckedStatus!=null and paramMap.WDMPhyCheckedStatus!=''">#{paramMap.WDMPhyCheckedStatus}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when
+				test="paramMap.WDMNumCheckedStatus!=null and paramMap.WDMNumCheckedStatus!=''">#{paramMap.WDMNumCheckedStatus}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when
+				test="paramMap.WDMTpCheckedStatus!=null and paramMap.WDMTpCheckedStatus!=''">#{paramMap.WDMTpCheckedStatus}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.SDHMaxMin!=null and paramMap.SDHMaxMin!=''">#{paramMap.SDHMaxMin}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="paramMap.WDMMaxMin!=null and paramMap.WDMMaxMin!=''">#{paramMap.WDMMaxMin}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		)
+	</insert>
+
+
+	<select id="getTaskNameComboValue" resultType="hashmap">
+		SELECT
+		t1.SYS_TASK_ID as taskId,
+		t1.TASK_NAME as taskName,
+		t1.TASK_TYPE
+		as taskType
+		FROM
+		t_sys_task
+		t1
+		left join
+		t_pm_report_task_param
+		t2
+		on
+		t1.SYS_TASK_ID=t2.SYS_TASK_ID
+		<where>
+			t1.IS_DEL!=1
+			<if test="paramMap!=null">
+				<choose>
+					<when test="paramMap.taskType!=null and paramMap.taskType!=0">
+						and t1.TASK_TYPE = #{paramMap.taskType}
+					</when>
+					<otherwise>
+						and t1.TASK_TYPE in (${paramMap.allNxTaskType})
+					</otherwise>
+				</choose>
+				<if test="paramMap.creator!=null and paramMap.creator!=0">
+					and t1.CREATE_PERSON = #{paramMap.creator}
+				</if>
+				<if test="paramMap.period!=null and paramMap.period!=9">
+					and
+					t1.PERIOD_TYPE = #{paramMap.period}
+				</if>
+				<if test="paramMap.dataSrc!=null and paramMap.dataSrc!=9">
+					and t2.DATA_SRC = #{paramMap.dataSrc}
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<select id="getTaskNameComboValuePrivilege" resultType="hashmap">
+		SELECT
+		t1.SYS_TASK_ID as taskId,
+		t1.TASK_NAME as taskName,
+		t1.TASK_TYPE
+		as taskType,
+		t2.DATA_SRC as dataSrc,
+		t1.PERIOD_TYPE as period
+		FROM
+		t_sys_task
+		t1
+		left join
+		t_pm_report_task_param
+		t2
+		on
+		t1.SYS_TASK_ID=t2.SYS_TASK_ID
+		<where>
+			t1.IS_DEL!=#{Define.TRUE}
+			<if test="userId!=-1">
+				and
+				(
+				t1.CREATE_PERSON = #{userId}
+				<if test="userGrps!=null and userGrps.size()>0">
+					or
+					<foreach collection="userGrps" item="grp" open="(" close=")"
+						separator="or">
+						find_in_set(#{grp.userGrpId},t2.PRIVILEGE)
+					</foreach>
+				</if>
+				)
+			</if>
+			<if test="paramMap!=null">
+				<choose>
+					<when test="paramMap.taskType!=null and paramMap.taskType!=0">
+						and t1.TASK_TYPE = #{paramMap.taskType}
+					</when>
+					<otherwise>
+						and t1.TASK_TYPE in (${paramMap.allNxTaskType})
+					</otherwise>
+				</choose>
+				<if test="paramMap.creator!=null and paramMap.creator!=0">
+					and t1.CREATE_PERSON = #{paramMap.creator}
+				</if>
+				<if test="paramMap.period!=null and paramMap.period!=9">
+					and
+					t1.PERIOD_TYPE = #{paramMap.period}
+				</if>
+				<if test="paramMap.dataSrc!=null and paramMap.dataSrc!=9">
+					and t2.DATA_SRC = #{paramMap.dataSrc}
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<sql id="searchReportTaskSql">
+		SELECT
+		t1.SYS_TASK_ID as taskId,
+		t1.TASK_NAME as taskName,
+		t1.TASK_TYPE
+		as taskType,
+		t1.PERIOD_TYPE as reportType,
+		t2.NEED_EXPORT as doExport,
+		date_format(t1.CREATE_TIME,'%Y-%m-%d') as creatTime,
+		t1.CREATE_PERSON
+		as creatorId,
+		t3.USER_NAME as creator,
+		t2.DATA_SRC as dataSource
+		FROM
+		t_sys_task t1
+		left join
+		t_pm_report_task_param t2
+		on
+		t1.SYS_TASK_ID=t2.SYS_TASK_ID
+		left join
+		t_sys_user t3
+		on
+		t1.CREATE_PERSON
+		= t3.SYS_USER_ID
+		<where>
+			t1.IS_DEL!=1
+			<if test="paramMap!=null">
+				<choose>
+					<when test="paramMap.taskType!=null and paramMap.taskType!=0">
+						and t1.TASK_TYPE = #{paramMap.taskType}
+					</when>
+					<otherwise>
+						and t1.TASK_TYPE in (${paramMap.allNxTaskType})
+					</otherwise>
+				</choose>
+				<if
+					test="paramMap.creator!=null and paramMap.creator!=0 and paramMap.creator!=''">
+					and t1.CREATE_PERSON = #{paramMap.creator}
+				</if>
+				<if
+					test="paramMap.period!=null and paramMap.period!=9 and paramMap.period!=''">
+					and
+					t1.PERIOD_TYPE = #{paramMap.period}
+				</if>
+				<if
+					test="paramMap.dataSrc!=null and paramMap.dataSrc!=9 and paramMap.dataSrc!='' ">
+					and t2.DATA_SRC = #{paramMap.dataSrc}
+				</if>
+				<if
+					test="paramMap.taskId!=null and paramMap.taskId!=0 and paramMap.taskId!=''">
+					and t1.SYS_TASK_ID = #{paramMap.taskId}
+				</if>
+			</if>
+			<if test="paramMap.userId!=-1">
+				<if
+					test="paramMap==null or paramMap.creator==null or paramMap.creator==0">
+					and (
+					t1.CREATE_PERSON = #{paramMap.userId} or
+					t1.CREATE_PERSON
+					in
+					(
+					select
+					user.SYS_USER_ID
+					from
+					t_sys_user
+					user
+					right join
+					t_sys_user_ref_group ref
+					ON
+					user.SYS_USER_ID =
+					ref.SYS_USER_ID
+					where
+					user.IS_DEL != 1
+					and
+					ref.SYS_USER_GROUP_ID in (select
+					t.SYS_USER_GROUP_ID
+					from
+					t_sys_user_ref_group t
+					where
+					t.SYS_USER_ID = #{paramMap.userId})
+					)
+					)
+				</if>
+			</if>
+		</where>
+	</sql>
+
+	<select id="searchReportTask" resultType="hashmap">
+		<include refid="searchReportTaskSql"></include>
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if>
+	</select>
+
+	<select id="searchReportTaskCount" resultType="int">
+		select count(1)
+		from
+		(
+		<include refid="searchReportTaskSql"></include>
+		) t
+	</select>
+
+	<select id="searchTaskInfoForEdit" resultType="hashmap">
+		select
+		task.TASK_NAME as taskName,
+		task.PERIOD_TYPE as period,
+		task.CREATE_PERSON as creator,
+		task.TASK_TYPE as taskType,
+		param.PRIVILEGE as privilege,
+		param.NEED_EXPORT as needExport,
+		param.CONTINUE_ABNORMAL as continueAbnormal,
+		param.DATA_SRC as dataSrc,
+		param.DELAY as delay,
+		param.HOUR_AFTER as hour,
+		param.SDH_PM as sdhPm,
+		param.SDH_TP as sdhTp,
+		param.SDH_TP_OTHER as sdhTpOther,
+		param.WDM_PM as
+		wdmPm,
+		param.WDM_TP as wdmTp,
+		param.WDM_TP_OTHER as wdmTpOther,
+		param.SDH_PHY_CHECKED_STATUS as SDHPhyCheckedStatus,
+		param.SDH_NUM_CHECKED_STATUS as SDHNumCheckedStatus,
+		param.SDH_TP_CHECKED_STATUS as SDHTpCheckedStatus,
+		param.WDM_PHY_CHECKED_STATUS as WDMPhyCheckedStatus,
+		param.WDM_NUM_CHECKED_SATUS as WDMNumCheckedStatus,
+		param.WDM_TP_CHECKED_STATUS as WDMTpCheckedStatus,
+		param.SDH_MAXMIN as
+		SDHMaxMin,
+		param.WDM_MAXMIN as WDMMaxMin
+		from
+		t_sys_task task
+		left join
+		t_pm_report_task_param param
+		on
+		task.SYS_TASK_ID = param.SYS_TASK_ID
+		where
+		task.SYS_TASK_ID = #{paramMap.taskId}
+	</select>
+
+	<select id="searchWaveDirById" resultType="hashmap">
+		select
+		grp.GROUP_NAME as emsGroup,
+		ems.DISPLAY_NAME as ems,
+		subnet.DISPLAY_NAME as subnet,
+		ne.DISPLAY_NAME as ne,
+		ne.BASE_NE_ID as
+		neId,
+		ne.FACTORY as factory,
+		ne.PRODUCT_NAME as neType,
+		dir.NET_WORK_NAME as networkName,
+		dir.UNIT as unit,
+		dir.RESOURCE_WAVE_DIR_ID as waveDirId,
+		dir.DIRECTION as waveDir,
+		dir.STD_WAVE_NUM as stdWaveNum,
+		dir.STATION as station,
+		dir.ACTUAL_WAVE_NUM as actWaveNum
+		from
+		t_resource_wave_dir dir
+		left join
+		t_base_ne ne
+		on (
+		dir.BASE_NE_ID =
+		ne.BASE_NE_ID
+		and dir.IS_DEL != 1
+		and ne.IS_DEL != 1
+		)
+		left join
+		t_base_ems_connection ems
+		ON (
+		ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+		and ems.IS_DEL
+		!= 1
+		)
+		left join
+		t_base_subnet subnet
+		ON (
+		ne.BASE_SUBNET_ID = subnet.BASE_SUBNET_ID
+		and subnet.IS_DEL != 1
+		)
+		left join
+		t_base_ems_group grp
+		on(
+		ems.BASE_EMS_GROUP_ID = grp.BASE_EMS_GROUP_ID
+		and ems.IS_DEL != 1
+		and grp.IS_DEL != 1
+		)
+		where
+		dir.RESOURCE_WAVE_DIR_ID
+		IN
+		<foreach collection="nodeList" item="node" open="(" close=")"
+			separator=",">
+			#{node.nodeId}
+		</foreach>
+	</select>
+
+
+
+	<update id="updateReportTaskParam">
+		update
+		t_pm_report_task_param
+		<set>
+			<choose>
+				<when test="paramMap.SdhPm!=null and paramMap.SdhPm!=''">SDH_PM=#{paramMap.SdhPm}</when>
+				<otherwise>SDH_PM=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.SdhTp!=null and paramMap.SdhTp!=''">SDH_TP=#{paramMap.SdhTp}</when>
+				<otherwise>SDH_TP=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.otherSDHTP!=null and paramMap.otherSDHTP!=''">SDH_TP_OTHER=#{paramMap.otherSDHTP}</when>
+				<otherwise>SDH_TP_OTHER=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.WdmPm!=null and paramMap.WdmPm!=''">WDM_PM=#{paramMap.WdmPm}</when>
+				<otherwise>WDM_PM=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.WdmTp!=null and paramMap.WdmTp!=''">WDM_TP=#{paramMap.WdmTp}</when>
+				<otherwise>WDM_TP=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.otherWDMTP!=null and paramMap.otherWDMTP!=''">WDM_TP_OTHER=#{paramMap.otherWDMTP}</when>
+				<otherwise>WDM_TP_OTHER=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.dataSrc!=null and paramMap.dataSrc!=''">DATA_SRC=#{paramMap.dataSrc}</when>
+				<otherwise>DATA_SRC=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.needExport!=null and paramMap.needExport!=''">NEED_EXPORT=#{paramMap.needExport}</when>
+				<otherwise>NEED_EXPORT=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when
+					test="paramMap.continueAbnormal!=null and paramMap.continueAbnormal!=''">CONTINUE_ABNORMAL=#{paramMap.continueAbnormal}</when>
+				<otherwise>CONTINUE_ABNORMAL=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.privilege!=null and paramMap.privilege!=''">PRIVILEGE=#{paramMap.privilege}</when>
+				<otherwise>PRIVILEGE=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.hour!=null and paramMap.hour!=''">HOUR_AFTER=#{paramMap.hour}</when>
+				<otherwise>HOUR_AFTER=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.delay!=null and paramMap.delay!=''">DELAY=#{paramMap.delay}</when>
+				<otherwise>DELAY=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when
+					test="paramMap.SDHPhyCheckedStatus!=null and paramMap.SDHPhyCheckedStatus!=''">SDH_PHY_CHECKED_STATUS=#{paramMap.SDHPhyCheckedStatus}</when>
+				<otherwise>SDH_PHY_CHECKED_STATUS=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when
+					test="paramMap.SDHNumCheckedStatus!=null and paramMap.SDHNumCheckedStatus!=''">SDH_NUM_CHECKED_STATUS=#{paramMap.SDHNumCheckedStatus}</when>
+				<otherwise>SDH_NUM_CHECKED_STATUS=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when
+					test="paramMap.SDHTpCheckedStatus!=null and paramMap.SDHTpCheckedStatus!=''">SDH_TP_CHECKED_STATUS=#{paramMap.SDHTpCheckedStatus}</when>
+				<otherwise>SDH_TP_CHECKED_STATUS=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when
+					test="paramMap.WDMPhyCheckedStatus!=null and paramMap.WDMPhyCheckedStatus!=''">WDM_PHY_CHECKED_STATUS=#{paramMap.WDMPhyCheckedStatus}</when>
+				<otherwise>WDM_PHY_CHECKED_STATUS=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when
+					test="paramMap.WDMNumCheckedStatus!=null and paramMap.WDMNumCheckedStatus!=''">WDM_NUM_CHECKED_SATUS=#{paramMap.WDMNumCheckedStatus}</when>
+				<otherwise>WDM_NUM_CHECKED_SATUS=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when
+					test="paramMap.WDMTpCheckedStatus!=null and paramMap.WDMTpCheckedStatus!=''">WDM_TP_CHECKED_STATUS=#{paramMap.WDMTpCheckedStatus}</when>
+				<otherwise>WDM_TP_CHECKED_STATUS=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.SDHMaxMin!=null and paramMap.SDHMaxMin!=''">SDH_MAXMIN=#{paramMap.SDHMaxMin}</when>
+				<otherwise>SDH_MAXMIN=null</otherwise>
+			</choose>
+			,
+			<choose>
+				<when test="paramMap.WDMMaxMin!=null and paramMap.WDMMaxMin!=''">WDM_MAXMIN=#{paramMap.WDMMaxMin}</when>
+				<otherwise>WDM_MAXMIN=null</otherwise>
+			</choose>
+		</set>
+		where
+		SYS_TASK_ID = #{paramMap.taskId}
+	</update>
+
+	<update id="setIsDelFalseUnitManage">
+		update `t_resource_unit_manage`
+		<set>
+			IS_DEL = 0
+		</set>
+		<where>
+			RESOURCE_UNIT_MANAGE_ID in
+			<foreach collection="targetList" item="tar" open="(" close=")"
+				separator=",">
+				${tar.targetId}
+			</foreach>
+		</where>
+
+	</update>
+	<update id="setIsDelFalseUnitManageRel">
+		update `t_resource_unit_manage_rel_unit`
+		<set>
+			IS_DEL = 0
+		</set>
+		<where>
+			RESOURCE_UNIT_MANAGE_ID in
+			<foreach collection="targetList" item="tar" open="(" close=")"
+				separator=",">
+				${tar.targetId}
+			</foreach>
+		</where>
+	</update>
+
+
+
+	<select id="getEmsNodeInfo" resultType="hashmap">
+		select
+		t1.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		t2.GROUP_NAME as
+		EMSGROUP_DISPLAY_NAME,
+		t1.BASE_EMS_CONNECTION_ID as
+		BASE_EMS_CONNECTION_ID
+		from
+		t_base_ems_connection t1
+		left join
+		t_base_ems_group t2
+		on(
+		t1.BASE_EMS_GROUP_ID = t2.BASE_EMS_GROUP_ID
+		and
+		t1.IS_DEL != 1
+		and
+		t2.IS_DEL != 1
+		)
+		<where>
+			<if test="conditionMap.NODE_EMS!=null and conditionMap.NODE_EMS!=''">
+				t1.BASE_EMS_CONNECTION_ID in (${conditionMap.NODE_EMS})
+			</if>
+		</where>
+	</select>
+
+	<select id="getSubnetNodeInfo" resultType="hashmap">
+		select
+		ems.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		grp.GROUP_NAME as
+		EMSGROUP_DISPLAY_NAME,
+		subnet.DISPLAY_NAME as SUBNET_DISPLAY_NAME,
+		ems.BASE_EMS_CONNECTION_ID as BASE_EMS_CONNECTION_ID,
+		subnet.BASE_SUBNET_ID as BASE_SUBNET_ID
+		from
+		t_base_ems_connection ems
+		right join
+		t_base_subnet subnet
+		on(
+		ems.BASE_EMS_CONNECTION_ID =
+		subnet.BASE_EMS_CONNECTION_ID
+		and
+		subnet.IS_DEL != 1
+		and
+		ems.IS_DEL != 1
+		)
+		left join
+		t_base_ems_group grp
+		on(
+		ems.BASE_EMS_GROUP_ID = grp.BASE_EMS_GROUP_ID
+		and
+		ems.IS_DEL != 1
+		and
+		grp.IS_DEL != 1
+		)
+		<where>
+			<if test="conditionMap.NODE_SUBNET!=null and conditionMap.NODE_SUBNET!=''">
+				subnet.BASE_SUBNET_ID in
+				(${conditionMap.NODE_SUBNET})
+			</if>
+		</where>
+	</select>
+
+	<select id="getNeNodeInfo" resultType="hashmap">
+		select
+		ems.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		grp.GROUP_NAME as
+		EMSGROUP_DISPLAY_NAME,
+		subnet.DISPLAY_NAME as SUBNET_DISPLAY_NAME,
+		ne.DISPLAY_NAME as NE_DISPLAY_NAME,
+		ems.BASE_EMS_CONNECTION_ID,
+		subnet.BASE_SUBNET_ID,
+		ne.BASE_NE_ID,
+		ne.PRODUCT_NAME,
+		ne.FACTORY
+		from
+		t_base_ne ne
+		left join
+		t_base_ems_connection ems
+		ON (
+		ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+		and ems.IS_DEL
+		!= 1
+		and ne.IS_DEL != 1)
+		left join
+		t_base_subnet
+		subnet ON (
+		ne.BASE_SUBNET_ID
+		= subnet.BASE_SUBNET_ID
+		and ne.IS_DEL !=
+		1
+		and
+		subnet.IS_DEL !=1)
+		left join
+		t_base_ems_group grp
+		on(
+		ems.BASE_EMS_GROUP_ID = grp.BASE_EMS_GROUP_ID
+		and
+		ems.IS_DEL != 1
+		and
+		grp.IS_DEL != 1
+		)
+		<where>
+			<if test="conditionMap.NODE_NE!=null and conditionMap.NODE_NE!=''">
+				ne.BASE_NE_ID in (${conditionMap.NODE_NE})
+			</if>
+		</where>
+	</select>
+	<select id="getTaskTargetIdList" resultType = "int">
+		select
+		TARGET_ID
+		from
+		t_sys_task_info
+		where
+		SYS_TASK_ID = ${taskId}
+	</select>
+	
+	
+	
+	<delete id="deleteRecordByKey">
+		delete from
+		${tableName}
+		where
+		${keyName} in 
+		<foreach collection="keyList" item="key" open="(" close=")" separator=",">
+		${key}
+		</foreach>
+	</delete>
+	
+	
+	<select id="getCreatorComboValuePrivilege" resultType="hashmap">
+	select
+	user.SYS_USER_ID as userId,
+	user.USER_NAME as userName
+	from
+	t_sys_user user
+	where
+	user.IS_DEL != #{Define.TRUE}
+	AND
+	exists
+	(
+		select distinct
+		info.CREATOR
+		from
+		t_pm_report_info info
+		where
+		user.sys_user_id = info.CREATOR
+		and
+		info.TASK_TYPE in (${Define.NX_ALL_TASKTYPE})
+		<if test="userGrps!=null and userGrps.size()>0">
+		and
+			<foreach collection="userGrps" item="grp" open="(" close=")" separator="or">
+		find_in_set(#{grp.userGrpId},info.PRIVILEGE)
+		</foreach>
+		</if>
+
+	)
+	</select>
+	
+	<select id="getPtpIdsWithEmsId" resultType="hashmap">
+	select  
+	BASE_EMS_CONNECTION_ID as emdId,
+	BASE_PTP_ID as ptpId
+	from
+	T_BASE_PTP
+	<where>
+		BASE_PTP_ID
+		in
+		<foreach collection="ptpList" item="id" open="(" close=")" separator=",">
+		#{id}
+		</foreach>
+	</where>
+	order by BASE_NE_ID,BASE_PTP_ID
+	</select>
+	
+	<select id ="getOptStdDataForPTN_IPRAN" resultType="hashmap">
+	SELECT
+	opt.MAX_IN,
+	opt.MIN_IN,
+	ptp.BASE_PTP_ID,
+	ne.DISPLAY_NAME as DISPLAY_NE,
+	subnet.DISPLAY_NAME as DISPLAY_SUBNET,
+	ptp.PORT_DESC
+	FROM
+	T_BASE_PTP ptp
+	left join
+	t_pm_std_opt_port opt
+	on (ptp.OPT_STD_ID = opt.PM_STD_OPT_PORT_ID)
+	left join
+	T_BASE_NE ne on (ne.BASE_NE_ID = ptp.BASE_NE_ID)
+	left join
+	T_BASE_SUBNET subnet on (ne.BASE_SUBNET_ID = subnet.BASE_SUBNET_ID)
+	<where>
+		ptp.BASE_PTP_ID
+		in
+		<foreach collection="ptpList" item="id" open="(" close=")" separator=",">
+		#{id}
+		</foreach>
+	</where>
+	order by ptp.BASE_NE_ID,BASE_PTP_ID
+	</select>
+	
+	<select id="getPmDataForPTN_IPRAN" resultType="hashmap">
+		<foreach collection="tableList" item="tableThing" open="(" close=")" separator=")union all(">
+			SELECT
+			BASE_PTP_ID,
+			PM_STD_INDEX,
+			PM_VALUE
+			FROM
+			${tableThing.tableName} 
+			WHERE
+			BASE_PTP_ID in (${tableThing.tableNodes})
+			AND
+			PM_STD_INDEX in (${pmStdIndex})
+			AND
+			DATE(`RETRIEVAL_TIME`) = #{date} 
+			order by BASE_NE_ID,BASE_PTP_ID
+		</foreach>
+	</select>
+	
+	<select id = "getLinkByAEnd" resultType="hashmap">
+	select
+	ap.BASE_PTP_ID as ptpId,
+	ap.PORT_DESC as aEndPtp,
+	an.DISPLAY_NAME as aEndNe,
+	zp.PORT_DESC as zEndPtp,
+	zn.DISPLAY_NAME as zEndNe
+	from
+	t_base_ptp ap
+	left join
+	t_base_link l on (l.A_END_PTP = ap.BASE_PTP_ID)
+	left join 
+	t_base_ptp zp on (l.Z_END_PTP = zp.BASE_PTP_ID)
+	left join
+	t_base_ne an on (ap.BASE_NE_ID = an.BASE_NE_ID)
+	left join 
+	t_base_ne zn on (l.Z_NE_ID = zn.BASE_NE_ID)
+	<where>
+	ap.BASE_PTP_ID in
+	<foreach collection="ptpList" item="ptp" open="(" close=")" separator=",">
+	${ptp}
+	</foreach>
+	</where>
+	</select>
+
+
+	<insert id="savePtnSys" keyProperty="idMap.newId">
+		INSERT INTO
+		`t_resource_ptn_sys`
+		(`sys_name`,
+		`sys_capacity`,
+		`sys_type`,
+		`target_id`,
+		`ems_id`)
+		VALUES
+		(#{paramMap.sysName},
+		#{paramMap.sysCapacity},
+		#{paramMap.sysType},
+		#{paramMap.targetId},
+		#{paramMap.emsId})
+	</insert>
+
+	<insert id="savePtnSysPorts">
+		INSERT INTO 
+		`t_resource_ptn_sys_port`
+		(`t_resource_ptn_sys_id`,`a_end_ptp`,`sequence`)
+		VALUES
+		<foreach collection="ptpList" item="ptpId" open="(" close=")"
+			separator="),(" index = "i">
+			${idMap.newId },${ptpId},${i}
+		</foreach>
+	</insert>
+	
+	<select id="isPtnSysNameExist" resultType="int">
+	select 
+	count(1)
+	from 
+	t_resource_ptn_sys
+	where
+	SYS_NAME = #{paramMap.sysName}
+	</select>
+	
+	<sql id = "getPtnSysListSql">
+	from
+	t_resource_ptn_sys ps
+	left join
+	t_base_ems_connection ems
+	on (ps.EMS_ID = ems.BASE_EMS_CONNECTION_ID)
+	left join
+	t_base_ems_group gp
+	on(ems.BASE_EMS_GROUP_ID = gp.BASE_EMS_GROUP_ID)
+	WHERE
+	true
+	<if test="paramMap.sysType!=null and paramMap.sysType!='' and paramMap.sysType!=-99">
+	and ps.SYS_TYPE = ${paramMap.sysType}
+	</if>
+	<if test="paramMap.emsId!=null and paramMap.emsId!='' and paramMap.emsId!=-99">
+	and ems.BASE_EMS_CONNECTION_ID = ${paramMap.emsId}
+	</if>
+	<if test="paramMap.emsGroupId!=null and paramMap.emsGroupId!='' and paramMap.emsGroupId!=-99">
+	and gp.BASE_EMS_GROUP_ID = ${paramMap.emsGroupId}
+	</if>
+	</sql>
+	
+	<select id="getPtnSysList" resultType="hashmap">
+	select 
+	ps.*,
+	ems.DISPLAY_NAME as EMS_DISPLAY_NAME,
+	gp.GROUP_NAME 
+	<include refid="getPtnSysListSql"/>
+	<if test="targetIdList != null">
+		and ps.t_resource_ptn_sys_id in 
+		<foreach collection="targetIdList" item="targetId" open="(" close=")"
+			separator=",">
+			${targetId}
+		</foreach>
+	</if>
+	<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+	</if>
+	</select>
+	
+	<select id="getPtnSysListCount" resultType="int">
+	select count(1)
+	<include refid="getPtnSysListSql"/>
+	</select>
+	
+	<select id="getLinksBySysId" resultType="hashmap">
+	select  
+	ap.BASE_PTP_ID as ptpId,
+	ap.PORT_DESC as aEndPtp,
+	an.DISPLAY_NAME as aEndNe,
+	zp.PORT_DESC as zEndPtp,
+	zn.DISPLAY_NAME as zEndNe	
+	from 
+	`t_resource_ptn_sys_port` sp
+	left join
+	`t_resource_ptn_sys` s
+	on (sp.T_RESOURCE_PTN_SYS_ID = s.T_RESOURCE_PTN_SYS_ID)
+	left join
+	t_base_link l on (l.A_END_PTP = sp.A_END_PTP)
+	left join 
+	t_base_ptp ap on (l.A_END_PTP = ap.BASE_PTP_ID)
+	left join 
+	t_base_ptp zp on (l.Z_END_PTP = zp.BASE_PTP_ID)
+	left join
+	t_base_ne an on (ap.BASE_NE_ID = an.BASE_NE_ID)
+	left join 
+	t_base_ne zn on (l.Z_NE_ID = zn.BASE_NE_ID)
+	where
+	s.`T_RESOURCE_PTN_SYS_ID` = ${paramMap.sysId}
+	order by sp.sequence
+	</select>
+	
+	<delete id = "deletePtnSys">
+	delete 
+	from t_resource_ptn_sys
+	where
+	 T_RESOURCE_PTN_SYS_ID in (${paramMap.idToDel})
+	</delete>
+	
+	<select id="getDataForPTN_FlowPeak" resultType="hashmap">
+	select 
+	r.`SYS_NAME`,
+    r.`SYS_CAPACITY`,
+    r.`SYS_TYPE_DISPLAY`,
+    r.`CAPACITY_TOP`,
+    r.`CAPACITY_TOP_RATE`,
+    rp.`A_NE_DISPLAY_NAME`,
+    rp.`A_PTP_DISPLAY_NAME`,
+    rp.`Z_NE_DISPLAY_NAME`,
+    rp.`Z_PTP_DISPLAY_NAME`,
+    rp.`A_END_PTP`,
+    rp.`Z_END_PTP`,
+    cast(rp.`MONITORED_DATE` as date) as MONITORED_DATE,
+    cast(rp.`MONITORED_TIME` as time) as MONITORED_TIME,
+    rp.`RECV_SEND_FLAG`,
+    rp.`CAPACITY_TOP` as CAPACITY_TOP_PORT,
+    rp.`SEQUENCE`
+	from 
+	`t_resource_ptn_report_port`  rp
+	left join
+	`t_resource_ptn_report`   r
+	on
+	(rp.T_RESOURCE_PTN_SYS_ID = r.T_RESOURCE_PTN_SYS_ID and rp.MONITORED_DATE = r.MONITORED_DATE)
+	<where>
+	rp.MONITORED_DATE = date_format(#{date}, '%Y%m%d')
+	and
+	rp.T_RESOURCE_PTN_SYS_ID in 
+	<foreach collection="targetIds" item="id" open="(" close=")" separator=",">
+	${id}
+	</foreach>
+	</where>
+	order by rp.T_RESOURCE_PTN_SYS_ID, rp.`SEQUENCE`
+	</select>
+	
+	<select id = "getSysDataForPreview" resultType = "hashmap">
+	select  
+	s.`SYS_NAME`,
+    s.`SYS_CAPACITY`,
+    s.`SYS_TYPE`,
+	ap.PORT_DESC as A_PTP_DISPLAY_NAME,
+	an.DISPLAY_NAME as A_NE_DISPLAY_NAME,
+	zp.PORT_DESC as Z_PTP_DISPLAY_NAME,
+	zn.DISPLAY_NAME as Z_NE_DISPLAY_NAME,
+	sp.A_END_PTP,
+	l.A_END_PTP as A_END_PTP_L,
+	l.Z_END_PTP as Z_END_PTP_L
+	from 
+	`t_resource_ptn_sys_port` sp
+	left join
+	`t_resource_ptn_sys` s
+	on (sp.T_RESOURCE_PTN_SYS_ID = s.T_RESOURCE_PTN_SYS_ID)
+	left join
+	t_base_link l on (l.A_END_PTP = sp.A_END_PTP or l.Z_END_PTP = sp.A_END_PTP)
+	left join 
+	t_base_ptp ap on (l.A_END_PTP = ap.BASE_PTP_ID)
+	left join 
+	t_base_ptp zp on (l.Z_END_PTP = zp.BASE_PTP_ID)
+	left join
+	t_base_ne an on (ap.BASE_NE_ID = an.BASE_NE_ID)
+	left join 
+	t_base_ne zn on (l.Z_NE_ID = zn.BASE_NE_ID)
+	where
+	sp.`T_RESOURCE_PTN_SYS_ID` in 
+	<foreach collection="targetIds" item="id" open="(" close=")" separator=",">
+	${id}
+	</foreach>
+	order by sp.`T_RESOURCE_PTN_SYS_ID`,sp.`SEQUENCE`
+	</select>
+	<!-- ==============WSS============= -->
+	<!-- ===============DHJ============= -->
+	<resultMap type="ResourceUnitManager" id="ResourceUnitResultMap">
+		<discriminator javaType="int" column="MANAGE_TYPE">
+			<case value="1" resultMap="AMPManageResult" />
+			<case value="2" resultMap="SWITCHManageResult" />
+			<case value="3" resultMap="WAVE_JOINManageResult" />
+			<case value="4" resultMap="WAVE_DIVManageResult" />
+		</discriminator>
+	</resultMap>
+	<!-- 光放大器 manage -->
+	<resultMap type="AMPManageView" id="AMPManageResult">
+		<id property="RESOURCE_UNIT_MANAGE_ID" column="RESOURCE_UNIT_MANAGE_ID" />
+		<result property="FACTORY" column="FACTORY" />
+		<result property="DEPARTMENT" column="DEPARTMENT" />
+		<result property="NET_WORK_NAME" column="NET_WORK_NAME" />
+		<result property="TYPE" column="MANAGE_TYPE" />
+		<result property="PRODUCT_NAME" column="PRODUCT_NAME" />
+
+		<result property="DIRECTION" column="DIRECTION" />
+		<result property="BASE_NE_ID" column="BASE_NE_ID" />
+		<result property="STATION" column="STATION" />
+		<result property="EMS_DISPLAY_NAME" column="EMS_DISPLAY_NAME" />
+		<result property="EMSGROUP_DISPLAY_NAME" column="EMSGROUP_DISPLAY_NAME" />
+		<result property="SUBNET_DISPLAY_NAME" column="SUBNET_DISPLAY_NAME" />
+		<result property="NE_DISPLAY_NAME" column="NE_DISPLAY_NAME" />
+		<collection property="units" column="RESOURCE_UNIT_MANAGE_ID"
+			javaType="ArrayList" ofType="AMPUnitView" resultMap="ResourceUnitManageRelUnitMap" />
+	</resultMap>
+	<!-- 光开关manage -->
+	<resultMap type="SWITCHManageView" id="SWITCHManageResult">
+		<id property="RESOURCE_UNIT_MANAGE_ID" column="RESOURCE_UNIT_MANAGE_ID" />
+		<result property="FACTORY" column="FACTORY" />
+		<result property="DEPARTMENT" column="DEPARTMENT" />
+		<result property="NET_WORK_NAME" column="NET_WORK_NAME" />
+		<result property="TYPE" column="MANAGE_TYPE" />
+		<result property="PRODUCT_NAME" column="PRODUCT_NAME" />		
+		<result property="BASE_NE_ID" column="BASE_NE_ID" />
+		<result property="STATION" column="STATION" />
+		<result property="EMS_DISPLAY_NAME" column="EMS_DISPLAY_NAME" />
+		<result property="EMSGROUP_DISPLAY_NAME" column="EMSGROUP_DISPLAY_NAME" />
+		<result property="SUBNET_DISPLAY_NAME" column="SUBNET_DISPLAY_NAME" />
+		<result property="NE_DISPLAY_NAME" column="NE_DISPLAY_NAME" />
+		<collection property="units" column="RESOURCE_UNIT_MANAGE_ID"
+			javaType="ArrayList" ofType="SWITCHUnitView" resultMap="ResourceUnitManageRelUnitMap" />
+	</resultMap>
+	<!-- 合波盘 manage -->
+	<resultMap type="ResourceUnitManager" id="WAVE_JOINManageResult">
+		<id property="RESOURCE_UNIT_MANAGE_ID" column="RESOURCE_UNIT_MANAGE_ID" />
+		<result property="FACTORY" column="FACTORY" />
+		<result property="DEPARTMENT" column="DEPARTMENT" />
+		<result property="NET_WORK_NAME" column="NET_WORK_NAME" />
+		<result property="TYPE" column="MANAGE_TYPE" />
+		<result property="PRODUCT_NAME" column="PRODUCT_NAME" />
+		
+		<result property="STD_WAVE_NUM" column="STD_WAVE_NUM" />
+		<result property="ACTUAL_WAVE_NUM" column="ACTUAL_WAVE_NUM" />
+		<collection property="units" column="RESOURCE_UNIT_MANAGE_ID"
+			javaType="ArrayList" ofType="WAVEJOINUnitView" resultMap="ResourceUnitManageRelUnitMap" />
+	</resultMap>
+	<!-- 分波盘manage -->
+	<resultMap type="ResourceUnitManager" id="WAVE_DIVManageResult">
+		<id property="RESOURCE_UNIT_MANAGE_ID" column="RESOURCE_UNIT_MANAGE_ID" />
+		<result property="FACTORY" column="FACTORY" />
+		<result property="DEPARTMENT" column="DEPARTMENT" />
+		<result property="NET_WORK_NAME" column="NET_WORK_NAME" />
+		<result property="TYPE" column="MANAGE_TYPE" />
+		<result property="PRODUCT_NAME" column="PRODUCT_NAME" />
+		
+		<result property="STD_WAVE_NUM" column="STD_WAVE_NUM" />
+		<result property="ACTUAL_WAVE_NUM" column="ACTUAL_WAVE_NUM" />
+		<collection property="units" column="RESOURCE_UNIT_MANAGE_ID"
+			javaType="ArrayList" ofType="WAVEDIVUnitView" resultMap="ResourceUnitManageRelUnitMap" />
+	</resultMap>
+	<!-- 板卡信息 -->
+	<resultMap type="ResourceUnitManageRelUnit" id="ResourceUnitManageRelUnitMap">
+		<discriminator javaType="int" column="MANAGE_TYPE">
+			<case value="1" resultMap="AMPUnitResult" />
+			<case value="2" resultMap="SWITCHUnitResult" />
+			<case value="3" resultMap="WAVE_JOINUnitResult" />
+			<case value="4" resultMap="WAVE_DIVUnitResult" />
+		</discriminator>
+	</resultMap>
+	<!-- 光放大器 unit -->
+	<resultMap type="AMPUnitView" id="AMPUnitResult">
+		<id property="RESOURCE_UNIT_MANAGE_REL_ID" column="RESOURCE_UNIT_MANAGE_REL_ID" />
+		<result property="BASE_UNIT_ID" column="BASE_UNIT_ID" />
+		<result property="unit" column="UNIT_DISPLAY_NAME" />
+		<result property="unitDesc" column="UNIT_DESC" />
+		<result property="rack" column="RACK_NO" />
+		<result property="shelf" column="SHELF_NO" />
+		<result property="slot" column="SLOT_NO" />
+		<result property="TYPE" column="UNIT_TYPE" />
+		<result property="RESOURCE_UNIT_MANAGE_ID" column="UNIT_RESOURCE_UNIT_MANAGE_ID" />
+
+		<result property="PM_STD_OPT_AMP_ID" column="PM_STD_OPT_AMP_ID" />
+		<result property="DIRECTION_LINK" column="DIRECTION_LINK" />
+		<result property="OPTICAL_LEVEL" column="OPTICAL_LEVEL" />
+		<result property="IN_OUT" column="IN_OUT" />
+		<result property="DIRECTION" column="UNIT_DIRECTION" />
+		<result property="STD_WAVE_NUM" column="STD_WAVE_NUM" />
+		<result property="ACTUAL_WAVE_NUM" column="ACTUAL_WAVE_NUM" />
+		<result property="T_PTP_ID" column="T_PTP_ID" />
+		<result property="R_PTP_ID" column="R_PTP_ID" />
+		<result property="R_PTP_NAME" column="r_PTP_DISPLAY_NAME" />
+		<result property="T_PTP_NAME" column="t_PTP_DISPLAY_NAME" />
+		<result property="modelName" column="MODEL" />
+	</resultMap>
+	<!-- 光开关 unit -->
+	<resultMap type="SWITCHUnitView" id="SWITCHUnitResult">
+		<id property="RESOURCE_UNIT_MANAGE_REL_ID" column="RESOURCE_UNIT_MANAGE_REL_ID" />
+		<result property="BASE_UNIT_ID" column="BASE_UNIT_ID" />
+		<result property="unit" column="UNIT_DISPLAY_NAME" />
+		<result property="unitDesc" column="UNIT_DESC" />
+		<result property="rack" column="RACK_NO" />
+		<result property="shelf" column="SHELF_NO" />
+		<result property="slot" column="SLOT_NO" />
+		<result property="TYPE" column="UNIT_TYPE" />
+		<result property="PM_STD_OPT_AMP_ID" column="PM_STD_OPT_AMP_ID" />
+		<result property="modelName" column="MODEL" />
+		<result property="RESOURCE_UNIT_MANAGE_ID" column="UNIT_RESOURCE_UNIT_MANAGE_ID" />
+		<result property="UNIT_INFO" column="UNIT_INFO" />		
+	</resultMap>
+	<!-- 合波盘 unit -->
+	<resultMap type="WAVEJOINUnitView" id="WAVE_JOINUnitResult">
+		<id property="RESOURCE_UNIT_MANAGE_REL_ID" column="RESOURCE_UNIT_MANAGE_REL_ID" />
+		<result property="BASE_UNIT_ID" column="BASE_UNIT_ID" />
+		<result property="unit" column="UNIT_DISPLAY_NAME" />
+		<result property="unitDesc" column="UNIT_DESC" />
+		<result property="rack" column="RACK_NO" />
+		<result property="shelf" column="SHELF_NO" />
+		<result property="slot" column="SLOT_NO" />
+		<result property="TYPE" column="UNIT_TYPE" />
+		<result property="RESOURCE_UNIT_MANAGE_ID" column="UNIT_RESOURCE_UNIT_MANAGE_ID" />
+		
+		<result property="ACTUAL_WAVE_NUM" column="UNIT_ACTUAL_WAVE_NUM" />
+		<result property="INSERTION_LOSS" column="INSERTION_LOSS" />
+		<result property="STATION" column="STATION" />
+		<result property="EMS_DISPLAY_NAME" column="EMS_DISPLAY_NAME" />
+		<result property="EMSGROUP_DISPLAY_NAME" column="EMSGROUP_DISPLAY_NAME" />
+		<result property="SUBNET_DISPLAY_NAME" column="SUBNET_DISPLAY_NAME" />
+		<result property="NE_DISPLAY_NAME" column="NE_DISPLAY_NAME" />
+		<result property="T_PTP_ID" column="T_PTP_ID" />
+		<result property="T_PTP_NAME" column="t_PTP_DISPLAY_NAME" />
+	</resultMap>
+	<!-- 分波盘 unit -->
+	<resultMap type="WAVEDIVUnitView" id="WAVE_DIVUnitResult">
+		<id property="RESOURCE_UNIT_MANAGE_REL_ID" column="RESOURCE_UNIT_MANAGE_REL_ID" />
+		<result property="BASE_UNIT_ID" column="BASE_UNIT_ID" />
+		<result property="unit" column="UNIT_DISPLAY_NAME" />
+		<result property="unitDesc" column="UNIT_DESC" />
+		<result property="rack" column="RACK_NO" />
+		<result property="shelf" column="SHELF_NO" />
+		<result property="slot" column="SLOT_NO" />
+		<result property="TYPE" column="UNIT_TYPE" />
+		<result property="RESOURCE_UNIT_MANAGE_ID" column="UNIT_RESOURCE_UNIT_MANAGE_ID" />
+		
+		<result property="ACTUAL_WAVE_NUM" column="UNIT_ACTUAL_WAVE_NUM" />
+		<result property="INSERTION_LOSS" column="INSERTION_LOSS" />
+		<result property="STATION" column="STATION" />
+		<result property="EMS_DISPLAY_NAME" column="EMS_DISPLAY_NAME" />
+		<result property="EMSGROUP_DISPLAY_NAME" column="EMSGROUP_DISPLAY_NAME" />
+		<result property="SUBNET_DISPLAY_NAME" column="SUBNET_DISPLAY_NAME" />
+		<result property="NE_DISPLAY_NAME" column="NE_DISPLAY_NAME" />
+		<result property="T_PTP_ID" column="T_PTP_ID" />
+		<result property="T_PTP_NAME" column="t_PTP_DISPLAY_NAME" />
+		<result property="R_PTP_ID" column="R_PTP_ID" />
+		<result property="R_PTP_NAME" column="r_PTP_DISPLAY_NAME" />
+	</resultMap>
+
+	<sql id="CommonManageElement">
+		manage.RESOURCE_UNIT_MANAGE_ID,manage.DEPARTMENT,manage.NET_WORK_NAME,manage.TYPE
+		as MANAGE_TYPE
+	</sql>
+	<sql id="CommonUnitElement">
+		u.DISPLAY_NAME as
+		UNIT_DISPLAY_NAME,u.BASE_UNIT_ID,u.UNIT_DESC,unit.RESOURCE_UNIT_MANAGE_REL_ID,
+		u.RACK_NO,u.SHELF_NO ,u.SLOT_NO
+	</sql>
+
+	<sql id="AMPManageElement">
+		<include refid="CommonManageElement" />,
+		manage.BASE_NE_ID,ne.PRODUCT_NAME,ne.FACTORY,manage.DIRECTION,manage.STATION,
+		emsGroup.GROUP_NAME as EMSGROUP_DISPLAY_NAME,ems.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		subnet.DISPLAY_NAME as SUBNET_DISPLAY_NAME,ne.DISPLAY_NAME as NE_DISPLAY_NAME
+	</sql>
+	<sql id="SWITCHManageElement">
+		<include refid="CommonManageElement" />,
+		manage.BASE_NE_ID,ne.PRODUCT_NAME,ne.FACTORY,manage.STATION,
+		emsGroup.GROUP_NAME as EMSGROUP_DISPLAY_NAME,ems.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		subnet.DISPLAY_NAME as SUBNET_DISPLAY_NAME,ne.DISPLAY_NAME as NE_DISPLAY_NAME
+	</sql>
+	<sql id="WAVEJOINManageElement">
+		<include refid="CommonManageElement" />,
+		manage.FACTORY,manage.PRODUCT_NAME,manage.STD_WAVE_NUM,manage.ACTUAL_WAVE_NUM
+	</sql>
+	<sql id="WAVEDIVManageElement">
+		<include refid="CommonManageElement" />,
+		manage.FACTORY,manage.PRODUCT_NAME,manage.STD_WAVE_NUM,manage.ACTUAL_WAVE_NUM
+	</sql>
+
+	<sql id="AMPUnitElement">
+		<include refid="CommonUnitElement" />,
+		unit.PM_STD_OPT_AMP_ID,unit.DIRECTION_LINK,unit.OPTICAL_LEVEL,unit.IN_OUT,unit.T_PTP_ID,unit.R_PTP_ID,
+		unit.DIRECTION as
+		UNIT_DIRECTION,unit.STD_WAVE_NUM,unit.ACTUAL_WAVE_NUM,unit.RESOURCE_UNIT_MANAGE_ID
+		as UNIT_RESOURCE_UNIT_MANAGE_ID,
+		unit.TYPE as
+		UNIT_TYPE,r_ptp.DISPLAY_NAME as r_PTP_DISPLAY_NAME,t_ptp.DISPLAY_NAME
+		as t_PTP_DISPLAY_NAME,std.MODEL
+	</sql>
+	<sql id="SWITCHUnitElement">
+		<include refid="AMPUnitElement" />
+	</sql>
+	<sql id="WAVEJOINUnitElement">
+		<include refid="CommonUnitElement" /> ,
+		unit.STATION,unit.ACTUAL_WAVE_NUM as UNIT_ACTUAL_WAVE_NUM,unit.INSERTION_LOSS,unit.T_PTP_ID,unit.RESOURCE_UNIT_MANAGE_ID
+		as UNIT_RESOURCE_UNIT_MANAGE_ID,
+		emsGroup.GROUP_NAME as EMSGROUP_DISPLAY_NAME,ems.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		subnet.DISPLAY_NAME as SUBNET_DISPLAY_NAME,ne.DISPLAY_NAME as NE_DISPLAY_NAME,t_ptp.DISPLAY_NAME
+		as t_PTP_DISPLAY_NAME
+	</sql>
+	<sql id="WAVEDIVUnitElement">
+		<include refid="CommonUnitElement" />,
+		unit.STATION,unit.ACTUAL_WAVE_NUM as UNIT_ACTUAL_WAVE_NUM,unit.INSERTION_LOSS,unit.R_PTP_ID,unit.RESOURCE_UNIT_MANAGE_ID
+		as UNIT_RESOURCE_UNIT_MANAGE_ID,
+		emsGroup.GROUP_NAME as EMSGROUP_DISPLAY_NAME,ems.DISPLAY_NAME as EMS_DISPLAY_NAME,
+		subnet.DISPLAY_NAME as SUBNET_DISPLAY_NAME,ne.DISPLAY_NAME as NE_DISPLAY_NAME,t_ptp.DISPLAY_NAME
+		as r_PTP_DISPLAY_NAME
+	</sql>
+
+	<sql id="AMPAllElement">
+		<include refid="AMPManageElement" />,
+		<include refid="AMPUnitElement" />
+	</sql>
+	<sql id="SWITCHAllElement">
+		<include refid="SWITCHManageElement" />,
+		<include refid="SWITCHUnitElement" />,
+		CONCAT(u.DISPLAY_NAME ,' ',ui.PROTECT_GROUP_COUNT)  as UNIT_INFO
+	</sql>
+	<sql id="WAVEJOINAllElement">
+		<include refid="WAVEJOINManageElement" />,
+		<include refid="WAVEJOINUnitElement" />
+	</sql>
+	<sql id="WAVEDIVAllElement">
+		<include refid="WAVEDIVManageElement" />,
+		<include refid="WAVEDIVUnitElement" />
+	</sql>
+
+	<sql id="amp_manage_leftJoin">
+		left join t_base_ne as ne on ne.BASE_NE_ID = manage.BASE_NE_ID
+		left join t_base_subnet as subnet on subnet.BASE_SUBNET_ID = ne.BASE_SUBNET_ID
+		left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+	</sql>
+	<sql id="switch_manage_leftJoin">
+		<include refid="amp_manage_leftJoin" />
+	</sql>
+	<sql id="waveJoin_manage_leftJoin">
+	</sql>
+	<sql id="waveDiv_manage_leftJoin">
+	</sql>
+
+	<sql id="amp_unit_leftJoin">
+		left join t_resource_unit_manage_rel_unit as unit on unit.RESOURCE_UNIT_MANAGE_ID = manage.RESOURCE_UNIT_MANAGE_ID
+		left join t_base_unit as u on u.BASE_UNIT_ID = unit.BASE_UNIT_ID
+		left join t_pm_std_opt_amp as std on std.PM_STD_OPT_AMP_ID = unit.PM_STD_OPT_AMP_ID
+		left join t_base_ptp as r_ptp on unit.R_PTP_ID = r_ptp.BASE_PTP_ID
+		left join t_base_ptp as t_ptp on unit.T_PTP_ID = t_ptp.BASE_PTP_ID
+	</sql>
+	<sql id="switch_unit_leftJoin">
+		<include refid="amp_unit_leftJoin" />
+		left join t_resource_unit_interface as ui on ui.BASE_UNIT_ID = unit.BASE_UNIT_ID
+	</sql>
+	<sql id="waveJoin_unit_leftJoin">
+		left join t_resource_unit_manage_rel_unit as unit on unit.RESOURCE_UNIT_MANAGE_ID = manage.RESOURCE_UNIT_MANAGE_ID
+		left join t_base_unit as u on u.BASE_UNIT_ID = unit.BASE_UNIT_ID
+		left join t_base_ptp as t_ptp on unit.T_PTP_ID = t_ptp.BASE_PTP_ID
+		left join t_base_ne as ne on u.BASE_NE_ID = ne.BASE_NE_ID
+		left join t_base_subnet as subnet on subnet.BASE_SUBNET_ID = ne.BASE_SUBNET_ID
+		left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+	</sql>
+	<sql id="waveDiv_unit_leftJoin">
+		left join t_resource_unit_manage_rel_unit as unit on unit.RESOURCE_UNIT_MANAGE_ID = manage.RESOURCE_UNIT_MANAGE_ID
+		left join t_base_unit as u on u.BASE_UNIT_ID = unit.BASE_UNIT_ID
+		left join t_base_ptp as t_ptp on unit.R_PTP_ID = t_ptp.BASE_PTP_ID
+		left join t_base_ne as ne on u.BASE_NE_ID = ne.BASE_NE_ID
+		left join t_base_subnet as subnet on subnet.BASE_SUBNET_ID = ne.BASE_SUBNET_ID
+		left join t_base_ems_connection as ems on ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID
+		left join t_base_ems_group as emsGroup on ems.BASE_EMS_GROUP_ID = emsGroup.BASE_EMS_GROUP_ID
+	</sql>
+
+	<sql id="amp_all_leftJoin">
+		<include refid="amp_manage_leftJoin" />
+		<include refid="amp_unit_leftJoin" />
+	</sql>
+	<sql id="switch_all_leftJoin">
+		<include refid="switch_manage_leftJoin" />
+		<include refid="switch_unit_leftJoin" />
+	</sql>
+	<sql id="waveJoin_all_leftJoin">
+		<include refid="waveJoin_manage_leftJoin" />
+		<include refid="waveJoin_unit_leftJoin" />
+	</sql>
+	<sql id="waveDiv_all_leftJoin">
+		<include refid="waveDiv_manage_leftJoin" />
+		<include refid="waveDiv_unit_leftJoin" />
+	</sql>
+
+	<!-- 根据id查询网络网元信息,当loadDetailInfo为TRUE时,查询网元下单元盘信息 -->
+	<select id="getUnitInfoByUnitManageId" resultMap="ResourceUnitResultMap">
+		<if test="isLoad == true">
+			select
+			<choose>
+				<when test="type == 1">
+					<include refid="AMPAllElement" />
+				</when>
+				<when test="type == 2">
+					<include refid="SWITCHAllElement" />
+				</when>
+				<when test="type == 3">
+					<include refid="WAVEJOINAllElement" />
+				</when>
+				<when test="type == 4">
+					<include refid="WAVEDIVAllElement" />
+				</when>
+			</choose>
+			from t_resource_unit_manage as manage
+			<choose>
+				<when test="type == 1">
+					<include refid="amp_all_leftJoin" />
+				</when>
+				<when test="type == 2">
+					<include refid="switch_all_leftJoin" />
+				</when>
+				<when test="type == 3">
+					<include refid="waveJoin_all_leftJoin" />
+				</when>
+				<when test="type == 4">
+					<include refid="waveDiv_all_leftJoin" />
+				</when>
+			</choose>
+		</if>
+		<if test="isLoad == false">
+			select
+			<choose>
+				<when test="type == 1">
+					<include refid="AMPManageElement" />
+				</when>
+				<when test="type == 2">
+					<include refid="SWITCHManageElement" />
+				</when>
+				<when test="type == 3">
+					<include refid="WAVEJOINManageElement" />
+				</when>
+				<when test="type == 4">
+					<include refid="WAVEDIVManageElement" />
+				</when>
+			</choose>
+			from t_resource_unit_manage as manage
+			<choose>
+				<when test="type == 1">
+					<include refid="amp_manage_leftJoin" />
+				</when>
+				<when test="type == 2">
+					<include refid="switch_manage_leftJoin" />
+				</when>
+				<when test="type == 3">
+					<include refid="waveJoin_manage_leftJoin" />
+				</when>
+				<when test="type == 4">
+					<include refid="waveDiv_manage_leftJoin" />
+				</when>
+			</choose>
+		</if>
+		where manage.RESOURCE_UNIT_MANAGE_ID = #{manageId}
+	</select>
+
+	<!-- 根据taskId查询mananage表的AMP信息 -->
+	<select id="getManageInfoByTaskId" resultMap="ResourceUnitResultMap">
+		<if test="isLoad == true">
+			select
+			<choose>
+				<when test="type == 1">
+					<include refid="AMPAllElement" />
+				</when>
+				<when test="type == 2">
+					<include refid="SWITCHAllElement" />
+				</when>
+				<when test="type == 3">
+					<include refid="WAVEJOINAllElement" />
+				</when>
+				<when test="type == 4">
+					<include refid="WAVEDIVAllElement" />
+				</when>
+			</choose>
+			from t_resource_unit_manage as manage
+				left join t_sys_task_info as info on info.TARGET_ID = manage.RESOURCE_UNIT_MANAGE_ID
+			<choose>
+				<when test="type == 1">
+					<include refid="amp_all_leftJoin" />
+				</when>
+				<when test="type == 2">
+					<include refid="switch_all_leftJoin" />
+				</when>
+				<when test="type == 3">
+					<include refid="waveJoin_all_leftJoin" />
+				</when>
+				<when test="type == 4">
+					<include refid="waveDiv_all_leftJoin" />
+				</when>
+			</choose>
+		</if>
+		<if test="isLoad == false">
+			select
+			<choose>
+				<when test="type == 1">
+					<include refid="AMPManageElement" />
+				</when>
+				<when test="type == 2">
+					<include refid="SWITCHManageElement" />
+				</when>
+				<when test="type == 3">
+					<include refid="WAVEJOINManageElement" />
+				</when>
+				<when test="type == 4">
+					<include refid="WAVEDIVManageElement" />
+				</when>
+			</choose>
+			from t_resource_unit_manage as manage
+				left join t_sys_task_info as info on info.TARGET_ID = manage.RESOURCE_UNIT_MANAGE_ID
+			<choose>
+				<when test="type == 1">
+					<include refid="amp_manage_leftJoin" />
+				</when>
+				<when test="type == 2">
+					<include refid="switch_manage_leftJoin" />
+				</when>
+				<when test="type == 3">
+					<include refid="waveJoin_manage_leftJoin" />
+				</when>
+				<when test="type == 4">
+					<include refid="waveDiv_manage_leftJoin" />
+				</when>
+			</choose>
+		</if>
+		where info.SYS_TASK_ID = #{taskId}
+	</select>
+	<delete id="deleteTaskByTaskId">
+	</delete>
+	<!-- 从报表任务中删除光放大器选择窗口选择的条目 -->
+	<delete id="deleteUnitManageByManageId">
+		delete from t_resource_unit_manage where RESOURCE_UNIT_MANAGE_ID in
+		<foreach collection="manageIdList" item="manage" open="("
+			close=")" separator=",">
+			${manage}
+		</foreach>
+	</delete>
+
+	<!-- 从t_resource_unit_manage_rel_unit表中删除单元盘记录 -->
+	<delete id="deleteUnitInfo">
+		delete from
+		t_resource_unit_manage_rel_unit where RESOURCE_UNIT_MANAGE_ID =
+		#{manageId} and BASE_UNIT_ID = #{unitId}
+	</delete>
+	<insert id="insertUnitInfo" parameterType="ResourceUnitManageRelUnit"
+		keyProperty="unit.RESOURCE_UNIT_MANAGE_ID">
+		INSERT INTO
+		t_resource_unit_manage_rel_unit
+		values
+		(null,
+		<choose>
+			<when test="unit.RESOURCE_UNIT_MANAGE_ID!=0">#{unit.RESOURCE_UNIT_MANAGE_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.PM_STD_OPT_AMP_ID!=0">#{unit.PM_STD_OPT_AMP_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.BASE_UNIT_ID!=0">#{unit.BASE_UNIT_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.T_PTP_ID!=0">#{unit.T_PTP_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.R_PTP_ID!=0">#{unit.R_PTP_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.TYPE!=0">#{unit.TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.DIRECTION_LINK !=''and unit.DIRECTION_LINK != null">#{unit.DIRECTION_LINK}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.OPTICAL_LEVEL !=''and unit.OPTICAL_LEVEL != null">#{unit.OPTICAL_LEVEL}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.IN_OUT !=''and unit.IN_OUT != null">#{unit.IN_OUT}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.DIRECTION !=''and unit.DIRECTION != null">#{unit.DIRECTION}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		#{unit.STD_WAVE_NUM},
+		#{unit.ACTUAL_WAVE_NUM},
+		<choose>
+			<when test="unit.STATION !=''and unit.STATION != null">#{unit.STATION}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.POWER_BUDGET !=''and unit.POWER_BUDGET != null">#{unit.POWER_BUDGET}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="unit.INSERTION_LOSS !=''and unit.INSERTION_LOSS != null">#{unit.INSERTION_LOSS}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		#{unit.SEQUENCE},
+		#{unit.IS_DEL},
+		#{unit.CREATE_TIME},
+		#{unit.UPDATE_TIME}
+		)
+	</insert>
+
+	<insert id="insertManageInfo" parameterType="ResourceUnitManager"
+		keyProperty="manage.RESOURCE_UNIT_MANAGE_ID">
+		INSERT INTO
+		t_resource_unit_manage
+		VALUES
+		(null,
+		<choose>
+			<when test="manage.BASE_NE_ID!=0">#{manage.BASE_NE_ID}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="manage.TYPE!=0">#{manage.TYPE}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="manage.DEPARTMENT !=''and manage.DEPARTMENT != null">#{manage.DEPARTMENT}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="manage.DIRECTION !=''and manage.DIRECTION != null">#{manage.DIRECTION}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="manage.STATION !=''and manage.STATION != null">#{manage.STATION}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="manage.NET_WORK_NAME !=''and manage.NET_WORK_NAME != null">#{manage.NET_WORK_NAME}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		<choose>
+			<when test="manage.PRODUCT_NAME !=''and manage.PRODUCT_NAME != null">#{manage.PRODUCT_NAME}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		#{manage.STD_WAVE_NUM},
+		#{manage.ACTUAL_WAVE_NUM},
+		<choose>
+			<when test="manage.FACTORY !=''and manage.FACTORY != null">#{manage.FACTORY}</when>
+			<otherwise>null</otherwise>
+		</choose>
+		,
+		#{manage.IS_DEL},
+		#{manage.CREATE_TIME},
+		#{manage.UPDATE_TIME}
+		)
+	</insert>
+	<update id="updateManageInfo">
+		update
+		t_resource_unit_manage
+		<set>
+			STD_WAVE_NUM=#{manage.STD_WAVE_NUM},
+			ACTUAL_WAVE_NUM=#{manage.ACTUAL_WAVE_NUM},
+			IS_DEL=#{manage.IS_DEL},
+			CREATE_TIME=#{manage.CREATE_TIME},
+			UPDATE_TIME=#{manage.UPDATE_TIME},
+			BASE_NE_ID=
+			<choose>
+				<when test="manage.BASE_NE_ID!=0"> #{manage.BASE_NE_ID}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			TYPE=
+			<choose>
+				<when test="manage.TYPE!=0">#{manage.TYPE}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			DEPARTMENT=
+			<choose>
+				<when test="manage.DEPARTMENT !=''and manage.DEPARTMENT != null">#{manage.DEPARTMENT}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			DIRECTION =
+			<choose>
+				<when test="manage.DIRECTION !=''and manage.DIRECTION != null"> #{manage.DIRECTION}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			STATION=
+			<choose>
+				<when test="manage.STATION !=''and manage.STATION != null"> #{manage.STATION}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			NET_WORK_NAME =
+			<choose>
+				<when test="manage.NET_WORK_NAME !=''and manage.NET_WORK_NAME != null"> #{manage.NET_WORK_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+			,
+			PRODUCT_NAME =
+			<choose>
+				<when test="manage.PRODUCT_NAME !=''and manage.PRODUCT_NAME != null"> #{manage.PRODUCT_NAME}</when>
+				<otherwise>null</otherwise>
+			</choose>
+		</set>
+		<where>
+			RESOURCE_UNIT_MANAGE_ID = #{manage.RESOURCE_UNIT_MANAGE_ID}
+		</where>
+	</update>
+	<!-- 根据板卡id获取端口信息 -->
+	<select id="getPortByUnitId" resultType="hashmap">
+		select
+		ptp.BASE_PTP_ID,ptp.DISPLAY_NAME from t_base_ptp as ptp
+		where ptp.BASE_UNIT_ID = #{unitId}
+	</select>
+	<!-- 根据factoryId获取设备型号信息(不包括sdh) -->
+	<select id="getProductNameByFactoryIdNoSDH" resultType="hashmap">
+		select
+		PRODUCT_NAME as productName from t_base_product_mapping where FACTORY = #{factoryId}
+		and TYPE != 1
+	</select>
+	<!-- 根据unitId获取节点详细信息 -->
+	<select id="getNodeInfoByUnitId" resultType="hashmap">
+		select   ems.DISPLAY_NAME as EMS_DISPLAY_NAME,   
+		grp.GROUP_NAME as EMSGROUP_DISPLAY_NAME,   
+		subnet.DISPLAY_NAME as SUBNET_DISPLAY_NAME,  
+		ne.DISPLAY_NAME as NE_DISPLAY_NAME,
+		u.BASE_UNIT_ID,u.UNIT_DESC as unitDesc, u.DISPLAY_NAME as unit,
+		station.STATION_NAME as STATION 
+		from    t_base_unit u   left join t_base_ne ne on u.BASE_NE_ID = ne.BASE_NE_ID   
+		left join t_base_ems_connection ems   ON (   ems.BASE_EMS_CONNECTION_ID = ne.BASE_EMS_CONNECTION_ID   and ems.IS_DEL   != 1   and ne.IS_DEL != 1)  
+		 left join   t_base_subnet   subnet ON (   ne.BASE_SUBNET_ID   = subnet.BASE_SUBNET_ID   and ne.IS_DEL !=   1   and   subnet.IS_DEL !=1)   
+		left join   t_base_ems_group grp   on(   ems.BASE_EMS_GROUP_ID = grp.BASE_EMS_GROUP_ID   and   ems.IS_DEL != 1   and   grp.IS_DEL != 1   )   
+		left join t_resource_room as room on room.RESOURCE_ROOM_ID = ne.RESOURCE_ROOM_ID
+		left join t_resource_station as station on station.RESOURCE_STATION_ID = room.RESOURCE_STATION_ID
+		where u.BASE_UNIT_ID in
+		<foreach collection="unitIds" item="unitId" open="(" close=")"
+				separator=",">
+				${unitId}
+		</foreach>
+	</select>
+	<!-- ===============DHJ============= -->
+
+	<!-- ===============MeiK START============= -->
+
+	<select id="getBaseInfoForAmp" resultType="hashmap">
+		select
+		um.DEPARTMENT,ne.PRODUCT_NAME EQPT_TYPE,um.NET_WORK_NAME,
+		um.STATION,um.DIRECTION,ne.DISPLAY_NAME EQPT_NAME,
+		ne.BASE_EMS_CONNECTION_ID EMS_ID from t_resource_unit_manage um
+		left join t_base_ne ne on um.BASE_NE_ID = ne.BASE_NE_ID
+		where um.RESOURCE_UNIT_MANAGE_ID = #{targetId} and um.IS_DEL = 0
+	</select>
+
+	<select id="getUnitInfoForAmp" resultType="hashmap">
+		select ru.DIRECTION_LINK,bu.DISPLAY_NAME AMPLIFIER_NAME,ru.OPTICAL_LEVEL,
+		oa.MODEL,concat(bf.DISPLAY_NAME,'-',bs.DISPLAY_NAME) SLOT_NO,oa.TYPICAL_GAIN,oa.MAX_OUT,ru.STD_WAVE_NUM,
+		ru.ACTUAL_WAVE_NUM,ru.DIRECTION,ru.BASE_UNIT_ID,ru.T_PTP_ID,ru.R_PTP_ID  
+		from t_resource_unit_manage_rel_unit ru 
+		left join t_pm_std_opt_amp oa on ru.PM_STD_OPT_AMP_ID = oa.PM_STD_OPT_AMP_ID 
+		left join t_base_unit bu on ru.BASE_UNIT_ID = bu.BASE_UNIT_ID 
+		left join t_base_slot bs on bu.BASE_SLOT_ID = bs.BASE_SLOT_ID 
+		left join t_base_shelf bf on bs.BASE_SHELF_ID = bf.BASE_SHELF_ID 
+		where ru.RESOURCE_UNIT_MANAGE_ID = #{targetId} and ru.IS_DEL = 0
+	</select>
+
+	<!-- 获取光放的发光功率 -->
+	<select id="getTranPMDataForAMP" resultType="hashmap">
+		select * from (
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION 
+		from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY = 2 and pm.PM_STD_INDEX = 'TPL_AVG'
+		union
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY != 2 and pm.PM_STD_INDEX = 'TPL_CUR') re
+		<where>
+			re.BASE_PTP_ID in
+			<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				re.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.start}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.end}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and re.EXCEPTION_LV != 0
+				and re.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			and (
+				re.LOCATION = #{paramMap.nendRx}
+				or
+				re.LOCATION = #{paramMap.nendTx}
+			)
+		</where>
+	</select>
+
+	<!-- 获取光放的收光功率 -->
+	<select id="getRecvPMDataForAMP" resultType="hashmap">
+		select * from (
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION 
+		from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY = 2 and pm.PM_STD_INDEX = 'RPL_AVG'
+		union
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY != 2 and pm.PM_STD_INDEX = 'RPL_CUR') re
+		<where>
+			re.BASE_PTP_ID in
+			<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				re.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.start}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.end}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and re.EXCEPTION_LV != 0
+				and re.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			and (
+				re.LOCATION = #{paramMap.nendRx}
+				or
+				re.LOCATION = #{paramMap.nendTx}
+			)
+		</where>
+	</select>
+	
+ 	<select id="getBaseInfoListForSwitch" resultType="hashmap">
+ 		select
+		um.DEPARTMENT,ne.PRODUCT_NAME EQPT_TYPE,um.NET_WORK_NAME,
+		um.STATION,ne.DISPLAY_NAME EQPT_NAME,
+		ne.BASE_EMS_CONNECTION_ID EMS_ID,um.RESOURCE_UNIT_MANAGE_ID TARGET_ID 
+		from t_resource_unit_manage um
+		left join t_base_ne ne on um.BASE_NE_ID = ne.BASE_NE_ID
+		<where> 
+			um.RESOURCE_UNIT_MANAGE_ID in
+			<foreach collection="targetIds" item="targetId" open="(" close=")"
+				separator=",">
+				${targetId}
+			</foreach>
+			and um.IS_DEL = 0
+		</where>
+ 	</select>
+ 	
+ 	<select id="getUnitInfoListForSwitch" resultType="hashmap">
+ 		select 
+ 		ru.BASE_UNIT_ID,bu.DISPLAY_NAME UNIT_NAME,concat(bf.DISPLAY_NAME,'-',bs.DISPLAY_NAME) SLOT_NO,
+ 		ru.RESOURCE_UNIT_MANAGE_ID TARGET_ID 
+		from t_resource_unit_manage_rel_unit ru 
+		left join t_base_unit bu on ru.BASE_UNIT_ID = bu.BASE_UNIT_ID 
+		left join t_base_slot bs on bu.BASE_SLOT_ID = bs.BASE_SLOT_ID 
+		left join t_base_shelf bf on bs.BASE_SHELF_ID = bf.BASE_SHELF_ID 
+		<where>
+			ru.RESOURCE_UNIT_MANAGE_ID in
+			<foreach collection="targetIds" item="targetId" open="(" close=")"
+				separator=",">
+				${targetId}
+			</foreach>
+			and ru.IS_DEL = 0
+		</where>
+ 	</select>
+ 	
+ 	<select id="getProUnitInfoListForSwitch" resultType="hashmap">
+ 		select bu.DISPLAY_NAME UNIT_NAME,concat(bf.DISPLAY_NAME,'-',bs.DISPLAY_NAME) SLOT_NO,op.MIN_IN SENSITIVITY,rp.WAVE_LENGTH,rp.SWITCH_THRESHOLD,
+		rp.POWER_BUDGET,rp.BUSSINESS_NAME,rp.DIRECTION,ui.BASE_UNIT_ID,ui.PROTECT_GROUP_COUNT,rp.GROUP_NUM,rp.PTP_TYPE,rp.BASE_PTP_ID 
+		from t_resource_unit_interface_rel_ptp rp 
+		left join t_resource_unit_interface ui on rp.RESOURCE_UNIT_INTERFACE_ID = ui.RESOURCE_UNIT_INTERFACE_ID 
+		left join t_base_ptp bp on rp.BASE_PTP_ID = bp.BASE_PTP_ID 
+		left join t_pm_std_opt_port op on op.PM_STD_OPT_PORT_ID = bp.OPT_STD_ID 
+		left join t_base_unit bu on bp.BASE_UNIT_ID = bu.BASE_UNIT_ID 
+		left join t_base_slot bs on bs.BASE_SLOT_ID = bu.BASE_SLOT_ID 
+		left join t_base_shelf bf on bs.BASE_SHELF_ID = bf.BASE_SHELF_ID 
+		<where> 
+			ui.BASE_UNIT_ID in 
+			<foreach collection="unitIds" item="unitId" open="(" close=")"
+				separator=",">
+				${unitId}
+			</foreach>
+			and rp.IS_DEL = 0
+		</where>
+ 	</select>
+ 	
+ 	<select id="getPMDataForSwitchReport" resultType="hashmap">
+ 		select * from (
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION 
+		from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY = 2 and pm.PM_STD_INDEX = 'RPL_AVG'
+		union
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY != 2 and pm.PM_STD_INDEX = 'RPL_CUR') re
+		<where>
+			re.BASE_PTP_ID in
+			<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				re.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.start}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.end}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and re.EXCEPTION_LV != 0
+				and re.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			and (
+				re.LOCATION = #{paramMap.nendRx}
+				or
+				re.LOCATION = #{paramMap.nendTx}
+			)
+		</where>
+ 	</select>
+ 	
+ 	<select id="getProGrpCountList" resultType="hashmap">
+ 		select BASE_UNIT_ID,PROTECT_GROUP_COUNT from t_resource_unit_interface 
+ 		<where>
+	 		BASE_UNIT_ID in 
+	 		<foreach collection="unitIds" item="unitId" open="(" close=")"
+				separator=",">
+				${unitId}
+			</foreach> 
+			and UNIT_TYPE = 2 
+			and IS_DEL = 0
+ 		</where>
+ 	</select>
+ 	
+ 	<select id="getBaseInfoListForWave" resultType="hashmap">
+ 		select 
+ 		um.DEPARTMENT,
+ 		um.PRODUCT_NAME EQPT_TYPE,
+ 		um.NET_WORK_NAME,
+ 		um.STD_WAVE_NUM,
+ 		um.ACTUAL_WAVE_NUM,
+ 		um.RESOURCE_UNIT_MANAGE_ID TARGET_ID 
+		from t_resource_unit_manage um 
+		<where> 
+			um.RESOURCE_UNIT_MANAGE_ID in
+			<foreach collection="targetIds" item="targetId" open="(" close=")"
+				separator=",">
+				${targetId}
+			</foreach>
+			and um.IS_DEL = 0
+		</where>
+ 	</select>
+ 	
+ 	<select id="getUnitInfoListForWave" resultType="hashmap">
+ 		select 
+ 		rs.STATION_NAME,
+ 		bn.DISPLAY_NAME EQPT_NAME,
+ 		bu.DISPLAY_NAME UNIT_NAME,
+ 		concat(bf.DISPLAY_NAME,'-',bs.DISPLAY_NAME) SLOT_NAME,
+ 		ru.INSERTION_LOSS,
+ 		ru.ACTUAL_WAVE_NUM,
+		ru.T_PTP_ID,
+		ru.R_PTP_ID,
+		ru.RESOURCE_UNIT_MANAGE_ID TARGET_ID,
+		bn.BASE_EMS_CONNECTION_ID EMS_ID 
+		from t_resource_unit_manage_rel_unit ru 
+		left join t_base_unit bu on bu.BASE_UNIT_ID = ru.BASE_UNIT_ID 
+		left join t_base_slot bs on bs.BASE_SLOT_ID = bu.BASE_SLOT_ID 
+		left join t_base_shelf bf on bs.BASE_SHELF_ID = bf.BASE_SHELF_ID 
+		left join t_base_ne bn on bn.BASE_NE_ID = bu.BASE_NE_ID 
+		left join t_resource_room rr on rr.RESOURCE_ROOM_ID = bn.RESOURCE_ROOM_ID 
+		left join t_resource_station rs on rs.RESOURCE_STATION_ID = rr.RESOURCE_STATION_ID 
+		<where> 
+			ru.TYPE = #{unitType} 
+			and ru.RESOURCE_UNIT_MANAGE_ID in
+			<foreach collection="targetIds" item="targetId" open="(" close=")"
+				separator=",">
+				${targetId}
+			</foreach>
+			and (ru.IS_DEL = 0 or ru.IS_DEL is null) 
+		</where> 
+ 	</select>
+ 	
+ 	<select id="getPMDataForWaveJoinReport" resultType="hashmap">
+ 		select * from (
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION 
+		from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY = 2 and pm.PM_STD_INDEX = 'TPL_AVG'
+		union
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY != 2 and pm.PM_STD_INDEX = 'TPL_CUR') re
+		<where>
+			re.BASE_PTP_ID in
+			<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				re.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.start}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.end}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and re.EXCEPTION_LV != 0
+				and re.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			and (
+				re.LOCATION = #{paramMap.nendRx}
+				or
+				re.LOCATION = #{paramMap.nendTx}
+			)
+		</where>
+ 	</select>
+ 	
+ 	<select id="getLastMonthPMDataForWaveJoinReport" resultType="hashmap">
+ 		select * from (
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION 
+		from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY = 2 and pm.PM_STD_INDEX = 'TPL_AVG'
+		union
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY != 2 and pm.PM_STD_INDEX = 'TPL_CUR') re
+		<where>
+			re.BASE_PTP_ID in
+			<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				re.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.lastMonthStart}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.lastMonthEnd}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and re.EXCEPTION_LV != 0
+				and re.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			and (
+				re.LOCATION = #{paramMap.nendRx}
+				or
+				re.LOCATION = #{paramMap.nendTx}
+			)
+		</where>
+ 	</select>
+ 	
+ 	<select id="getPMDataForWaveDivReport" resultType="hashmap">
+ 		select * from (
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION 
+		from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY = 2 and pm.PM_STD_INDEX = 'RPL_AVG'
+		union
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY != 2 and pm.PM_STD_INDEX = 'RPL_CUR') re
+		<where>
+			re.BASE_PTP_ID in
+			<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				re.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.start}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.end}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and re.EXCEPTION_LV != 0
+				and re.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			and (
+				re.LOCATION = #{paramMap.nendRx}
+				or
+				re.LOCATION = #{paramMap.nendTx}
+			)
+		</where>
+ 	</select>
+ 	
+ 	<select id="getLastMonthPMDataForWaveDivReport" resultType="hashmap">
+ 		select * from (
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION 
+		from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY = 2 and pm.PM_STD_INDEX = 'RPL_AVG'
+		union
+		select
+		pm.BASE_UNIT_ID,pm.BASE_PTP_ID,date_format(pm.RETRIEVAL_TIME,'%Y%m%d')
+		as RTRV_TIME,pm.PM_VALUE,pm.RETRIEVAL_TIME,
+		pm.EXCEPTION_LV,pm.EXCEPTION_COUNT,pm.LOCATION from ${paramMap.TABLE_NAME} pm
+		left join t_base_ems_connection ems on pm.BASE_EMS_CONNECTION_ID =
+		ems.BASE_EMS_CONNECTION_ID
+		where ems.FACTORY != 2 and pm.PM_STD_INDEX = 'RPL_CUR') re
+		<where>
+			re.BASE_PTP_ID in
+			<foreach collection="ptpIds" item="ptpId" open="(" close=")"
+				separator=",">
+				${ptpId}
+			</foreach>
+			<if test="paramMap.retrivalTime!=null">
+				and
+				re.RETRIEVAL_TIME
+				between
+				str_to_date('${paramMap.lastMonthStart}', '%Y-%m-%d %H:%i:%s') and str_to_date('${paramMap.lastMonthEnd}', '%Y-%m-%d
+				%H:%i:%s')
+			</if>
+			<if test="paramMap.retrievalTimePmDate!=null">
+				and
+				substr(RETRIEVAL_TIME,9,2) = #{paramMap.pmDate}
+			</if>
+			<if test="paramMap.dataSrc==1">
+				and re.EXCEPTION_LV != 0
+				and re.EXCEPTION_COUNT <![CDATA[>=]]>
+				#{paramMap.continueAbnormal}
+			</if>
+			and (
+				re.LOCATION = #{paramMap.nendRx}
+				or
+				re.LOCATION = #{paramMap.nendTx}
+			)
+		</where>
+ 	</select>
+ 	
+ 	
+ 	
+
+	<!-- ===============MeiK END============= -->
+	<select id="selectAllPtnSysInfo" resultType="hashmap">
+		SELECT 
+		  sys.T_RESOURCE_PTN_SYS_ID,
+		  sys.SYS_NAME,
+		  ptp.BASE_EMS_CONNECTION_ID,
+		  ptp.BASE_NE_ID 
+		FROM
+		  t_resource_ptn_sys_port t 
+		  INNER JOIN t_resource_ptn_sys sys 
+		    ON sys.T_RESOURCE_PTN_SYS_ID = t.T_RESOURCE_PTN_SYS_ID 
+		  INNER JOIN t_base_ptp ptp 
+		    ON ptp.BASE_PTP_ID = t.A_END_PTP 
+	</select>
+
+
+</mapper>

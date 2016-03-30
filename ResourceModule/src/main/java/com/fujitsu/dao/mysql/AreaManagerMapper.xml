@@ -1,0 +1,469 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.AreaManagerMapper">
+    <!-- 获取区域级别名称 -->
+	<select id="getAreaProperty" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_SYS_PARAM 
+            WHERE 
+                (PARAM_KEY = #{map.key})
+	</select>
+    <!-- 修改区域级别名称 -->
+    <insert id="addAreaProperty"  parameterType="hashmap"  >  
+		INSERT INTO T_SYS_PARAM
+            (
+            `PARAM_KEY`,
+            `PARAM_VALUE`,
+            `PARAM_DESCRIPTION`)
+            VALUES
+            (
+             #{map.key},
+             #{map.value},
+             #{map.desc}
+             )
+	</insert>
+    <!-- 修改区域级别名称 -->
+	<select id="modAreaProperty" resultType="hashmap"
+		parameterType="hashmap">
+		UPDATE T_SYS_PARAM
+            <set>
+                PARAM_VALUE=#{map.value}
+            </set>
+                WHERE	
+                PARAM_KEY = #{map.key}
+	</select>
+    <!-- 获取区域树的子节点（ T_RESOURCE_AREA 部分） -->
+	<select id="getSubArea" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_AREA 
+            WHERE 
+                (AREA_PARENT_ID = #{parentId})
+	</select>
+    <!-- 判断区域是否存在（通过名称以及父节点ID） -->
+	<select id="areaExists" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_AREA 
+            WHERE 
+                (AREA_PARENT_ID = #{map.areaParentId}
+                AND AREA_NAME = #{map.areaName})
+	</select>
+    <!-- 获取子区域 -->
+	<select id="getSubAreaByParentIds" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_AREA 
+            WHERE 
+                AREA_PARENT_ID IN  ${parentIds}
+	</select>
+    <!-- 获取子区域信息 -->
+	<select id="getAreaInfoByParentIds" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_AREA 
+            WHERE 
+                (RESOURCE_AREA_ID IN ${parentIds})
+	</select>
+    <!-- 获取区域树的子节点（ T_RESOURCE_STATION 部分） -->
+	<select id="getSubStation" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_STATION
+            WHERE 
+                (RESOURCE_AREA_ID = #{parentId})
+	</select>
+    <!-- 根据父节点（多个）获取局站信息 -->
+	<select id="getSubStationByIDs" resultType="hashmap"
+		parameterType="hashmap">
+        SELECT 
+            tra.AREA_NAME as areaName,
+            trs.STATION_NAME as stationName,
+            trs.MANAGEMENT as management,
+            trs.ADDRESS as address,
+            trs.PHONE as phone,
+            trs.NOTE as note,
+            trs.STATION_NO as stationNo,
+            trs.TYPE as stationType,
+            trs.LONGITUDE as longitude,
+            trs.LATITUDE as latitude,
+            trs.RESOURCE_STATION_ID as stationId
+        FROM
+            T_RESOURCE_STATION trs,
+            t_resource_area tra
+        WHERE 
+       		 tra.RESOURCE_AREA_ID = trs.RESOURCE_AREA_ID
+        	<if test="parentIds!='' and parentIds!='(0)'">
+            	and  trs.RESOURCE_AREA_ID IN ${parentIds} 
+            </if>
+           	<if test="name!=null and name!=''">
+			    and trs.STATION_NAME like CONCAT('%',#{name},'%' )
+			</if> 
+		<if test="limit != null and limit>0">
+			limit #{start}, #{limit}
+		</if>
+	</select>
+	<select id="countSubStationByIDs" resultType="int"
+		parameterType="hashmap">
+       SELECT count(1) FROM T_RESOURCE_STATION trs, t_resource_area tra
+        WHERE 
+      		 tra.RESOURCE_AREA_ID = trs.RESOURCE_AREA_ID
+       	<if test="parentIds!='' and parentIds!='(0)'">
+           	and  trs.RESOURCE_AREA_ID IN ${parentIds} 
+        </if>
+        <if test="name!=null and name!=''">
+	  	  and trs.STATION_NAME like CONCAT('%',#{name},'%' )
+		</if>  
+	</select>
+    <!-- 根据父节点（多个）获取局站信息 -->
+	<select id="getSubStationIDs" resultType="hashmap"
+		parameterType="hashmap">
+        SELECT 
+            *
+        FROM
+            T_RESOURCE_STATION
+        WHERE 
+        	1=1
+         <if test="parentIds!='' and parentIds!='(0)'">
+           	and  RESOURCE_AREA_ID IN ${parentIds}
+        </if>
+	</select>
+    <!-- 根据父节点（多个）获取机房信息 -->
+	<select id="getSubRoomByIDs" resultType="hashmap"
+		parameterType="hashmap">
+        SELECT 
+            trs.STATION_NAME as stationName,
+            trr.ROOM_NAME as roomName,
+            trr.MANAGEMENT as management,
+            trr.ROOM_TYPE as roomType,
+            trr.PHONE as phone,
+            trr.NOTE as note
+        FROM
+            T_RESOURCE_STATION trs,
+            t_resource_room trr
+        WHERE 
+              trr.RESOURCE_STATION_ID IN ${parentIds} 
+              and trs.RESOURCE_STATION_ID = trr.RESOURCE_STATION_ID
+	</select>
+    <!-- 根据父节点（多个）获取机房信息 -->
+	<select id="getSubRoomIDs" resultType="hashmap"
+		parameterType="hashmap">
+        SELECT 
+            *
+        FROM
+            t_resource_room
+        WHERE 
+              RESOURCE_STATION_ID IN ${parentIds}
+	</select>
+    <!-- 根据父节点（多个）获取机房信息 -->
+    <!--  @@@分权分域到网元@@@ -->
+	<select id="getSubNeByIDs" resultType="hashmap"
+		parameterType="hashmap">
+        select 
+            tra.AREA_NAME  as areaName,
+            trs.STATION_NAME as stationName,
+            <if test="LEVEL_MAX >= 12">
+            trr.ROOM_NAME as roomName,</if>
+            tbc.DISPLAY_NAME as emsName,
+            tbc.BASE_EMS_CONNECTION_ID as emsId,
+            tbn.DISPLAY_NAME as neName,
+            tbn.PRODUCT_NAME as neModel,
+            tbg.GROUP_NAME as emsGroup
+        from 
+        (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) tbn,
+        t_base_ems_connection tbc left join t_base_ems_group tbg 
+        on tbc.BASE_EMS_GROUP_ID = tbg.BASE_EMS_GROUP_ID ,
+        <if test="LEVEL_MAX >= 12">
+        t_resource_room trr,</if>
+        t_resource_station trs,
+        t_resource_area tra
+
+        where
+
+        tbn.RESOURCE_ROOM_ID in ${parentIds}
+        and tbc.BASE_EMS_CONNECTION_ID = tbn.BASE_EMS_CONNECTION_ID
+        <choose>
+          <when test="LEVEL_MAX >= 12">
+			and trr.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+			and trs.RESOURCE_STATION_ID = trr.RESOURCE_STATION_ID
+		  </when>
+		  <otherwise>
+		  	and trs.RESOURCE_STATION_ID = tbn.RESOURCE_ROOM_ID
+		  </otherwise>
+        </choose>
+        and tra.RESOURCE_AREA_ID = trs.RESOURCE_AREA_ID	
+       <!--  and tbn.BASE_EMS_CONNECTION_ID in ${emsIdList}--> 
+    </select>
+    <!-- 检测局站是否存在 -->
+	<select id="getStationByIdName" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_STATION
+            WHERE 
+                RESOURCE_AREA_ID = #{map.parentId}
+                AND STATION_NAME = #{map.stationName}
+	</select>
+    <!-- 检测机房是否存在 -->
+	<select id="getRoomByIdName" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_ROOM
+            WHERE 
+                RESOURCE_STATION_ID = #{map.parentId}
+                AND ROOM_NAME = #{map.name}
+	</select>
+    <!-- 获取区域树的子节点（ T_RESOURCE_ROOM 部分） -->
+	<select id="getSubRoom" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_ROOM
+            WHERE 
+                (RESOURCE_STATION_ID = #{parentId})
+	</select>
+    <!-- 获取局站信息 -->
+	<select id="getStationInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_STATION
+            WHERE 
+                (RESOURCE_STATION_ID = #{nodeId})
+	</select>
+    <!-- 获取机房信息 -->
+	<select id="getRoomInfo" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_ROOM
+            WHERE 
+                (RESOURCE_ROOM_ID = #{nodeId})
+	</select>
+    <!-- 添加区域 -->
+	<insert id="addArea"  parameterType="hashmap"  >  
+		INSERT INTO T_RESOURCE_AREA
+            (
+            `AREA_NAME`,
+            `AREA_LEVEL`,
+            `AREA_PARENT_ID`)
+            VALUES
+            (
+             #{map.areaName},
+             #{map.areaLevel},
+             #{map.areaParentId}
+             ) 
+	</insert>
+    <!-- 添加区域 -->
+	<insert id="addStation"  parameterType="hashmap"  >  
+		INSERT INTO T_RESOURCE_STATION
+            (
+            `RESOURCE_AREA_ID`,
+            `STATION_NAME`,
+            `ADDRESS`,
+            `MANAGEMENT`,
+            `PHONE`,
+            `NOTE`)
+            VALUES
+            (
+             #{map.parentId},
+             #{map.stationName},
+             #{map.address},
+             #{map.management},
+             #{map.phone},
+             #{map.note}
+             ) 
+	</insert>
+    <!-- 添加区域 -->
+	<insert id="addRoom"  parameterType="hashmap"  >  
+		INSERT INTO T_RESOURCE_ROOM
+            (
+            `RESOURCE_STATION_ID`,
+            `ROOM_NAME`,
+            `ROOM_TYPE`,
+            `MANAGEMENT`,
+            `PHONE`,
+            `NOTE`)
+            VALUES
+            (
+             #{map.parentId},
+             #{map.name},
+             #{map.roomType},
+             #{map.management},
+             #{map.phone},
+             #{map.note}
+             )
+	</insert>
+    <!-- 删除区域 -->
+	<delete id="delArea" parameterType="hashmap" >
+		delete from  T_RESOURCE_AREA where RESOURCE_AREA_ID = #{map.areaId}
+	</delete>
+    <!-- 删除区域 -->
+	<delete id="delStation" parameterType="hashmap" >
+		delete from  T_RESOURCE_STATION where RESOURCE_STATION_ID = #{map.stationId}
+	</delete>
+    <!-- 删除区域 -->
+	<delete id="delRoom" parameterType="hashmap" >
+		delete from  T_RESOURCE_ROOM where RESOURCE_ROOM_ID = #{map.roomId}
+	</delete>
+    <!-- 修改区域 -->
+	<update id="modArea" parameterType="hashmap" >
+        UPDATE T_RESOURCE_AREA 			
+            <set>
+                AREA_NAME=#{map.areaName},
+                AREA_PARENT_ID=#{map.areaParentId}
+            </set>
+                WHERE	
+                RESOURCE_AREA_ID = #{map.areaId}
+	</update>
+    <!-- 修改区域 -->
+	<update id="modStation" parameterType="hashmap" >
+        UPDATE T_RESOURCE_STATION 			
+            <set>
+                STATION_NAME=#{map.stationName},
+                ADDRESS=#{map.address},
+                MANAGEMENT = #{map.management},
+                PHONE = #{map.phone},
+                NOTE = #{map.note}
+            </set>
+                WHERE	
+                RESOURCE_STATION_ID = #{map.stationId}
+	</update>
+    <!-- 修改区域 -->
+	<update id="modRoom" parameterType="hashmap" >
+        UPDATE T_RESOURCE_ROOM 			
+            <set>
+                ROOM_NAME = #{map.roomName},
+                ROOM_TYPE = #{map.roomType},
+                MANAGEMENT = #{map.management},
+                PHONE = #{map.phone},
+                NOTE = #{map.note}
+            </set>
+                WHERE	
+                RESOURCE_ROOM_ID = #{map.roomId}
+	</update>
+	<!-- 获取区域父节点 -->
+	<select id="getParentArea" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                T_RESOURCE_AREA 
+            WHERE 
+                (RESOURCE_AREA_ID = #{parentId})
+	</select>
+	
+	<!-- 获取已经关联的网元 -->
+	<select id="getRelatedNE" resultType="hashmap"
+		parameterType="hashmap">
+		select 	tbn.BASE_NE_ID as id,
+                tbn.DISPLAY_NAME as text,
+                tbn.PRODUCT_NAME as neModel,
+                tbc.BASE_EMS_CONNECTION_ID as emsId,
+                tbc.DISPLAY_NAME as emsName,
+                tbg.GROUP_NAME as emsGroupName
+            from t_base_ne tbn,
+                t_base_ems_connection tbc left join t_base_ems_group tbg 
+                on tbc.BASE_EMS_GROUP_ID = tbg.BASE_EMS_GROUP_ID
+            where 	tbn.BASE_EMS_CONNECTION_ID = tbc.BASE_EMS_CONNECTION_ID
+            and	tbn.RESOURCE_ROOM_ID =  #{roomId}
+           <!--and tbn.BASE_EMS_CONNECTION_ID in ${emsIds}  --> 
+	</select>
+	
+	<!--  @@@分权分域到网元@@@ -->
+	<!-- 获取已经关联的网元 -->
+	<select id="getRelatedNEAuth" resultType="hashmap"
+		parameterType="hashmap">
+		select 	tbn.BASE_NE_ID as id,
+                tbn.DISPLAY_NAME as text,
+                tbn.PRODUCT_NAME as neModel,
+                tbc.BASE_EMS_CONNECTION_ID as emsId,
+                tbc.DISPLAY_NAME as emsName,
+                tbg.GROUP_NAME as emsGroupName
+            from 
+				(<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) tbn,
+                t_base_ems_connection tbc left join t_base_ems_group tbg 
+                on tbc.BASE_EMS_GROUP_ID = tbg.BASE_EMS_GROUP_ID
+            where 	tbn.BASE_EMS_CONNECTION_ID = tbc.BASE_EMS_CONNECTION_ID
+            and	tbn.RESOURCE_ROOM_ID =  #{roomId}
+           <!--and tbn.BASE_EMS_CONNECTION_ID in ${emsIds}  --> 
+	</select>
+	
+	<!-- 获取已经关联的网元（网管分组部分） -->
+	<select id="getRelatedGroup" resultType="hashmap"
+		parameterType="hashmap">
+		select
+                tbc.BASE_EMS_CONNECTION_ID as emsId,
+                tbg.GROUP_NAME as emsGroupName
+            from
+                t_base_ems_group tbg,
+                t_base_ems_connection tbc
+            where
+				tbc.BASE_EMS_GROUP_ID = tbg.BASE_EMS_GROUP_ID
+				and tbc.BASE_EMS_CONNECTION_ID in ${emsIds}
+	</select>
+	
+	<!--  @@@分权分域到网元@@@ -->
+	<!-- 更新 关联网元step1 清除原先的 -->
+	<update id="clearRelatedNE" parameterType="hashmap" >
+		   UPDATE 
+                t_base_ne 
+            SET 
+                RESOURCE_ROOM_ID = -1
+            where  BASE_NE_ID in
+                (select a.BASE_NE_ID 
+                from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/> ) as a 
+                where a.RESOURCE_ROOM_ID = #{map.roomId}) 
+	</update>
+	
+	<!-- 更新 关联网元 -->
+	<update id="updateRelatedNE" parameterType="hashmap" >
+		UPDATE 
+                t_base_ne 
+            SET 
+                RESOURCE_ROOM_ID = #{map.roomId}
+            where 
+                BASE_NE_ID in ${map.ids}
+	</update>
+    <!-- 获取局站下属光缆 -->
+	<select id="getCable" resultType="hashmap"
+		parameterType="hashmap">
+		select 	
+            *
+            from 	
+                T_RESOURCE_CABLE
+            where
+                A_END = #{stationId}
+                OR 
+                Z_END = #{stationId}
+	</select>
+    <!-- 修改room校验 -->
+	<select id="modRoomCheck" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                t_resource_room
+            WHERE
+                RESOURCE_ROOM_ID != #{map.roomId}
+                AND ROOM_NAME = #{map.name}
+                AND RESOURCE_STATION_ID = #{map.parentId}
+	</select>
+    <!-- 修改station校验 -->
+	<select id="modStationCheck" resultType="hashmap"
+		parameterType="hashmap">
+		SELECT * FROM
+                t_resource_station
+            WHERE 
+                RESOURCE_STATION_ID != #{map.stationId}
+                AND STATION_NAME = #{map.stationName}
+	</select>
+	
+		<select id="getAllStation" resultType="hashmap">
+		select RESOURCE_STATION_ID,STATION_NAME 
+		from T_RESOURCE_STATION 
+	</select>
+	
+	<select id="getStationListByAreaIds" resultType="hashmap">
+		select RESOURCE_STATION_ID,STATION_NAME 
+		from T_RESOURCE_STATION 
+		where RESOURCE_AREA_ID in 
+		<foreach collection="areaIds" index="index" item="areaId"
+					open="(" close=")" separator=",">
+				${areaId}
+		</foreach>
+	</select>
+</mapper>

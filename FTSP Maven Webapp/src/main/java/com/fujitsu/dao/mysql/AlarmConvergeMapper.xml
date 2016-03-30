@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.AlarmConvergeMapper">
+	<!--  查询指定网管下的网元型号 -->
+	<select id="getAllNeModelAndFactory" resultType="hashmap">
+		select distinct(PRODUCT_NAME,FACTORY) from t_base_ne 
+		where 
+		1=1 and BASE_EMS_CONNECTION_ID in
+		<foreach collection="emsIds" index="index" item="emsId" open="(" close=")" separator=",">
+			  ${emsId}
+		</foreach>
+	</select>      
+	  
+    <!--查询收敛规则  -->
+	<select id="searchAlarmConverge" resultType="hashmap"> 
+		SELECT conver.CONVERGE_ID,conver.RULE_NAME,conver.STATUS,conver.DESCRIPTION,
+			conver.MODIFIER,CAST(conver.UPDATE_TIME AS CHAR) AS UPDATE_TIME, 
+			(SELECT GROUP_CONCAT(ALARM_NAME) FROM t_alarm_converge_condition cond
+			WHERE cond.`CONVERGE_ID`=conver.`CONVERGE_ID`) AS mainAlarmName,
+		    CONCAT("网管：",(SELECT GROUP_CONCAT(ems.DISPLAY_NAME) FROM t_alarm_converge_scope scope
+			LEFT JOIN  t_base_ems_connection ems
+			ON scope.`EMS_ID`=ems.`BASE_EMS_CONNECTION_ID` 
+			WHERE scope.`CONVERGE_ID`=conver.`CONVERGE_ID`)) AS applyRegion,
+			(SELECT GROUP_CONCAT(CONCAT((CASE WHEN map.FACTORY=1 THEN '华为'
+			  WHEN map.FACTORY=2 THEN '中兴'
+			  WHEN map.FACTORY=3 THEN '朗讯'
+			  WHEN map.FACTORY=4 THEN '烽火' 
+			  WHEN map.FACTORY=9 THEN '富士通' END),equip.`PRODUCT_NAME`))
+			  FROM  t_alarm_converge_equipment equip,t_base_product_mapping map
+			 WHERE equip.`CONVERGE_ID`=conver.`CONVERGE_ID` 
+			 AND equip.PRODUCT_NAME=map.PRODUCT_NAME)AS applyEquip
+			FROM t_alarm_converge conver 
+		<if test="limit>0">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	
+	<select id="countAlarmConverge" resultType="Integer">
+		SELECT count(*) FROM t_alarm_converge
+	</select>
+	 
+	<!--  查询系统参数 -->  
+	<select id="getConvergeTime" resultType="hashmap" parameterType="java.lang.String">
+		select PARAM_VALUE from t_sys_param
+		 where PARAM_KEY = #{paramKey}
+	</select>
+	
+	<!-- 更新系统参数 -->  
+	<update id="setConvergeTime" parameterType="hashmap">
+	  	UPDATE t_sys_param
+	  	 <set> 
+           <if test="map.PARAM_VALUE != null and map.PARAM_VALUE != ''">
+               PARAM_VALUE = #{map.PARAM_VALUE}
+           </if>  
+         </set> 
+          where  PARAM_KEY = #{map.PARAM_KEY}
+	</update>   
+	
+	<!--  查询网管下的工厂和设备-->  
+	<select id="getApplyEquips" resultType="hashmap">
+		select distinct PRODUCT_NAME, FACTORY from t_base_ne
+		where BASE_EMS_CONNECTION_ID in 
+		<foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+   		   #{item}
+   		</foreach>
+	</select> 
+		 
+	<!-- 新增收敛规则   --> 
+	<insert id="addAlarmConverge" parameterType="com.fujitsu.model.AlarmConvergeModel" 
+			useGeneratedKeys="true" keyProperty="alarmConvergeModel.convergeId" > 
+	    insert into t_alarm_converge (RULE_NAME,STATUS,DESCRIPTION,MODIFIER,UPDATE_TIME)
+	    values(#{alarmConvergeModel.RULE_NAME},#{alarmConvergeModel.STATUS},
+	    #{alarmConvergeModel.DESCRIPTION},#{alarmConvergeModel.MODIFIER},#{alarmConvergeModel.UPDATE_TIME})    
+	</insert>  
+	
+	<!-- 新增收敛范围 -->
+	<insert id="addConvergeScope" parameterType="hashmap">
+		insert  into t_alarm_converge_scope (CONVERGE_ID,EMS_ID) 
+		values <foreach collection="map.ids" item="item" index="index" separator=",">
+   		  (#{map.convergeId},  #{item})</foreach>
+	</insert>  
+	
+	<!-- 新增收敛设备 -->
+	<insert id="addConvergeEquipment" parameterType="hashmap">
+		insert  into t_alarm_converge_equipment (CONVERGE_ID,PRODUCT_NAME) 
+		values <foreach collection="map.proNames" item="item" index="index" separator=",">
+   		  (#{map.convergeId},  #{item})
+   		</foreach>
+	</insert>
+	
+	<!-- 新增收敛条件 -->
+	<insert id="addConvergeCondition" parameterType="hashmap">
+		insert  into t_alarm_converge_condition (CONVERGE_ID,ALARM_NAME,OBJECT_TYPE,LEVEL) 
+		values <foreach collection="param" item="item" index="index" separator=",">
+   		  (#{item.convergeId},#{item.ALARM_NAME},#{item.OBJECT_TYPE},#{item.LEVEL})
+   		</foreach>
+	</insert>  
+	
+	<!-- 新增收敛动作-->
+	<insert id="addConvergeAction" parameterType="hashmap">
+		insert  into t_alarm_converge_action (CONVERGE_ID,ACTION_TYPE,STATUS,ALARMS) 
+		values <foreach collection="param" item="item" index="index" separator=",">
+   		  (#{item.convergeId},#{item.ACTION_TYPE},#{item.STATUS},#{item.ALARMS})
+   		</foreach>
+	</insert>   
+	
+	<!-- 删除告警规则,级联表自动删除 -->
+	<delete id="deleteConvergeRules">
+		delete from t_alarm_converge
+		where CONVERGE_ID in  ${"("+convergeIds+")"} 
+	</delete>
+	
+	
+	<!--根据ID查询收敛规则 详情 --> 
+	<select id="getAlarmConvergeTextField" resultType="hashmap"  parameterType="java.lang.Integer"> 
+		SELECT conver.RULE_NAME,conver.DESCRIPTION 
+		FROM t_alarm_converge conver  
+		where conver.CONVERGE_ID=#{convergeId}
+	</select>  
+	
+	<select id="getAlarmConvergeEquips" resultType="hashmap" parameterType="java.lang.Integer">
+		 SELECT (CASE WHEN map.FACTORY=1 THEN '华为'
+			  WHEN map.FACTORY=2 THEN '中兴'
+			  WHEN map.FACTORY=3 THEN '朗讯'
+			  WHEN map.FACTORY=4 THEN '烽火' 
+			  WHEN map.FACTORY=9 THEN '富士通' END) as factoryStr,
+			  map.FACTORY,equip.`PRODUCT_NAME`
+			 FROM  t_alarm_converge_equipment equip
+			 left join t_base_product_mapping map 
+			 on  equip.PRODUCT_NAME=map.PRODUCT_NAME
+			WHERE equip.`CONVERGE_ID`=#{convergeId}  
+	</select> 
+	
+	<select id="getAlarmConvergeEms" resultType="hashmap" parameterType="java.lang.Integer">
+		    SELECT ems.BASE_EMS_CONNECTION_ID as nodeId,
+		    gro.GROUP_NAME  as GROUP_NAME,ems.DISPLAY_NAME as EMS_NAME
+		    FROM t_alarm_converge_scope scope
+			LEFT JOIN  t_base_ems_connection ems
+			ON scope.`EMS_ID`=ems.`BASE_EMS_CONNECTION_ID` 
+			LEFT JOIN  t_base_ems_group gro
+			ON gro.`BASE_EMS_GROUP_ID`=ems.`BASE_EMS_GROUP_ID` 
+			WHERE scope.`CONVERGE_ID`=#{convergeId}
+	</select> 
+ 
+	<select id="getAlarmConvergeCond" resultType="hashmap" parameterType="java.lang.Integer"> 
+		SELECT * FROM t_alarm_converge_condition where CONVERGE_ID=#{convergeId}
+	</select>
+	
+	<select id="getAlarmConvergeAction" resultType="hashmap" parameterType="java.lang.Integer">
+		SELECT * FROM t_alarm_converge_action where CONVERGE_ID=#{convergeId}
+	</select> 
+	<!-- 结束-->
+	<!-- 删除法 -->
+	<delete id="deleteTableById"  parameterType="java.lang.Integer"> 
+ 		delete from ${map.NAME} where ${map.ID_NAME} = #{map.ID_VALUE}  
+	</delete>
+	
+	<!-- 修改告警规则-->
+	<update id="updateAlarmConverge" parameterType="com.fujitsu.model.AlarmConvergeModel">
+		update t_alarm_converge
+		<set>
+			RULE_NAME = #{alarmConvergeModel.RULE_NAME},
+			DESCRIPTION = #{alarmConvergeModel.DESCRIPTION},
+			MODIFIER = #{alarmConvergeModel.MODIFIER},
+			UPDATE_TIME = #{alarmConvergeModel.UPDATE_TIME}
+		</set>
+		where CONVERGE_ID = #{alarmConvergeModel.convergeId}
+	</update> 
+	
+	<!-- 修改告警状态，启用和挂起-->
+	<update id="updateConvergeRuleStatus" parameterType="hashmap">
+		update t_alarm_converge
+		<set>
+			STATUS = #{STATUS} 
+		</set>
+		where CONVERGE_ID in
+		<foreach collection="convergeIds" index="index" item="item" open="(" close=")" separator=",">
+			  ${item}
+		</foreach> 
+	</update>  
+</mapper>

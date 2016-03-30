@@ -1,0 +1,2105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<info>
+		<title>性能</title>
+	</info>
+
+	<section xml:id="节-SDH_ETH当前性能查询">
+		<title>SDH/ETH当前性能查询</title>
+
+		<para>【描述】</para>
+
+		<para>SDH/ETH当前性能查询可以用来查询SDH/ETH（含MSTP、OTN）设备的当前性能，可以按照多种条件监控多厂商设备的SDH/ETH性能状况。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;性能&gt;→&lt;SDH/ETH当前性能查询&gt;，SDH/ETH当前性能查询页面将会打开，如下图。</para>
+
+		<figure xml:id="图-SDH_ETH当前性能查询">
+			<title>SDH/ETH当前性能查询</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/performance/sdh_eth_current_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/performance/sdh_eth_current_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：性能目标所属的网管分组</para>
+
+		<para>“网管”：性能目标所属的网管</para>
+
+		<para>“子网”：性能目标直接所属的子网，例如网管A属于子网b，子网b属于子网a，则显示b</para>
+
+		<para>“网元”：性能目标所属的网管</para>
+
+		<para>“区域”：默认不显示，为目标所属的区域，例如成都</para>
+
+		<para>“局站”：默认不显示，为目标所属的局站，例如新华站</para>
+
+		<para>“型号”：网元的设备型号，例如Optix OSN 3500</para>
+
+		<para>“端口”：网元上单板的相应端口信息，由子架、板卡、端口信息拼接而成</para>
+
+		<para>“业务类型”：网元上单板端口的业务类型，例如SDH、ETH</para>
+
+		<para>“端口类型”：网元上单板端口的端口类型，例如E1</para>
+
+		<para>“速率”：网元上单板端口的传输速率，例如2M</para>
+
+		<para>“通道”：网元上单板端口对应的通道信息</para>
+
+		<para>“性能事件”：对应的通道产生的计数值或物理量的性能事件名称</para>
+
+		<para>“方向”：对应性能事件发生的方向，例如近端接收</para>
+
+		<para>“性能值”：对应性能事件产生的具体数值，根据预警等级不同以不同颜色显示</para>
+
+		<para>“单位”：对应性能事件的单位，例如 s</para>
+
+		<para>“性能比较值”：对应性能事件当前值所在的性能区间，根据预警等级不同以不同颜色显示</para>
+
+		<para>“性能基准值”：默认不显示，对应性能事件的基准参考数值</para>
+
+		<para>“连续异常”：性能事件连续异常次数</para>
+
+		<para>“计数值阀值1”：默认不显示，第一级计数值阈值</para>
+
+		<para>“计数值阀值2”：默认不显示，第二级计数值阈值</para>
+
+		<para>“计数值阀值3”：默认不显示，第三级计数值阈值</para>
+
+		<para>“计数值过滤值”：默认不显示，超过该值的计数值将被过滤</para>
+
+		<para>“物理量基准值偏差”：默认不显示，物理量基准值偏差</para>
+
+		<para>“物理量上限值”：默认不显示，物理量上限值</para>
+
+		<para>“物理量上限值偏差”：默认不显示，物理量上限值偏差</para>
+
+		<para>“物理量下限值”：默认不显示，物理量下限值</para>
+
+		<para>“物理量下限值偏差”：默认不显示，物理量下限值偏差</para>
+
+		<para>“性能分析模板”：对应通道所应用的性能分析模板名称，点击后在打开的窗口显示分析模版详细信息，详见<xref linkend="节-查看性能分析模板信息"/></para>
+
+		<para>“周期”：性能时间的采集周期，例如15min</para>
+
+		<para>“开始时间”：对应性能事件的开始时间</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;数据类型下拉框&gt;，此下拉框位于查询结果列表上方，选择性能类型后（包括：所有数据、异常数据、一般预警、次要预警、重要预警），可自动将当前结果筛选出对应类型的性能数据。默认将显示全部的性能数据。</para>
+
+		<para>点击&lt;导出&gt;按钮，将当前查询出的所有性能数据导出为excel文件，导出结束后浏览器将开始下载。</para>
+
+		<para>点击&lt;设为基准值&gt;按钮，将所选中的性能（需为物理量）设置为性能目标的基准值。</para>
+
+		<para>&lt;查询&gt;按钮，参见<xref linkend="节-性能查询"/></para>
+
+		<para>&lt;性能趋势图&gt;按钮，参见<xref linkend="节-查看性能趋势图"/></para>
+
+		<caution>
+			<title>[注意]：</title>
+
+			<para>点击&lt;性能趋势图&gt;、&lt;设为基准值&gt;按钮前必须选择性能，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-性能查询">
+			<title>查询</title>
+
+			<para>【页面显示】</para>
+
+			<para>在性能查询页面中，选择了对应查询条件后，点击&lt;查询&gt;，将会显示提示信息，如下图。</para>
+
+			<figure xml:id="图-性能查询提示信息">
+				<title>性能查询提示信息</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/pm_query_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/pm_query_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将进行查询。</para>
+
+			<para>点击&lt;否&gt;，将取消返回。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;查询&gt;按钮前，需先在左侧设备树上选取网元或子架、机架、板卡（所有对象必须属于五个以内的网元），再选取数据种类、TP等级、计数值与物理量后，查询出符合所选条件的性能数据。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-查看性能趋势图">
+			<title>查看性能趋势图</title>
+
+			<para>【描述】</para>
+
+			<para>性能趋势图是在性能查询页面选中一条性能后点击性能趋势图按钮打开的弹出窗口。在此窗口中可以选择性能事件与开始时间、时间段以生成性能趋势图；还可以选择同一时间段统一端口或远端端口的两个不同的性能事件生成两张趋势图进行比对。在生成了趋势图后，还可以导出趋势图图片。</para>
+
+			<para>【页面显示】</para>
+
+			<para>性能查询页面选中任一性能值，点击&lt;性能趋势图&gt;将会打开弹出标签页，如下图。</para>
+
+			<figure xml:id="图-性能趋势图">
+				<title>性能趋势图</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/pm_trend_char.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/pm_trend_char.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“性能趋势图1”：依据页面上方选择的性能事件、时间范围点击上方&lt;生成趋势图&gt;后得到的趋势图，默认将为源性能数据的性能事件与所属时间，时间段被设为前十天</para>
+
+			<para>“性能趋势图2”：依据页面下方选择的性能事件、时间范围及本端端或远端端口条件点击下方&lt;生成趋势图&gt;后得到的趋势图，所属时间与时间段与上方条件相同且不可更改</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击上方的&lt;生成趋势图&gt;按钮，将依据上方选中的性能参数、时间范围生成性能趋势图1。若选择了多个性能事件则图上将会出现多条彩色折线及图例。若仅选择了一个物理量，则可以勾选上限值和下限值复选框显示该性能事件的上限值与下限值。若选择的性能事件在选择的时间范围内没有性能数据，则趋势图位置会显示“No data to display.”</para>
+
+			<para>上方的&lt;右键生成图片&gt;按钮为灰色时，需要在上方生成的趋势图上点击鼠标右键并选择生成JPG图片或生成PDF文件后等待生成完毕，待按钮文字变成&lt;另存为&gt;且被激活时点击按钮即可开启浏览器下载进程保存生成的文件。</para>
+
+			<para>点击下方的&lt;生成趋势图&gt;按钮，将依据下方选中的性能参数、时间范围生成性能趋势图2。若选择了多个性能事件则图上将会出现多条彩色折线及图例。若仅选择了一个物理量，则可以勾选上限值和下限值复选框显示该性能事件的上限值与下限值。若选择的性能事件在选择的时间范围内没有性能数据，则趋势图位置会显示“No data to display.”</para>
+
+			<para>下方的&lt;右键生成图片&gt;按钮为灰色时，需要在下方生成的趋势图上点击鼠标右键并选择生成JPG图片或生成PDF文件后等待生成完毕，待按钮文字变成&lt;另存为&gt;且被激活时点击按钮即可开启浏览器下载进程保存生成的文件。</para>
+
+			<para>当打开本页面时选的性能目标类型为端口时，点击&lt;切换到远端（当前：本端）&gt;按钮，将会将下方趋势图性能目标切换至远端端口，且按钮变为&lt;切换到本端（当前：远端）&gt;，此时生成的趋势图将使用远端端口的性能；再次点击将变回&lt;切换到远端（当前：本端）&gt;，且下方趋势图性能目标切换回本端端口，此时生成的趋势图将使用打开页面时选中的端口的性能。</para>
+
+      <caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;查看性能趋势图&gt;按钮前，需先选择一条性能数据。</para>
+      </caution>
+
+		</section>
+
+		<section xml:id="节-查看性能分析模板信息">
+			<title>查看性能分析模板信息</title>
+
+			<section xml:id="节-查看物理量性能分析模板信息">
+				<title>查看物理量性能分析模板信息</title>
+
+				<para>【描述】</para>
+
+				<para>查看物理量性能分析模板信息是在性能查询页面点击物理量性能的性能分析模板字段后打开弹出窗口，其中，对于历史性能而言其展示了该性能采集并保存进FTSP时所使用的性能分析模板的信息；对于当前性能而言其展示了对应性能目标当前所应用的性能分析模板的信息。</para>
+
+				<para>【页面显示】</para>
+
+				<para>性能查询页面点击任意物理量性能的“性能分析模板”字段，性能分析模板弹窗将会打开，如下图。</para>
+
+				<figure xml:id="图-查看物理量性能分析模板信息">
+					<title>查看物理量性能分析模板信息</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/view_physical_pm_template.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/view_physical_pm_template.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>“性能事件”：该条性能的通用性能事件代号，例如TPL_CUR</para>
+
+				<para>“性能类型”：性能事件的类型，有计数值物理量二种，此处必为物理量</para>
+
+				<para>“描述”：性能事件的用户友好名称。例如：输出光功率当前值</para>
+
+				<para>“单位”：此种性能的单位，例如：dbm</para>
+
+				<para>“基准值偏差”：相对于性能值允许的偏差值，在基准值±基准值偏差范围内的性能都属于正常性能</para>
+
+				<para>“上限值偏差”：相对于上限值允许的偏差。在性能值在基准值至上限值-上限值偏差范围内时，属于一般预警；在上限值-上限值偏差至上限值范围内是次要预警；超过上限值时属于重要预警</para>
+
+				<para>“下限值偏差”：相对于下限值允许的偏差。在性能值在基准值至下限值+下限值偏差范围内时，属于一般预警；在下限值+下限值偏差至下限值范围内是次要预警；超过下限值时属于重要预警</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;确定&gt;按钮，将关闭当前弹出窗口。</para>
+
+			</section>
+
+			<section xml:id="节-查看计数值性能分析模板信息">
+				<title>查看计数值性能分析模板信息</title>
+
+				<para>【描述】</para>
+
+				<para>查看计数值性能分析模板信息是在性能查询页面点击计数值性能的性能分析模板字段后打开弹出窗口，其中，对于历史性能而言其展示了该性能采集并保存进FTSP时所使用的性能分析模板的信息；对于当前性能而言其展示了对应性能目标当前所应用的性能分析模板的信息。</para>
+
+				<para>【页面显示】</para>
+
+				<para>性能查询页面点击任意计数值性能的“性能分析模板”字段，性能分析模板弹窗将会打开，如下图。</para>
+
+				<figure xml:id="图-查看计数值性能分析模板信息">
+					<title>查看计数值性能分析模板信息</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/view_count_pm_template.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/view_count_pm_template.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>“性能事件”：该条性能的通用性能事件代号，例如RS_BBE</para>
+
+				<para>“性能类型”：性能事件的类型，有计数值物理量二种，此处必为计数值</para>
+
+				<para>“描述”：性能事件的用户友好名称。例如：再生段背景块误码</para>
+
+				<para>“单位”：此种性能的单位，例如：block</para>
+
+				<para>“阈值1”：超过阈值1的性能为一般预警</para>
+
+				<para>“阈值2”：超过阈值2的性能为次要预警</para>
+
+				<para>“阈值3”：超过阈值2的性能为重要预警</para>
+
+				<para>“过滤值”：超过过滤值的性能将被过滤</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;确定&gt;按钮，将关闭当前弹出窗口。</para>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-SDH_ETH历史性能查询">
+		<title>SDH/ETH历史性能查询</title>
+
+		<para>【描述】</para>
+
+		<para>SDH/ETH历史性能查询可以用来查询SDH/ETH（含MSTP、OTN）设备在制定了采集计划后每天采集到本系统的性能值，可以按照多种条件查询多厂商设备采集到本系统的SDH性能状况。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;性能&gt;→&lt;SDH/ETH历史性能查询&gt;，SDH/ETH历史性能查询页面将会打开，如下图。</para>
+
+		<figure xml:id="图-SDH_ETH历史性能查询页面">
+			<title>SDH/ETH历史性能查询</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/performance/sdh_eth_history_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/performance/sdh_eth_history_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：性能目标所属的网管分组</para>
+
+		<para>“网管”：性能目标所属的网管</para>
+
+		<para>“子网”：性能目标直接所属的子网，例如网管A属于子网b，子网b属于子网a，则显示b</para>
+
+		<para>“网元”：性能目标所属的网管</para>
+
+		<para>“区域”：默认不显示，为目标所属的区域，例如成都</para>
+
+		<para>“局站”：默认不显示，为目标所属的局站，例如新华站</para>
+
+		<para>“型号”：网元的设备型号，例如Optix OSN 3500</para>
+
+		<para>“端口”：网元上单板的相应端口信息，由子架、板卡、端口信息拼接而成</para>
+
+		<para>“业务类型”：网元上单板端口的业务类型，例如SDH、ETH</para>
+
+		<para>“端口类型”：网元上单板端口的端口类型，例如E1</para>
+
+		<para>“速率”：网元上单板端口的传输速率，例如2M</para>
+
+		<para>“通道”：网元上单板端口对应的通道信息</para>
+
+		<para>“性能事件”：对应的通道产生的计数值或物理量的性能事件名称</para>
+
+		<para>“方向”：对应性能事件发生的方向，例如近端接收</para>
+
+		<para>“性能值”：对应性能事件产生的具体数值，根据预警等级不同以不同颜色显示</para>
+
+		<para>“单位”：对应性能事件的单位，例如 s</para>
+
+		<para>“性能比较值”：对应性能事件当前值所在的性能区间，根据预警等级不同以不同颜色显示</para>
+
+		<para>“性能基准值”：默认不显示，对应性能事件的基准参考数值</para>
+
+		<para>“连续异常”：性能事件连续异常次数</para>
+
+		<para>“计数值阀值1”：默认不显示，第一级计数值阈值</para>
+
+		<para>“计数值阀值2”：默认不显示，第二级计数值阈值</para>
+
+		<para>“计数值阀值3”：默认不显示，第三级计数值阈值</para>
+
+		<para>“计数值过滤值”：默认不显示，超过该值的计数值将被过滤</para>
+
+		<para>“物理量基准值偏差”：默认不显示，物理量基准值偏差</para>
+
+		<para>“物理量上限值”：默认不显示，物理量上限值</para>
+
+		<para>“物理量上限值偏差”：默认不显示，物理量上限值偏差</para>
+
+		<para>“物理量下限值”：默认不显示，物理量下限值</para>
+
+		<para>“物理量下限值偏差”：默认不显示，物理量下限值偏差</para>
+
+		<para>“性能分析模板”：对应通道所应用的性能分析模板名称，点击后在打开的窗口显示分析模版详细信息，详见<xref linkend="节-查看性能分析模板信息"/></para>
+
+		<para>“周期”：性能时间的采集周期，例如 15min</para>
+
+		<para>“开始时间”：对应性能事件的开始时间</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;数据类型下拉框&gt;，此下拉框位于查询结果列表上方，选择性能类型后（包括：所有数据、异常数据、一般预警、次要预警、重要预警），可自动将当前结果筛选出对应类型的性能数据。默认将显示全部的性能数据。</para>
+
+		<para>点击&lt;导出&gt;按钮，将当前查询出的所有性能数据导出为excel文件，导出结束后浏览器将开始下载。</para>
+
+		<para>点击&lt;设为基准值&gt;按钮，将所选中的性能（需为物理量）设置为性能目标的基准值。</para>
+
+		<para>&lt;查询&gt;按钮，参见<xref linkend="节-性能查询"/></para>
+
+		<para>&lt;性能趋势图&gt;按钮，参见<xref linkend="节-查看性能趋势图"/></para>
+
+		<caution>
+		  <title> [注意]</title>
+
+		  <para>点击&lt;性能趋势图&gt;、&lt;设为基准值&gt;按钮前必须选择性能，否则会弹出错误信息对话框。</para>
+		</caution>
+		
+	</section>
+
+	<section xml:id="节-WDM当前性能查询">
+		<title>WDM当前性能查询</title>
+
+		<para>【描述】</para>
+
+		<para>WDM当前性能查询可以用来查询WDM（含OTN）设备的当前性能，可以按照多种条件监控多厂商设备的WDM性能状况。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;性能&gt;→&lt;WDM当前性能查询&gt;，WDM当前性能查询页面将会打开，如下图。</para>
+
+		<figure xml:id="图-WDM当前性能查询">
+			<title>WDM当前性能查询</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/performance/wdm_current_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/performance/wdm_current_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：性能目标所属的网管分组</para>
+
+		<para>“网管”：性能目标所属的网管</para>
+
+		<para>“子网”：性能目标直接所属的子网，例如网管A属于子网b，子网b属于子网a，则显示b</para>
+
+		<para>“网元”：性能目标所属的网管</para>
+
+		<para>“区域”：默认不显示，为目标所属的区域，例如成都</para>
+
+		<para>“局站”：默认不显示，为目标所属的局站，例如新华站</para>
+
+		<para>“型号”：网元的设备型号，例如Optix OSN 3500</para>
+
+		<para>“端口”：网元上单板的相应端口信息，由子架、板卡、端口信息拼接而成</para>
+
+		<para>“业务类型”：网元上单板端口的业务类型，例如SDH、ETH</para>
+
+		<para>“端口类型”：网元上单板端口的端口类型，例如E1</para>
+
+		<para>“速率”：网元上单板端口的传输速率，例如2M</para>
+
+		<para>“通道”：网元上单板端口对应的通道信息</para>
+
+		<para>“性能事件”：对应的通道产生的计数值或物理量的性能事件名称</para>
+
+		<para>“方向”：对应性能事件发生的方向，例如近端接收</para>
+
+		<para>“性能值”：对应性能事件产生的具体数值，根据预警等级不同以不同颜色显示</para>
+
+		<para>“单位”：对应性能事件的单位，例如 s</para>
+
+		<para>“性能比较值”：对应性能事件当前值所在的性能区间，根据预警等级不同以不同颜色显示</para>
+
+		<para>“性能基准值”：默认不显示，对应性能事件的基准参考数值</para>
+
+		<para>“连续异常”：性能事件连续异常次数</para>
+
+		<para>“计数值阀值1”：默认不显示，第一级计数值阈值</para>
+
+		<para>“计数值阀值2”：默认不显示，第二级计数值阈值</para>
+
+		<para>“计数值阀值3”：默认不显示，第三级计数值阈值</para>
+
+		<para>“计数值过滤值”：默认不显示，超过该值的计数值将被过滤</para>
+
+		<para>“物理量基准值偏差”：默认不显示，物理量基准值偏差</para>
+
+		<para>“物理量上限值”：默认不显示，物理量上限值</para>
+
+		<para>“物理量上限值偏差”：默认不显示，物理量上限值偏差</para>
+
+		<para>“物理量下限值”：默认不显示，物理量下限值</para>
+
+		<para>“物理量下限值偏差”：默认不显示，物理量下限值偏差</para>
+
+		<para>“性能分析模板”：对应通道所应用的性能分析模板名称，点击后在打开的窗口显示分析模版详细信息，详见<xref linkend="节-查看性能分析模板信息"/></para>
+
+		<para>“周期”：性能时间的采集周期，例如 15min</para>
+
+		<para>“开始时间”：对应性能事件的开始时间</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;数据类型下拉框&gt;，此下拉框位于查询结果列表上方，选择性能类型后（包括：所有数据、异常数据、一般预警、次要预警、重要预警），可自动将当前结果筛选出对应类型的性能数据。默认将显示全部的性能数据。</para>
+
+		<para>点击&lt;导出&gt;按钮，将当前查询出的所有性能数据导出为excel文件，导出结束后浏览器将开始下载。</para>
+
+		<para>点击&lt;设为基准值&gt;按钮，将所选中的性能（需为物理量）设置为性能目标的基准值。</para>
+
+		<para>&lt;查询&gt;按钮，参见<xref linkend="节-性能查询"/></para>
+
+		<para>&lt;性能趋势图&gt;按钮，参见<xref linkend="节-查看性能趋势图"/></para>
+
+		<caution>
+		  <title>[注意]</title>
+
+		  <para>点击&lt;性能趋势图&gt;、&lt;设为基准值&gt;按钮前必须选择性能，否则会弹出错误信息对话框。</para>
+		</caution>
+
+	</section>
+
+	<section xml:id="节-WDM历史性能查询">
+		<title>WDM历史性能查询</title>
+
+		<para>【描述】</para>
+
+		<para>WDM历史性能查询可以用来查询WDM（含OTN）设备在制定了采集计划后每天采集到本系统的性能值，可以按照多种条件查询多厂商设备采集到本系统的WDM性能状况。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;性能&gt;→&lt;WDM历史性能查询&gt;，WDM历史性能查询页面将会打开，如下图。</para>
+
+		<figure xml:id="图-WDM历史性能查询">
+			<title>WDM历史性能查询</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/performance/wdm_history_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/performance/wdm_history_pm_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：性能目标所属的网管分组</para>
+
+		<para>“网管”：性能目标所属的网管</para>
+
+		<para>“子网”：性能目标直接所属的子网，例如网管A属于子网b，子网b属于子网a，则显示b</para>
+
+		<para>“网元”：性能目标所属的网管</para>
+
+		<para>“区域”：默认不显示，为目标所属的区域，例如成都</para>
+
+		<para>“局站”：默认不显示，为目标所属的局站，例如新华站</para>
+
+		<para>“型号”：网元的设备型号，例如Optix OSN 3500</para>
+
+		<para>“端口”：网元上单板的相应端口信息，由子架、板卡、端口信息拼接而成</para>
+
+		<para>“业务类型”：网元上单板端口的业务类型，例如SDH、ETH</para>
+
+		<para>“端口类型”：网元上单板端口的端口类型，例如E1</para>
+
+		<para>“速率”：网元上单板端口的传输速率，例如2M</para>
+
+		<para>“通道”：网元上单板端口对应的通道信息</para>
+
+		<para>“性能事件”：对应的通道产生的计数值或物理量的性能事件名称</para>
+
+		<para>“方向”：对应性能事件发生的方向，例如近端接收</para>
+
+		<para>“性能值”：对应性能事件产生的具体数值，根据预警等级不同以不同颜色显示</para>
+
+		<para>“单位”：对应性能事件的单位，例如 s</para>
+
+		<para>“性能比较值”：对应性能事件当前值所在的性能区间，根据预警等级不同以不同颜色显示</para>
+
+		<para>“性能基准值”：默认不显示，对应性能事件的基准参考数值</para>
+
+		<para>“连续异常”：性能事件连续异常次数</para>
+
+		<para>“计数值阀值1”：默认不显示，第一级计数值阈值</para>
+
+		<para>“计数值阀值2”：默认不显示，第二级计数值阈值</para>
+
+		<para>“计数值阀值3”：默认不显示，第三级计数值阈值</para>
+
+		<para>“计数值过滤值”：默认不显示，超过该值的计数值将被过滤</para>
+
+		<para>“物理量基准值偏差”：默认不显示，物理量基准值偏差</para>
+
+		<para>“物理量上限值”：默认不显示，物理量上限值</para>
+
+		<para>“物理量上限值偏差”：默认不显示，物理量上限值偏差</para>
+
+		<para>“物理量下限值”：默认不显示，物理量下限值</para>
+
+		<para>“物理量下限值偏差”：默认不显示，物理量下限值偏差</para>
+
+		<para>“性能分析模板”：对应通道所应用的性能分析模板名称，点击后在打开的窗口显示分析模版详细信息，详见<xref linkend="节-查看性能分析模板信息"/></para>
+
+		<para>“周期”：性能时间的采集周期，例如 15min</para>
+
+		<para>“开始时间”：对应性能事件的开始时间</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;数据类型下拉框&gt;，此下拉框位于查询结果列表上方，选择性能类型后（包括：所有数据、异常数据、一般预警、次要预警、重要预警），可自动将当前结果筛选出对应类型的性能数据。默认将显示全部的性能数据。</para>
+
+		<para>点击&lt;导出&gt;按钮，将当前查询出的所有性能数据导出为excel文件，导出结束后浏览器将开始下载。</para>
+
+		<para>点击&lt;设为基准值&gt;按钮，将所选中的性能（需为物理量）设置为性能目标的基准值。</para>
+
+		<para>&lt;查询&gt;按钮，参见<xref linkend="节-性能查询"/></para>
+
+		<para>&lt;性能趋势图&gt;按钮，参见<xref linkend="节-查看性能趋势图"/></para>
+		
+		<caution>
+		  <title> [注意]</title>
+
+		  <para>点击&lt;性能趋势图&gt;、&lt;设为基准值&gt;按钮前必须选择性能，否则会弹出错误信息对话框。</para>
+		</caution>
+
+	</section>
+
+	<section xml:id="节-光口设置管理">
+		<title>光口设置管理</title>
+
+		<section xml:id="节-光口类型管理">
+			<title>光口类型管理</title>
+
+			<para>【描述】</para>
+
+			<para>允许用户查询传输设备端口所应用的光口标准，并可进行初始设置和修改。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;光口设置管理&gt;→&lt;光口类型管理&gt;，光口类型管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-光口类型管理">
+				<title>光口类型管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/optical_port_type_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/optical_port_type_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;对象类型下拉框&gt;：列出了筛选对象的可选择类型，如网管分组、网管、子网和网元</para>
+
+			<para>&lt;对象名输入选择框&gt;：可以输入要查找的对象名称或从下拉列表中选择</para>
+
+			<para>&lt;筛选&gt;：可以按输入的对象名模糊过滤对象树的显示内容，或显示所有对象树内容</para>
+
+			<para>&lt;刷新&gt;：刷新显示所有对象树内容</para>
+
+			<para>“对象树”：可以按网管分组→网管→子网→网元→子架→单元盘→端口的层次显示对象</para>
+
+			<para>&lt;光口标准设置&gt;：光口标准设置菜单，包含手动设置和自动设置</para>
+
+			<para>&lt;查询&gt;：根据选定的对象查询光口标准设置情况</para>
+
+			<para>&lt;高级查询条件&gt;：显示隐藏的额外筛选条件</para>
+
+			<para>&lt;保存&gt;：可以对列表中可编辑参数的修改进行保存</para>
+
+			<para>&lt;业务类型列表框&gt;：列出了端口的业务类型，包括：SDH、OTN、ETH</para>
+
+			<para>&lt;端口类型列表框&gt;：列出了端口类型，SDH的有： STM-1、STM-4、STM-16、STM-64、STM-256；OTN的有：OTU-1、OTU-2、OTU-3</para>
+
+			<para>&lt;光模块列表框&gt;：列出了系统已有的光模块名称</para>
+
+			<para>&lt;光口标准列表框&gt;：列出了系统已有的光口标准名称</para>
+
+			<para>“网元”： 对象网元的名称</para>
+
+			<para>“区域”：网元设备所归属的区域，默认不显示</para>
+
+			<para>“局站”：网元设备所在的居中，默认不显示</para>
+
+			<para>“型号”：网元的具体设备型号</para>
+
+			<para>“端口”：网元上单元盘的端口信息，实际显示为机架、子架、槽道、板卡和端口的组合</para>
+
+			<para>“业务类型”：显示了网元上单板端口的业务类型</para>
+
+			<para>“端口类型”：显示了网元上单板的端口类型</para>
+
+			<para>“速率”：显示了网元上单板端口的传输速率，SDH的有： 155M、622M、2.5G、10G、40G；ETH的有：100M、1000M、10000M，默认不显示</para>
+
+			<para>“光模块”：显示了网元上单板端口的光模块配置信息</para>
+
+			<para>“光口标准”：对应光口标准名称</para>
+
+			<para>“输出最大”：对应光口标准的最大输出光功率</para>
+
+			<para>“输出最小”：对应光口标准的最小输出光功率</para>
+
+			<para>“输入最大”：对应光口标准的最大输入光功率</para>
+
+			<para>“输入最小”：对应光口标准的最小输入光功率</para>
+
+			<para>“网管分组”：对应网元所属网管分组</para>
+
+			<para>“网管”：对应网元所属网管</para>
+
+			<para>“输出光功率基准值”：对应光口输出光功率基准值</para>
+
+			<para>“子网”：对应网元所属子网，默认不显示</para>
+
+			<para>“输入光功率基准值”：对应光口输入光功率基准值</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;对象类型下拉框&gt;，选择需要筛选的对象类型（默认选择网元），在&lt;对象名输入选择框&gt;中输入或下拉选择要查询的对象名称，点击&lt;筛选&gt;后，对象树将显示过滤后的结果。</para>
+
+			<para>点击&lt;筛选&gt;按钮菜单中的全部显示或&lt;刷新&gt;按钮，可以显示对象树的全部对象。</para>
+
+			<para>在对象树中选择相应对象后，点击&lt;光口标准设置&gt;，会弹出光口标准设置菜单，选择后将进行相应的设置操作，参见<xref linkend="节-光口标准手动设置"/>和<xref linkend="节-光口标准自动设置"/>。</para>
+
+			<para>点击&lt;高级查询条件&gt;，可以显示隐藏的筛选条件栏，再次点击则关闭筛选条件栏。</para>
+
+			<para>* 点击&lt;业务类型列表狂&gt;，可以选择业务类型作为筛选条件。</para>
+
+			<para>* 点击&lt;端口类型列表框&gt;，可以选择端口类型作为筛选条件。</para>
+
+			<para>* 点击&lt;光模块列表框&gt;，可以选择光模块名称作为筛选条件。</para>
+
+			<para>* 点击&lt;光口标准列表框&gt;，可以选择光口标准名称作为筛选条件。</para>
+
+			<para>在对象树中选择相应对象后，点击&lt;查询&gt;后，可以按上述的筛选条件列出网元端口的光口标准设置信息。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>初次进入光口类型管理页面时，列表中的内容显示为空白。</para>
+
+				<para>如果筛选条件栏被隐藏时，在点击&lt;查询&gt;时筛选条件将不起作用。</para>
+
+				<para>在显示的列表中可以双击某行的“光口标准”列的内容，其单元格会变成一个列表框，在下拉列表中列出了可供选择的光口标准名称。一旦单元格的内容发生变化后，它会出现一个已编辑的标志（单元格左上角的红色小三角）。</para>
+
+				<para>点击&lt;保存&gt;，将会把已编辑的参数修改进行保存，参见<xref linkend="节-光口标准保存"/>。</para>
+			</caution>
+
+			<section xml:id="节-光口标准手动设置">
+				<title>光口标准手动设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在光口类型管理页面中，在对象树上选择对象后点击&lt;光口标准应用&gt;，选择手动设置后，光口类型应用画面将会打开，如下图。</para>
+
+				<figure xml:id="图-光口类型应用">
+					<title>光口类型应用</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/optical_port_type_apply.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/optical_port_type_apply.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;业务类型列表框&gt;：列出了端口的业务类型，包括：SDH、OTN、ETH</para>
+
+				<para>&lt;端口类型列表框&gt;：列出了端口类型，SDH的有：STM-1、STM-4、STM-16、STM-64、STM-256；OTN的有：OTU-1、OTU-2、OTU-3</para>
+
+				<para>&lt;光模块列表框&gt;：列出了系统已有的光模块名称</para>
+
+				<para>&lt;光口标准列表框&gt;：列出了系统已有的光口标准名称</para>
+
+				<para>“输出最大”：显示对应光口标准的最大输出光功率</para>
+
+				<para>“输出最小”：显示对应光口标准的最小输出光功率</para>
+
+				<para>“输入最大”：显示对应光口标准的最大输入光功率</para>
+
+				<para>“输入最小”：显示对应光口标准的最小输入光功率</para>
+
+				<para>【功能说明】</para>
+
+				<para>首先选择目标需要匹配的条件（三个条件为必选项）：</para>
+
+				<para>点击&lt;业务类型列表框&gt;，可以选择业务类型作为匹配条件。</para>
+
+				<para>点击&lt;端口类型列表框&gt;，可以选择端口类型作为匹配条件。</para>
+
+				<para>点击&lt;光模块列表框&gt;，可以选择光模块名称作为匹配条件。</para>
+
+				<para>然后点击&lt;光口标准列表框&gt;，选择要设置的光口标准。当光口标准选定后，下面的四个文本框自动显示与光口标准对应的参数信息。</para>
+
+				<para>点击&lt;应用&gt;，将选定的光口标准应用到选择的对象端口上，窗口不关闭。可以继续设置其他的类型的端口。</para>
+
+				<para>点击&lt;确定&gt;，将选定的光口标准应用到选择的对象端口上后关闭窗口。</para>
+
+				<para>点击&lt;取消&gt;，将取消返回。</para>
+
+			</section>
+
+			<section xml:id="节-光口标准自动设置">
+				<title>光口标准自动设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在光口类型管理页面中，在对象树上选择对象后点击&lt;光口标准应用&gt;，选择自动设置后，光口标准自动设置的提示画面将会打开，如下图。</para>
+
+				<figure xml:id="图-光口标准自动设置提示">
+					<title>光口标准自动设置提示</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/optical_standard_auto_setting_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/optical_standard_auto_setting_prompt.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将根据端口的光功率值，自动确定光口标准并应用到端口。</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+			</section>
+
+			<section xml:id="节-光口标准保存">
+				<title>光口标准保存</title>
+
+				<para>【页面显示】</para>
+
+				<para>在光口类型管理页面的显示列表中，选择相应可编辑参数进行编辑修改后，点击&lt;保存&gt;，保存完成后将会显示提示信息，如下图。</para>
+
+				<figure xml:id="图-光口标准保存提示">
+					<title>光口标准保存提示</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/optical_standard_save_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/optical_standard_save_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+				
+				<para>【功能说明】</para>
+
+				<para>点击&lt;确定&gt;，将返回光口类型管理页面。</para>
+				
+				<caution>
+					<title>[注意]</title>
+
+					<para>只有列表中存在已编辑过的单元标志，该提示信息才会出现。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-光口标准管理">
+			<title>光口标准管理</title>
+
+			<para>【描述】</para>
+
+			<para>光口标准管理，包括可以对用于设备端口的光口标准的查询、新增、修改、删除操作。系统提供默认光口标准。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;光口设置管理&gt;→&lt;光口标准管理&gt;，光口标准管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-光口标准管理">
+				<title>光口标准管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/optical_standard_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/optical_standard_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;业务类型列表框&gt;：列出了端口的业务类型，包括：SDH、ETH、OTN</para>
+
+			<para>&lt;端口类型列表框&gt;：列出了端口类型，SDH的有： STM-1、STM-4、STM-16、STM-64、STM-256；OTN的有：OTU-1、OTU-2、OTU-3等</para>
+
+			<para>&lt;光口标准列表框&gt;：列出了系统现有光口标准名称</para>
+
+			<para>&lt;查询&gt;：查询光口标准</para>
+
+			<para>&lt;新增&gt;：增加新的光口标准</para>
+
+			<para>&lt;保存&gt;：保存修改过的光口标准</para>
+
+			<para>&lt;删除&gt;：删除选定的光口标准</para>
+
+			<para>“业务类型”：显示了端口的业务类型</para>
+
+			<para>“端口类型”：显示了端口类型</para>
+
+			<para>“光口标准”：显示了光口标准名称</para>
+
+			<para>“最大输出功率（dBm）”：光口标准的最大输出光功率</para>
+
+			<para>“最小输出功率（dBm）”：光口标准的最小输出光功率</para>
+
+			<para>“过载点（dBm）”：光口标准的最大输入光功率</para>
+
+			<para>“灵敏度（dBm）”：光口标准的最小输入光功率</para>
+
+			<para>“传送距离”：光口标准的传送距离（km）</para>
+
+			<para>“中心波长”：光口标准的中心波长（nm）</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;业务类型列表框&gt;，可以选择端口的相应业务类型作为筛选条件。</para>
+
+			<para>点击&lt;端口类型列表框&gt;，可以选择端口类型作为筛选条件。</para>
+
+			<para>点击&lt;光口标准列表框&gt;，可以选择光口标准名称作为筛选条件。</para>
+
+			<para>点击&lt;查询&gt;，可以按上述的筛选条件列出光口标准的详细信息。</para>
+
+			<para>点击&lt;新增&gt;，将增加新的光口标准，参见<xref linkend="节-新增光口标准"/>。</para>
+
+			<para>在显示列表中双击可编辑单元格，可以进入编辑状态，如上图红框所示。其单元格会变成一个文本框，可以直接输入修改相应的参数。</para>
+
+			<para>一旦单元格的内容发生变化后，它会出现一个已编辑过的标志（单元格左上角的红色小三角）。</para>
+
+			<para>点击&lt;保存&gt;，将把修改过的可编辑参数进行保存。</para>
+
+			<para>点击&lt;删除&gt;，将删除选定的光口标准，参见<xref linkend="节-删除光口标准"/>。</para>
+
+			<note>
+				<title>[说明]</title>
+
+				<para>显示列表中可编辑字段有：“最大输出光功率”、“最小输出光功率”、“过载点”、“灵敏度”、“传送距离”和“中心波长”。</para>
+			</note>
+
+			<section xml:id="节-新增光口标准">
+				<title>新增光口标准</title>
+
+				<para>【页面显示】</para>
+
+				<para>在光口标准管理页面中，点击&lt;新增&gt;，新增光口标准对话框将会打开，如下图。</para>
+
+				<figure xml:id="图-新增光口标准">
+					<title>新增光口标准</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/add_optical_standard.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/add_optical_standard.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;业务类型列表框&gt;：列出了端口的业务类型，包括：SDH、ETH、OTN</para>
+
+				<para>&lt;端口类型列表框&gt;：列出了端口类型，SDH的有： STM-1、STM-4、STM-16、STM-64、STM-256；OTN的有：OTU-1、OTU-2、OTU-3等</para>
+
+				<para>&lt;光口标准文本框&gt;：可以输入新增的光口标准名称</para>
+
+				<para>&lt;最大输出功率（dBm）文本框&gt;：可以输入光口标准的最大输出光功率</para>
+
+				<para>&lt;最小输出功率（dBm）文本框&gt;：可以输入光口标准的最小输出光功率</para>
+
+				<para>&lt;过载点（dBm）文本框&gt;：可以输入光口标准的最大输入光功率</para>
+
+				<para>&lt;灵敏度（dBm）文本框&gt;：可以输入光口标准的最小输入光功率</para>
+
+				<para>&lt;传送距离文本框&gt;：可以输入光口标准的传送距离（km）</para>
+
+				<para>&lt;中心波长文本框&gt;：可以输入光口标准的中心波长（nm）</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;确定&gt;，将新增的光口标准进行保存。数据保存成功后会弹出提示框，提示是否继续增加新的光口标准。如选择&lt;是&gt;，则返回新增光口标准对话框，继续添加光口标准；选择&lt;否&gt;，则返回光口标准管理页面。</para>
+
+				<para>点击&lt;取消&gt;，将取消返回。</para>
+				
+				<caution>
+					<title>[注意]</title>
+
+					<para>某些通过文本框输入的数据将被进行简单的验证，确保输入数据的合理性。如果输入的数据异常，将会弹出相应的提示信息。</para>
+				</caution>
+				
+			</section>
+
+			<section xml:id="节-删除光口标准">
+				<title>删除光口标准</title>
+
+				<para>【页面显示】</para>
+
+				<para>在光口标准管理页面，选中某个光口标准后点击&lt;删除&gt;，删除光口标准的提示框将会打开，如下图。</para>
+
+				<figure xml:id="图-删除光口标准">
+					<title>删除光口标准</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/delete_optical_standard.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/delete_optical_standard.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将删除所选中的光口标准。</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>如果要删除的光口标准已经应用到设备端口上，则系统会给予提示，让用户进行选择。提示“此光口标准已关联到部分端口，如果删除光口标准会导致相关端口无光口标准数据，是否删除？”如选择&lt;是&gt;，则删除选定的光口标准并将关联端口的光口标准数据清空。</para>
+
+				</caution>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-性能分析管理">
+		<title>性能分析管理</title>
+
+		<para>【描述】</para>
+
+		<para>性能分析管理，是对性能监视数据分析中使用到的性能数据分析模版及分析规则设置应用的管理。</para>
+
+		<para>包含下列功能：</para>
+
+		<para>* 性能分析模板的查询、设置等管理</para>
+
+		<para>* 性能分析模版管理</para>
+
+		<para>* 性能基准值管理</para>
+
+		<section xml:id="节-性能分析模板查询设置">
+			<title>性能分析模板查询设置</title>
+
+			<para>【描述】</para>
+
+			<para>性能分析模版查询设置允许用户在需要时查询传输设备端口的性能分析模板应用和设置情况，并可进行修改。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;性能分析管理&gt;→&lt;性能分析模板查询设置&gt;，性能分析模板查询设置页面将会打开，如下图。</para>
+
+			<figure xml:id="图-性能分析模板查询设置">
+				<title>性能分析模板查询设置</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/pm_analysis_template_query_setting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/pm_analysis_template_query_setting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;对象类型下拉框&gt;：列出了筛选对象的可选择类型，如网管分组、网管、子网和网元</para>
+
+			<para>&lt;对象名输入选择框&gt;：可以输入要查找的对象名称或从下拉列表中选择</para>
+
+			<para>&lt;筛选&gt;：可以按输入的对象名模糊过滤对象树的显示内容，或显示所有对象树内容</para>
+
+			<para>&lt;刷新&gt;：刷新显示所有对象树内容</para>
+
+			<para>“对象树”：可以按网管分组→网管→子网→网元→子架→单元盘→端口的层次显示对象</para>
+
+			<para>&lt;厂家下拉框&gt;：列出系统中包含的所有厂家，默认选择为“全部”</para>
+
+			<para>&lt;性能分析模板下拉框&gt;：列出系统中包含的所有性能分析模板，默认选择为“全部”</para>
+
+			<para>&lt;查询&gt;：根据选定的对象和筛选条件查询性能分析模板设置情况</para>
+
+			<para>&lt;保存&gt;：可以对列表中可编辑参数的修改进行保存</para>
+
+			<para>&lt;模板解除&gt;：解除端口所应用的性能分析模板</para>
+
+			<para>“网元”： 对象网元的名称</para>
+
+			<para>“网管分组”：系统定义的网管分组名称</para>
+
+			<para>“网管”：网络的友好名称</para>
+
+			<para>“子网”：网元归属的子网名称</para>
+
+			<para>“区域”：网元设备所归属的区域，默认不显示</para>
+
+			<para>“局站”：网元设备所在的居中，默认不显示</para>
+
+			<para>“型号”：网元的具体设备型号</para>
+
+			<para>“端口”：网元上单元盘的端口信息，实际显示为机架、子架、槽道、板卡和端口的组合</para>
+
+			<para>“性能分析模板”：端口配置的性能分析模板名称，可以编辑修改</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;对象类型下拉框&gt;，选择需要筛选的对象类型（默认选择网元），在&lt;对象名输入选择框&gt;中输入或下拉选择要查询的对象名称，点击&lt;筛选&gt;后，对象树将显示过滤后的结果。</para>
+
+			<para>点击&lt;筛选&gt;按钮菜单中的全部显示或&lt;刷新&gt;按钮，可以显示对象树的全部对象。</para>
+
+			<para>点击&lt;厂家下拉框&gt;，可以选择相应厂家作为筛选条件。</para>
+
+			<para>点击&lt;性能分析模板下拉框&gt;，可以选择分析模板名作为筛选条件。</para>
+
+			<para>在对象树中选择相应对象后，点击&lt;查询&gt;后，可以按上述的筛选条件列出网元端口的性能分析模板设置信息。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>初次进入性能分析模板查询设置页面时，列表中的内容显示为空白。</para>
+
+				<para>在显示的列表中可以双击某行的“性能分析模板”列的内容，其单元格会变成一个列表框，在下拉列表中列出了可供选择的性能分析模板名称。一旦单元格的内容发生变化后，它会出现一个已编辑的标志（单元格左上角的红色小三角）。</para>
+
+				<para>点击&lt;保存&gt;，将会把已编辑的参数修改进行保存，参见<xref linkend="节-保存性能分析模板"/>。</para>
+
+				<para>点击&lt;模板解除&gt;，会弹出模板解除菜单，选择后将进行相应模板解除操作，参见<xref linkend="节-解除选中模板"/>和<xref linkend="节-解除全部模板"/>。</para>
+			</caution>
+
+			<section xml:id="节-保存性能分析模板">
+				<title>保存</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板查询设置页面的显示列表中，选择相应可编辑参数进行编辑修改后，点击&lt;保存&gt;，保存完成后将会显示提示信息，如下图。</para>
+
+				<figure xml:id="图-保存性能分析模板设置提示信息">
+					<title>保存性能分析模板设置提示信息</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/save_pm_analysis_template_setting_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/save_pm_analysis_template_setting_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+				
+				<para>【功能说明】</para>
+
+				<para>点击&lt;确定&gt;，将返回性能分析模板查询设置页面。</para>
+				
+				<caution>
+					<title>[注意]</title>
+
+					<para>只有列表中存在已编辑过的单元格标志，该提示信息才会出现。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-解除选中模板">
+				<title>解除选中模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板查询设置页面中，选择相应端口，点击&lt;模板解除&gt;，选择“解除选中”菜单后将会显示提示信息，如下图。</para>
+
+				<figure xml:id="图-解除选中模板提示信息">
+					<title>解除选中模板提示信息</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/remove_selected_template_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/remove_selected_template_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将解除所选端口应用的性能分析模板。</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+			</section>
+
+			<section xml:id="节-解除全部模板">
+				<title>解除全部模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板查询设置页面中，选择相应端口，点击&lt;模板解除&gt;，选择“解除全部”菜单后将会显示提示信息，如下图。</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将解除查询结果列表中所有端口应用的性能分析模板。</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-性能分析模板管理">
+			<title>性能分析模板管理</title>
+
+			<para>【描述】</para>
+
+			<para>允许用户对性能分析模板进行管理，包括查询、新增、修改、删除、应用、解除等操作。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;性能分析管理&gt;→&lt;性能分析模板管理&gt;，性能分析模板管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-性能分析模板管理">
+				<title>性能分析模板管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/pm_analysis_template_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/pm_analysis_template_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;厂家列表框&gt;：列出系统中定义的厂家名称</para>
+
+			<para>&lt;模板详情&gt;：查看模板的详细信息</para>
+
+			<para>&lt;新增模板&gt;：增加新的分析模板</para>
+
+			<para>&lt;修改模板&gt;：修改性能分析模板</para>
+
+			<para>&lt;模板应用&gt;：将分析模板应用到端口上</para>
+
+			<para>&lt;模板解除&gt;：解除模版在端口上的应用</para>
+
+			<para>&lt;删除模板&gt;：删除性能分析模板</para>
+
+			<para>“模板名称”：性能分析模板的名称</para>
+
+			<para>“厂家”：性能分析模板的厂家名称</para>
+
+			<para>“修改日期”：性能分析模板的修改时间（系统缺省模板无此时间）</para>
+
+			<para>“创建日期”：性能分析模板的创建时间</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;厂家列表框&gt;，选择厂家名称后，列表中可自动显示对应厂家的性能分析模板数据。默认将显示全部厂家的性能分析模板数据。</para>
+
+			<para>点击&lt;模板详情&gt;，将查看分析模板的详细信息，参见<xref linkend="节-模板详情"/>。</para>
+
+			<para>点击&lt;新增模板&gt;，将增加新的分析模板，参见<xref linkend="节-新增模板"/>。</para>
+
+			<para>点击&lt;修改模板&gt;，将修改对应的分析模板，参见<xref linkend="节-修改模板"/>。</para>
+
+			<para>点击&lt;模板应用&gt;，将分析模板应用到端口上，参见<xref linkend="节-模板应用"/>。</para>
+
+			<para>点击&lt;模板解除&gt;，将解除分析模板在端口上的应用，参见<xref linkend="节-模板解除"/>。</para>
+
+			<para>点击&lt;删除模板&gt;，删除选中的分析模板，参见<xref linkend="节-删除模板"/>。</para>
+
+			<section xml:id="节-模板详情">
+				<title>模板详情</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板管理页面，选择一个模板后点击&lt;模板详情&gt;，模板详情页面将会打开，如下图。</para>
+
+				<figure xml:id="图-模板详情">
+					<title>模板详情</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/pm_template_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/pm_template_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;数据类型列表框&gt;：列出了模板数据的类型，如计数值和物理量</para>
+
+				<para>“性能事件”：归一化后的性能事件名称</para>
+
+				<para>“性能类型”：性能事件所属域，包括：SDH、WDM</para>
+
+				<para>“描述”：性能事件的中文说明信息</para>
+
+				<para>“厂家”：设备厂家，为模版厂家信息</para>
+
+				<para>“单位”：性能事件的单位（block、s等）</para>
+
+				<para>“阀值1”：为该性能事件设置的阈值1</para>
+
+				<para>“阀值2”：为该性能事件设置的阈值2</para>
+
+				<para>“阀值3”：为该性能事件设置的阈值3</para>
+
+				<para>“过滤值”：为该性能事件设置的过滤值，只针对不可用秒项</para>
+
+				<para>“基准值偏差”：为该性能事件设置的基准值偏差</para>
+
+				<para>“上限值偏差”: 为该性能事件设置的上限值偏差</para>
+
+				<para>“下限值偏差”： 为该性能事件设置的下限值偏差</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;数据类型列表框&gt;，选择相应数据类型，可以分别查看分析模板的计数值和物理量的参数设置。</para>
+
+			</section>
+
+			<section xml:id="节-新增模板">
+				<title>新增模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板管理页面，点击&lt;新增模板&gt;，选择新增模板初始值对话框将会打开，如下图。</para>
+
+				<figure xml:id="图-选择新增模板初始值对话框">
+					<title>选择新增模板初始值对话框</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/select_initial_value_of_the_new template.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/select_initial_value_of_the_new template.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;厂家列表框&gt;：设备的厂家，包括：中兴、华为、烽火等</para>
+
+				<para>&lt;参考模板列表框&gt;：列出可供选择的已有模板</para>
+
+				<para>&lt;新模板名称文本框&gt;：需要输入新分析模板的名称</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;参考模板列表框&gt;，选择要参考的模板；在&lt;新模板名称文本框&gt;中输入新增模板的名称。</para>
+
+				<para>点击&lt;确定&gt;，将创建新的性能分析模板，并打开新增性能分析模板页面，参见<xref linkend="节-新增性能分析模板"/>。</para>
+
+				<para>点击&lt;取消&gt;，将取消返回。</para>
+
+				<section xml:id="节-新增性能分析模板">
+					<title>新增性能分析模板</title>
+
+					<para>【页面显示】</para>
+
+					<para>在选择新增模板初始值对话框中，点击&lt;确定&gt;按钮后，新增性能分析模板页面将会打开，如下图。</para>
+
+					<figure xml:id="图-新增性能分析模板">
+						<title>新增性能分析模板</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/performance/add_pm_analysis_template.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/performance/add_pm_analysis_template.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【内容说明】</para>
+
+					<para>&lt;数据类型&gt;：列出了模板数据的类型，如计数值和物理量</para>
+
+					<para>&lt;保存&gt;：将分析模板中修改过的参数进行保存</para>
+
+					<para>“性能事件”：归一化后的性能事件名称</para>
+
+					<para>“性能类型”：性能事件所属域，包括：SDH、WDM</para>
+
+					<para>“描述”：性能事件的中文说明信息</para>
+
+					<para>“厂家”：设备厂家，为模版厂家信息</para>
+
+					<para>“单位”：性能事件的单位（block、s等）</para>
+
+					<para>“阀值1”：为该性能事件设置的阈值1</para>
+
+					<para>“阀值2”：为该性能事件设置的阈值2</para>
+
+					<para>“阀值3”：为该性能事件设置的阈值3</para>
+
+					<para>“过滤值”：为该性能事件设置的过滤值，只针对不可用秒项</para>
+
+					<para>“基准值偏差”：为该性能事件设置的基准值偏差</para>
+
+					<para>“上限值偏差”: 为该性能事件设置的上限值偏差</para>
+
+					<para>“下限值偏差”： 为该性能事件设置的下限值偏差</para>
+
+					<para>【功能说明】</para>
+
+					<para>点击&lt;数据类型&gt;，选择相应数据类型，可以分别查看分析模板的计数值和物理量的参数设置。</para>
+
+					<para>在显示列表中双击可编辑单元格，可以进入编辑状态。其单元格会变成一个文本框，可以直接输入修改相应的参数。</para>
+
+					<para>一旦单元格的内容发生变化后，它会出现一个已编辑过的标志（单元格左上角的红色小三角）。</para>
+
+					<note>
+						<title>[说明]</title>
+
+						<para>显示列表中可编辑字段有：“阀值1”、“阀值2”、“阀值3”、“过滤值”、“基准值偏差”、“上限值偏差”和“下限制偏差“。</para>
+
+						<para>点击&lt;保存&gt;，将把修改过的可编辑参数进行保存。</para>
+					</note>
+
+				</section>
+
+			</section>
+
+			<section xml:id="节-修改模板">
+				<title>修改模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板管理页面中，选择一个模板后，点击&lt;修改模板&gt;，新增性能分析模板页面将会打开，如下图。</para>
+
+				<figure xml:id="图-性能分析模板设置">
+					<title>性能分析模板设置</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/pm_analysis_template_setting.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/pm_analysis_template_setting.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;数据类型列表框&gt;：列出了模板数据的类型，如计数值和物理量</para>
+
+				<para>&lt;保存&gt;：将分析模板中修改过的参数进行保存</para>
+
+				<para>“性能事件”：归一化后的性能事件名称</para>
+
+				<para>“性能类型”：性能事件所属域，包括：SDH、WDM</para>
+
+				<para>“描述”：性能事件的中文说明信息</para>
+
+				<para>“厂家”：设备厂家，为模版厂家信息</para>
+
+				<para>“单位”：性能事件的单位（block、s等）</para>
+
+				<para>“阀值1”：为该性能事件设置的阈值1</para>
+
+				<para>“阀值2”：为该性能事件设置的阈值2</para>
+
+				<para>“阀值3”：为该性能事件设置的阈值3</para>
+
+				<para>“过滤值”：为该性能事件设置的过滤值，只针对不可用秒项</para>
+
+				<para>“基准值偏差”：为该性能事件设置的基准值偏差</para>
+
+				<para>“上限值偏差”: 为该性能事件设置的上限值偏差</para>
+
+				<para>“下限值偏差”： 为该性能事件设置的下限值偏差</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;数据类型列表框&gt;，选择相应数据类型，可以分别查看分析模板的计数值和物理量的参数设置。</para>
+
+				<para>在显示列表中双击可编辑单元格，可以进入编辑状态。其单元格会变成一个文本框，可以直接输入修改相应的参数。</para>
+
+				<para>一旦单元格的内容发生变化后，它会出现一个已编辑过的标志（单元格左上角的红色小三角）。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>显示列表中可编辑字段有：“阀值1”、“阀值2”、“阀值3”、“过滤值”、“基准值偏差”、“上限值偏差”和“下限制偏差”，如上图红框所示。</para>
+
+					<para>点击&lt;保存&gt;，将把修改过的可编辑参数进行保存。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-模板应用">
+				<title>模板应用</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板管理页面，选择一个模板，点击&lt;模板应用&gt;，选择节点对话框将会打开，如下图。</para>
+
+				<figure xml:id="图-选择节点对话框_模板应用">
+					<title>选择节点对话框（模板应用）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/select_node.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/select_node.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【内容说明】</para>
+
+				<para>&lt;对象类型下拉框&gt;：列出了筛选对象的可选择类型，如网管分组、网管、子网和网元</para>
+
+				<para>&lt;对象名输入选择框&gt;：可以输入要查找的对象名称或从下拉列表中选择</para>
+
+				<para>&lt;筛选&gt;：可以按输入的对象名模糊过滤对象树的显示内容，或显示所有对象树内容</para>
+
+				<para>&lt;刷新&gt;：刷新显示所有对象树内容</para>
+
+				<para>“对象树”：可以按网管分组→网管→子网→网元→子架→单元盘→端口的层次显示对象</para>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;对象类型下拉框&gt;，选择需要筛选的对象类型（默认选择网元），在&lt;对象名输入选择框&gt;中输入或下拉选择要查询的对象名称，点击&lt;筛选&gt;后，对象树将显示过滤后的结果。</para>
+
+				<para>点击&lt;筛选&gt;按钮菜单中的全部显示或&lt;刷新&gt;，可以显示对象树的全部对象。</para>
+
+				<para>在对象树中选择相应对象后，</para>
+
+				<para>点击&lt;确定&gt;后，选定的模板将会被应用到选择的设备端口上。</para>
+
+				<para>点击&lt;取消&gt;，将放弃模板应用，返回到性能分析模板管理页面。</para>
+
+			</section>
+
+			<section xml:id="节-模板解除">
+				<title>模板解除</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板管理页面，选择一个模板，点击&lt;模板解除&gt;，模板解除的提示信息框将会打开，如下图。</para>
+
+				<figure xml:id="图-模板解除提示框">
+					<title>模板解除提示框</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/remove_template_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/remove_template_prompt.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将解除所有应用此模板的端口。</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+			</section>
+
+			<section xml:id="节-删除模板">
+				<title>删除模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能分析模板管理页面，选择一个模板，点击&lt;删除模板&gt;，删除性能分析模板的提示信息框将会打开。</para>
+
+				<figure xml:id="图-删除模板提示框">
+					<title>删除模板提示框</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/delete_template_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/delete_template_prompt.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将删除所选中的性能分析模板。</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>如果要删除的性能分析模板已经应用到设备端口上，则系统不予删除。会提示要先解除模板应用才能删除。</para>
+
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-性能基准值管理">
+			<title>性能基准值管理</title>
+
+			<para>【描述】</para>
+
+			<para>性能基准值管理允许用户在需要时查看、生成选定设备端口的物理量性能的基准值，并可进行修改。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;性能&gt;→&lt;性能分析管理&gt;→&lt;性能基准值管理&gt;，性能基准值管理页面将会打开，如下图。</para>
+
+			<figure xml:id="图-性能基准值管理">
+				<title>性能基准值管理</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/pm_reference_value_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/pm_reference_value_management.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;对象类型下拉框&gt;：列出了筛选对象的可选择类型，如网管分组、网管、子网和网元</para>
+
+			<para>&lt;对象名输入选择框&gt;：可以输入要查找的对象名称或从下拉列表中选择</para>
+
+			<para>&lt;筛选&gt;：可以按输入的对象名模糊过滤对象树的显示内容，或显示所有对象树内容</para>
+
+			<para>&lt;刷新&gt;：刷新显示所有对象树内容</para>
+
+			<para>“对象树”：可以按网管分组→网管→子网→网元→子架→单元盘→端口的层次显示对象</para>
+
+			<para>&lt;查询&gt;：根据选定的对象查询设备端口的性能基准值</para>
+
+			<para>&lt;生成基准值&gt;：</para>
+
+			<para>&lt;保存&gt;：可以对列表中可编辑参数的修改进行保存</para>
+
+			<para>“网管分组”：系统定义的网管分组名称，默认不显示</para>
+
+			<para>“网管”：网络的友好名称，默认不显示</para>
+
+			<para>“子网”：网元归属的子网名称，默认不显示</para>
+
+			<para>“网元”：对象网元的名称</para>
+
+			<para>“区域”：网元设备所归属的区域，默认不显示</para>
+
+			<para>“局站”：网元设备所在的局站，默认不显示</para>
+
+			<para>“型号”：网元的具体设备型号，默认不显示</para>
+
+			<para>“端口”：网元上单元盘的端口信息，实际显示为机架、子架、槽道、板卡和端口的组合</para>
+
+			<para>“业务类型”：网元上单板端口的业务类型，包括：SDH、ETH；默认不显示</para>
+
+			<para>“端口类型”：单板端口的端口类型，SDH的有：E1、E3、E4、STM-1、STM-4、STM-16、STM-64、STM-256；ETH的有：MP、MAC；默认不显示</para>
+
+			<para>“速率”：单板端口的传输速率，SDH的有：2M、34M、140M、155M、622M、2.5G、10G、40G；ETH的有：100M、1000M、10000M；默认不显示</para>
+
+			<para>“通道号”：单板端口对应的通道信息</para>
+
+			<para>“性能事件”：性能事件的归一化名称</para>
+
+			<para>“基准值”：对应性能事件的基准值</para>
+
+			<para>“输出最大光功率”：依据端口的光口标准信息，显示输出最大光功率</para>
+
+			<para>“输出最小光功率”：依据端口的光口标准信息，显示输出最小光功率</para>
+
+			<para>“过载点”：依据端口的光口标准信息，显示过载点</para>
+
+			<para>“灵敏度”：依据端口的光口标准信息，显示灵敏度</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;对象类型下拉框&gt;，选择需要筛选的对象类型（默认选择网元），在&lt;对象名输入选择框&gt;中输入或下拉选择要查询的对象名称，点击&lt;筛选&gt;后，对象树将显示过滤后的结果。</para>
+
+			<para>点击&lt;筛选&gt;按钮菜单中的全部显示或&lt;刷新&gt;按钮，可以显示对象树的全部对象。</para>
+
+			<para>在对象树中选择相应对象后，点击&lt;查询&gt;后，可以列出所选网元端口的性能基准值设置信息。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>初次进入性能基准值管理页面时，列表中的内容显示为空白。</para>
+
+				<para>点击&lt;生成基准值&gt;，会弹出基准值生成方式菜单，选择后将进行相应的基准值生成操作，参见<xref linkend="节-不覆盖方式生成基准值"/>和<xref linkend="节-覆盖方式生成基准值"/>。</para>
+
+				<para>在显示的列表中可以双击某行的“基准值”列的内容，其单元格会变成一个文本框，可以直接输入修改基准值参数。一旦单元格的内容发生变化后，它会出现一个已编辑的标志（单元格左上角的红色小三角）。</para>
+
+				<para>点击&lt;保存&gt;，将会把已编辑过单元格的参数修改进行保存，参见<xref linkend="节-性能基准值保存"/>。</para>
+			</caution>
+
+			<section xml:id="节-不覆盖方式生成基准值">
+				<title>不覆盖方式生成基准值</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能基准值管理页面，点击&lt;生成基准值&gt;，选择“不覆盖原基准值”后将会显示提示信息，如下图。</para>
+
+				<figure xml:id="图-不覆盖方式生成基准值提示">
+					<title>不覆盖方式生成基准值提示</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/no_cover_method_to_generate_reference_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/no_cover_method_to_generate_reference_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将采集所选对象的24小时当前性能数据，填充未设置基准值端口的基准值数据；</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+			</section>
+
+			<section xml:id="节-覆盖方式生成基准值">
+				<title>覆盖方式生成基准值</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能基准值管理页面，点击&lt;生成基准值&gt;，选择“覆盖原基准值”后将会显示提示信息，如下图。</para>
+
+				<figure xml:id="图-覆盖方式生成基准值提示">
+					<title>覆盖方式生成基准值提示</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/cover_method_to_generate_reference_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/cover_method_to_generate_reference_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，将采集所选对象的24小时当前性能数据，作为当前端口的基准值数据；</para>
+
+				<para>点击&lt;否&gt;，将取消返回。</para>
+
+			</section>
+
+			<section xml:id="节-性能基准值保存">
+				<title>保存</title>
+
+				<para>【页面显示】</para>
+
+				<para>在性能基准值管理页面的显示列表中，选择相应可编辑参数进行编辑修改后，点击&lt;保存&gt;，保存完成后将会显示提示信息，如下图。</para>
+
+				<figure xml:id="图-保存性能基准值设置提示">
+					<title>保存性能基准值设置提示</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/performance/save_pm_reference_setting_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/performance/save_pm_reference_setting_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+				
+				<para>【功能说明】</para>
+
+				<para>点击&lt;确定&gt;，将返回性能基准值管理页面。</para>
+				
+				<caution>
+					<title>[注意]</title>
+
+					<para>只有列表中存在已编辑过的单元标志，该提示信息才会出现。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-性能采集管理">
+		<title>性能采集管理</title>
+
+		<para>【描述】</para>
+
+		<para>性能采集管理可以用来管理系统中的性能采集任务，包括设置任务的采集对象和采集方式，以及控制采集任务的启用、挂起和暂停，查看性能采集任务的执行状态等。性能采集任务可以定期地收集EMS上的网元历史性能数据，将之保存于数据库中，为后续的分析处理提供了原始数据的积累。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;性能&gt;→&lt;性能采集管理&gt;，性能采集管理页面将会打开，如下图。</para>
+
+		<figure xml:id="图-性能采集管理">
+			<title>性能采集管理</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/performance/pm_collect_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/performance/pm_collect_management.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>&lt;网管分组列表框&gt;：列出系统中定义的所有网管分组名称</para>
+
+		<para>&lt;启用&gt;：激活性能采集任务</para>
+
+		<para>&lt;挂起&gt;：停止性能采集任务</para>
+
+		<para>&lt;保存&gt;：保存对列表中任务的可编辑参数所做的修改</para>
+
+		<para>&lt;设置&gt;：对指定的性能采集任务的详细设置</para>
+
+		<para>&lt;执行状态&gt;：查看指定性能采集任务的详细执行状态，并可进行任务的临时暂停</para>
+
+		<para>“网管分组”：用户自行定义的网管逻辑分组名称</para>
+
+		<para>“接入服务器”：系统配置的用来采集的专用服务器名称</para>
+
+		<para>“网管”：需要进行性能采集的网管名称</para>
+
+		<para>“网管类型”：需进行性能采集的网管类型，如U2000、T2000、U31等</para>
+
+		<para>“允许采集开始时间”：允许性能采集任务运行开始的时间，可编辑</para>
+
+		<para>“允许采集结束时间”：允许性能采集任务运行截止的时间，可编辑</para>
+
+		<para>“采集数据类型”：性能采集任务采集性能数据的来源，如历史性能、当前性能，可编辑</para>
+
+		<para>“任务状态”：性能采集任务的状态，如启用、挂起</para>
+
+		<para>“执行状态”：性能采集任务的执行状态，如执行中、执行成功、执行失败等</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;网管分组下拉框&gt;，选择网管分组名后，列表中可自动显示对应网管分组的任务数据。默认将显示全部网管分组的任务数据。</para>
+
+		<para>双击“允许采集开始时间”和“允许采集结束时间”列的单元格，可以进入编辑状态。其单元格会变成一个文本框，可以直接输入相应的时间，但只有正确的时间格式才会被接受。</para>
+
+		<para>双击“采集数据类型”列的单元格，可以进入编辑状态。其单元格会变成一个列表框，在下拉列表中可以选择配置的参数。</para>
+
+		<para>一旦单元格的内容发生变化后，它会出现一个已编辑过的标志（单元格左上角的红色小三角）。</para>
+
+		<para>点击&lt;启用&gt;，将激活所选的采集任务，参见<xref linkend="节-启用性能采集任务"/>。</para>
+
+		<para>点击&lt;挂起&gt;，将停止所选的采集任务，参见<xref linkend="节-挂起性能采集任务"/>。</para>
+
+		<para>点击&lt;保存&gt;，将对任务可编辑参数的修改进行保存，参见<xref linkend="节-保存性能采集任务"/>。</para>
+
+		<para>点击&lt;设置&gt;，将对所选任务进行详细设置，参见<xref linkend="节-设置性能采集任务"/>。</para>
+
+		<para>点击&lt;执行状态&gt;，将查看指定任务的执行状态详情，参见<xref linkend="节-查看性能采集任务"/>。</para>
+
+		<caution>
+			<title>[说明]</title>
+
+			<para>性能采集任务的创建和删除是由系统自动进行的。当在“南向连接管理”中新增接口连接后将自动创建性能采集任务，而当删除接口连接时将自动删除其对应的性能采集任务。</para>
+
+		</caution>
+
+		<section xml:id="节-启用性能采集任务">
+			<title>启用性能采集任务</title>
+
+			<para>【页面显示】</para>
+
+			<para>在性能采集管理页面的显示列表中选择相应任务后，点击&lt;启用&gt;，将会显示提示信息，如下图。</para>
+
+			<figure xml:id="图-启用性能采集任务提示信息">
+				<title>启用性能采集任务提示信息</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/enable_pm_collect_task_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/enable_pm_collect_task_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将激活相应采集任务，准备开始收集性能数据；</para>
+
+			<para>点击&lt;否&gt;，将取消返回。</para>
+
+		</section>
+
+		<section xml:id="节-挂起性能采集任务">
+			<title>挂起性能采集任务</title>
+
+			<para>【页面显示】</para>
+
+			<para>在性能采集管理页面的显示列表中选择相应任务后，点击&lt;挂起&gt;，将会显示提示信息，如下图。</para>
+
+			<figure xml:id="图-挂起性能采集任务提示信息">
+				<title>挂起性能采集任务提示信息</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/disable_pm_collect_task_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/disable_pm_collect_task_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将停止相应的采集任务；</para>
+
+			<para>点击&lt;否&gt;，将取消返回。</para>
+
+		</section>
+
+		<section xml:id="节-保存性能采集任务">
+			<title>保存性能采集任务</title>
+
+			<para>【页面显示】</para>
+
+			<para>在性能采集管理页面的显示列表中，选择相应可编辑参数进行编辑，如下图红框显示。修改后，点击&lt;保存&gt;，保存完成后将会显示提示信息。</para>
+
+			<figure xml:id="图-保存性能采集任务可编辑参数">
+				<title>保存性能采集任务可编辑参数</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/save_pm_collect_task_parameter.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/save_pm_collect_task_parameter.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>提示框弹出后，点击&lt;确定&gt;，将返回性能采集管理页面。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>只有列表中存在已编辑过的单元标志，该提示信息才会出现。</para>
+
+			</caution>
+
+		</section>
+
+		<section xml:id="节-设置性能采集任务">
+			<title>设置性能采集任务</title>
+
+			<para>【描述】</para>
+
+			<para>采集任务设置可按网元为单位对网管的性能采集任务进行采集方式和采集数据类型的设置。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在性能采集管理页面的显示列表中选择一个采集任务后，点击&lt;设置&gt;，采集任务设置页面将会打开，如下图。</para>
+
+			<figure xml:id="图-采集任务设置">
+				<title>采集任务设置</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/pm_collect_task_setting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/pm_collect_task_setting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;类型下拉框&gt;：列出了网元的设备类型，如SDH、WDM、PTN和OTN</para>
+
+			<para>&lt;型号下拉框&gt;：根据不同的网管列出相应网元的具体设备型号</para>
+
+			<para>&lt;采集方式下拉菜单&gt;：列出网元性能的采集方式，包括：每天采、循环采、不采集</para>
+
+			<para>&lt;计数值下拉菜单&gt;：列出是否采集网元的计数值信息，包括：采集计数值、取消计数值</para>
+
+			<para>&lt;物理量下拉菜单&gt;：列出是否采集网元的物理量信息，包括：采集物理量、取消物理量</para>
+
+			<para>&lt;通道下拉菜单&gt;：列出是否采集网元的通道信息，包括：采集通道、取消通道</para>
+
+			<para>“网管”：网络的友好名称</para>
+
+			<para>“网元”：网元的名称</para>
+
+			<para>“类型”：网元的设备类型</para>
+
+			<para>“型号”：网元的具体设备型号</para>
+
+			<para>“采集方式”：网元性能的采集方式，如“每天采”、“循环采”和“不采集”</para>
+
+			<para>“最近采集时间”：最近一次网元性能成功采集的时间</para>
+
+			<para>“上次采集间隔（天）”：最近两次网元性能成功采集的时间间隔</para>
+
+			<para>“采集计数值”：是否采集网元的计数值信息，如“是”或“否”</para>
+
+			<para>“采集物理量”：是否采集网元的物理量信息，如“是”或“否”</para>
+
+			<para>“采集通道”：是否采集网元的通道信息，如“是”或“否”</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;类型下拉框&gt;，选择相应设备类型后，可自动筛选显示对应设备类型的网元；</para>
+
+			<para>点击&lt;型号下拉框&gt;，选择相应设备型号后，可自动筛选显示对应设备型号的网元；</para>
+
+			<para>在“采集任务设置”页面的网元列表中选定某些网元：</para>
+
+			<para>点击&lt;采集方式下拉菜单&gt;，选择采集方式后，选定网元的采集方式列将信息被修改；</para>
+
+			<para>点击&lt;计数值下拉菜单&gt;，选择采集或取消后，选定网元的采集计数值列信息将被修改；</para>
+
+			<para>点击&lt;物理量下拉菜单&gt;，选择采集或取消后，选定网元的采集物理量列信息将被修改；</para>
+
+			<para>点击&lt;通道下拉菜单&gt;，选择采集或取消后，选定网元的采集通道列信息将被修改；</para>
+
+			<para>点击&lt;确定&gt;，将完成网元性能采集任务设置的修改，关闭当前页面并返回到性能采集管理页面。</para>
+
+			<para>点击&lt;取消&gt;，将放弃网元性能采集任务设置的修改，关闭当前页面并返回到性能采集管理页面。</para>
+
+			<para>点击&lt;应用&gt;，将完成网元性能采集任务设置的修改，但仍停留在当前页面。</para>
+
+			<note>
+				<title>[说明]</title>
+
+				<para>当“采集计数值”和“采集物理量”的状态均无“否”时，“采集方式”将自动变成“不采集”。</para>
+			</note>
+
+			<tip>
+				<title>[提示]</title>
+
+				<para>点击列表标题栏中左上角的方框，将全部选择或全部取消列表中所有网元。</para>
+
+			</tip>
+
+		</section>
+
+		<section xml:id="节-查看性能采集任务">
+			<title>查看性能采集任务</title>
+
+			<para>【描述】</para>
+
+			<para>采集任务执行状态页面显示了性能采集任务中每个网元性能采集的执行状态。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在性能采集管理页面的显示列表中选择一个采集任务后，点击&lt;执行状态&gt;，“采集任务执行状态”页面将会打开，如下图。</para>
+
+			<figure xml:id="图-采集任务执行状态">
+				<title>采集任务执行状态</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/performance/pm_collect_task_running_status.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/performance/pm_collect_task_running_status.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>&lt;类型下拉框&gt;：列出了网元的设备类型，如SDH、WDM、PTN和OTN</para>
+
+			<para>&lt;型号下拉框&gt;：根据不同的网管列出相应网元的具体设备型号</para>
+
+			<para>“网管”：网络的友好名称</para>
+
+			<para>“网元”：网元的名称</para>
+
+			<para>“类型”：网元的设备类型</para>
+
+			<para>“型号”：网元的具体设备型号</para>
+
+			<para>“采集方式”：网元性能的采集方式，如“每天采”、“循环采”和“不采集”</para>
+
+			<para>“最近采集时间”：最近一次网元性能成功采集的时间</para>
+
+			<para>“上次采集间隔（天）”：最近两次网元性能成功采集的时间间隔</para>
+
+			<para>“状态”：最近一次该网元性能的采集状态，包括：完成、进行中、采集失败（网元不在线）、采集失败（网元无响应）</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;类型下拉框&gt;，选择相应设备类型后，可自动筛选显示对应设备类型的网元。</para>
+
+			<para>点击&lt;型号下拉框&gt;，选择相应设备型号后，可自动筛选显示对应设备型号的网元。</para>
+
+		</section>
+
+	</section>
+
+</chapter>

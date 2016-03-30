@@ -1,0 +1,892 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+	<info>
+		<title>电路</title>
+	</info>
+
+	<section xml:id="节-电路自动生成">
+		<title>电路自动生成</title>
+
+		<para>【描述】</para>
+
+		<para>通过设置电路自动生成，定时自动获取指定区域内网元配置信息、网络link信息等信息，生成端到端传送电路。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;电路&gt;→&lt;电路自动生成&gt;，电路自动生成页面将会打开，如下图。</para>
+
+		<figure xml:id="图-电路自动生成">
+			<title>电路自动生成</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/circuit/circuit_automatic_generation.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/circuit/circuit_automatic_generation.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管分组”：网管所属分组名称</para>
+
+		<para>“网管”：网管名称</para>
+
+		<para>“任务周期”：显示任务自动执行周期，格式范例为“每月 1号 12:00:00”，可编辑</para>
+
+		<para>“任务状态”: 显示当前任务所处状态，包括：启用、挂起。</para>
+
+		<para>“上次结束时间”：显示本任务上次执行时的结束时间，时间为空表示任务首次启动</para>
+
+		<para>“下次开始时间”: 显示按设置周期下次任务开始时间，当任务被挂起时，则显示为空</para>
+
+		<para>“执行状态”：显示任务执行状态，包括：执行中、执行成功、执行失败、执行中止。任务正在执行时显示“执行中”。任务执行完成后显示“执行成功”。当执行出现异常时显示“执行失败”。任务强制被终止后显示“执行中止”。首次执行前任务状态为空</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击“网管分组”后的下拉框，选择组名后，可自动显示对应网管分组下网管数据。默认将显示所有网管分组中的网管数据。</para>
+
+		<para>点击&lt;启用&gt;按钮，弹出提示框，如下图。</para>
+
+		<figure xml:id="图-任务启用确认框">
+			<title>任务启用确认框</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/circuit/enable_task_confirm.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>确认启用后的任务将根据设置定时执行。</para>
+
+		<para>点击&lt;挂起&gt;按钮，将选择任务挂起。</para>
+
+		<para>点击&lt;任务周期&gt;栏的可编辑按钮<inlinemediaobject><imageobject><imagedata fileref="images/circuit/editable_button.png" valign="middle"/></imageobject></inlinemediaobject>，设定任务执行周期。参见<xref linkend="节-任务周期"/>。</para>
+
+		<caution>
+			<title>[注意]：</title>
+			<para>点击&lt;启用&gt;、&lt;挂起&gt;按钮前，用户必须勾选网管。支持多选。</para>
+		</caution>
+
+		<section xml:id="节-任务周期">
+			<title>任务周期</title>
+
+			<para>【页面显示】</para>
+
+			<para>在&lt;电路自动生成&gt;页面点击&lt;任务周期&gt;栏的可编辑按钮<inlinemediaobject><imageobject><imagedata fileref="images/circuit/editable_button.png" valign="middle"/></imageobject></inlinemediaobject>，周期设定窗弹出，如下图。</para>
+
+			<figure xml:id="图-电路自动生成周期设定">
+				<title>电路自动生成周期设定</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/circuit/circuit_automatic_generation_period_setting.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“重复”：选择计划周期长度，包括：每周、每月。默认为“每周”。根据选项不同，窗口显示内容不同。</para>
+
+			<para>“日期”：选择计划开始的日期。当“重复”选择“每周”时，下拉框内选择项为：周一、周二、…、周日，默认为周六。当“重复”选择“每月”时，下拉框内选择项为：1号、2号、…、31号、月末，默认为1号。在下拉框下显示提示文本“注：如选择29~31号，则在部分月份无法执行”，颜色为红色</para>
+
+			<para>“时间”：选择任务开始时间</para>
+
+			<para>“开始日期”：下次任务的开始时间，根据”重复”、”日期”、”时间”自动生成</para>
+
+			<para>“摘要”：根据上述设置显示设计的周期规律，根据&lt;重复&gt;、&lt;日期&gt;、&lt;时间&gt;自动生成</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;重复&gt;后的下拉框选择重复的周期：每月、每周</para>
+
+			<para>点击&lt;日期&gt;后的下拉框选择任务执行日期</para>
+
+			<para>点击&lt;时间&gt;后控件，选择任务执行时间，默认时间为12:00:00</para>
+
+			<para>点击&lt;确定&gt;按钮，完成周期设置，关闭弹框</para>
+
+			<para>点击&lt;取消&gt;按钮，放弃设置操作，关闭弹窗</para>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-电路手动生成">
+		<title>电路手动生成</title>
+
+		<para>【描述】</para>
+
+		<para>手动选择范围，自动生成电路。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;电路&gt;→&lt;电路手动生成&gt;，电路手动生成页面将会打开，如下图。</para>
+
+		<figure xml:id="图-电路手动生成">
+			<title>电路手动生成</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/circuit/circuit_manual_generation.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/circuit/circuit_manual_generation.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“电路编号”：电路编号。</para>
+
+		<para>“资源编号”：资源系统编号，可编辑。</para>
+
+		<para>“业务类型”：电路业务类型，包括SDH、ETH、OTN/WDM、PTN。</para>
+
+		<para>“A端网元”：电路A端网元信息。</para>
+
+		<para>“A端端口”：电路A端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+		<para>“A端时隙”：显示电路A端时隙。</para>
+
+		<para>“Z端网元”：电路Z端网元信息。</para>
+
+		<para>“Z端端口”：电路Z端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+		<para>“Z端时隙”：显示电路Z端时隙。</para>
+
+		<para>“电路速率”：显示电路速率。</para>
+
+		<para>“电路类别”：显示电路类别，类别包括：完整、不完整。</para>
+
+		<para>“路由名称”：显示电路路由名称，可编辑。</para>
+
+		<para>“客户名称”：电路所属客户名称，可编辑。</para>
+
+		<para>“用途”：电路用途，可编辑。</para>
+
+		<para>“A端用户”：A端用户名称，可编辑。</para>
+
+		<para>“Z端用户”：Z端用户名称，可编辑。</para>
+
+		<para>“A端所属网管”：显示电路A端网元所属网管信息。</para>
+
+		<para>“A端所属网管分组”：显示电路A端网元所属网管分组信息。</para>
+
+		<para>“Z端所属网管”：显示电路A端网元所属网管信息。</para>
+
+		<para>“Z端所属网管分组”：显示电路A端网元所属网管分组信息。</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;电路生成&gt;按钮，系统自动生成选择区域内的电路并将新增或修改后的电路信息显示在下方的“电路信息列表显示”区域。</para>
+
+		<para>点击&lt;全网生成&gt;按钮，系统自动生成登录用户可管理全部区域内的电路并将新增或修改后的电路信息显示在下方的“电路信息列表显示”区域。</para>
+
+		<para>点击&lt;电路详情&gt;按钮，当选择电路业务类型为SDH时，参见<xref linkend="节-SDH电路路由详情"/>，当选择电路业务类型为OTN/WDM时，参见<xref linkend="节-OTNWDM电路路由详情"/>，当选择电路业务类型为ETH时，参见<xref linkend="节-子电路清单"/>。</para>
+
+		<para>点击&lt;保存&gt;按钮，确认修改电路的描述信息。</para>
+
+		<para>点击&lt;导出&gt;按钮导出最新生成的电路信息。</para>
+
+		<para>点击“电路类型”后的下拉框显示最新生成的电路信息。</para>
+
+	</section>
+
+	<section xml:id="节-端到端查询">
+		<title>端到端查询</title>
+
+		<para>【描述】</para>
+
+		<para>端到端查询实现对指定起始点和终结点的电路进行查询。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;电路&gt;→&lt;端到端查询&gt;，端到端查询页面将会打开，如下图。</para>
+
+		<figure xml:id="图-端到端查询">
+			<title>端到端查询</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/circuit/port_to_port_query.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/circuit/port_to_port_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“业务类型”：电路业务类型，包括：SDH、以太网、OTN/WDM、PTN电路。</para>
+
+		<para>“A端参数选择”：选择A端的设备信息或地点信息。</para>
+
+		<para>“Z端参数选择”：选择Z端的设备信息或地点信息。</para>
+
+		<para>“设备选择”：设备查询条件，包括：网元、机架、板卡、端口。</para>
+
+		<para>“地点选择”：地点查询条件，包括：局站、机房。</para>
+
+		<para>“网元”：设备的网元信息。</para>
+
+		<para>“板卡”：设备的板卡信息。</para>
+
+		<para>“端口”：设备的端口信息。</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;电路业务类型&gt;后的下拉框选择需要查询的电路类型，包括：SDH、以太网、OTN/WDM、PTN电路。</para>
+
+		<para>在左侧树状导航区域选择对后点击&lt; A端参数选择&gt;→&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/right_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮，添加A端的设备查询条件。并显示设备的网元、板卡、端口信息。</para>
+
+		<para>点击&lt; A端参数选择&gt;→&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/left_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮，删除A端设备的查询条件。</para>
+
+		<para>点击&lt; A端参数选择&gt;中&lt;重置&gt;按钮，删除A端地点选择查询条件。</para>
+
+		<para>点击&lt; Z端参数选择&gt;中&lt;地址选择&gt;按钮，选择地点信息，详见<xref linkend="节-区域选择树"/>。</para>
+
+		<para>在左侧树状导航区域选择对后点击&lt; Z端参数选择&gt;→&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/right_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮，添加Z端的设备查询条件。并显示设备的网元、板卡、端口信息。</para>
+
+		<para>点击&lt; Z端参数选择&gt;→&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/left_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮，删除Z端设备的查询条件。</para>
+
+		<para>点击&lt; Z端参数选择&gt;中&lt;地址选择&gt;按钮，选择地点信息，详见<xref linkend="节-区域选择树"/>。</para>
+
+		<para>点击&lt; Z端参数选择&gt;中&lt;重置&gt;按钮，删除Z端地点选择查询条件。</para>
+
+		<para>点击&lt;查询&gt;按钮，查询电路，显示查询结果，详见<xref linkend="节-电路清单"/>。</para>
+
+		<para>点击&lt;重置&gt;按钮，删除已选择的所有查询条件。</para>
+
+		<section xml:id="节-电路清单">
+			<title>电路清单</title>
+
+			<para>【页面显示】</para>
+
+			<para>在&lt;端到端查询&gt;或&lt;相关性查询&gt;页面点击&lt;查询&gt;按钮，进入&lt;电路清单&gt;页面，如下图。</para>
+
+			<figure xml:id="图-电路清单">
+				<title>电路清单</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/circuit_inventory.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/circuit_inventory.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“电路编号”：电路编号。</para>
+
+			<para>“资源编号”：资源系统编号，可编辑。</para>
+
+			<para>“业务类型”：电路业务类型，包括SDH、ETH、OTN/WDM、PTN。</para>
+
+			<para>“A端网元”：电路A端网元信息。</para>
+
+			<para>“A端端口”：电路A端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+			<para>“A端时隙”：显示电路A端时隙。</para>
+
+			<para>“Z端网元”：电路Z端网元信息。</para>
+
+			<para>“Z端端口”：电路Z端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+			<para>“Z端时隙”：显示电路Z端时隙。</para>
+
+			<para>“电路速率”：显示电路速率。</para>
+
+			<para>“电路类别”：显示电路类别，类别包括：完整、不完整。</para>
+
+			<para>“路由名称”：显示电路路由名称，可编辑。</para>
+
+			<para>“客户名称”：电路所属客户名称，可编辑。</para>
+
+			<para>“用途”：电路用途，可编辑。</para>
+
+			<para>“A端用户”：A端用户名称，可编辑。</para>
+
+			<para>“Z端用户”：Z端用户名称，可编辑。</para>
+
+			<para>“A端所属网管”：显示电路A端网元所属网管信息。</para>
+
+			<para>“A端所属网管分组”：显示电路A端网元所属网管分组信息。</para>
+
+			<para>“Z端所属网管”：显示电路A端网元所属网管信息。</para>
+
+			<para>“Z端所属网管分组”：显示电路A端网元所属网管分组信息。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;保存&gt;按钮，确认修改电路的描述信息。</para>
+
+			<para>点击&lt;路由详情&gt;按钮，查看电路的详细路由信息、告警和性能信息。SDH电路参考<xref linkend="节-SDH电路路由详情"/>，以太网电路参考<xref linkend="节-子电路清单"/>，OTN/WDM电路参见<xref linkend="节-OTNWDM电路路由详情"/>，PTN电路参考<xref linkend="节-PTN电路路由详情"/>。</para>
+
+			<para>点击&lt;导出&gt;按钮，将电路信息导出成excel格式。</para>
+
+			<note>
+				<title>[说明]：</title>
+
+				<para>导出功能最多只导出前2000条数据，若电路查询结果个数大于2000条将提示用户是否继续导出，如下图所示。</para>
+
+				<figure xml:id="图-导出提示框">
+					<title>导出提示框</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/circuit/export_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/circuit/export_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>点击&lt;路由详情&gt;按钮前必须保证勾选了一条电路。否则会出现如下提示框。</para>
+
+				<figure xml:id="图-路由详情提示框">
+					<title>路由详情提示框</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/circuit/route_detail_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/circuit/route_detail_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>修改信息，双击可编辑项，即可进入编辑模式。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-子电路清单">
+			<title>子电路清单</title>
+
+			<para>【页面显示】</para>
+
+			<para>在&lt;电路清单&gt;页面 点击&lt;路由详情&gt;按钮进入&lt;子电路清单&gt;页面，如下图。</para>
+
+			<figure xml:id="图-子电路清单">
+				<title>子电路清单</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/subcircuit_inventory.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/subcircuit_inventory.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“电路编号”：电路编号。</para>
+
+			<para>“资源编号”：资源系统编号，可编辑。</para>
+
+			<para>“业务类型”：电路业务类型，包括SDH、ETH、OTN/WDM、PTN。</para>
+
+			<para>“A端网元”：电路A端网元信息。</para>
+
+			<para>“A端端口”：电路A端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+			<para>“A端时隙”：显示电路A端时隙。</para>
+
+			<para>“Z端网元”：电路Z端网元信息。</para>
+
+			<para>“Z端端口”：电路Z端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+			<para>“Z端时隙”：显示电路Z端时隙。</para>
+
+			<para>“电路速率”：显示电路速率。</para>
+
+			<para>“电路类别”：显示电路类别，类别包括：完整、不完整。</para>
+
+			<para>“路由名称”：显示电路路由名称，可编辑。</para>
+
+			<para>“客户名称”：电路所属客户名称，可编辑。</para>
+
+			<para>“用途”：电路用途，可编辑。</para>
+
+			<para>“A端用户”：A端用户名称，可编辑。</para>
+
+			<para>“Z端用户”：Z端用户名称，可编辑。</para>
+
+			<para>“A端所属网管”：显示电路A端网元所属网管信息。</para>
+
+			<para>“A端所属网管分组”：显示电路A端网元所属网管分组信息。</para>
+
+			<para>“Z端所属网管”：显示电路A端网元所属网管信息。</para>
+
+			<para>“Z端所属网管分组”：显示电路A端网元所属网管分组信息。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;路由详情&gt;按钮，查看电路的详细路由信息、告警和性能信息。</para>
+
+			<para>点击&lt;导出&gt;按钮，将电路信息导出成excel格式。</para>
+
+		</section>
+
+		<section xml:id="节-SDH电路路由详情">
+			<title>SDH电路路由详情</title>
+
+			<para>【页面显示】</para>
+
+			<para>点击&lt;路由详情&gt;按钮，进入&lt;sdh电路路由详情&gt;页面，如下图。</para>
+
+			<figure xml:id="图-SDH电路路由详情">
+				<title>SDH电路路由详情</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/sdh_circuit_route_detail.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/sdh_circuit_route_detail.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“电路编号”：电路编号。</para>
+
+			<para>“资源编号”：资源系统编号。</para>
+
+			<para>“业务类型”：电路业务类型，包括SDH、ETH、OTN/WDM、PTN。</para>
+
+			<para>“A端网元”：电路A端网元信息。</para>
+
+			<para>“A端端口”：电路A端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+			<para>“A端时隙”：显示电路A端时隙。</para>
+
+			<para>“Z端网元”：电路Z端网元信息。</para>
+
+			<para>“Z端端口”：电路Z端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号（端口类型-端口速率）。</para>
+
+			<para>“Z端时隙”：显示电路Z端时隙。</para>
+
+			<para>“电路速率”：显示电路速率。</para>
+
+			<para>“电路类别”：显示电路类别，类别包括：完整、不完整。</para>
+
+			<para>“路由名称”：显示电路路由名称。</para>
+
+			<para>“客户名称”：电路所属客户名称。</para>
+
+			<para>“用途”：电路用途。</para>
+
+			<para>“A端用户”：A端用户名称。</para>
+
+			<para>“Z端用户”：Z端用户名称。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;导出&gt;按钮，将电路路由信息导出成excel格式。</para>
+
+			<para>点击“电路告警/性能”前的单选框，显示&lt;电路告警/性能&gt;页面，如下图。具体说明参见性能、告警模块。</para>
+
+			<figure xml:id="图-SDH当前告警_性能">
+				<title>当前告警/性能</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/sdh_current_alarm_pm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/sdh_current_alarm_pm.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+		</section>
+
+		<section xml:id="节-OTNWDM电路路由详情">
+			<title>OTN/WDM电路路由详情</title>
+
+			<para>【页面显示】</para>
+
+			<para>点击&lt;路由详情&gt;按钮，进入&lt;otn电路路由详情&gt;页面，如下图。</para>
+
+			<figure xml:id="图-OTN电路路由详情">
+				<title>OTN电路路由详情</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/otn_circuit_route_detail.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/otn_circuit_route_detail.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“电路编号”：电路编号。</para>
+
+			<para>“资源编号”：资源系统编号。</para>
+
+			<para>“业务类型”：电路业务类型，包括SDH、ETH、OTN/WDM。</para>
+
+			<para>“A端网元”：电路A端网元信息。</para>
+
+			<para>“A端端口”：电路A端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号。</para>
+
+			<para>“A端时隙”：显示电路A端时隙。</para>
+
+			<para>“Z端网元”：电路Z端网元信息。</para>
+
+			<para>“Z端端口”：电路Z端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号。</para>
+
+			<para>“Z端时隙”：显示电路Z端时隙。</para>
+
+			<para>“电路类别”：显示电路类别，类别包括：完整、不完整。</para>
+
+			<para>“路由名称”：显示电路路由名称。</para>
+
+			<para>“客户名称”：电路所属客户名称。</para>
+
+			<para>“用途”：电路用途。</para>
+
+			<para>“A端用户”：A端用户名称。</para>
+
+			<para>“Z端用户”：Z端用户名称。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;导出&gt;按钮，将电路路由信息导出成excel格式。</para>
+
+			<para>点击“电路告警/性能”前的单选框，显示&lt;电路告警/性能&gt;页面，如下图。具体说明参见性能、告警模块。</para>
+
+			<figure xml:id="图-OTN当前告警_性能">
+				<title>当前告警/性能</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/otn_current_alarm_pm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/otn_current_alarm_pm.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+		</section>
+
+		<section xml:id="节-PTN电路路由详情">
+			<title>PTN电路路由详情</title>
+
+			<para>【页面显示】</para>
+
+			<para>点击&lt;路由详情&gt;按钮，进入&lt;ptn电路路由详情&gt;页面，如下图。</para>
+
+			<figure xml:id="图-PTN电路路由详情">
+				<title>PTN电路路由详情</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/ptn_circuit_route_detail.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/ptn_circuit_route_detail.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“电路编号”：电路编号。</para>
+
+			<para>“资源编号”：资源系统编号。</para>
+
+			<para>“业务类型”：电路业务类型，包括SDH、ETH、OTN/WDM、PTN。</para>
+
+			<para>“A端网元”：电路A端网元信息。</para>
+
+			<para>“A端端口”：电路A端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号。</para>
+
+			<para>“A端时隙”：显示电路A端时隙。</para>
+
+			<para>“Z端网元”：电路Z端网元信息。</para>
+
+			<para>“Z端端口”：电路Z端端口信息。信息内容包括：机架号、子架号、槽道号（板卡名）、端口号。</para>
+
+			<para>“Z端时隙”：显示电路Z端时隙。</para>
+
+			<para>“电路类别”：显示电路类别，类别包括：完整、不完整。</para>
+
+			<para>“路由名称”：显示电路路由名称。</para>
+
+			<para>“客户名称”：电路所属客户名称。</para>
+
+			<para>“用途”：电路用途。</para>
+
+			<para>“A端用户”：A端用户名称。</para>
+
+			<para>“Z端用户”：Z端用户名称。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;导出&gt;按钮，将电路路由信息导出成excel格式。</para>
+
+			<para>点击“电路告警/性能”前的单选框，显示&lt;电路告警/性能&gt;页面，如下图。具体说明参见性能、告警模块。</para>
+
+			<figure xml:id="图-PTN当前告警_性能">
+				<title>当前告警/性能</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/ptn_current_alarm_pm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/ptn_current_alarm_pm.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+		</section>
+
+		<section xml:id="节-区域选择树">
+			<title>区域选择树</title>
+
+			<para>【页面显示】</para>
+
+			<para>点击&lt;地点选择&gt;按钮，弹出区域选择树，如下图。</para>
+
+			<figure xml:id="图-区域选择树">
+				<title>区域选择树</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/region_select_tree.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/region_select_tree.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>区域选择树分为六级：省，市，区，街道，局站，机房。</para>
+
+			<para>“省”：省</para>
+
+			<para>“市”：市</para>
+
+			<para>“区”：区</para>
+
+			<para>“街道”：街道</para>
+
+			<para>“局站”：局站</para>
+
+			<para>“机房”：机房</para>
+
+			<para>【功能说明】</para>
+
+			<para>勾选节点后，点击&lt;确定&gt;按钮，确认选择，关闭弹窗。</para>
+
+			<para>点击&lt;X&gt;按钮，无论是否勾选，都放弃选择，关闭弹窗。</para>
+
+			<note>
+				<title>[说明]：</title>
+
+				<para>查询条件必须勾选到局站或机房。</para>
+			</note>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-相关性查询">
+		<title>相关性查询</title>
+
+		<para>【描述】</para>
+
+		<para>相关查询实现对与指定对象有关的全部电路进行查询。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;电路&gt;→&lt;相关性查询&gt;，相关性查询页面将会打开，如下图。</para>
+
+		<figure xml:id="图-相关性查询">
+			<title>相关性查询</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/circuit/related_query.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/circuit/related_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“设备选择”：设备查询条件，包括：网元、机架、板卡、端口。</para>
+
+		<para>“地点选择”：地点查询条件，包括：局站、机房。</para>
+
+		<para>“电路速率”：电路速率。</para>
+
+		<para>“业务类型”：电路业务类型，包括：SDH、以太网、OTN/WDM、PTN电路。</para>
+
+		<para>“光缆编号”：光缆编号。</para>
+
+		<para>“链路编号”：链路编号。</para>
+
+		<para>“电路编号”：电路编号。</para>
+
+		<para>“电路类别”：电路类别，类别包括：完整、不完整。</para>
+
+		<para>“用途”：电路用途。</para>
+
+		<para>“资源编号”：电路资源编号。</para>
+
+		<para>“路由名称”：电路路由名称。</para>
+
+		<para>“客户名称”：客户名称。</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;电路业务类型&gt;后的下拉框选择需要查询的电路类型，包括：SDH、以太网、OTN/WDM电路。</para>
+
+		<para>点击&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/right_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮，添加设备查询条件,并显示设备的网元、板卡、端口信息。</para>
+
+		<para>点击&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/left_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮，删除设备的查询条件。</para>
+
+		<para>点击&lt;设备选择&gt;中<inlinemediaobject><imageobject><imagedata fileref="images/circuit/double_left_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮，删除所有已选设备。</para>
+
+		<para>点击&lt;地点选择&gt;按钮，选择地点信息，参见<xref linkend="节-区域选择树"/>。</para>
+
+		<para>点击查询按钮，查询电路，显示查询结果，详见<xref linkend="节-电路清单"/>。</para>
+
+		<para>点击重置按钮，删除已选择的所有查询条件。</para>
+
+		<note>
+			<title>[说明]：</title>
+
+			<para>点击&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/right_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮前必须在导航树上勾选一条查询条件，否则弹出如下提示。</para>
+
+			<figure xml:id="图-提示框">
+				<title>提示框</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para> 点击&lt;设备选择&gt;中的<inlinemediaobject><imageobject><imagedata fileref="images/circuit/left_arrow.png" valign="middle"></imagedata></imageobject></inlinemediaobject>按钮前，必须勾选至少一条需要删除的条件，否则弹出如下提示。</para>
+
+			<figure xml:id="图-删除提示框">
+				<title>删除提示框</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/delete_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/delete_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>选择设备查询条件时，不能够跨级别勾选，查询个数最多不要超过五个。</para>
+
+		</note>
+
+	</section>
+
+	<section xml:id="节-交叉连接查询">
+		<title>交叉连接查询</title>
+
+		<para>【描述】</para>
+
+		<para>交叉连接查询实现对指定网元的交叉连接进行查询。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;电路&gt;→&lt;交叉连接查询&gt;，交叉连接查询页面将会打开，如下图。</para>
+
+		<figure xml:id="图-交叉连接查询">
+			<title>交叉连接查询</title>
+			<mediaobject>
+				<imageobject role="html">
+					<imagedata fileref="images/circuit/cross_connec_query.png" align="center" scalefit="0" width="100%"/>
+				</imageobject>
+				<imageobject role="fo">
+					<imagedata fileref="images/circuit/cross_connec_query.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“网管名称”：交叉连接所属的网管名称。</para>
+
+		<para>“网元名称”：交叉连接所属的网元名称。</para>
+
+		<para>“A端节点”：A端端口名称。</para>
+
+		<para>“A端时隙”：A端时隙。</para>
+
+		<para>“Z端节点”：Z端端口名称。</para>
+
+		<para>“Z端时隙”：Z端时隙。</para>
+
+		<para>“连接速率”：连接速率，包括：VC12、VC3、VC4、VC4-4C、VC4-8C、VC4-16C、VC4-64C。</para>
+
+		<para>“交叉连接类别”：包括：正常、离散。正常：隶属于一个或多个电路。离散：不隶属于任何电路。</para>
+
+		<para>“交叉连接变化”：包括：新增、删除、不变。新增：和上次交叉连接同步数据相比新增加的。删除：和上次交叉连接同步数据相比删除的。不变：和上次交叉连接同步数据相比没有变化的。</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;连接速率&gt;后面的下拉框选择速率查询条件。</para>
+
+		<para>点击&lt;交叉连接类别&gt;后面的下拉框选择类别查询条件，包括离散，完整、全部。</para>
+
+		<para>点击&lt;交叉连接状态&gt;后面的下拉框选择状态查询条件,包括新增、删除、不变，全部。</para>
+
+		<para>点击&lt;查询&gt;按钮，查询所有符合条件的交叉连接。</para>
+
+		<para>点击&lt;导出&gt;按钮，将查询结果导出成excel格式文件。</para>
+
+		<note>
+			<title>[说明]：</title>
+
+			<para>点击&lt;查询&gt;按钮之前，必须在导航树上钩选一个网元。否则将弹出如下图提示框。</para>
+
+			<figure xml:id="图-交叉连接查询提示">
+				<title>交叉连接查询提示</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/cross_connect_query_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/cross_connect_query_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>点击&lt;导出&gt;按钮前必须有数据，否则显示如下图提示框。</para>
+
+			<figure xml:id="图-交叉连接导出提示">
+				<title>导出提示</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/circuit/cross_connect_export_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/circuit/cross_connect_export_prompt.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+		</note>
+
+	</section>
+</chapter>

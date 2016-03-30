@@ -1,0 +1,88 @@
+@charset "utf-8";
+/* CSS Document */
+
+body {
+	margin: 0; padding: 0;
+	font-family: Verdana, Geneva, sans-serif;
+	font-size: 11px; line-height: 18px;
+	
+	background: #bab3c7;
+}
+
+p { margin: 0; padding: 0 0 12px 0; }
+
+#ctl_head {
+	margin-top: -40px;
+	background: #1f5ead url(Images/header_bg.gif) left top repeat-x;
+	height: 75px;
+	text-align: center;
+	padding-top: 71px;
+}
+
+#ctl_outerwrap { 	background: #ece2ff; }
+#ctl_wrap {
+	width: 960px;
+	margin: 0 auto;
+	background: #fff url(Images/bg_body.gif) center top repeat-y;
+}
+
+#ctl_side {
+	float: right;
+	width: 260px; height: 525px;
+	padding: 20px;
+	font-size: 90%;
+	border-left: 1px solid #ddf;
+}
+
+#ctl_body, #ctl_tabs, #ctl_foot {
+	padding: 0 20px;
+}
+
+#ctl_body {
+	height: 575px;
+	width: 600px;
+}
+
+#ctl_tabs {
+	background: #ece2ff url(Images/bg_tabs.gif) right top no-repeat;
+	padding-top: 16px;
+	height: 102px;
+}
+
+#ctl_tabs a,
+#ctl_tabs a.selected {
+	margin-top: -3px;
+	display: block;
+	float: left;
+	width: 231px;
+	text-align: center;
+	text-decoration: none;
+	background: transparent url(Images/tab_blue.gif) center top no-repeat;
+	color: #fff;
+}
+#ctl_tabs a span {
+	display: block;
+    font-size: 12px;
+	padding: 30px 0;
+}
+
+#ctl_tabs a.selected,
+#ctl_tabs a:hover {
+	background-image: url(Images/tab_white.gif);
+	color: #025a8c;
+}
+
+#ctl_foot {
+	background: #bab3c7 url(Images/bg_foot.gif) left top repeat-x;
+	height: 100px;
+	padding-top: 22px;
+}
+
+.button {
+	border: 1px solid #ddd;
+	background: #eee;
+	color: #666;
+	padding: 5px;
+	width: 170px;
+	_cursor: hand; cursor: pointer;
+}

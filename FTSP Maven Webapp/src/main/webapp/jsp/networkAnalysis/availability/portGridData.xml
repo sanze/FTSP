@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Data>
+  <Items>   
+    <TotalResults>3</TotalResults>
+    <TotalPages>1</TotalPages>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>中卫老电信局_1/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>CX600</DISPLAY_PRODUCT_NAME>
+      <ZONGHE>20%(20/100)</ZONGHE>
+      <STM64>2%(2/100)</STM64>
+      <STM16>40%(40/100)</STM16>
+      <STM4>23%(23/100)</STM4>
+      <STM1>23%(23/100)</STM1>
+      <E4>36%(36/100)</E4>
+      <E3>86%(86/100)</E3>
+      <E1>89%(89/100)</E1>
+      <GE>36%(36/100)</GE>
+      <FE>86%(86/100)</FE>
+      <OUT>89%(89/100)</OUT>
+      <OTHERS>89%(89/100)</OTHERS>
+    </Item>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>气象局_20/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>ZXMP S200</DISPLAY_PRODUCT_NAME>
+      <ZONGHE>25%(50/200)</ZONGHE>
+      <STM64>11%(11/100)</STM64>
+      <STM16>16%(16/100)</STM16>
+      <STM4>34%(34/100)</STM4>
+      <STM1>26%(26/100)</STM1>
+      <E4>36%(36/100)</E4>
+      <E3>86%(86/100)</E3>
+      <E1>89%(89/100)</E1>
+      <GE>36%(36/100)</GE>
+      <FE>86%(86/100)</FE>
+      <OUT>89%(89/100)</OUT>
+      <OTHERS>89%(89/100)</OTHERS>
+    </Item>
+    <Item>
+      <DISPLAY_EMS_GROUP>中兴</DISPLAY_EMS_GROUP>     
+      <DISPLAY_EMS>U31-SDH</DISPLAY_EMS>
+      <DISPLAY_NE>地毯厂60/本地/ZXSDH中卫C网/ZWCSZW</DISPLAY_NE>
+      <DISPLAY_AREA>银川</DISPLAY_AREA>
+      <FACTORY>中兴</FACTORY>
+      <DISPLAY_PRODUCT_NAME>ZXMP S380</DISPLAY_PRODUCT_NAME>
+      <ZONGHE>4%(4/100)</ZONGHE>
+      <STM64>11%(11/100)</STM64>
+      <STM16>44%(44/100)</STM16>
+      <STM4>22%(22/100)</STM4>
+      <STM1>12%(12/100)</STM1>
+      <E4>36%(36/100)</E4>
+      <E3>86%(86/100)</E3>
+      <E1>89%(89/100)</E1>
+      <GE>36%(36/100)</GE>
+      <FE>86%(86/100)</FE>
+      <OUT>89%(89/100)</OUT>
+      <OTHERS>89%(89/100)</OTHERS>
+    </Item>
+  </Items>
+</Data>

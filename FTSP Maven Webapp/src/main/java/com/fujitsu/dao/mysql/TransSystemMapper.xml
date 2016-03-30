@@ -1,0 +1,673 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.TransSystemMapper">
+	    
+    <select id="getAllTransmissionSystem" resultType="hashmap" parameterType="hashmap">
+        SELECT * FROM T_RESOURCE_TRANS_SYS
+        <where>
+        	1 = 1
+        	<if test="param.netLevelId != null">
+        	AND NET_LEVEL = #{param.netLevelId}
+        	</if>
+        </where>
+		<if test="limit != null and limit > 0">
+			LIMIT ${start}, ${limit}
+		</if>
+    </select>
+   	<sql id="getLinkSql">
+		from
+		  t_base_link bl left join t_resource_trans_sys rts on bl.resource_trans_sys_id=rts.resource_trans_sys_id
+		    left join t_base_ptp ap on bl.A_END_PTP=ap.BASE_PTP_ID and bl.A_NE_ID=ap.BASE_NE_ID
+		    left join t_base_ne an on bl.A_NE_ID=an.BASE_NE_ID
+		    
+		    left join t_base_ptp zp on bl.Z_END_PTP=zp.BASE_PTP_ID and bl.Z_NE_ID=zp.BASE_NE_ID
+		    left join t_base_ne zn on bl.Z_NE_ID=zn.BASE_NE_ID		    
+		where (ISNULL(bl.IS_DEL) or bl.IS_DEL=0)
+		  <if test="param.NET_LEVEL!=null">
+		  and rts.NET_LEVEL=#{param.NET_LEVEL}
+		  </if>
+		  <if test="param.RESOURCE_TRANS_SYS_ID!=null">
+		  and rts.RESOURCE_TRANS_SYS_ID=#{param.RESOURCE_TRANS_SYS_ID}
+		  </if>
+		  <if test="param.LINK_TYPE!=null">
+		  and bl.LINK_TYPE=#{param.LINK_TYPE}
+		  </if>
+		  <if test="param.IS_MAIN!=null">
+		  and bl.IS_MAIN=#{param.IS_MAIN}
+		  </if>
+		  <if test="param.A_NE_ID!=null">
+		  and bl.A_NE_ID=#{param.A_NE_ID}
+		  </if>
+		  <if test="param.Z_NE_ID!=null">
+		  and bl.Z_NE_ID=#{param.Z_NE_ID}
+		  </if>
+		  <if test="param.neList!=null">
+		  and bl.A_NE_ID in 
+			<foreach collection="param.neList"  item="id"	open="(" close=")" separator=",">
+								${id}
+		    </foreach>
+		  and bl.Z_NE_ID IN 
+			<foreach collection="param.neList"  item="id"	open="(" close=")" separator=",">
+								${id}
+		    </foreach>
+		  </if>
+	</sql>
+	<select id="getAllLink" resultType="hashmap" parameterType="hashmap">
+		SELECT 
+		rts.SYS_NAME,
+		bl.DISPLAY_NAME as LINK_NAME,
+		
+		an.DISPLAY_NAME as A_NE_NAME,
+		ap.PORT_DESC as A_PTP_NAME,
+		
+		zn.DISPLAY_NAME as Z_NE_NAME,
+		zp.PORT_DESC as Z_PTP_NAME,
+		
+		bl.BASE_LINK_ID,
+		bl.A_NE_ID,
+		bl.Z_NE_ID,
+		bl.A_END_PTP as A_PTP_ID,
+		bl.Z_END_PTP as Z_PTP_ID
+		
+		<include refid="getLinkSql" />
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if>
+	</select>
+    
+    
+	<sql id="transmissionSystemInfo">
+		<![CDATA[
+			select ORI.*,ne.BASE_EMS_CONNECTION_ID,ems.DISPLAY_NAME EMS_DISPLAY_NAME from (
+				select ts.*,tn.NE_ID from t_resource_trans_sys ts 
+				left join t_resource_trans_sys_ne tn on ts.RESOURCE_TRANS_SYS_ID = tn.RESOURCE_TRANS_SYS_ID 
+				union
+				select ts.*,tn.NE_ID from t_resource_trans_sys ts 
+				right join t_resource_trans_sys_ne tn on ts.RESOURCE_TRANS_SYS_ID = tn.RESOURCE_TRANS_SYS_ID ) ORI 
+			left join t_base_ne ne on ORI.NE_ID = ne.BASE_NE_ID 
+			left join t_base_ems_connection ems on ne.BASE_EMS_CONNECTION_ID = ems.BASE_EMS_CONNECTION_ID
+		]]>
+	</sql>
+
+	
+	<!-- 获取用户可见的所有网元 -->
+	<select id="getAllVisibleNe" resultType='hashmap'>
+		select a.* from (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) as a
+	</select>
+	
+	<!-- 查询传输系统记录数 -->
+	<select id="queryTransmissionSystemCount" resultType='int'>
+		select count(1) from (
+			select * from (
+				select re1.*,Info.NE_COUNT,Info.EMS_NAME from (<include refid = "transmissionSystemInfo"/>) as re1 
+				left join 
+				(select re2.RESOURCE_TRANS_SYS_ID,count(re2.NE_ID) NE_COUNT,group_concat(re2.EMS_DISPLAY_NAME) EMS_NAME from 
+					(<include refid = "transmissionSystemInfo"/>) as re2 group by re2.RESOURCE_TRANS_SYS_ID 
+				) as Info on re1.RESOURCE_TRANS_SYS_ID = Info.RESOURCE_TRANS_SYS_ID ) result
+			<where>
+				1=1 
+				<if test="paramMap.areaIds != null">
+					and result.RESOURCE_AREA_ID in 
+					<foreach collection="paramMap.areaIds" index="index" item="areaId"
+							open="(" close=")" separator=",">
+							${areaId}
+					</foreach>
+				</if>
+				<if test="paramMap.sysCode != null and paramMap.sysCode != ''">
+					and result.SYS_CODE like concat('%', #{paramMap.sysCode}, '%')  
+				</if>
+				<if test="paramMap.sysName != null and paramMap.sysName != ''">
+					and result.SYS_NAME like concat('%', #{paramMap.sysName}, '%') 
+				</if>
+				<if test="paramMap.sysRate != null and paramMap.sysRate != ''">
+					and result.RATE = #{paramMap.sysRate} 
+				</if>
+				<if test="paramMap.domain != null and paramMap.domain != ''">
+					and result.DOMAIN = #{paramMap.domain} 
+				</if>
+				<if test="paramMap.type != null and paramMap.type != ''">
+					and result.TYPE = #{paramMap.type} 
+				</if>
+				<if test="paramMap.netLevel != null and paramMap.netLevel != ''">
+					and result.NET_LEVEL = #{paramMap.netLevel} 
+				</if>
+				<if test="paramMap.proType != null and paramMap.proType != ''">
+					and result.PRO_GROUP_TYPE = #{paramMap.proType} 
+				</if>
+				<if test="paramMap.genMethod != null and paramMap.genMethod != ''">
+					and result.GENERATE_METHOD = #{paramMap.genMethod} 
+				</if>
+				<if test="paramMap.emsCombo != null and paramMap.emsCombo != ''">
+					and result.BASE_EMS_CONNECTION_ID = #{paramMap.emsCombo} 
+				</if>
+				<if test="paramMap.neIds != null">
+					and result.NE_ID in 
+					<foreach collection="paramMap.neIds" index="index" item="neId"
+							open="(" close=")" separator=",">
+							${neId}
+					</foreach>
+				</if>
+			</where>
+			group by result.RESOURCE_TRANS_SYS_ID ) c
+	</select>
+	
+	<!-- 查询传输系统 -->
+	<select id="queryTransmissionSystem" resultType='hashmap'>
+		select * from (
+			select re1.*,Info.NE_COUNT,Info.EMS_NAME from (<include refid = "transmissionSystemInfo"/>) as re1 
+			left join 
+			(select re2.RESOURCE_TRANS_SYS_ID,count(re2.NE_ID) NE_COUNT,group_concat(re2.EMS_DISPLAY_NAME) EMS_NAME from 
+				(<include refid = "transmissionSystemInfo"/>) as re2 group by re2.RESOURCE_TRANS_SYS_ID 
+			) as Info on re1.RESOURCE_TRANS_SYS_ID = Info.RESOURCE_TRANS_SYS_ID ) result
+		<where>
+			1=1 
+			<if test="paramMap.areaIds != null">
+				and result.RESOURCE_AREA_ID in 
+				<foreach collection="paramMap.areaIds" index="index" item="areaId"
+						open="(" close=")" separator=",">
+						${areaId}
+				</foreach>
+			</if>
+			<if test="paramMap.sysCode != null and paramMap.sysCode != ''">
+				and result.SYS_CODE like concat('%', #{paramMap.sysCode}, '%')  
+			</if>
+			<if test="paramMap.sysName != null and paramMap.sysName != ''">
+				and result.SYS_NAME like concat('%', #{paramMap.sysName}, '%') 
+			</if>
+			<if test="paramMap.sysRate != null and paramMap.sysRate != ''">
+				and result.RATE = #{paramMap.sysRate} 
+			</if>
+			<if test="paramMap.domain != null and paramMap.domain != ''">
+				and result.DOMAIN = #{paramMap.domain} 
+			</if>
+			<if test="paramMap.type != null and paramMap.type != ''">
+				and result.TYPE = #{paramMap.type} 
+			</if>
+			<if test="paramMap.netLevel != null and paramMap.netLevel != ''">
+				and result.NET_LEVEL = #{paramMap.netLevel} 
+			</if>
+			<if test="paramMap.proType != null and paramMap.proType != ''">
+				and result.PRO_GROUP_TYPE = #{paramMap.proType} 
+			</if>
+			<if test="paramMap.genMethod != null and paramMap.genMethod != ''">
+				and result.GENERATE_METHOD = #{paramMap.genMethod} 
+			</if>
+			<if test="paramMap.emsCombo != null and paramMap.emsCombo != ''">
+				and result.BASE_EMS_CONNECTION_ID = #{paramMap.emsCombo} 
+			</if>
+			<if test="paramMap.neIds != null">
+				and result.NE_ID in 
+				<foreach collection="paramMap.neIds" index="index" item="neId"
+						open="(" close=")" separator=",">
+						${neId}
+				</foreach>
+			</if>
+		</where> 
+		group by result.RESOURCE_TRANS_SYS_ID 
+		<if test="limit != null and limit>0">
+				limit #{start}, #{limit}
+		</if>
+
+	</select>
+	<!-- 更新T_BASE_LINK表中的RESOURCE_TRANS_SYS_ID -->
+	<update id="updateTransSysIdInTBaseLink">
+		update t_base_link set RESOURCE_TRANS_SYS_ID = null where RESOURCE_TRANS_SYS_ID = #{transSysId}
+	</update>
+	
+	<!-- 删除T_RESOURCE_TRANS_SYS_NE表中的记录 -->
+	<delete id="dltTransSysNeByTransSysId">
+		delete from t_resource_trans_sys_ne where RESOURCE_TRANS_SYS_ID = #{transSysId}
+	</delete>
+	
+	<!-- 删除T_RESOURCE_TRANS_SYS表中的记录 -->
+	<delete id="dltTransSysByTransSysId">
+		delete from t_resource_trans_sys where RESOURCE_TRANS_SYS_ID = #{transSysId}
+	</delete>
+	
+	
+
+<!-- 333333333333333333333333333333333333333333333333333333333333333333333333333 -->
+
+	<!-- 获得带区域信息的网元信息 -->
+	<select id='getNeInfoWithArea' resultType='hashmap'>
+		select 
+        tra.AREA_NAME  as areaName,
+        tbn.DISPLAY_NAME as neName,
+        tbn.PRODUCT_NAME as neModel,
+        tbn.BASE_NE_ID as neId
+        from 
+<!--         (<include refid = "com.fujitsu.dao.mysql.CommonManagerMapper.V_BASE_NE"/>) tbn, -->
+		t_base_ne tbn
+		 left join	
+        t_resource_room trr on trr.RESOURCE_ROOM_ID = tbn.RESOURCE_ROOM_ID
+		left join
+        t_resource_station trs on trs.RESOURCE_STATION_ID = trr.RESOURCE_STATION_ID
+		left join
+        t_resource_area tra on tra.RESOURCE_AREA_ID = trs.RESOURCE_AREA_ID
+        where
+        tbn.BASE_NE_ID in
+        <if test="idList == null">
+        <foreach collection="nodeList"  item="node"
+						open="(" close=")" separator=",">
+						${node.nodeId}
+        </foreach>
+        </if>
+        <if test="nodeList==null">
+        <foreach collection="idList"  item="id"
+						open="(" close=")" separator=",">
+						${id}
+        </foreach>
+        </if>
+	</select>
+	
+	<!-- 获得网元范围内的LINK -->
+	<select id='getLinkBetweenNe' resultType='hashmap'>
+		select
+		link.BASE_LINK_ID as linkId,
+		link.DISPLAY_NAME as linkName,
+		link.A_END_PTP as aPtpId,
+		link.Z_END_PTP as zPtpId,
+		nea.DISPLAY_NAME as aNeName,
+		nez.DISPLAY_NAME as zNeName,
+		ptpa.DISPLAY_NAME as aPtpName,
+		ptpz.DISPLAY_NAME as zPtpName,
+		link.A_NE_ID as aNeId,
+		link.Z_NE_ID as zNeId,
+		link.DIRECTION as direction,
+		link.IS_MANUAL as isManual
+		FROM
+		t_base_link link
+		left join
+		t_base_ne nea ON nea.BASE_NE_ID = link.A_NE_ID
+		left join
+		t_base_ne nez ON nez.BASE_NE_ID = link.Z_NE_ID
+		left join
+		t_base_ptp ptpa on ptpa.BASE_PTP_ID = link.A_END_PTP
+		left join
+		t_base_ptp ptpz on ptpz.BASE_PTP_ID = link.Z_END_PTP
+		where
+		link.IS_DEL != 1
+		<if test="paramMap!=null and paramMap.allLink==null">
+		and link.IS_MAIN=1
+		</if>
+		AND
+		link.LINK_TYPE = 1
+		<choose>
+			<when test="paramMap!=null and paramMap.ignoreTransSysId!=null">
+			
+			</when>
+			<otherwise>
+			AND
+			(RESOURCE_TRANS_SYS_ID is null
+			<if test="paramMap!=null and paramMap.transSysId!=null">
+			or RESOURCE_TRANS_SYS_ID = #{paramMap.transSysId}
+			</if>)
+			</otherwise>
+		</choose>
+		and link.A_NE_ID in 
+		<foreach collection="idList"  item="id"	open="(" close=")" separator=",">
+							${id}
+	    </foreach>
+		and link.Z_NE_ID IN 
+		<foreach collection="idList"  item="id"	open="(" close=")" separator=",">
+							${id}
+	    </foreach>
+	    order by linkName
+	</select>
+	
+	<!-- 检查系统名称是否重复 -->
+	<select id="checkIfSameSysName" resultType="int">
+	select count(1)
+	from
+	t_resource_trans_sys
+	where
+	is_del != 1
+	and
+	SYS_NAME = #{map.sysName}
+	<if test="map.exceptSelf!=null and map.exceptSelf!=''">
+	and RESOURCE_TRANS_SYS_ID != #{map.id}
+	</if>
+	</select>
+	
+	<!-- 检查系统代号是否重复 -->
+	<select id="checkIfSameSysCode" resultType="int">
+	select count(1)
+	from
+	t_resource_trans_sys
+	where
+	is_del != 1
+	and
+	SYS_CODE = #{map.sysCode}
+	<if test="map.exceptSelf!=null and map.exceptSelf!=''">
+	and RESOURCE_TRANS_SYS_ID != #{map.id}
+	</if>
+	</select>
+	
+	<!-- 新建传输系统 -->
+	<insert id="newTransSystem" keyProperty="idMap.newId">
+		insert into
+		t_resource_trans_sys
+		(
+		<if test="paramMap.area!=null and paramMap.area!=''">
+		RESOURCE_AREA_ID,
+		</if>
+		SYS_NAME,
+		SYS_CODE,
+		NODE_COUNT,
+		<if test="paramMap.domain!=null and paramMap.domain!=''">
+		DOMAIN,
+		</if>
+		<if test="paramMap.waveCount!=null and paramMap.waveCount!=''">
+		WAVE_COUNT,
+		</if>
+		TYPE,
+		PRO_GROUP_TYPE,
+		NET_LEVEL,
+		GENERATE_METHOD,
+		TRANS_MEDIUM,
+		RATE,
+		STATUS,
+		NOTE,
+		CREATE_TIME)
+		values
+		(	<if test="paramMap.area!=null and paramMap.area!=''">
+			#{paramMap.area},
+			</if>
+			#{paramMap.sysName},
+			#{paramMap.sysCode},
+			#{paramMap.nodeCount},
+			<if test="paramMap.domain!=null and paramMap.domain!=''">
+			#{paramMap.domain},
+			</if>
+			<if test="paramMap.waveCount!=null and paramMap.waveCount!=''">
+			#{paramMap.waveCount},
+			</if>
+			#{paramMap.structure},
+			#{paramMap.proType},
+			#{paramMap.netLevel},
+			#{paramMap.genMethod},
+			#{paramMap.transMedium},
+			#{paramMap.sysRate},
+			1,
+			#{paramMap.note},
+			now()
+		)
+	</insert>
+	
+	<!-- 保存传输系统-网元 -->
+	<insert id = "saveTransSystemNe">
+	insert into
+	t_resource_trans_sys_ne
+	(RESOURCE_TRANS_SYS_ID,NE_ID)
+	values
+	<foreach collection="neList"  item="id"	open="(" close=")" separator="),(">
+							#{paramMap.transSysId},${id}
+	</foreach>
+	</insert>
+	
+	<!-- 保存传输系统-Link -->
+	<update id="saveTransSystemLink">
+		update t_base_link set RESOURCE_TRANS_SYS_ID = #{paramMap.transSysId} 
+		where BASE_LINK_ID
+		IN
+		(${paramMap.linkList})
+	</update>
+	<!-- 查询双向Link的另一半 -->
+	<select id="getTheOtherLink" resultType = "hashmap">
+		SELECT 
+	    z.BASE_LINK_ID as linkId
+		FROM
+	    (select 
+	        A_END_PTP, Z_END_PTP
+	    FROM
+	        t_base_link
+	    WHERE
+	        BASE_LINK_ID IN (${paramMap.linkList})
+	            AND DIRECTION = 1) a
+	        left join
+	    (select 
+	        A_END_PTP, Z_END_PTP,BASE_LINK_ID
+	    from
+	        t_base_link
+	    where
+	        DIRECTION = 1 AND IS_MAIN = 0) z 
+	    ON a.A_END_PTP = z.Z_END_PTP AND a.Z_END_PTP = z.A_END_PTP
+	</select>
+	
+	<!--  获取一个传输系统的信息 -->
+	<select id="getTransSystem" resultType="hashmap">
+	SELECT 
+    area.AREA_NAME,
+    sys.RESOURCE_AREA_ID,
+    sys.SYS_NAME,
+    sys.SYS_CODE,
+    sys.DOMAIN,
+    sys.WAVE_COUNT,
+    sys.TYPE,
+    sys.PRO_GROUP_TYPE,
+    sys.NET_LEVEL,
+    sys.GENERATE_METHOD,
+    sys.RATE,
+    sys.STATUS,
+    sys.NOTE,
+    sys.TRANS_MEDIUM
+	FROM t_resource_trans_sys sys
+	left join
+	t_resource_area area
+	on 
+	sys.RESOURCE_AREA_ID = area.RESOURCE_AREA_ID
+	where
+	sys.RESOURCE_TRANS_SYS_ID = #{paramMap.transSysId}
+	</select>
+	
+	<!--  获取一个传输系统网元的信息 -->
+	<select id="getTransSystemNe" resultType = "long">
+	SELECT sys.`NE_ID` 
+	FROM `t_resource_trans_sys_ne` sys 
+	LEFT JOIN 
+	T_BASE_NE ne 
+	ON 
+	sys.NE_ID = ne.BASE_NE_ID
+	where
+	ne.IS_DEL != 1
+	AND
+	RESOURCE_TRANS_SYS_ID = #{paramMap.transSysId}
+	</select>
+	
+	<!--  获取一个传输系统的链路信息 -->
+	<select id='getTransSysLink' resultType='hashmap'>
+		select
+		link.BASE_LINK_ID as linkId,
+		link.DISPLAY_NAME as linkName,
+		link.A_END_PTP as aPtpId,
+		link.Z_END_PTP as zPtpId,
+		nea.DISPLAY_NAME as aNeName,
+		nez.DISPLAY_NAME as zNeName,
+		ptpa.DISPLAY_NAME as aPtpName,
+		ptpz.DISPLAY_NAME as zPtpName,
+		link.A_NE_ID as aNeId,
+		link.Z_NE_ID as zNeId,
+		link.DIRECTION as direction,
+		link.IS_MANUAL as isManual
+		FROM
+		t_base_link link
+		left join
+		t_base_ne nea ON nea.BASE_NE_ID = link.A_NE_ID
+		left join
+		t_base_ne nez ON nez.BASE_NE_ID = link.Z_NE_ID
+		left join
+		t_base_ptp ptpa on ptpa.BASE_PTP_ID = link.A_END_PTP
+		left join
+		t_base_ptp ptpz on ptpz.BASE_PTP_ID = link.Z_END_PTP
+		where
+		link.IS_DEL != 1
+		AND
+		link.LINK_TYPE = 1
+		and `RESOURCE_TRANS_SYS_ID` = #{paramMap.transSysId}
+	    order by linkName
+	</select>
+	
+	<!-- 修改传输系统 -->
+	<update id="updateTransSystem" >
+		update 
+		t_resource_trans_sys
+		<set>
+		<if test="paramMap.area==''">
+		RESOURCE_AREA_ID = null,
+		</if>
+		<if test="paramMap.area!='' and paramMap.area!=null">
+		RESOURCE_AREA_ID = #{paramMap.area},
+		</if>
+		SYS_NAME = #{paramMap.sysName},
+		SYS_CODE = #{paramMap.sysCode},
+		NODE_COUNT = #{paramMap.nodeCount},
+		<if test="paramMap.domain==''">
+		DOMAIN = null,	
+		</if>
+		<if test="paramMap.domain!=null and paramMap.domain!=''">
+		DOMAIN = #{paramMap.domain},	
+		</if>
+		<if test="paramMap.waveCount==''">
+		WAVE_COUNT = null,
+		</if>
+		<if test="paramMap.waveCount!=null and paramMap.waveCount!=''">
+		WAVE_COUNT = #{paramMap.waveCount},
+		</if>
+		TYPE = #{paramMap.structure},
+		PRO_GROUP_TYPE = #{paramMap.proType},
+		NET_LEVEL = #{paramMap.netLevel},
+		GENERATE_METHOD = #{paramMap.genMethod},
+		TRANS_MEDIUM = #{paramMap.transMedium},
+		RATE = #{paramMap.sysRate},
+		STATUS = 1,
+		NOTE = #{paramMap.note},
+		UPDATE_TIME = now()
+		</set>
+		WHERE
+		`RESOURCE_TRANS_SYS_ID` = #{paramMap.transSysId}
+	</update>
+	<!-- 维护NODE COUNT -->
+	<update id="updateNodeCount" >
+		update 
+		t_resource_trans_sys
+		<set>
+		NODE_COUNT = #{paramMap.nodeCount},
+		UPDATE_TIME = now()
+		</set>
+		WHERE
+		`RESOURCE_TRANS_SYS_ID` = #{paramMap.transSysId}
+	</update>
+	
+	<select id="checkIfNeDeletable" resultType="int">
+	select
+	count(1)
+	from
+	t_base_link
+	where
+	is_del != 1
+	and
+	`RESOURCE_TRANS_SYS_ID` = #{paramMap.transSysId}
+	<if test="paramMap.noNe==null">
+	and
+	(
+	A_NE_ID not in 
+	<foreach collection="idList"  item="id"	open="(" close=")" separator=",">
+						${id}
+	</foreach>
+	or
+	 Z_NE_ID  not IN 
+	<foreach collection="idList"  item="id"	open="(" close=")" separator=",">
+						${id}
+	</foreach>
+	)
+	</if>
+	</select>
+	
+	<select id="getProListByNe" resultType="hashmap">
+	SELECT 
+    group_concat(distinct BASE_PTP_ID SEPARATOR ',') ptp,
+    pg.BASE_PRO_GROUP_ID proGroup,
+    pg.BASE_NE_ID as neId,
+    pg.PROTECTION_GROUP_TYPE as proType
+	FROM
+    t_base_pro_list pl
+    left join
+    t_base_pro_group pg 
+    ON 
+    pl.BASE_PRO_GROUP_ID = pg.BASE_PRO_GROUP_ID and pl.IS_DEL != 1 AND pg.IS_DEL != 1
+    where
+    pg.BASE_NE_ID IN
+    <foreach collection="neList"  item="id"	open="(" close=")" separator=",">
+						${id}
+	</foreach>
+	group by pl.BASE_PRO_GROUP_ID
+	</select>
+	
+	<select id="getZEnd" resultType="hashmap">
+	SELECT 
+	Z_NE_ID,
+	Z_END_PTP,
+	BASE_LINK_ID 
+	FROM 
+	t_base_link 
+	where 
+	IS_DEL != 1
+	AND
+	LINK_TYPE = 1
+	AND
+	RESOURCE_TRANS_SYS_ID is null
+	and
+	A_END_PTP = #{aEndPtp}
+	LIMIT 1
+	</select>
+	
+	<select id="getSystemLastName" resultType="string">
+	select 
+	SYS_NAME
+	from
+	t_resource_trans_sys
+	where
+	GENERATE_METHOD = 1
+	and
+	SYS_NAME like #{sysNameprefix}
+	order by RESOURCE_TRANS_SYS_ID DESC
+	limit 1
+	</select>
+	
+	<select id="getProListByPtp" resultType="string">
+	SELECT 
+  	BASE_PTP_ID
+	FROM
+    t_base_pro_list 
+    where
+    IS_DEL != 1
+    and
+    BASE_PRO_GROUP_ID = (select BASE_PRO_GROUP_ID from t_base_pro_list where BASE_PTP_ID=#{ptpId} limit 1)
+    and 
+    BASE_PTP_ID != #{ptpId}
+    limit 1
+	</select>
+	
+	<select id="getRelStationByTranSysId" resultType="hashmap">
+	SELECT 
+	  * 
+	FROM
+	  t_resource_station s 
+	WHERE s.RESOURCE_STATION_ID IN 
+	  (SELECT DISTINCT 
+	    (r.RESOURCE_STATION_ID) 
+	  FROM
+	    t_resource_room r 
+	  WHERE r.RESOURCE_ROOM_ID IN 
+	    (SELECT DISTINCT 
+	      (n.RESOURCE_ROOM_ID) 
+	    FROM
+	      t_base_ne n 
+	    WHERE n.base_ne_id IN 
+	      (SELECT DISTINCT 
+	        (t.NE_ID) 
+	      FROM
+	        t_resource_trans_sys_ne t 
+	      WHERE t.RESOURCE_TRANS_SYS_ID = #{tranSysId})))
+	</select>
+</mapper>

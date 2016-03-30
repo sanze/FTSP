@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<chart palette='2' numdivlines='4' rotateNames='0' animation='1' 
+	caption='各类端口时隙可用率' bgColor='165919' bgAlpha='0' numberSuffix='%' showBorder='0' imageSave='1' imageSaveURL='http://www.fusioncharts.com/ExportHandlers/PHP/_FCExporter.php'>
+	
+	<categories font='Arial' fontSize='12'>
+		<category label='STM-256' />
+		<category label='STM-64' />
+		<category label='STM-16'/>
+		<category label='STM-4' />
+		<category label='STM-1' />
+	</categories>
+	
+	<dataset seriesname='VC4' color='3AC311' alpha='90' showValues='1' >
+		<set value='30'  />
+		<set value='26' />
+		<set value='29' />
+		<set value='31' />
+		<set value='34' />
+	</dataset>
+	
+	<dataset seriesname='VC12' color='F3CF27'  alpha='90' showValues='1' >
+		<set value='27' />
+		<set value='25' />
+		<set value='28' />
+		<set value='26' />
+		<set value='10' />
+	</dataset>
+	
+</chart>

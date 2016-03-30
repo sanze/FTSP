@@ -1,0 +1,381 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ImptProtectManagerMapper">
+	<select id="checkTaskName" resultType="int" parameterType="hashmap">
+		SELECT COUNT(1) AS total 
+		FROM t_sys_task
+		WHERE
+		  TASK_NAME = #{map.TASK_NAME}
+		  <if test="map.TASK_TYPE != null">
+		  	AND TASK_TYPE = #{map.TASK_TYPE}
+		  </if>
+		  <if test="map.SYS_TASK_ID != null">
+		  	AND SYS_TASK_ID != #{map.SYS_TASK_ID}
+		  </if>
+	</select>
+	<update id="changeTaskStatus" parameterType="hashmap">
+		update t_sys_task set TASK_STATUS=#{map.TASK_STATUS}
+		where SYS_TASK_ID=#{map.SYS_TASK_ID}
+	</update>
+	<insert id="saveTask" parameterType="hashmap" keyProperty="map.SYS_TASK_ID">
+		insert into t_sys_task
+		(SYS_TASK_ID,TASK_NAME,TASK_TYPE,PARENT_TASK,TASK_DESCRIPTION,PERIOD_TYPE,PERIOD,
+		START_TIME,END_TIME,TASK_STATUS,NEXT_TIME,RESULT,CREATE_PERSON,
+		<!-- IS_DEL, -->CREATE_TIME,UPDATE_TIME) values 
+	        (<choose>
+				<when test="map.SYS_TASK_ID != null">#{map.SYS_TASK_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.TASK_NAME != null">#{map.TASK_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.TASK_TYPE != null">#{map.TASK_TYPE}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.PARENT_TASK != null">#{map.PARENT_TASK}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.TASK_DESCRIPTION != null">#{map.TASK_DESCRIPTION}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.PERIOD_TYPE != null">#{map.PERIOD_TYPE}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.PERIOD != null">#{map.PERIOD}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.START_TIME != null">#{map.START_TIME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.END_TIME != null">#{map.END_TIME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.TASK_STATUS != null">#{map.TASK_STATUS}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.NEXT_TIME != null">#{map.NEXT_TIME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.RESULT != null">#{map.RESULT}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.CREATE_PERSON != null">#{map.CREATE_PERSON}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+<!-- 			 <choose>
+				<when test="map.IS_DEL != null">#{map.IS_DEL}</when>
+				<otherwise>null</otherwise>
+			 </choose>, -->
+			 <choose>
+				<when test="map.CREATE_TIME != null">#{map.CREATE_TIME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="map.UPDATE_TIME != null">#{map.UPDATE_TIME}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+		ON DUPLICATE KEY
+		UPDATE SYS_TASK_ID=values(SYS_TASK_ID)
+		<if test="map.TASK_NAME !=null">,TASK_NAME=values(TASK_NAME)</if>
+		<if test="map.TASK_TYPE !=null">,TASK_TYPE=values(TASK_TYPE)</if>
+		<if test="map.PARENT_TASK !=null">,PARENT_TASK=values(PARENT_TASK)</if>
+		<if test="map.TASK_DESCRIPTION !=null">,TASK_DESCRIPTION=values(TASK_DESCRIPTION)</if>
+		<if test="map.PERIOD_TYPE !=null">,PERIOD_TYPE=values(PERIOD_TYPE)</if>
+		<if test="map.PERIOD !=null">,PERIOD=values(PERIOD)</if>
+		<if test="map.START_TIME !=null">,START_TIME=values(START_TIME)</if>
+		<if test="map.END_TIME !=null">,END_TIME=values(END_TIME)</if>
+		<if test="map.TASK_STATUS !=null">,TASK_STATUS=values(TASK_STATUS)</if>
+		<if test="map.NEXT_TIME !=null">,NEXT_TIME=values(TASK_STATUS)</if>
+		<if test="map.RESULT !=null">,RESULT=values(RESULT)</if>
+		<!--<if test="map.CREATE_PERSON !=null">,CREATE_PERSON=values(CREATE_PERSON)</if>
+ 		<if test="map.IS_DEL !=null">,IS_DEL=values(IS_DEL)</if>
+		<if test="map.CREATE_TIME !=null">,CREATE_TIME=values(CREATE_TIME)</if>-->
+		<if test="map.UPDATE_TIME !=null">,UPDATE_TIME=values(UPDATE_TIME)</if>
+	</insert>
+	<insert id="saveTaskInfo" parameterType="hashmap">
+		insert into t_sys_task_info
+		(SYS_TASK_INFO_ID,SYS_TASK_ID,TARGET_TYPE,TARGET_ID) values 
+		<foreach collection="list" item="item" index="index" separator=",">
+	        (<choose>
+				<when test="item.SYS_TASK_INFO_ID != null">#{item.SYS_TASK_INFO_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 #{SYS_TASK_ID},
+			 <choose>
+				<when test="item.TARGET_TYPE != null">#{item.TARGET_TYPE}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.TARGET_ID != null">#{item.TARGET_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+	</insert>
+	<insert id="saveTaskParam" parameterType="hashmap">
+		insert into t_sys_task_param
+		(SYS_TASK_PARAM_ID,SYS_TASK_ID,PARAM_NAME,PARAM_VALUE) values 
+		<foreach collection="list" item="item" index="index" separator=",">
+	        (<choose>
+				<when test="item.SYS_TASK_PARAM_ID != null">#{item.SYS_TASK_PARAM_ID}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 #{SYS_TASK_ID},
+			 <choose>
+				<when test="item.PARAM_NAME != null">#{item.PARAM_NAME}</when>
+				<otherwise>null</otherwise>
+			 </choose>,
+			 <choose>
+				<when test="item.PARAM_VALUE != null">#{item.PARAM_VALUE}</when>
+				<otherwise>null</otherwise>
+			 </choose>)
+	    </foreach>
+	</insert>
+	<delete id="delTask" parameterType="int">
+		DELETE FROM t_sys_task
+		WHERE SYS_TASK_ID = #{SYS_TASK_ID}
+	</delete>
+	<delete id="delTaskInfo" parameterType="int">
+		DELETE FROM t_sys_task_info
+		WHERE SYS_TASK_ID = #{SYS_TASK_ID}
+	</delete>
+	<delete id="delTaskParam" parameterType="int">
+		DELETE FROM t_sys_task_param
+		WHERE SYS_TASK_ID = #{SYS_TASK_ID}
+	</delete>
+	<delete id="delTaskRunDetail" parameterType="int">
+		DELETE FROM t_sys_task_run_detail
+		WHERE SYS_TASK_ID = #{SYS_TASK_ID}
+	</delete>
+	<sql id="SYS_TASK">
+		(select task.*,
+			user.USER_NAME
+		<if test="map != null and map.taskParam != null">
+			<foreach collection="map.taskParam" item="item" index="index" open=","  separator=",">
+	        	param_${index}.PARAM_VALUE as ${item}
+	    	</foreach>
+	    </if>
+		from t_sys_task task left join t_sys_user user on task.CREATE_PERSON=user.SYS_USER_ID
+		<if test="map != null and map.taskParam != null">
+			<foreach collection="map.taskParam" item="item" index="index">
+	        	left join t_sys_task_param param_${index}
+				on task.sys_task_id=param_${index}.sys_task_id
+				and param_${index}.PARAM_NAME=#{item}
+	    	</foreach>
+	    </if>
+		)
+	</sql>
+	<sql id="V_SYS_TASK">
+	  <choose>
+    	<when test="userId==-1">
+    	  <include refid="SYS_TASK" />
+    	</when>
+    	<otherwise>
+    	(select t.* from <include refid="SYS_TASK" /> t
+			left join t_sys_user_ref_group t_ug on t_ug.SYS_USER_ID=${userId}
+			left join t_sys_task_param t_param
+		  		on t_param.SYS_TASK_ID=t.SYS_TASK_ID
+		  		and t_param.PARAM_NAME="privilegeList"
+		  where 
+		    	t.CREATE_PERSON=#{userId}
+		  	or(
+		    	ISNULL(t_param.PARAM_VALUE)
+		    	or t_param.PARAM_VALUE like CONCAT("%\"",t_ug.SYS_USER_GROUP_ID,"\"%")
+		  	)
+		  group by t.SYS_TASK_ID
+		)
+    	</otherwise>
+      </choose>
+	</sql>
+	<sql id="getTaskSql">
+		FROM <include refid="V_SYS_TASK" /> t
+		WHERE
+		  1 = 1
+		<if test="map.SYS_TASK_ID !=null">and SYS_TASK_ID=#{map.SYS_TASK_ID}</if>
+		<if test="map.TASK_NAME!=null and map.TASK_NAME!='' and map.TASK_NAME!='%%' and map.TASK_NAME!='%%%%'">
+			and TASK_NAME like #{map.TASK_NAME}</if>
+		<if test="map.TASK_TYPE !=null">and TASK_TYPE=#{map.TASK_TYPE}</if>
+		<if test="map.PARENT_TASK !=null">and PARENT_TASK=#{map.PARENT_TASK}</if>
+		<!-- <if test="map.TASK_DESCRIPTION !=null">and TASK_DESCRIPTION like #{map.TASK_DESCRIPTION}</if>
+		<if test="map.PERIOD_TYPE !=null">and PERIOD_TYPE=#{map.PERIOD_TYPE}</if>
+		<if test="map.PERIOD !=null">and PERIOD=#{map.PERIOD}</if> -->
+		<if test="map.START_TIME !=null"><![CDATA[and START_TIME>=#{map.START_TIME}]]></if>
+		<if test="map.END_TIME !=null"><![CDATA[and START_TIME<=#{map.END_TIME}]]></if>
+		<if test="map.TASK_STATUS !=null"><![CDATA[and TASK_STATUS&#{map.TASK_STATUS}>0]]></if>
+	 	<!--<if test="map.NEXT_TIME !=null">and NEXT_TIME=#{map.TASK_STATUS}</if>
+		<if test="map.RESULT !=null">and RESULT=#{map.RESULT}</if>-->
+		<if test="map.CREATE_PERSON !=null">and CREATE_PERSON=#{map.CREATE_PERSON}</if>
+ 		<!--<if test="map.IS_DEL !=null">and IS_DEL=#{map.IS_DEL}</if>
+		<if test="map.CREATE_TIME !=null">and CREATE_TIME=#{map.CREATE_TIME}</if>
+		<if test="map.UPDATE_TIME !=null">and UPDATE_TIME=#{map.UPDATE_TIME}</if>-->
+	</sql>
+	<select id="getTaskList" resultType="hashmap" parameterType="hashmap">
+		SELECT *
+		<include refid="getTaskSql" />
+		<if test="limit != null and limit>0">
+			LIMIT ${start}, ${limit}
+		</if>
+	</select>
+	<select id="cntTaskList" resultType="int" parameterType="hashmap">
+		SELECT count(1) as total
+		<include refid="getTaskSql" />
+	</select>
+	<select id="getTask" resultType="hashmap" parameterType="hashmap">
+		SELECT *
+		<include refid="getTaskSql" />
+		LIMIT 0, 1
+	</select>
+	<select id="getTaskInfo" resultType="hashmap" parameterType="hashmap">
+		SELECT *
+		FROM t_sys_task_info
+		WHERE
+		  SYS_TASK_ID = #{SYS_TASK_ID}
+	</select>
+	<select id="getTaskParam" resultType="hashmap" parameterType="hashmap">
+		SELECT *
+		FROM t_sys_task_param
+		WHERE
+		  SYS_TASK_ID = #{SYS_TASK_ID}
+	</select>
+	<!-- *****************监测*************************** -->
+	<select id="processNe" resultType="hashmap">
+		select
+		DISPLAY_NAME as displayName,
+		BASE_NE_ID as nodeId,
+		#{TREE.NODE_NE} as nodeLevel,
+		BASE_EMS_CONNECTION_ID as emsId
+		from
+		t_base_ne
+		<where>
+		IS_DEL != 1
+		and
+		BASE_NE_ID in 
+		<foreach collection="neIdList" item="id" open="("  separator="," close=")">
+			#{id}
+	    </foreach>
+		</where> 
+	</select>
+	<select id="processPtp" resultType="hashmap">
+		select
+		DISPLAY_NAME as displayName,
+		BASE_PTP_ID as nodeId,
+		#{TREE.NODE_PTP} as nodeLevel,
+		BASE_EMS_CONNECTION_ID as emsId
+		from
+		t_base_ptp
+		<where>
+		IS_DEL != 1
+		and
+		BASE_PTP_ID in 
+		<foreach collection="idList" item="id" open="("  separator="," close=")">
+			#{id}
+	    </foreach>
+		</where> 
+	</select>
+	
+	<select id="getEmsIdFromPtps" resultType="int">
+	select distinct
+	BASE_EMS_CONNECTION_ID 
+	from
+	T_BASE_PTP
+	where
+	IS_DEL != 1
+	and
+	BASE_PTP_ID
+	IN
+	<foreach collection="ptpList" item="id" open="("  separator="," close=")">
+	#{id}
+	</foreach>
+	</select>
+	
+	<select id="getUnitListByPtpList" resultType="int">
+	select 
+	BASE_UNIT_ID
+	from
+	T_BASE_PTP
+	where
+	BASE_PTP_ID
+	in
+	<foreach collection="ptpList" item="id" open="("  separator="," close=")">
+	#{id}
+	</foreach>
+	</select>
+	<select id="getPtpInfo" resultType="hashmap">
+	select 
+	BASE_EMS_CONNECTION_ID,
+	BASE_NE_ID,
+	BASE_UNIT_ID,
+	BASE_PTP_ID
+	from
+	T_BASE_PTP
+	where
+	BASE_PTP_ID
+	in
+	<foreach collection="ptpList" item="id" open="("  separator="," close=")">
+	#{id}
+	</foreach>
+	</select>
+	<!-- *****************监测*************************** -->
+	<select id="getPmExceedData" resultType="hashmap">
+        SELECT 
+            tca.*
+        from
+            t_alarm_tca tca
+        where
+            ( 1 > 2 
+        <!-- 设备任务 -->
+        <if test="map.ne != null"><!-- 任务内网元所有的性能越限 -->
+             or tca.BASE_NE_ID in ${map.ne}
+        </if>
+        <!-- 电路任务，包含 UNIT 和 PTP -->
+        <if test="map.unit != null"><!-- 经过的板卡的板卡级告警:UNIT ID=经过的板卡ID，and OBJECT_TYPE=设备 -->
+             or tca.BASE_UNIT_ID in ${map.unit}
+        </if>
+        <if test="map.ptp != null"><!-- 经过的端口的告警：PTP ID=经过的端口ID -->
+             or tca.BASE_PTP_ID in ${map.ptp}
+        </if>
+        )
+        <if test="map.start != null">
+        and
+            tca.ARISES_TIME 
+            between
+            str_to_date('${map.start}', '%Y-%m-%d %H:%i:%s') and str_to_date('${map.end}', '%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="limit &gt; 0">
+        limit #{start},#{limit}
+        </if>
+    </select>
+    <select id="getAPAPosition" resultType="hashmap">
+    select * from `t_sys_task_param`
+    where PARAM_NAME = concat('APA_',#{map.SYS_TASK_ID})
+    </select>
+    <insert id="saveAPAPosition">
+	INSERT INTO
+	`t_sys_task_param`
+	(
+	`PARAM_NAME`,
+	`PARAM_VALUE`)
+	VALUES
+	(
+		concat('APA_', #{map.SYS_TASK_ID}),
+		#{map.posData}
+	)
+	</insert>
+    <update id="updateAPAPosition">
+	UPDATE 
+	`t_sys_task_param`
+	set PARAM_VALUE=#{map.posData}
+	where PARAM_NAME=concat('APA_', #{map.SYS_TASK_ID})
+	</update>
+</mapper>

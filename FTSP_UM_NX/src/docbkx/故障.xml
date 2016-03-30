@@ -1,0 +1,1936 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xml:lang="zh_cn" xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xl="http://www.w3.org/1999/xlink">
+
+	<info>
+		<title>故障</title>
+	</info>
+
+	<section xml:id="节-当前告警">
+		<title>当前告警</title>
+
+		<para>【描述】</para>
+
+		<para>当前告警功能指显示和查询当前告警，确认和反确认当前告警，同步和导出当前告警等功能。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;告警&gt;→&lt;当前告警&gt;，当前告警页面将会打开，如下图。</para>
+
+		<figure xml:id="图-当前告警">
+			<title>当前告警</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/fault/current_alarm.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“告警级别”：分为紧急/重要/次要/提示</para>
+
+		<para>“告警名称”：告警名称,如R-LOS</para>
+
+		<para>“归一化告警名称”：归一化告警名称，如LOS，</para>
+
+		<para>“网管分组”：网管分组名称，如一干</para>
+
+		<para>“网管”：网管名称，如华为二期</para>
+
+		<para>“网元”：网元名称，如OSN-25-01</para>
+
+		<para>“网元型号”：网元型号，如OSN2500</para>
+
+		<para>“槽道”：槽道号，如1-1（南京奇数波）-2</para>
+
+		<para>“板卡”：板卡号，如D40</para>
+
+		<para>“端口”：端口号，如1IN</para>
+
+		<para>“业务类型”：业务类型,如DWM</para>
+
+		<para>“端口类型”：端口类型，如OTS</para>
+
+		<para>“速率”：速率等级，如155M</para>
+
+		<para>“通道”：通道等级，如OCH-1</para>
+
+		<para>“首次发生时间”：告警的首次发生时间，如2013-8-1 12:00:01</para>
+
+		<para>“频次”：相应时间段告警重复发生的频率次数，如6（次）</para>
+
+		<para>“最近发生时间”：告警的最近一次发生时间，如2013-8-1 12:06:01</para>
+
+		<para>“业务影响”：是否影响业务，分为影响/不影响/未知</para>
+
+		<para>“清除时间”：当前告警的清除时间</para>
+
+		<para>“持续时间”：当前告警的持续时间</para>
+
+		<para>“最近持续时间”：当前告警的最近持续时间</para>
+
+		<para>“确认时间”：当前告警的确认时间</para>
+
+		<para>“确认者”：当前告警的确认者</para>
+
+		<para>“告警类型”：告警的类型，分为通信/设备/处理/环境/服务/安全/连接</para>
+
+		<para>“标准告警名”：标准告警名，如LOS</para>
+
+		<para>“清除状态”：分为已清除/未清除</para>
+
+		<para>【功能说明】</para>
+
+		<para>系统默认显示全部的当前告警。可以根据需要，选择相应的网管分组、网管和网元，点击&lt;查询&gt;按钮，将可以按照简单条件查询当前告警，参见<xref linkend="节-当前告警查询"/>。</para>
+
+		<para>点击&lt;全部告警&gt;按钮，将立即刷新页面显示全部告警（即回到默认页面）。</para>
+
+		<para>勾选&lt;自动刷新&gt;功能框，将定时刷新告警页面（和数据库同步）。若不勾选则不定时刷新（默认不勾选）。</para>
+
+		<para>点击&lt;高级查询&gt;按钮，可以按照多重条件对当前告警进行高级查询，参见<xref linkend="节-当前告警高级查询"/>。</para>
+
+		<para>点击&lt;确认&gt;按钮，将确认所选择的当前告警，参见<xref linkend="节-确认当前告警"/>。</para>
+
+		<para>点击&lt;反确认&gt;按钮，将反确认所选择的当前告警，参见<xref linkend="节-反确认当前告警"/>。</para>
+
+		<para>点击&lt;详情&gt;按钮，将显示所选当前告警的详细信息，参见<xref linkend="节-当前告警详情"/>。</para>
+
+		<para>点击&lt;相关电路&gt;按钮（只能单选），将显示出受影响的电路列表。</para>
+
+		<para>点击&lt;告警同步&gt;按钮，将同步所选的当前告警，参见<xref linkend="节-告警同步"/>。</para>
+
+		<para>点击&lt;屏蔽&gt;按钮，将实现告警的屏蔽功能。若未选择告警，则自动跳转到“告警及事件屏蔽”的功能；若选择了告警，则自动跳转到“告警及事件屏蔽”的“新增告警及事件屏蔽模板”功能且默认把选择的“告警源”和“告警基本属性”填入“新增告警及事件屏蔽模板”功能。参见<xref linkend="节-新增告警及事件屏蔽模板"/>。</para>
+
+		<para>点击&lt;过滤器&gt;按钮，将自动跳转到当前告警过滤器功能，参见<xref linkend="节-当前告警过滤器"/>。</para>
+
+		<para>点击&lt;导出&gt;按钮，将导出当前告警，参见<xref linkend="节-导出当前告警"/>。</para>
+
+		<caution>
+		<title>[注意]</title>
+
+		<para>点击&lt;确认&gt;、&lt;反确认&gt;、&lt;详情&gt;、&lt;相关电路&gt;按钮前必须选择一个当前告警，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-当前告警查询">
+			<title>当前告警查询</title>
+
+			<para>【页面显示】</para>
+
+			<para>在当前告警页面，当前告警查询窗口即打开，可以选择过滤器、状态来筛选当前告警，如下图。</para>
+
+			<figure xml:id="图-过滤条件工具栏">
+				<title>过滤条件工具栏</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/filter_condition_toolbar.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>根据左侧设备资源树，分别选择“网管分组”、“网管”和“网元”来确定查询对象。</para>
+
+			<para>根据工具栏中的“过滤器”、“状态”，筛选出符合条件的当前告警。</para>
+
+			<para>“过滤器”：下拉框选择告警过滤器，通过过滤器筛选当前的告警数据。</para>
+
+			<para>“状态”：下拉框可以选择告警状态（全部、已清除、未清除、已确认、已确认已清楚、已确认未清除、未确认、已清除未确认、未确认未清除）。</para>
+
+			<para>点击&lt;查询&gt;，将执行查询当前告警操作，系统将显示对应告警的详细信息。</para>
+
+		</section>
+
+		<section xml:id="节-当前告警高级查询">
+			<title>当前告警高级查询</title>
+
+			<para>【页面显示】</para>
+
+			<para>在当前告警页面点击&lt;高级查询&gt;按钮，高级查询窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-高级查询">
+				<title>高级查询</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/fault/advanced_query_current.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/fault/advanced_query_current.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要，在页面左侧节点树部分选择或输入相应的“告警源选择”，在页面右侧选择或输入相应的“告警源过滤条件”、“级别”、“确认状态”、“告警名称”、“清除状态”、“告警类型”、“首次发生时间”、“清除时间”、“持续时间”、“频次”和“业务影响”等数据作为查询条件。</para>
+
+			<para>“告警源选择”：通过左侧的节点树，选择告警源。可选对象为：板卡、子架、网元、子网、网管、网管分组。如果节点树未选，则为全部查询。</para>
+
+			<para>“告警源过滤条件”：对告警源进一步过滤，过滤条件有全部/光传送单元/光复用单元/光通道/光监控信道/SDH端口/STM-64及以上/STM-16/STM-4/STM-1/STM-1。</para>
+
+			<para>“级别”：分为紧急/重要/次要/提示，可以复选级别中的任何一个框作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“确认状态”：分为已确认/未确认，可以复选作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“告警名称”：其中“厂家”：必须通过下拉框选择某一个厂家；其中“告警名称”：输入一个告警名称（系统带联想功能）。</para>
+
+			<para>“告警类型”：分为通信/设备/处理/环境/服务/安全/连接，可以复选作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“清除状态”：分为已清除/未清除，可以复选作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“首次发生时间”：分为任何时间/从……到……（输入时间，精确到秒）/最近（输入时间，精确到分）。</para>
+
+			<para>“清除时间”：分为任何时间/从……到……（输入数据，精确到秒）。</para>
+
+			<para>“告警反转”：告警反转状态（反转/未反转）。</para>
+
+			<para>“业务影响”：告警对业务的影响状态（影响/不影响/未知）。</para>
+
+			<para>“持续时间”：首次发生时间和清除时间的差值。下拉框选择项分为小于等于/大于等于，数值精确到分钟。</para>
+
+			<para>“频次”：下拉框选择项分为小于等于/大于等于，数值为自然数（手动输入）。</para>
+
+			<para>“业务影响”：分为影响/不影响/未知。</para>
+
+			<para>点击&lt;确认&gt;，将开始按条件查询并显示查询结果。</para>
+
+			<para>点击&lt;重置&gt;，将恢复到上次选择状态（即上次查询右侧勾选的内容能够还原）。</para>
+
+			<para>点击&lt;取消&gt;，将关闭窗口。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>多次查询则自动记录上次选择的状态。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-确认当前告警">
+			<title>确认当前告警</title>
+
+			<para>【页面显示】</para>
+
+			<para>在当前告警页面选择未确认的当前告警，点击&lt;确认&gt;按钮，确认当前告警窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-确认当前告警">
+				<title>确认当前告警</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/confirm_alarm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将完成确认当前告警操作。</para>
+
+			<para>点击&lt;否&gt;，将关闭窗口且取消操作。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>确认完成后相关当前告警的确认状态变为已确认，确认时间为当前时间，确认者为当前用户。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-反确认当前告警">
+			<title>反确认当前告警</title>
+
+			<para>【页面显示】</para>
+
+			<para>在当前告警页面选择已经确认的当前告警，点击&lt;反确认&gt;按钮，反确认当前告警窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-反确认当前告警">
+				<title>反确认当前告警</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/anti_confirm_alarm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;是&gt;，将完成当前告警的反确认操作。</para>
+
+			<para>点击&lt;否&gt;，将关闭窗口且取消操作。</para>
+
+			<note>
+			<title>[说明]</title>
+
+			<para>反确认后相关告警的确认状态变为未确认，清空确认时间和确认者的内容。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-当前告警详情">
+			<title>当前告警详情</title>
+
+			<para>【页面显示】</para>
+
+			<para>在当前告警页面单选一当前告警，点击&lt;详情&gt;按钮，当前告警详情窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-当前告警详情">
+				<title>当前告警详情</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/current_alarm_detail.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>显示所选当前告警的详细信息。</para>
+
+			<para>点击&lt;确认&gt;，将关闭窗口。</para>
+
+			<caution>
+			<title>[注意]</title>
+
+			<para>不支持多选，否则系统会弹出错误信息对话框。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-告警同步">
+			<title>告警同步</title>
+
+			<para>【页面显示】</para>
+
+			<para>在当前告警页面点击&lt;告警同步&gt;按钮，告警同步窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-告警同步">
+				<title>告警同步</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_synchronization.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要分别选择“网管分组”、“网管”和“网元”来确定对象。</para>
+
+			<para>“网管分组”：下拉框可选具体网管分组和无。</para>
+
+			<para>“网管”：下拉框可以选择具体网管。</para>
+
+			<para>“网元”：下拉框可以选择具体网元（支持联想功能可以精确查找）。</para>
+
+			<para>点击&lt;确认&gt;，将执行同步告警操作。同步过程中显示“正在执行，请稍等”。执行完毕显示结果（若同步失败则提示具体错误信息）。</para>
+
+			<para>点击&lt;取消&gt;，将关闭窗口且放弃操作。</para>
+
+			<note>
+				<title>[说明]</title>
+
+				<para>对于CORBA连接的网管，告警同步可以支持网管级和网元级；而对于TELNET连接的网管，告警同步只支持网元级。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-导出当前告警">
+			<title>导出当前告警</title>
+
+			<para>【页面显示】</para>
+
+			<para>在当前告警页面点击&lt;导出&gt;按钮，导出当前告警窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-导出当前告警">
+				<title>导出当前告警</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/export_current_alarm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要可以打开或者保存文件。</para>
+
+			<para>点击&lt;打开&gt;，将打开文件。</para>
+
+			<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+			<para>点击&lt;取消&gt;，将关闭窗口且放弃导出当前告警。</para>
+
+			<note>
+				<title>[说明]</title>
+
+				<para>默认导出文件名格式：Current alarm  年_月_日_时_分_秒.xls，内容格式同页面显示。</para>
+
+				<para>如果导出内容超出2000条信息，则系统提示“因为条目过多，将会导出前2000条数据。”</para>
+			</note>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-历史告警">
+		<title>历史告警</title>
+
+		<para>【描述】</para>
+
+		<para>历史告警功能指显示和查询历史告警，导出历史告警等功能。</para>
+
+		<para>【页面显示】</para>
+
+		<para>在主菜单选择&lt;告警&gt;→&lt;历史告警&gt;，历史告警页面将会打开，如下图。</para>
+
+		<figure xml:id="图-历史告警">
+			<title>历史告警</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/fault/history_alarm.png" align="center" scalefit="1" width="100%"/>
+				</imageobject>
+			</mediaobject>
+		</figure>
+
+		<para>【内容说明】</para>
+
+		<para>“告警级别”：分为紧急/重要/次要/提示</para>
+
+		<para>“告警名称”：告警名称，如R-LOS</para>
+
+		<para>“归一化告警名称”：归一化告警名称,如LOS</para>
+
+		<para>“网管分组”：网管分组名称,如一干</para>
+
+		<para>“网管”：网管名称，如华为二期</para>
+
+		<para>“网元”：网元名称，如OSN-25-01</para>
+
+		<para>“网元型号”：网元型号,如OSN2500</para>
+
+		<para>“槽道”：槽道号,如1-1（南京奇数波）-2</para>
+
+		<para>“板卡”：板卡名称，如D40</para>
+
+		<para>“端口”：端口号，如1IN</para>
+
+		<para>“业务类型”：业务类型,如DWM</para>
+
+		<para>“端口类型”：端口类型,如OTS</para>
+
+		<para>“速率”：速率，如155M</para>
+
+		<para>“通道”：通道，如OCH-1</para>
+
+		<para>“首次发生时间”：告警的第一次的发生时间，如2013-8-1 12:00:01</para>
+
+		<para>“频次”：相应时间段告警重复发生的频率次数，如6（次）</para>
+
+		<para>“最近发生时间”：告警的最近一次的发生时间，如2013-8-1 12:06:01</para>
+
+		<para>“业务影响”：是否影响业务，分为影响/不影响/未知</para>
+
+		<para>“清除时间”：告警的清除时间</para>
+
+		<para>“确认时间”：告警的确认时间</para>
+
+		<para>“确认者”：告警的确认者</para>
+
+		<para>“告警类型”：告警类型,分为通信/设备/处理/环境/服务/安全/连接</para>
+
+		<para>“标准告警名”：标准告警名，如AIS</para>
+
+		<para>【功能说明】</para>
+
+		<para>点击&lt;查询&gt;按钮，按照简单的查询条件和管理权限，查询到相应的历史告警信息。参见<xref linkend="节-历史告警查询"/>。</para>
+
+		<para>点击&lt;高级查询&gt;按钮，可以按照多重条件对历史告警进行高级查询。参见<xref linkend="节-历史告警高级查询"/>。</para>
+
+		<para>点击&lt;详情&gt;按钮，将显示所选历史告警的详细信息。参见<xref linkend="节-历史告警详情"/>。</para>
+
+		<para>点击&lt;相关电路&gt;按钮（只能单选），将显示出受影响的电路列表。</para>
+
+		<para>点击&lt;屏蔽&gt;按钮，将实现告警的屏蔽功能。若未选择告警，则自动跳转到“告警及事件屏蔽”的功能；若选择了告警，则自动跳转到“告警及事件屏蔽”的“新增告警及事件屏蔽模板”功能，且默认把选择的“告警源”和“告警基本属性”填入“新增告警及事件屏蔽模板”功能。参见<xref linkend="节-新增告警及事件屏蔽模板"/>。</para>
+
+		<para>点击&lt;导出&gt;按钮，将导出历史告警，参见<xref linkend="节-导出历史告警"/>。</para>
+
+		<caution>
+			<title>[注意]</title>
+
+			<para>点击&lt;详情&gt;、&lt;相关电路&gt;按钮前必须选择一个告警，否则会弹出错误信息对话框。</para>
+		</caution>
+
+		<section xml:id="节-历史告警查询">
+			<title>历史告警查询</title>
+
+			<para>【页面显示】</para>
+
+			<para>在历史告警页面，上方为查询功能区，如下图。</para>
+
+			<figure xml:id="图-历史告警查询">
+				<title>历史告警查询</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/fault/history_alarm_query.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/fault/history_alarm_query.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要分别选择“网管分组”、“网管”和“网元”来确定查询对象，且需定义告警的“首次发生时间”和“清除时间”（所有条件是“与”的关系）。</para>
+
+			<para>“网管分组”：下拉框可选择具体网管分组，或者无网管分组的列表。</para>
+
+			<para>“网管”：下拉框可以选择具体网管。</para>
+
+			<para>“网元”：下拉框可以选择具体网元（支持联想功能可以精确查找）。</para>
+
+			<para>“首次发生时间”：告警的首次发生时间。下拉框选择从何时间到何时间。</para>
+
+			<para>“清除时间”：告警的清除时间。下拉框选择从何时间到何时间。</para>
+
+			<para>点击&lt;查询&gt;，将执行查询历史告警操作，系统显示相应的历史告警的详细信息。</para>
+
+		</section>
+
+		<section xml:id="节-历史告警高级查询">
+			<title>历史告警高级查询</title>
+
+			<para>【页面显示】</para>
+
+			<para>在历史告警页面点击&lt;高级查询&gt;按钮，历史告警高级查询窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-历史告警高级查询">
+				<title>历史告警高级查询</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/advanced_query_history.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要，在页面左侧节点树部分选择或输入相应的“告警源选择”，在页面右侧选择或输入相应的“告警源过滤条件”、“级别”、“确认状态”、“告警名称”、“清除状态”、“告警类型”、“首次发生时间”、“清除时间”、“持续时间”、“频次”和“业务影响”等数据作为查询条件。</para>
+
+			<para>“告警源选择”：通过左侧的节点树，选择告警源。可选对象为：板卡、子架、网元、子网、网管、网管分组。如果节点树未选，则为全部查询。</para>
+
+			<para>“告警源过滤条件”：对告警源进一步过滤，过滤条件有全部/光传送单元/光复用单元/光通道/光监控信道/SDH端口/STM-64及以上/STM-16/STM-4/STM-1/STM-1。</para>
+
+			<para>“级别”：分为紧急/重要/次要/提示，可以复选级别中的任何一个框作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“确认状态”：分为已确认/未确认，可以复选作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“告警名称”：其中“厂家”可以通过下拉框进行选择；其中“告警名称”可以进行选择或者手工输入（系统支持联想功能）。</para>
+
+			<para>“告警类型”：分为通信/设备/处理/环境/服务/安全/连接，可以复选作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“清除状态”：分为已清除/未清除，可以复选作为查询条件，若不选则不作为查询条件。</para>
+
+			<para>“首次发生时间”：分为任何时间/从……到……（输入时间，精确到秒）/最近（输入时间，精确到分）。</para>
+
+			<para>“清除时间”：分为任何时间/从……到……（输入数据，精确到秒）。</para>
+
+			<para>“告警反转”：告警反转状态（反转/未反转）。</para>
+
+			<para>“业务影响”：告警对业务的影响状态（影响/不影响/未知）。</para>
+
+			<para>“持续时间”：首次发生时间和清除时间的差值。下拉框选择项分为小于等于/大于等于，数值精确到分钟。</para>
+
+			<para>“频次”：下拉框选择项分为小于等于/大于等于，数值为自然数（手动输入）。</para>
+
+			<para>“业务影响”：分为影响/不影响/未知。</para>
+
+			<para>点击&lt;确认&gt;，将开始按条件查询并显示查询结果。</para>
+
+			<para>点击&lt;重置&gt;，将恢复到上次选择状态（即还原至上次查询勾选的内容）。</para>
+
+			<para>点击&lt;取消&gt;，将关闭窗口。</para>
+
+			<note>
+				<title>[说明]</title>
+
+				<para>多次查询则自动记录上次选择的状态。</para>
+			</note>
+
+		</section>
+
+		<section xml:id="节-历史告警详情">
+			<title>历史告警详情</title>
+
+			<para>【页面显示】</para>
+
+			<para>在历史告警页面单选一历史告警，点击&lt;详情&gt;按钮，历史告警详情窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-历史告警详情">
+				<title>历史告警详情</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/fault/history_alarm_detail.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/fault/history_alarm_detail.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>显示所选历史告警的详细信息。</para>
+
+			<para>点击&lt;确认&gt;，将关闭窗口。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>不支持多选，否则系统会弹出错误信息对话框。</para>
+			</caution>
+
+		</section>
+
+		<section xml:id="节-导出历史告警">
+			<title>导出历史告警</title>
+
+			<para>【页面显示】</para>
+
+			<para>在历史告警页面点击&lt;导出&gt;按钮，导出历史告警窗口将弹出，如下图。</para>
+
+			<figure xml:id="图-导出历史告警">
+				<title>导出历史告警</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/export_history_alarm.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要可以打开或者保存文件。</para>
+
+			<para>点击&lt;打开&gt;，将打开文件。</para>
+
+			<para>点击&lt;保存&gt;，将执行保存操作。需定义目录和文件名。执行中系统弹窗显示“正在导出请稍候”，执行完弹窗显示“文件导出成功”。</para>
+
+			<para>点击&lt;取消&gt;，将关闭窗口且放弃导出历史告警。</para>
+
+			<note>
+				<title>[说明]</title>
+
+				<para>默认导出文件名格式：History alarm  年_月_日_时_分_秒.xls，内容格式同页面显示。</para>
+
+				<para>如果导出内容超出2000条信息，则系统提示“因为条目过多，将会导出前2000条数据。”</para>
+			</note>
+
+		</section>
+
+	</section>
+
+	<section xml:id="节-告警设置">
+		<title>告警设置</title>
+
+		<section xml:id="节-当前告警过滤器">
+			<title>当前告警过滤器</title>
+
+			<para>【描述】</para>
+
+			<para>可以按照设置的当前告警过滤器对符合条件的告警进行过滤显示。可以新增、删除、修改及启用或禁用当前告警过滤器。</para>
+
+			<para>屏蔽模板和过滤器的区别为：被屏蔽的告警将不被存储入系统，而被过滤的告警只是不被显示。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;当前告警过滤器&gt;，当前告警过滤器页面将打开，如下图。</para>
+
+			<figure xml:id="图-当前告警过滤器">
+				<title>当前告警过滤器</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/current_alarm_filter.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“过滤器名称”：定义的过滤器名称</para>
+
+			<para>“创建者”：创建者名称</para>
+
+			<para>“状态”：分为启用/禁用</para>
+
+			<para>“描述”：描述信息</para>
+
+			<para>【功能说明】</para>
+
+			<para>超级用户进入系统，可以显示全部的当前告警过滤器的信息，一般用户则只能显示自己的过滤器。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个用户告警过滤器，参见<xref linkend="节-新增当前告警过滤器"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除选择的用户告警过滤器，参见<xref linkend="节-删除当前告警过滤器"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改选择的用户告警过滤器，参见<xref linkend="节-修改当前告警过滤器"/>。</para>
+
+			<para>点击&lt;启用&gt;按钮，将启用选中的告警过滤器。只支持单选，启用选中的过滤器后立即禁用其它过滤器（即任何时刻，每个用户最多只有一个过滤器在启用状态）。</para>
+
+			<para>点击&lt;挂起&gt;按钮，将禁用选中的告警过滤器。允许选择全部挂起（即当前告警不再过滤）。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;启用&gt;和&lt;挂起&gt;按钮前必须选择一个过滤器，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增当前告警过滤器">
+				<title>新增当前告警过滤器</title>
+
+				<para>【页面显示】</para>
+
+				<para>在当前告警过滤器页面点击&lt;新增&gt;按钮，新增当前告警过滤器窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增当前告警过滤器">
+					<title>新增当前告警过滤器</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/add_current_alarm_filter.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，选择相应的“告警名称”，“告警类型”，“级别”，“业务影响”，“告警源”，酌情填写“过滤器名称”（必填项）和“描述”。所有选中的条件为需要过滤掉的告警且所有条件之间逻辑上是与的关系。</para>
+
+				<para>“告警名称”：通过选择“厂家”下拉框，输入相应的告警名称（带联想功能），点击&lt;&gt;按钮把告警名称转移到右侧“已选告警名称”框内（反之点击&lt;&gt;按钮删除选择的告警名称）。</para>
+
+				<para>“告警类型”：分为通信/设备/处理/环境/服务/安全/连接，选择告警类型中的任何一个复选框，即作为过滤条件。</para>
+
+				<para>“级别”：分为紧急/重要/次要/提示，选择级别中的任何一个复选框，即作为过滤条件。</para>
+
+				<para>“业务影响”：分为影响/不影响/未知。</para>
+
+				<para>“告警源”：有两种选择方式：“告警源选择”和“告警源类型选择”，两种方式只能选择其中一种方式起效。参见<xref linkend="节-告警源选择"/>或 <xref linkend="节-告警源类型选择"/>。</para>
+
+				<para>“过滤器名称”：过滤器名称。</para>
+
+				<para>“描述”：过滤器的说明/备注。</para>
+
+				<para>点击&lt;确认&gt;，将完成新增过滤器操作。</para>
+
+				<para>点击&lt;重置&gt;，将恢复到初始状态。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口且放弃新增过滤器操作。</para>
+
+				<section xml:id="节-告警源选择">
+					<title>告警源选择</title>
+
+					<para>【页面显示】</para>
+
+					<para>在新增过滤器页面点击告警源选择后面的&lt;&gt;按钮，告警源选择窗口将弹出，如下图。</para>
+
+					<figure xml:id="图-告警源选择">
+						<title>告警源选择</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/fault/alarm_source_select.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/fault/alarm_source_select.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>在左侧节点树上选择对象（可选节点为端口、板卡、网元、网管、网管分组），点击&lt;&gt;把</para>
+
+					<para>对象移到右侧列表。在右侧列表，通过“网管分组”、“网管”下拉框选择对象，点击&lt;移除&gt;</para>
+
+					<para>可将右侧选择对象删除。</para>
+
+					<para>“网管分组”：网管分组名称。</para>
+
+					<para>“网管”：网管名称。</para>
+
+					<para>“网元”：网元名称。</para>
+
+					<para>“槽道”：机架-子架-槽道信息。</para>
+
+					<para>“板卡”：板卡名称。</para>
+
+					<para>“端口”：端口名称。</para>
+
+					<para>点击&lt;确认&gt;，将完成告警源选择操作。</para>
+
+					<para>点击&lt;重置&gt;，将恢复到初始状态。</para>
+
+					<para>点击&lt;取消&gt;，将关闭窗口且放弃告警源选择操作。</para>
+
+				</section>
+
+				<section xml:id="节-告警源类型选择">
+					<title>告警源类型选择</title>
+
+					<para>【页面显示】</para>
+
+					<para>在新增过滤器页面点击告警源类型选择后面的&lt;&gt;按钮，告警源类型选择窗口将弹出，如下图。</para>
+
+					<figure xml:id="图-告警源类型选择">
+						<title>告警源类型选择</title>
+						<mediaobject>
+							<imageobject role="html">
+								<imagedata fileref="images/fault/alarm_source_type_select.png" align="center" scalefit="0" width="100%"/>
+							</imageobject>
+							<imageobject role="fo">
+								<imagedata fileref="images/fault/alarm_source_type_select.png" align="center" scalefit="1" width="100%"/>
+							</imageobject>
+						</mediaobject>
+					</figure>
+
+					<para>【功能说明】</para>
+
+					<para>根据需要，分别选择“网元型号”、“端口类型”、“通道告警”，选中的对象即作为过滤条件，三种类型之间是与的关系。</para>
+
+					<para>“网元型号”：网元的型号。选择厂家和对应网元型号后，点击&lt;&gt;按钮,将对象移到右侧“已选网元型号”（反之则点击&lt;&gt;按钮将已选网元类型删除）。</para>
+
+					<para>“端口类型”:分为光传送单元/光复用单元/光通道/光监控信道/STM-64及以上/STM-16/STM-4/STM-1/STM-1/E3/E1。</para>
+
+					<para>“通道告警”：CTP通道级别的告警。</para>
+
+					<para>点击&lt;确认&gt;，将完成告警源类型的选择操作。</para>
+
+					<para>点击&lt;重置&gt;，将恢复到初始状态。</para>
+
+					<para>点击&lt;取消&gt;，将关闭窗口且放弃告警源类型的选择操作。</para>
+
+				</section>
+
+			</section>
+
+			<section xml:id="节-删除当前告警过滤器">
+				<title>删除当前告警过滤器</title>
+
+				<para>【页面显示】</para>
+
+				<para>在当前告警过滤器页面选择模板点击&lt;删除&gt;按钮，删除当前告警过滤器窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除当前告警过滤器">
+					<title>删除当前告警过滤器</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/delete_current_alarm_filter.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除当前告警过滤器操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除操作。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>支持多选。</para>
+
+					<para>若待删的模板正在启用状态，则系统提示“模板在启用状态，请先挂起”。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-修改当前告警过滤器">
+				<title>修改当前告警过滤器</title>
+
+				<para>【页面显示】</para>
+
+				<para>在当前告警过滤器页面选择模板点击&lt;修改&gt;按钮，修改当前告警过滤器窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改当前告警过滤器">
+					<title>修改当前告警过滤器</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/update_current_alarm_filter.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/update_current_alarm_filter.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增当前告警过滤器。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>不支持多选。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-告警及事件屏蔽">
+			<title>告警及事件屏蔽</title>
+
+			<para>【描述】</para>
+
+			<para>告警及事件屏蔽页面提供可以新增、删除、修改及启用或挂起、手动执行收敛规则的相关功能。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警及事件屏蔽&gt;，告警及事件屏蔽页面将打开，如下图。</para>
+
+			<figure xml:id="图-告警及事件屏蔽">
+				<title>告警及事件屏蔽</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_event_masking.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“名称”：告警及事件屏蔽的名称。</para>
+
+			<para>“创建者”：告警及事件屏蔽的创建人。</para>
+
+			<para>“状态”：告警及事件屏蔽的状态。</para>
+
+			<para>“描述”：告警及事件屏蔽的描述信息。</para>
+
+			<para>【功能说明】</para>
+
+			<para>系统默认显示全部的告警及事件屏蔽模板的信息。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个告警及事件屏蔽模板，参见<xref linkend="节-新增告警及事件屏蔽模板"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除选择的告警及事件屏蔽模板，支持多选，参见<xref linkend="节-删除告警及事件屏蔽模板"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改选择的告警及事件屏蔽模板，不支持多选，参见<xref linkend="节-修改告警及事件屏蔽模板"/>。</para>
+
+			<para>点击&lt;详情&gt;按钮，将查看选择的告警及事件屏蔽模板详情，参见<xref linkend="节-查看告警及事件屏蔽模板"/>。</para>
+
+			<para>点击&lt;启用&gt;按钮，将启用选中的告警及事件屏蔽模板。</para>
+
+			<para>点击&lt;挂起&gt;按钮，将挂起选中的告警及事件屏蔽模板。</para>
+
+			<para>点击&lt;查询条件&gt;按钮，查询条件工具栏显示，如下图所示，选择厂家、告警名称、网管分组、网管和网元，点击&lt;查询&gt;，进行筛选查询。</para>
+
+			<figure xml:id="图-查询条件工具栏">
+				<title>查询条件工具栏</title>
+				<mediaobject>
+					<imageobject role="html">
+						<imagedata fileref="images/fault/query_condition_toolbar.png" align="center" scalefit="0" width="100%"/>
+					</imageobject>
+					<imageobject role="fo">
+						<imagedata fileref="images/fault/query_condition_toolbar.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<caution>
+				<title> [注意]</title>
+
+				<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;详情&gt;、&lt;启用&gt;、&lt;挂起&gt;按钮前必须选择一条收敛规则，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增告警及事件屏蔽模板">
+				<title>新增告警及事件屏蔽模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警及事件屏蔽页面中，点击&lt;新增&gt;按钮，新增告警及事件屏蔽窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增告警及事件屏蔽">
+					<title>新增告警及事件屏蔽</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/add_alarm_event_masking.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/add_alarm_event_masking.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，选择相应的“告警名称”，“告警类型”，“级别”，“业务影响”，“告警源选择”，酌情填写“屏蔽模板名称”（必填项）和“描述”（必填项）。所有条件之间为与的关系。</para>
+
+				<para>选择厂家、告警名称，点击“”，选择的告警信息添加到已选告警名称列表中。</para>
+
+				<para>选择已选告警名称列表中的告警信息，点击“”，将从列表中删除已选告警信息。</para>
+
+				<para>信息录入后，点击&lt;确定&gt;按钮，新增告警及事件屏蔽模板成功，窗口关闭。</para>
+
+				<para>点击&lt;重置&gt;按钮，录入的信息全部清空。</para>
+
+				<para>点击&lt;取消&gt;按钮，将关闭窗口，并且放弃新增告警及事件屏蔽模板操作。</para>
+
+			</section>
+
+			<section xml:id="节-删除告警及事件屏蔽模板">
+				<title>删除告警及事件屏蔽模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警及事件屏蔽页面中，选择一条或多条屏蔽信息，点击&lt;删除&gt;按钮，提示窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除告警及事件屏蔽">
+					<title>删除告警及事件屏蔽</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/delete_alarm_event_masking.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除告警及事件屏蔽操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口，并且放弃删除告警及事件屏蔽操作。 </para>
+
+			</section>
+
+			<section xml:id="节-修改告警及事件屏蔽模板">
+				<title>修改告警及事件屏蔽模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警及事件屏蔽页面中，选择一条屏蔽信息，点击&lt;修改&gt;按钮，修改告警及事件屏蔽将弹出，如下图。</para>
+
+				<figure xml:id="图-修改告警及事件屏蔽">
+					<title>修改告警及事件屏蔽</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/update_alarm_event_masking.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/update_alarm_event_masking.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增告警及事件屏蔽模板。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>修改告警及事件屏蔽模板，不支持多选。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-查看告警及事件屏蔽模板">
+				<title>查看告警及事件屏蔽模板</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警及事件屏蔽页面中，选择一条屏蔽规则，点击&lt;详情&gt;按钮，查看告警及事件屏蔽模板窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-查看告警及事件屏蔽">
+					<title>查看告警及事件屏蔽</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/alarm_event_masking_detail.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/alarm_event_masking_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>页面内容同新增、修改告警收敛规则模板，告警收敛规则详情页面只能查看，不能修改。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>查看告警收敛规则模板详情，不支持多选。</para>
+
+					<para>告警名称、厂家、告警类型等均为灰色，不可编辑。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-告警收敛规则">
+			<title>告警收敛规则</title>
+
+			<para>【描述】</para>
+
+			<para>告警收敛规则页面提供可以新增、删除、修改及启用或挂起、手动执行收敛规则的相关功能。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警收敛规则&gt;，告警收敛规则页面将打开，如下图。</para>
+
+			<figure xml:id="图-告警收敛规则">
+				<title>告警收敛规则</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_converge_rule.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“规则名称”：收敛规则的名称。</para>
+
+			<para>“主告警名称”：收敛规则中主告警的名称。</para>
+
+			<para>“适用范围”：适用的网管范围，鼠标悬浮，显示详细信息。</para>
+
+			<para>“适用设备”：适用的网管设备，鼠标悬浮，显示详细信息。</para>
+
+			<para>“启用状态”：收敛规则的启用状态。</para>
+
+			<para>“描述”：收敛规则的描述信息。</para>
+
+			<para>“最近修改者”：最近一次修改规则的用户名称。</para>
+
+			<para>“最近修改时间”：最近一次修改规则的时间。</para>
+
+			<para>【功能说明】</para>
+
+			<para>系统默认显示全部的告警及事件屏蔽模板的信息。</para>
+
+			<para>点击&lt;新增&gt;按钮，将增加一个屏蔽模板，参见<xref linkend="节-新增告警收敛规则"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除选择的屏蔽模板，支持多选，参见<xref linkend="节-删除告警收敛规则"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改选择的屏蔽模板，不支持多选，参见<xref linkend="节-修改告警收敛规则"/>。</para>
+
+			<para>点击&lt;详情&gt;按钮，将查询到选择的屏蔽模板的详情，参见<xref linkend="节-查看告警收敛规则"/>。</para>
+
+			<para>点击&lt;启用&gt;按钮，将启用选中的告警收敛规则，可以同时启用多个告警收敛规则。</para>
+
+			<para>点击&lt;挂起&gt;按钮，将挂起选中的告警收敛规则，可以同时挂起多个告警收敛规则。</para>
+
+			<para>点击&lt;手动执行&gt;按钮，提示窗口弹出，提示告警收敛规则执行中，如下图所示，点击&lt;后台运行&gt;，提示窗口关闭，执行过程后台进行。</para>
+
+			<figure xml:id="图-告警收敛规则执行中提示">
+					<title>告警收敛规则执行中提示</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/alarm_converge_running_prompt.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+			<para>点击&lt;收敛参数&gt;按钮，设置告警收敛参数，参见<xref linkend="节-设置收敛参数"/>。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;详情&gt;、&lt;启用&gt;、&lt;挂起&gt;、&lt;手动执行&gt;和&lt;收敛参数&gt;按钮前必须选择一条收敛规则，否则会弹出错误信息对话框。</para>
+				<para>若告警收敛服务没有启用，则会弹出提示窗口，相关按钮将会被禁用。</para>
+			</caution>
+
+			<section xml:id="节-新增告警收敛规则">
+				<title>新增告警收敛规则</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警收敛规则页面点击&lt;新增&gt;按钮，新增告警收敛规则窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-新增告警收敛规则">
+					<title>新增告警收敛规则</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/add_alarm_converge_rule.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/add_alarm_converge_rule.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，选择相应的“告警名称”，“告警类型”，“级别”，“业务影响”，“告警源设置”，酌情填写“屏蔽模板名称”（必填项）和“描述”。所有选中的条件为需要屏蔽掉的告警，所有条件之间为与的关系</para>
+
+				<para>“规则名称”：收敛规则的名称，最长32个中文字符，必填项。</para>
+
+				<para>“描述”：收敛规则的描述，最长128个中文字符。</para>
+
+				<para>“适用范围”：主告警适用的网元范围，对象类型：对象名称,对象名称“【中文冒号，西文逗号】；例如：网管：U31-SDH,区内华为OSN9500网管。 必填项。</para>
+
+				<figure xml:id="图-告警收敛适用范围">
+					<title>告警收敛适用范围</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/alarm_converge_scope.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/alarm_converge_scope.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>“适用设备”：主告警适用的网元型号,厂家+设备型号显示，用“，”分割。点击后，适用设备窗口打开，显示如下图。</para>
+
+				<para>选择“可选设备”，点击 ，添加设备到“已选设备”列表中；</para>
+
+				<para>选择“已选设备”，点击 ，从“已选设备”列表中删除设备。</para>
+
+				<para>点击&lt;确定&gt;，适用设备选择完成。</para>
+
+				<figure xml:id="图-告警收敛适用设备">
+					<title>告警收敛适用设备</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/alarm_converge_device.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/alarm_converge_device.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>“条件”：描述主告警的名称，主告警的对象类别和主告警的约束条件。</para>
+
+				<para>点击&lt;新增&gt;，对象等级窗口打开，录入“主告警名称”、“告警对象类型”，点击&lt;确定&gt;，条件新增成功，如下图所示（根据选择不同对象类型，页面变化如下）。</para>
+
+				<para>点击&lt;删除&gt;，被选中的条件删除成功。</para>
+
+				<para>点击&lt;修改&gt;，对象等级窗口打开，修改“主告警名称”、“告警对象类型”，点击&lt;确定&gt;，条件修改成功。</para>
+
+				<figure xml:id="图-对象等级_网元">
+					<title>对象等级（网元）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/object_level_ne.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<figure xml:id="图-对象等级_端口">
+					<title>对象等级（端口）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/object_level_port.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<figure xml:id="图-对象等级_通道">
+					<title>对象等级（通道）</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/object_level_channel.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>“执行动作”：固定有5种动作和对象的组合（主告警监测对象本身、主告警监测对象的下属对象、主告警监测对象相邻端口、主告警监测对象所属传输系统网元、主告警监测对象相关电路通道），可以通过。</para>
+
+				<para>点击&lt;启用&gt;、&lt;挂起&gt;修改执行动作状态。</para>
+
+				<para>点击&lt;修改&gt;，修改窗口打开，修改告警列表，如下所示。</para>
+
+				<figure xml:id="图-执行动作_修改">
+					<title>执行动作（修改）</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/update_action.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/update_action.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>点击&lt;确认&gt;，将完成新增告警收敛规则操作，告警收敛规则查询列表刷新。</para>
+
+				<para>点击&lt;取消&gt;，将关闭窗口，并且放弃新增告警收敛规则操作。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>条件列表选择时，只能单选。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-删除告警收敛规则">
+				<title>删除告警收敛规则</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警收敛规则页面中，选择一条或多条收敛规则，点击&lt;删除&gt;按钮，提示窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-删除告警收敛规则">
+					<title>删除告警收敛规则</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/delete_alarm_converge_rule.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除告警收敛规则操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口，并且放弃删除告警收敛规则操作。</para>
+
+			</section>
+
+			<section xml:id="节-修改告警收敛规则">
+				<title>修改告警收敛规则</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警收敛规则页面中，选择一条收敛规则，点击&lt;修改&gt;按钮，收敛规则窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-修改告警收敛规则">
+					<title>修改告警收敛规则</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/update_alarm_converge_rule.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/update_alarm_converge_rule.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增告警收敛规则。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>修改告警收敛规则，不支持多选。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-查看告警收敛规则">
+				<title>查看告警收敛规则</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警收敛规则页面中，选择一条收敛规则，点击&lt;详情&gt;按钮，收敛规则窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-查看告警收敛规则">
+					<title>查看告警收敛规则</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/alarm_converge_detail.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/alarm_converge_detail.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>页面内容同新增、修改告警收敛规则，告警收敛规则详情页面只能查看，不能修改。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>查看告警收敛规则详情，不支持多选。</para>
+
+					<para>收敛规则名称、描述、适用范围、适用设备显示内容均为灰色，不可编辑。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-设置收敛参数">
+				<title>设置收敛参数</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警收敛规则页面中，点击&lt;收敛参数&gt;按钮，告警收敛参数窗口将弹出，如下图。</para>
+
+				<figure xml:id="图-告警收敛参数">
+					<title>告警收敛参数</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/alarm_converge_parameter.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>输入告警收敛时延，时延范围为60~300秒，若设置过短，可能导致告警收敛不完全。</para>
+
+				<para>点击&lt;确定&gt;，完成设置告警收敛参数操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口，并且放弃设置告警收敛参数操作。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-告警自动同步">
+			<title>告警自动同步</title>
+
+			<para>【描述】</para>
+
+			<para>告警自动同步功能指系统可以按照设置，定时对当前告警进行自动同步，以防止假告警等告警不同步的情况。可以进行告警自动同步相关参数的设置和查询。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警自动同步&gt;，告警自动同步页面将会打开，如下图。</para>
+
+			<figure xml:id="图-告警自动同步">
+				<title>告警自动同步</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_auto_synchronize.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“网管分组”：网管分组名称</para>
+
+			<para>“网管名称”：网管名称</para>
+
+			<para>“网管类型”：网管类型</para>
+
+			<para>“同步周期（小时）”：自动同步的周期，以小时为单位，默认24小时</para>
+
+			<para>“任务状态”：分为启用/挂起，默认挂起，</para>
+
+			<para>“执行状态”：上次执行的状态，分为成功/失败</para>
+
+			<para>“上次同步时间”：上次同步的时间</para>
+
+			<para>“下次同步时间”：下次同步的预计时间</para>
+
+			<para>“南向连接恢复后自动同步”：是否自动同步，默认是</para>
+
+			<para>“延时(分钟)”：南向连接恢复后自动同步，延时同步的时间，默认15分钟。</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;网管分组&gt;后的下拉框，选择组名后，可自动显示对应组的数据。默认将显示全部网管的自动告警同步的设置。</para>
+
+			<para>点击&lt;保存&gt;按钮，将完成告警自动同步设置操作，参见<xref linkend="节-告警自动同步设置"/>。</para>
+
+			<section xml:id="节-告警自动同步设置">
+				<title>告警自动同步设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警自动同步&gt;，告警自动同步设置页面即打开，如下图。</para>
+
+				<figure xml:id="图-告警自动同步设置">
+					<title>告警自动同步设置</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/alarm_auto_synchronize_setting.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，可以修改以下4个相关参数设置，即页面中黑色粗体标记列的参数设置。</para>
+
+				<para>“同步周期（小时）”：输入数值修改，输入范围为6～48（小时），数值为正整数。</para>
+
+				<para>“任务状态”：下拉框选择，分为启用/挂起。</para>
+
+				<para>“南向连接恢复后自动同步”：下拉框选择，分为是/否。</para>
+
+				<para>“延时（分钟）”：下拉框选择，分为10/15/20/25/30。</para>
+
+				<para>点击&lt;保存&gt;，将完成告警自动同步设置操作。</para>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-告警自动确认">
+			<title>告警自动确认设置</title>
+
+			<para>【描述】</para>
+
+			<para>告警自动确认设置指分网管显示和设置是否对告警进行自动确认。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警自动确认设置&gt;，告警自动确认设置页面将会打开，如下图。</para>
+
+			<figure xml:id="图-告警自动确认">
+				<title>告警自动确认</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_auto_confirm.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“网管分组”：网管分组名称</para>
+
+			<para>“网管名称”：网管名称</para>
+
+			<para>“网管类型”：网管类型</para>
+
+			<para>“紧急”：紧急告警对应的确认选择，分为不确认/立即确认/定时确认，默认不确认</para>
+
+			<para>“重要”：重要告警对应的确认选择，分为不确认/立即确认/定时确认，默认不确认</para>
+
+			<para>“次要”：次要告警对应的确认选择，分为不确认/立即确认/定时确认，默认不确认</para>
+
+			<para>“提示”：提示告警对应的确认选择，分为不确认/立即确认/定时确认，默认不确认</para>
+
+			<para>“未定义”：未定义告警对应的确认选择，分为不确认/立即确认/定时确认，默认不确认</para>
+
+			<para>“定时确认，清除时间达到（分钟）”：定时确认时，确认“清除时间”和当时比，大于等于设置时间的告警，默认为60分钟</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;网管分组&gt;后的下拉框，选择组名后，可自动显示对应组的数据。默认将显示全部网管的自动告警确认的设置。</para>
+
+			<para>点击&lt;不确认&gt;按钮，将批量设置选中的网管，所有级别的告警全部设为不确认。</para>
+
+			<para>点击&lt;立即确认&gt;按钮，将批量设置选中的网管，所有级别的告警全部设为立即确认。</para>
+
+			<para>点击&lt;定时确认&gt;按钮，将批量设置选中的网管，所有级别的告警全部设为定时确认。</para>
+
+			<para>点击&lt;保存&gt;按钮，将完成告警自动确认设置修改操作，参见<xref linkend="节-告警自动确认设置"/>。</para>
+
+			<para>点击&lt;定时确认周期设置&gt;按钮，将修改定时确认的周期，参见<xref linkend="节-定时确认周期设置"/>。</para>
+
+			<section xml:id="节-告警自动确认设置">
+				<title>告警自动确认设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警自动确认设置&gt;，告警自动确认设置修改页面即打开，如下图。</para>
+
+				<figure xml:id="图-告警自动确认设置修改">
+					<title>告警自动确认设置修改</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/update_alarm_auto_confirm_setting.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，可以修改以下6个相关参数。 </para>
+
+				<para>“紧急”：下拉框选择，分为不确认/立即确认/定时确认。</para>
+
+				<para>“重要”：下拉框选择，分为不确认/立即确认/定时确认。</para>
+
+				<para>“次要”：下拉框选择，分为不确认/立即确认/定时确认。</para>
+
+				<para>“提示”：下拉框选择，分为不确认/立即确认/定时确认。</para>
+
+				<para>“未定义”：下拉框选择，分为不确认/立即确认/定时确认。</para>
+
+				<para>“定时确认，清除时间达到（分钟）”：输入数值修改，默认为60分钟。</para>
+
+				<para>点击&lt;保存&gt;，将完成告警自动确认设置的修改操作。</para>
+
+			</section>
+
+			<section xml:id="节-定时确认周期设置">
+				<title>定时确认周期设置</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警自动确认设置页面，点击&lt;定时确认周期&gt;按钮，定时确认周期设置窗口将会打开，如下图。</para>
+
+				<figure xml:id="图-定时确认周期设置">
+					<title>定时确认周期设置</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/timing_confirm_setting.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，输入“告警定时确认“时间（自然数范围：1～48小时，默认为12小时）。</para>
+
+				<para>“告警定时确认”时间：即每xx小时自动执行一次告警确认。</para>
+
+				<para>点击&lt;确认&gt;，完成定时确认周期设置操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃操作。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>若输入时间超出范围,系统会弹出错误信息对话框。</para>
+				</note>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-告警归一化设置">
+			<title>告警归一化设置</title>
+
+			<para>【描述】</para>
+
+			<para>告警归一化，是为了统一显示各个厂家对同一告警的不同名称，以便于维护人员理解与管理。</para>
+
+			<para>* 根据设置，在显示时增加告警归一名称，并保留厂家的原始告警名称。</para>
+
+			<para>* 【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警归一化设置&gt;，告警归一化设置页面将会打开，如下图。</para>
+
+			<figure xml:id="图-告警归一化设置">
+				<title>告警归一化设置</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_normalization_setting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“厂家”：厂家</para>
+
+			<para>“厂家告警名称”：厂家告警名称</para>
+
+			<para>“标准告警名称”：TMF规定的告警名称</para>
+
+			<para>“归一化告警名称”：归一化告警名称</para>
+
+			<para>“修改时间”：修改时间</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;厂家&gt;后的下拉框，选择厂家后，可自动显示对应厂家的告警归一化的规则。默认将显示全部厂家的告警归一化的规则。</para>
+
+			<para>点击&lt;新增&gt;按钮，将新增一个归一化的规则，参见<xref linkend="节-新增告警归一化"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的归一化的规则，参见<xref linkend="节-删除告警归一化"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选择的归一化的规则，参见<xref linkend="节-修改告警归一化"/>。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;删除&gt;和&lt;修改&gt;按钮前必须选择一个归一化的规则，否则会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增告警归一化">
+				<title>新增告警归一化</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警归一化设置页面，点击&lt;新增&gt;按钮，新增告警归一化窗口将会打开，如下图。</para>
+
+				<figure xml:id="图-新增告警归一化">
+					<title>新增告警归一化</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/add_alarm_normalization.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/add_alarm_normalization.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据实际需要，选择“厂家”，输入“厂家告警名称”，“归一化告警名称”（此两项内容为必填项）和“标准告警名称”。</para>
+
+				<para>“厂家”：具体厂家。</para>
+
+				<para>“厂家告警名称”：厂家的告警名称。</para>
+
+				<para>“标准告警名称”：TMF规定的告警名称。</para>
+
+				<para>“归一化告警名称”：归一化的告警名称。</para>
+
+				<para>点击&lt;确认&gt;按钮，将完成新增告警归一化操作。</para>
+
+				<para>点击&lt;取消&gt;按钮，退出窗口且放弃新增告警归一化操作。</para>
+
+			</section>
+
+			<section xml:id="节-删除告警归一化">
+				<title>删除告警归一化</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警归一化设置页面，点击&lt;删除&gt;按钮，删除告警归一化窗口将会打开，如下图。</para>
+
+				<figure xml:id="图-删除告警归一化">
+					<title>删除告警归一化</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/delete_alarm_normalization.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除告警归一化操作（即删除相应模板）。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除操作。</para>
+
+				<note>
+					<title>[说明]</title>
+
+					<para>支持多选。</para>
+				</note>
+
+			</section>
+
+			<section xml:id="节-修改告警归一化">
+				<title>修改告警归一化</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警归一化设置页面，点击&lt;修改&gt;按钮，修改告警归一化窗口将会打开，如下图。</para>
+
+				<figure xml:id="图-修改告警归一化">
+					<title>修改告警归一化</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/update_alarm_normalization.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/update_alarm_normalization.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增告警归一化。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>不支持多选。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-告警及事件重定义">
+			<title>告警及事件重定义</title>
+
+			<para>【描述】</para>
+
+			<para>告警及事件重定义功能指对选定网管的告警级别进行转换，以便于识别和处理。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警及事件重定义&gt;，告警及事件重定义页面将会打开，如下图。</para>
+
+			<figure xml:id="图-告警及事件重定义">
+				<title>告警及事件重定义页面</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_event_redefine.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【内容说明】</para>
+
+			<para>“网管分组”：网管分组，如一干</para>
+
+			<para>“网管”：网管，如华为二期</para>
+
+			<para>“告警/事件名称”：告警/事件名称，如LOT</para>
+
+			<para>“原告警/事件级别”：原告警/事件对应的级别,如紧急</para>
+
+			<para>“重定义告警级别”：重新定义后的告警级别，如次要</para>
+
+			<para>“状态”：分为启用/禁用</para>
+
+			<para>【功能说明】</para>
+
+			<para>点击&lt;网管分组&gt;后的下拉框，选择组名后，可自动显示对应网管的告警及事件重定义的设置。默认将显示全部网管的告警及事件重定义的设置。</para>
+
+			<para>点击&lt;新增&gt;按钮，将新增一个告警及事件重定义的设置，参见<xref linkend="节-新增告警及事件重定义"/>。</para>
+
+			<para>点击&lt;删除&gt;按钮，将删除所选择的告警及事件重定义的设置，参见<xref linkend="节-删除告警及事件重定义"/>。</para>
+
+			<para>点击&lt;修改&gt;按钮，将修改所选择的告警及事件重定义的设置，参见<xref linkend="节-修改告警及事件重定义"/>。</para>
+
+			<para>点击&lt;启用&gt;按钮，将启用选中的告警及事件重定义的模板。可以同时启用多个模板（最多可同时启用100个）。</para>
+
+			<para>点击&lt;挂起&gt;按钮，将禁用选中的告警及事件重定义的模板。支持多选，可以全部禁用。</para>
+
+			<caution>
+				<title>[注意]</title>
+
+				<para>点击&lt;删除&gt;、&lt;修改&gt;、&lt;启用&gt;和&lt;挂起&gt;按钮前必须选择一个告警及事件重定义的模板，否则会弹出错误信息对话框。</para>
+
+				<para>启用模板如超过100个，系统会弹出错误信息对话框。</para>
+			</caution>
+
+			<section xml:id="节-新增告警及事件重定义">
+				<title>新增告警及事件重定义</title>
+
+				<para>【页面显示】</para>
+
+				<para>在新告警及事件重定义页面，点击&lt;新增&gt;按钮，新增告警及事件重定义窗口将会打开，如下图。</para>
+
+				<figure xml:id="图-新增告警及事件重定义">
+					<title>新增告警及事件重定义</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/add_alarm_event_redefine.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/add_alarm_event_redefine.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>根据需要，选择“网管分组”和“网管”，输入相关“告警事件名称”，选择“原告警事件级别”和对应的“重定义告警级别”。</para>
+
+				<para>点击&lt;确认&gt;，完成新增告警及事件重定义操作。</para>
+
+				<para>点击&lt;取消&gt;，退出窗口且放弃新增告警及事件重定义操作。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>“告警事件名称”、“原告警事件级别”和“重定义告警级别”为必填项。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-删除告警及事件重定义">
+				<title>删除告警及事件重定义</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警及事件重定义页面，点击&lt;删除&gt;按钮，删除告警及事件重定义窗口将会打开，如下图。</para>
+
+				<figure xml:id="图-删除告警及事件重定义">
+					<title>删除告警及事件重定义</title>
+					<mediaobject>
+						<imageobject>
+							<imagedata fileref="images/fault/delete_alarm_event_redefine.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>点击&lt;是&gt;，完成删除告警及事件重定义操作。</para>
+
+				<para>点击&lt;否&gt;，退出窗口且放弃删除告警及事件重定义操作。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>支持多选。若待删的模板正在启用状态，则系统提示“模板在启用状态，请先挂起”。</para>
+				</caution>
+
+			</section>
+
+			<section xml:id="节-修改告警及事件重定义">
+				<title>修改告警及事件重定义</title>
+
+				<para>【页面显示】</para>
+
+				<para>在告警及事件重定义页面，点击&lt;修改&gt;按钮，修改告警及事件重定义窗口将会打开，如下图。</para>
+
+				<figure xml:id="图-修改告警及事件重定义">
+					<title>修改告警及事件重定义</title>
+					<mediaobject>
+						<imageobject role="html">
+							<imagedata fileref="images/fault/update_alarm_event_redefine.png" align="center" scalefit="0" width="100%"/>
+						</imageobject>
+						<imageobject role="fo">
+							<imagedata fileref="images/fault/update_alarm_event_redefine.png" align="center" scalefit="1" width="100%"/>
+						</imageobject>
+					</mediaobject>
+				</figure>
+
+				<para>【功能说明】</para>
+
+				<para>同新增告警及事件重定义。</para>
+
+				<caution>
+					<title>[注意]</title>
+
+					<para>“告警事件名称”、“原告警事件级别”和“重定义告警级别”为必填项。</para>
+				</caution>
+
+			</section>
+
+		</section>
+
+		<section xml:id="节-告警参数设置">
+			<title>告警参数设置</title>
+
+			<para>【描述】</para>
+
+			<para>告警参数设置的作用是对告警显示进行自定义设置及其他告警参数进行设置。</para>
+
+			<para>【页面显示】</para>
+
+			<para>在主菜单选择&lt;告警&gt;→&lt;告警设置&gt;→&lt;告警参数设置&gt;，告警参数设置页面将会打开，如下图。</para>
+
+			<figure xml:id="图-告警参数设置">
+				<title>告警参数设置</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/fault/alarm_parameter_setting.png" align="center" scalefit="1" width="100%"/>
+					</imageobject>
+				</mediaobject>
+			</figure>
+
+			<para>【功能说明】</para>
+
+			<para>根据需要，分别可以进行“告警颜色”、“告警灯显示”和“告警转移”功能的设置。</para>
+
+			<para>“告警颜色”：进行告警颜色的设置。根据实际需要，点击背景/文字下面的色块，对应不同等级告警选择相应的颜色。颜色设置后，立即显示效果。点击&lt;恢复为默认值&gt;按钮，将告警颜色恢复为默认值。</para>
+
+			<para>“告警灯显示”：选择当前告警页面要显示的告警灯。选择复选框，默认为全选。如果取消选择，则在当前告警面板上不显示该告警灯。</para>
+
+			<para>“当前告警生命周期”：设置告警转移到历史告警库的条件和规则。默认选择“无生命周期”。“有生命周期”的功能是为每XX（需要输入数值/自然数范围：1～48，默认1）小时自动执行一次，把已经清除、已经确认时间（两个时间同时满足）满XX（需要输入数值/自然数范围：10～60，默认60）分钟的告警转移到历史告警表。</para>
+
+			<para>点击&lt;确认&gt;按钮，将完成告警参数设置操作。</para>
+
+			<para>点击&lt;取消&gt;按钮，提出窗口且放弃告警参数设置。</para>
+
+		</section>
+
+	</section>
+
+</chapter>

@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.fujitsu.dao.mysql.AssociateResourceMapper">
+
+	<!--  获取全部任务信息 -->
+	<select id="getAllResourceTask" resultType="hashmap">
+		SELECT 
+			*
+		FROM
+			t_resource_correlation_task
+	</select>
+	
+	<!-- 根据Id获取任务信息 -->
+	<select id="getResourceTask" resultType="hashmap" parameterType="Integer">
+		SELECT 
+			*
+		FROM
+			t_resource_correlation_task
+		WHERE
+			t_resource_correlation_task.RC_TASK_ID = #{rcTaskId}
+	</select>
+	
+	<!-- 更新资源任务表 --> 
+	<update id="updateResourceTask" parameterType="hashMap">
+		update t_resource_correlation_task
+		<set>
+		<if test="map.TASK_STATUS != null">
+			TASK_STATUS = #{map.TASK_STATUS},
+		</if> 
+		<if test="map.PERIOD != null">
+			PERIOD = #{map.PERIOD},
+		</if>
+		</set>
+		where  RC_TASK_ID = #{map.RC_TASK_ID}
+		
+	</update>
+	
+	<!-- 更新资源任务状态 --> 
+	<update id="updateStatus" >
+		update t_resource_correlation_task
+		<set>
+		<if test="taskStatus == '启用'">
+			TASK_STATUS = '启用',
+		</if> 
+		<if test="taskStatus == '挂起'">
+			TASK_STATUS = '挂起',
+		</if> 
+		</set>
+		where  RC_TASK_ID IN 
+       	<foreach collection="resourceTaskList" item="item" index="index" open="(" separator="," close=")">
+			${item}
+		</foreach>	
+	</update>
+</mapper>

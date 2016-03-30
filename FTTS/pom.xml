@@ -1,0 +1,149 @@
+﻿<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>FTSP_MultiModule</artifactId>
+    <groupId>com.fujitsu</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>FTTS</artifactId>
+  <packaging>war</packaging>
+  <name>FTTS Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+	<build>
+		<finalName>FTTS</finalName>
+		<!-- 项目文件输出路径 -->
+		<outputDirectory>src/main/webapp/WEB-INF/classes</outputDirectory> 
+		<plugins>
+			<!-- 本地自动部署 -->
+			<!-- <plugin> <groupId>org.codehaus.cargo</groupId> <artifactId>cargo-maven2-plugin</artifactId> 
+				<version>1.4.9</version> <configuration> <container> 容器的类型 <containerId>tomcat6x</containerId> 
+				容器的安装目录 <home>D:/apache-tomcat-6.0.32</home> </container> <configuration> 
+				部署模式 <type>standalone</type> 复制容器配置到什么位置，其中${project.build.directory}表示target目录 
+				<home>${project.build.directory}/tomcat6x</home> <properties> <cargo.servlet.port>8181</cargo.servlet.port> 
+				<cargo.servlet.uriencoding>utf-8</cargo.servlet.uriencoding> </properties> 
+				</configuration> </configuration> </plugin> -->
+
+			<!-- maven编译java文件的时提示非法字符解决方法 使用以下配置会导致默认的compile 和 test-compile无效 -->
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-compiler-plugin</artifactId> 
+				<version>3.1</version> <configuration> <source>1.6</source> <target>1.6</target> 
+				<encoding>UTF-8</encoding> <compilerId>csharp</compilerId> </configuration> 
+				<dependencies> <dependency> <groupId>org.codehaus.plexus</groupId> <artifactId>plexus-compiler-csharp</artifactId> 
+				<version>1.6</version> </dependency> </dependencies> </plugin> -->
+
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-core</artifactId>
+			<version>${struts.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-spring-plugin</artifactId>
+			<version>${struts.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-convention-plugin</artifactId>
+			<version>${struts.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts</groupId>
+			<artifactId>struts2-json-plugin</artifactId>
+			<version>${struts.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.struts.xwork</groupId>
+			<artifactId>xwork-core</artifactId>
+			<version>${struts.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.struts</groupId>
+		  <artifactId>struts2-config-browser-plugin</artifactId>
+		  <version>${struts.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-core</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk14</artifactId>
+			<version>1.38</version>
+		</dependency>
+		<dependency>
+			<groupId>bouncycastle</groupId>
+			<artifactId>bcprov-jdk14</artifactId>
+			<version>140</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+		  <groupId>jfree</groupId>
+		  <artifactId>jfreechart</artifactId>
+		  <version>1.0.13</version>
+		</dependency>
+		<dependency>
+		  <groupId>dom4j</groupId>
+		  <artifactId>dom4j</artifactId>
+		  <version>1.6.1</version>
+		</dependency>
+
+		<!-- *************************** 自定义jar包 ************************** -->
+		<dependency>
+			<groupId>com.fusioncharts</groupId>
+			<artifactId>fcexporter</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.fujitsu</groupId>
+		  <artifactId>CommonModule</artifactId>
+		  <version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.dwr</groupId>
+		  <artifactId>dwr</artifactId>
+		  <version>1.0.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.jxl</groupId>
+		  <artifactId>jxl</artifactId>
+		  <version>1.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.fujitsu</groupId>
+		  <artifactId>ResourceModule</artifactId>
+		  <version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>

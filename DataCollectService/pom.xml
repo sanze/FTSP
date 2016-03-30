@@ -1,0 +1,138 @@
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.fujitsu</groupId>
+		<artifactId>FTSP_MultiModule</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<artifactId>DataCollectService</artifactId>
+	<build>
+		<finalName>DataCollectService</finalName>
+	</build>
+	
+	<properties>
+		<kettle.version>5.4.0.1</kettle.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>pentaho.kettle</groupId>
+		  <artifactId>kettle-core</artifactId>
+		  <version>${kettle.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>pentaho.kettle</groupId>
+		  <artifactId>kettle-dbdialog</artifactId>
+		  <version>${kettle.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>pentaho.kettle</groupId>
+		  <artifactId>kettle-engine</artifactId>
+		  <version>${kettle.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>pentaho.kettle</groupId>
+		  <artifactId>kettle5-log4j-plugin</artifactId>
+		  <version>${kettle.version}</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>com.commons</groupId>
+		  <artifactId>commons-vfs</artifactId>
+		  <version>20100924</version>
+		  <classifier>pentaho</classifier>
+		</dependency>
+		
+		<dependency>
+		  <groupId>org.mozilla</groupId>
+		  <artifactId>rhino</artifactId>
+		  <version>1.7R4</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>pentaho.kettle</groupId>
+		  <artifactId>metastore</artifactId>
+		  <version>5.4.0.1-130</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>pentaho.kettle</groupId>
+		  <artifactId>edtFTPj</artifactId>
+		  <version>2.0.1</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>pentaho.kettle</groupId>
+		  <artifactId>janino</artifactId>
+		  <version>2.5.16</version>
+		</dependency>
+		
+		<dependency>
+          <groupId>pentaho.kettle</groupId>
+          <artifactId>jug-lgpl</artifactId>
+          <version>2.0.0</version>
+        </dependency>
+		
+		<dependency>
+		  <groupId>javax.mail</groupId>
+		  <artifactId>mail</artifactId>
+		  <version>1.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.9</version>
+		</dependency>
+		<!-- *************************** 自定义jar包 ************************** -->
+		<dependency>
+			<groupId>com.jxl</groupId>
+			<artifactId>jxl</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>ALU_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>FENGHUO_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>HW_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>LUCENT_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fujitsu</groupId>
+			<artifactId>ZTEU31_IDL</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.fujitsu</groupId>
+		  <artifactId>CommonModule</artifactId>
+		  <version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+	</dependencies>
+</project>

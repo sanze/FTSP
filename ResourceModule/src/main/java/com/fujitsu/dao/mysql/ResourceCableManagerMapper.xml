@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fujitsu.dao.mysql.ResourceCableManagerMapper">
+
+
+<select id="getCableList" resultType="hashmap">
+	select c.*,left(c.BUILD_TIME,10) as buildTime,
+	(select STATION_NAME from T_RESOURCE_STATION where RESOURCE_STATION_ID = A_END) as A_END_STATION_NAME,
+	(select STATION_NAME from T_RESOURCE_STATION where RESOURCE_STATION_ID = Z_END) as Z_END_STATION_NAME,  
+	(CASE WHEN s.CABLES_NO !='' THEN (CONCAT(s.DISPLAY_NAME,'(',s.CABLES_NO,')')) ELSE s.DISPLAY_NAME END) as CABLES,
+	CONCAT(s.DISPLAY_NAME,'[',c.CABLE_NAME,']') as CABLE_NAME_FTTS,c.RESOURCE_CABLE_ID as CABLE_ID
+	from T_RESOURCE_CABLE c left join T_RESOURCE_CABLES s on c.RESOURCE_CABLES_ID=s.RESOURCE_CABLES_ID
+	<where>
+	1=1
+		<if test="map.name != null and map.name != ''">
+			and s.DISPLAY_NAME like CONCAT('%','${map.name}','%' )
+		</if>
+		<if test="map.no != null and map.no != ''">
+			and s.CABLES_NO like CONCAT('%','${map.no}','%' )
+		</if>
+		<if test="map.cName != null and map.cName != ''">
+			and CABLE_NAME like CONCAT('%','${map.cName}','%' )
+		</if> 
+		<if test="map.cNo != null and map.cNo != ''"> 
+			and CABLE_NO like CONCAT('%','${map.cNo}','%' ) 
+		</if>
+		<if test="map.comboCover != null and map.comboCover != ''"> 
+			and CABLE_COVER = #{map.comboCover} 
+		</if> 
+		<if test="map.cableType !=null and map.cableType !=''"> 
+			and CABLE_TYPE like CONCAT('%','${map.cableType}','%' ) 
+		</if> 
+		<if test="map.comboType != null and map.comboType != ''"> 
+			and CABLE_FIBER_TYPE = #{map.comboType} 
+		</if> 
+		<if test="map.aStationId != null and map.aStationId >0"> 
+			and A_END = #{map.aStationId} 
+		</if>
+		<if test="map.zStationId != null and map.zStationId >0">  
+			and Z_END = #{map.zStationId} 
+		</if>
+		<if test="map.cablesId != null and map.cablesId >0">
+			and c.RESOURCE_CABLES_ID = #{map.cablesId}
+		</if>
+	</where>
+	<if test="limit>0">
+		LIMIT ${start}, ${limit}
+	</if>
+</select>
+
+<select id="getCableListCount" resultType="int">
+	select count(1) as total 
+	from T_RESOURCE_CABLE c left join T_RESOURCE_CABLES s on c.RESOURCE_CABLES_ID=s.RESOURCE_CABLES_ID
+	<where>
+	1=1
+		<if test="map.name != null and map.name != ''">
+			and s.DISPLAY_NAME like CONCAT('%','${map.name}','%' )
+		</if>
+		<if test="map.no != null and map.no != ''">
+			and s.CABLES_NO like CONCAT('%','${map.no}','%' )
+		</if>
+		<if test="map.cName != null and map.cName != ''">
+			and CABLE_NAME like CONCAT('%','${map.cName}','%' )
+		</if> 
+		<if test="map.cNo != null and map.cNo != ''"> 
+			and CABLE_NO like CONCAT('%','${map.cNo}','%' ) 
+		</if>
+		<if test="map.comboCover != null and map.comboCover != ''"> 
+			and CABLE_COVER = #{map.comboCover} 
+		</if> 
+		<if test="map.cableType !=null and map.cableType !=''"> 
+			and CABLE_TYPE like CONCAT('%','${map.cableType}','%' ) 
+		</if> 
+		<if test="map.comboType != null and map.comboType != ''"> 
+			and CABLE_FIBER_TYPE = #{map.comboType} 
+		</if> 
+		<if test="map.aStationId != null and map.aStationId >0"> 
+			and A_END = #{map.aStationId} 
+		</if>
+		<if test="map.zStationId != null and map.zStationId >0">  
+			and Z_END = #{map.zStationId} 
+		</if>
+		<if test="map.cablesId != null and map.cablesId >0">
+			and c.RESOURCE_CABLES_ID = #{map.cablesId}
+		</if>
+	</where>
+</select>
+
+<select id="getFiberListByCableId" resultType="hashmap">
+    SELECT * FROM t_resource_fiber
+    <if test="cableId!=null">
+        WHERE RESOURCE_CABLE_ID = #{cableId}
+    </if>
+    <if test="limit!=null and limit>0">
+        LIMIT ${start}, ${limit}
+    </if>
+</select>
+
+<select id="countFiberList" resultType="Integer">
+	select COUNT(1) from T_RESOURCE_FIBER f  
+	<if test="cableId!=null">
+		where f.RESOURCE_CABLE_ID = #{cableId}
+	</if>
+</select>  
+
+</mapper>
